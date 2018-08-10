@@ -18,9 +18,9 @@ EOF
 }
 
 
-resource "aws_iam_role_policy" "cst_security_inspector_role_policy" {
-  name = "${var.prefix}_CstSecurityInspectorRolePolicy"
-  role = "${aws_iam_role.cst_security_inspector_role.id}"
+resource "aws_iam_role_policy" "cst_security_agent_role_policy" {
+  name = "${var.prefix}_CstSecurityAgentRolePolicy"
+  role = "${aws_iam_role.cst_security_agent_lambda_execution_role.id}"
 
   policy = <<EOF
 {
@@ -30,7 +30,7 @@ resource "aws_iam_role_policy" "cst_security_inspector_role_policy" {
             "Sid": "Statement0",
             "Effect": "Allow",
             "Action": "sts:AssumeRole",
-            "Resource": "arn:aws:iam::*:role/CstSecurityInspectorRole"
+            "Resource": "arn:aws:iam::*:role/*CstSecurityInspectorRole"
         }
     ]
 }
