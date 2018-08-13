@@ -1,6 +1,7 @@
 import os
-from peewee import PostgresqlDatabase, Model
+from peewee import Model
 from peewee import CharField, TextField, DateField, BooleanField, IntegerField, ForeignKeyField
+from playhouse.postgres_ext import PostgresqlExtDatabase
 
 
 class DatabaseHandle():
@@ -25,7 +26,7 @@ class DatabaseHandle():
             db_user = self.get_env_var('CSW_USER')
             db_password = self.get_env_var('CSW_PASSWORD')
 
-            self.handle = PostgresqlDatabase(
+            self.handle = PostgresqlExtDatabase(
                 'csw',
                 user=db_user,
                 password=db_password,
@@ -121,9 +122,9 @@ CREATE TABLE cloud_security_watch.csw_subscription (
 
 
 class AccountSubscription(BaseModel):
-    account_id = IntegerField(),
-    account_name = CharField(),
-    product_team_id = ForeignKeyField(ProductTeam, backref='product_team'),
+    account_id = IntegerField()
+    account_name = CharField()
+    product_team_id = ForeignKeyField(ProductTeam, backref='product_team')
     active = BooleanField()
 
     class Meta:
@@ -145,7 +146,7 @@ CREATE TABLE cloud_security_watch.csw_metric_provider (
 
 
 class MetricProvider(BaseModel):
-    provider_name = CharField(),
+    provider_name = CharField()
     invoke_class_name = CharField()
 
     class Meta:
@@ -168,9 +169,9 @@ CREATE TABLE cloud_security_watch.csw_metric (
 
 
 class Metric(BaseModel):
-    metric_name = CharField(),
-    metric_provider_id = ForeignKeyField(MetricProvider, backref='metric_provider'),
-    invoke_class_get_data_method = CharField(),
+    metric_name = CharField()
+    metric_provider_id = ForeignKeyField(MetricProvider, backref='metric_provider')
+    invoke_class_get_data_method = CharField()
     evaluation_lambda_function = CharField()
 
     class Meta:
@@ -196,8 +197,8 @@ CREATE TABLE cloud_security_watch.csw_metric_params (
 
 
 class MetricParams(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric'),
-    param_name = CharField(),
+    metric_id = ForeignKeyField(Metric, backref='metric')
+    param_name = CharField()
     param_value = CharField()
 
     class Meta:
@@ -217,7 +218,7 @@ CREATE TABLE cloud_security_watch.csw_status (
 
 
 class Status(BaseModel):
-    status_name = CharField(),
+    status_name = CharField()
     description = TextField()
 
     class Meta:
@@ -239,7 +240,7 @@ CREATE TABLE cloud_security_watch.csw_severity (
 
 
 class Severity(BaseModel):
-    severity_name = CharField(),
+    severity_name = CharField()
     description = TextField()
 
     class Meta:
@@ -265,8 +266,8 @@ CREATE TABLE cloud_security_watch.csw_notification_method (
 
 # This is a stub that will need to be expanded to enable reporting to things like ZenDesk
 class NotificationMethod(BaseModel):
-    system_name = CharField(),
-    description = TextField(),
+    system_name = CharField()
+    description = TextField()
     invoke_class_name = CharField()
 
     class Meta:
@@ -293,11 +294,11 @@ CREATE TABLE cloud_security_watch.csw_metric_status (
 
 
 class MetricStatus(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric'),
-    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription'),
-    resource_arn = CharField(),
-    status_id = ForeignKeyField(Status, backref='status'),
-    date_last_checked = DateField(),
+    metric_id = ForeignKeyField(Metric, backref='metric')
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription')
+    resource_arn = CharField()
+    status_id = ForeignKeyField(Status, backref='status')
+    date_last_checked = DateField()
     date_last_changed = DateField()
 
     class Meta:
@@ -323,15 +324,15 @@ CREATE TABLE cloud_security_watch.csw_metric_status_risk (
 
 
 class MetricStatusRisk(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric'),
-    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription'),
-    resource_arn = CharField(),
-    date_first_identifed = DateField(),
-    date_last_notifier = DateField(),
-    notification_method = ForeignKeyField(NotificationMethod, backref='notification_method'),
-    date_of_review = DateField(),
-    accepted_risk = BooleanField(),
-    analyst_assessed = BooleanField(),
+    metric_id = ForeignKeyField(Metric, backref='metric')
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription')
+    resource_arn = CharField()
+    date_first_identifed = DateField()
+    date_last_notifier = DateField()
+    notification_method = ForeignKeyField(NotificationMethod, backref='notification_method')
+    date_of_review = DateField()
+    accepted_risk = BooleanField()
+    analyst_assessed = BooleanField()
     assessment_severity = ForeignKeyField(Severity, backref='severity')
 
     class Meta:
