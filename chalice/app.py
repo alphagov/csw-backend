@@ -2,7 +2,7 @@ from chalice import Chalice
 from chalicelib.models import DatabaseHandle
 
 
-app = Chalice(app_name='cyber-security-watch')
+app = Chalice(app_name='cloud-security-watch')
 
 
 @app.route('/')
