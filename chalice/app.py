@@ -33,6 +33,29 @@ def database_create_tables(event, context):
         response = "Table create failed"
     return response
 
+
+@app.lambda_function()
+def database_create_item(event, context):
+
+    db = DatabaseHandle()
+
+    item = db.create_item(event)
+    data = item.serialize()
+
+    return data
+
+
+@app.lambda_function()
+def database_get_item(event, context):
+
+    db = DatabaseHandle()
+
+    item = db.get_item(event)
+    data = item.serialize()
+
+    return data
+
+
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
 #

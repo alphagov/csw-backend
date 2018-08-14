@@ -2,6 +2,7 @@ import os
 from peewee import Model
 from peewee import CharField, TextField, DateField, BooleanField, IntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
+from playhouse.shortcuts import model_to_dict
 
 
 class DatabaseHandle():
@@ -63,6 +64,26 @@ class DatabaseHandle():
 
         return self.models[model_name]
 
+    def create_item(self, event):
+
+        db = self.get_handle()
+        db.connect()
+        model = self.get_model(event['Model'])
+        item = model.create(**event['Params'])
+        db.close()
+
+        return item
+
+    def get_item(self, event):
+
+        db = self.get_handle()
+        db.connect()
+        model = self.get_model(event['Model'])
+        item = model.get_by_id(event['Id'])
+        db.close()
+
+        return item
+
 
 dbh = DatabaseHandle()
 db = dbh.get_handle()
@@ -92,6 +113,11 @@ CREATE TABLE cloud_security_watch.csw_product_team (
 
 
 class BaseModel(Model):
+
+    def serialize(self):
+        # front end does not need user ID here
+        data = model_to_dict(self)
+        return data
 
     class Meta:
         database = db
