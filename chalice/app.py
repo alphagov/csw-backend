@@ -17,15 +17,19 @@ def database_create_tables(event, context):
 
     db = DatabaseHandle()
 
-    table_list = []
+    try:
+        table_list = []
 
-    # created = True
-    for table_name in event['Tables']:
-        model = db.get_model(table_name)
-        table_list.append(model)
-        # model.create_table(safe=True)
+        # created = True
+        for table_name in event['Tables']:
+            model = db.get_model(table_name)
+            table_list.append(model)
+            # model.create_table(safe=True)
 
-    created = db.create_tables(table_list)
+        created = db.create_tables(table_list)
+    except Exception:
+        created = false
+        db.rollback()
 
     if created:
         response = ", ".join(event['Tables'])
@@ -39,8 +43,11 @@ def database_create_item(event, context):
 
     db = DatabaseHandle()
 
-    item = db.create_item(event)
-    data = item.serialize()
+    try:
+        item = db.create_item(event)
+        data = item.serialize()
+    except Exception: 
+        db.rollback()
 
     return data
 
@@ -50,11 +57,26 @@ def database_get_item(event, context):
 
     db = DatabaseHandle()
 
-    item = db.get_item(event)
-    data = item.serialize()
+    try: 
+        item = db.get_item(event)
+        data = item.serialize()
+    except Exception:
+        db.rollback()
 
     return data
 
+@app.lambda_function() 
+def database_run(event, context):
+
+    db = DatabaseHandle()
+
+    try: 
+        db.set_credentials(event['User'],event['Password'])
+        status = db.execute_commands(event['Commands'])
+    except Exception: 
+        status = False
+
+    return status    
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
