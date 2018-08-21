@@ -1,0 +1,14 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+<div style="float:right;">
+  <p class="govuk-body-s" style="color:white">Logged in as: {{ email }}</p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    <p class="govuk-body-s" style='font-size:smaller;color:#ccc;word-break: break-all;'>{{ token }}</p>
+  </main>
+</div>	
+{% endblock %}
