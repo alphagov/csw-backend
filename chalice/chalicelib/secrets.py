@@ -1,4 +1,5 @@
 import boto3
+import json
 
 
 class Secrets:
@@ -12,3 +13,7 @@ class Secrets:
         )
 
         return response['SecretString']
+
+    def parse_escaped_json_secret(self, value):
+        parsed = json.loads(value.replace('\\', ''))
+        return parsed
