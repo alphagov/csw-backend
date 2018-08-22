@@ -1,6 +1,6 @@
 import os
 from peewee import Model
-from peewee import CharField, TextField, DateField, BooleanField, IntegerField, BigIntegerField, ForeignKeyField
+from peewee import CharField, TextField, DateField, BooleanField, BigIntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
 
@@ -37,30 +37,29 @@ class DatabaseHandle():
 
         return self.handle
 
-    def set_credentials(user, password):
+    def set_credentials(self, user, password):
 
         os.environ['CSW_USER'] = user
         os.environ['CSW_PASSWORD'] = password
 
-    def execute_commands(commands):
+    def execute_commands(self, commands):
 
         db = self.get_handle()
         try:
-            db.connect();
+            db.connect()
             for command in commands:
                 db.execute_sql(command)
 
-            db.close()
-        except Exception: 
+        except Exception:
             db.rollback()
-            db.close()
             status = False
 
+        db.close()
         return status
 
     def create_tables(self, tables):
 
-        db = self.get_handle()    
+        db = self.get_handle()
         try:
             db.connect()
 
@@ -69,14 +68,13 @@ class DatabaseHandle():
                 safe=True
             )
 
-            db.close()
-
             status = True
 
         except Exception as e:
             db.rollback()
-            db.close()
             status = False
+
+        db.close()
 
         return status
 
