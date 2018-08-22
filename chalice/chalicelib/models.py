@@ -1,6 +1,6 @@
 import os
 from peewee import Model
-from peewee import CharField, TextField, DateField, BooleanField, IntegerField, ForeignKeyField
+from peewee import CharField, TextField, DateField, BooleanField, IntegerField, BigIntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
 
@@ -37,10 +37,31 @@ class DatabaseHandle():
 
         return self.handle
 
+    def set_credentials(user, password):
+
+        os.environ['CSW_USER'] = user
+        os.environ['CSW_PASSWORD'] = password
+
+    def execute_commands(commands):
+
+        db = self.get_handle()
+        try:
+            db.connect();
+            for command in commands:
+                db.execute_sql(command)
+
+            db.close()
+        except Exception: 
+            db.rollback()
+            db.close()
+            status = False
+
+        return status
+
     def create_tables(self, tables):
 
+        db = self.get_handle()    
         try:
-            db = self.get_handle()
             db.connect()
 
             db.create_tables(
@@ -53,6 +74,8 @@ class DatabaseHandle():
             status = True
 
         except Exception as e:
+            db.rollback()
+            db.close()
             status = False
 
         return status
@@ -148,7 +171,7 @@ CREATE TABLE cloud_security_watch.csw_subscription (
 
 
 class AccountSubscription(BaseModel):
-    account_id = IntegerField()
+    account_id = BigIntegerField()
     account_name = CharField()
     product_team_id = ForeignKeyField(ProductTeam, backref='product_team')
     active = BooleanField()
