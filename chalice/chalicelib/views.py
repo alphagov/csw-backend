@@ -3,7 +3,6 @@ import os
 from jinja2 import Environment as Jinja2Environment, FileSystemLoader, select_autoescape
 # from webassets import Environment as AssetsEnvironment
 from webassets.ext.jinja2 import AssetsExtension
-from chalicelib.auth import AuthHandler
 
 # assets_env = AssetsEnvironment('./assets', '/assets')
 # env.assets_environment = assets_env
@@ -11,9 +10,9 @@ from chalicelib.auth import AuthHandler
 
 class TemplateHandler:
 
-    def __init__(self):
+    def __init__(self, auth):
 
-        self.auth = None
+        self.auth = auth
         self.base_dir = os.getcwd()
         self.template_dir = os.path.join(self.base_dir, 'chalicelib', 'templates')
         self.govuk_dir = os.path.join(self.template_dir, 'govuk-frontend')
@@ -54,14 +53,12 @@ class TemplateHandler:
 
     def get_auth_handler(self):
 
-        if self.auth is None:
-            self.auth = AuthHandler()
-
         return self.auth
 
     def render_authorized_route_template(self, route, req, data={}):
 
         try:
+
             headers = {
                 "Content-Type": "text/html"
             }

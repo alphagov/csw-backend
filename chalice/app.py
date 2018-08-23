@@ -1,16 +1,32 @@
-import magic
 import os
 # from urllib.parse import urlparse, parse_qs
 
 from chalice import Chalice, Response, BadRequestError
 
 from chalicelib.models import DatabaseHandle
-# from chalicelib.auth import AuthHandler
-from chalicelib.views import TemplateHandler
+#from chalicelib.views import TemplateHandler
+from chalicelib.auth import AuthHandler
 
 
 app = Chalice(app_name='cloud-security-watch')
-# app.auth_handler = AuthHandler()
+app.auth = AuthHandler()
+
+
+@app.route('/')
+def index():
+
+    response = {
+        "body": "Test without auth and templates",
+        "headers": {
+            "Content-type": "text/html"
+        }
+    }
+
+    #templates = TemplateHandler(app.auth)
+    #request = app.current_request
+    #response = templates.render_authorized_route_template('/', request)
+
+    return Response(**response)
 
 
 # native lambda admin function to be invoked
@@ -83,16 +99,6 @@ def database_run(event, context):
     return status
 
 
-@app.route('/')
-def index():
-
-    templates = TemplateHandler()
-    request = app.current_request
-    response = templates.render_authorized_route_template('/', request)
-
-    return Response(**response)
-
-
 @app.route('/assets/{proxy+}')
 def asset_render():
     try:
@@ -100,24 +106,24 @@ def asset_render():
         proxy = req.uri_params['proxy']
 
         binary_types = [
-            'application/octet-stream',
-            'image/webp',
-            'image/apng',
-            'image/png',
-            'image/svg',
-            'image/jpeg',
-            'image/x-icon',
-            'image/vnd.microsoft.icon',
-            'application/x-font-woff',
-            'font/woff',
-            'font/woff2',
-            'font/eot'
+            "application/octet-stream",
+            "image/webp",
+            "image/apng",
+            "image/png",
+            "image/svg",
+            "image/jpeg",
+            "image/x-icon",
+            "image/vnd.microsoft.icon",
+            "application/x-font-woff",
+            "font/woff",
+            "font/woff2",
+            "font/eot"
         ]
 
         ascii_types = [
-            'text/plain',
-            'text/css',
-            'text/javascript'
+            "text/plain",
+            "text/css",
+            "text/javascript"
         ]
 
         true_path = os.path.join(os.path.dirname(__file__), 'chalicelib', 'templates', proxy)
@@ -146,16 +152,33 @@ def asset_render():
 
 
 def get_mime_type(file):
-    mime = magic.Magic(mime=True)
-    mime_type = mime.from_file(file)
+    # I've removed the python-magic library because the
+    # it fails to be installed in the chalice deploy
+    # and returns the wrong type for a number of common types
     file_name, ext = os.path.splitext(file)
 
-    if ext == '.js':
-        mime_type = 'text/javascript'
-    elif ext == '.css':
-        mime_type = 'text/css'
-    elif ext == '.png':
-        mime_type = 'image/png'
+    known_types = {
+        ".html": "text/html",
+        ".js": "text/javascript",
+        ".css": "text/css",
+        ".svg": "image/svg",
+        ".png": "image/png",
+        ".jpeg": "image/jpeg",
+        ".jpg": "image/jpeg",
+        ".ico": "image/x-icon",
+        ".woff": "font/woff",
+        ".woff2": "font/woff",
+        ".eot": "font/eot",
+        ".txt": "text/plain",
+        ".md": "text/plain"
+    }
+
+    default_type = "application/octet-stream"
+
+    if ext in known_types:
+        mime_type = known_types[ext]
+    else:
+        mime_type = default_type
 
     return mime_type
 
