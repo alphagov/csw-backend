@@ -100,8 +100,12 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# PyCharm
+.idea/
+
 # mypy
 .mypy_cache/
 
 # chalice config 
 .chalice
+environments/
