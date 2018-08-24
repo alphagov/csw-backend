@@ -105,3 +105,8 @@ venv.bak/
 
 # chalice config 
 .chalice
+
+# environments
+environments/*
+!environments/example
+!environments/example/*
