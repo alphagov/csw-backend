@@ -432,6 +432,6 @@ class ResourceRiskAssessment(BaseModel):
 dbh.add_model("ResourceRiskAssessment", ResourceRiskAssessment)
 
 
-'''
+"""
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ?
-'''
+"""
