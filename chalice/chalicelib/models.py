@@ -177,6 +177,27 @@ dbh.add_model("AccountSubscription", AccountSubscription)
 # When an audit is triggered an audit record is created which
 # counts each criteria as it is measured so that we know
 # when an audit is complete
+class ProductTeamMember(BaseModel):
+    name = CharField()
+    email = CharField()
+    notification_enabled = BooleanField()
+    product_team_id = ForeignKeyField(ProductTeam, backref='product_team')
+
+    class Meta:
+        table_name = "product_team_member"
+
+
+dbh.add_model("ProductTeamMember", ProductTeamMember)
+
+'''
+-- eg Trusted Advisor, Config ...
+-- invoke_class_name like GdsSupportClient for Trusted Advisor
+CREATE TABLE cloud_security_watch.csw_metric_provider (
+    id SERIAL,
+    provider_name VARCHAR(100) NOT NULL,
+    invoke_class_name VARCHAR(100) NOT NULL
+);
+'''
 
 # There is a bit of overkill in terms of storing numbers which
 # makes it easy to track progress when we're working with lambdas
@@ -192,6 +213,8 @@ dbh.add_model("AccountSubscription", AccountSubscription)
 
 # a successful audit should have
 # active_criteria = criteria_analysed
+
+
 class AccountAudit(BaseModel):
     account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_audits')
     date_started = DateTimeField(default=datetime.now)
@@ -208,6 +231,7 @@ class AccountAudit(BaseModel):
 
 
 dbh.add_model("AccountAudit", AccountAudit)
+
 
 class AccountLatestAudit(BaseModel):
     account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_latest_audit')
