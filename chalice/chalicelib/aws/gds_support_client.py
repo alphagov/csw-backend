@@ -2,7 +2,7 @@
 # extends GdsAwsClient
 # implements aws support endpoint queries for Trusted Advisor data
 
-from aws.gds_aws_client import GdsAwsClient
+from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
 class GdsSupportClient(GdsAwsClient):

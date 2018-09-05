@@ -1,7 +1,7 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
-from aws.gds_aws_client import GdsAwsClient
+from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
 class GdsEc2Client(GdsAwsClient):

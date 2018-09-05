@@ -13,6 +13,8 @@ class GdsAwsClient:
     sessions = dict()
 
     # retrieve default key and secret from ~/.aws/credentials file
+    # this should not be needed since the lambda aws credentials are provided
+    # as env vars to the lambda function based on the execution role
     def load_credentials(self):
 
         # implement ini file parser for user home configuration file
@@ -124,7 +126,7 @@ class GdsAwsClient:
         return self.resources[resource_name]
 
     # issue the sts assume-role command and store the returned credentials
-    def assume_role(self, account, role, email="", token=""):
+    def assume_role(self, account, role, is_lambda=True, email="", token=""):
 
         '''
         Example response
@@ -148,15 +150,27 @@ class GdsAwsClient:
             role_arn = f"arn:aws:iam::{account}:role/{role}"
             print(f"Assume role: {role_arn}")
 
-            mfa_serial = f"arn:aws:iam::622626885786:mfa/{email}"
             session_name = self.get_session_name(account, role)
 
-            assumed_credentials = sts.assume_role(
-                RoleSessionName=session_name,
-                RoleArn=role_arn,
-                SerialNumber=mfa_serial,
-                TokenCode=token
-            )
+            # if in a lambda context the right to assume the role
+            # is granted to the lambda function so no further
+            # authentication is required
+            if is_lambda:
+                assumed_credentials = sts.assume_role(
+                    RoleSessionName=session_name,
+                    RoleArn=role_arn
+                )
+
+            # in a command line context the MFA serial and token
+            # are used to authenticate the user credentials
+            else:
+                mfa_serial = f"arn:aws:iam::622626885786:mfa/{email}"
+                assumed_credentials = sts.assume_role(
+                    RoleSessionName=session_name,
+                    RoleArn=role_arn,
+                    SerialNumber=mfa_serial,
+                    TokenCode=token
+                )
 
             role_assumed = 'Credentials' in assumed_credentials.keys()
 
