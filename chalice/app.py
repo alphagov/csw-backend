@@ -5,27 +5,108 @@ from chalice import Chalice, Response, BadRequestError
 
 from chalicelib.models import DatabaseHandle
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
-#from chalicelib.views import TemplateHandler
+from chalicelib.views import TemplateHandler
 from chalicelib.auth import AuthHandler
+from datetime import datetime
 
 
 app = Chalice(app_name='cloud-security-watch')
 app.auth = AuthHandler()
 
 
+dummy_data = {
+    "email": "dan.jones@digital.cabinet-office.gov.uk",
+    "audits": [
+        {
+            "email": "dan.jones@digital.cabinet-office.gov.uk",
+            "id": 1,
+            "account_subscription": {
+                "account_id": 779799343306,
+                "account_name": "gds-digital-security"
+            },
+            "date_started": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "date_updated": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "date_completed": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "active_criteria": 5,
+            "criteria_processed": 5,
+            "criteria_analysed": 2,
+            "criteria_failed": 3,
+            "issues_found": 2,
+            "criteria": [
+                {
+                    "id": 1,
+                    "name": "SSH port ingress too open",
+                    "status": "fail",
+                    "issues": 1,
+                    "resources": [
+                        {
+                            "arn": "arn-1",
+                            "status": "pass",
+                            "issues": "",
+                            "advice": ""
+                        },
+                        {
+                            "arn": "arn-2",
+                            "status": "fail",
+                            "issues": "",
+                            "advice": ""
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Security groups with open egress",
+                    "status": "fail",
+                    "issues": 1,
+                    "resources": [
+                        {
+                            "arn": "arn-1",
+                            "status": "pass",
+                            "issues": "",
+                            "advice": ""
+                        },
+                        {
+                            "arn": "arn-2",
+                            "status": "fail",
+                            "issues": "The security group can connect outbound to anywhere",
+                            "advice": "You can remediate this by narrowing the ports or ip ranges."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+
 @app.route('/')
 def index():
 
-    response = {
-        "body": "Test without auth and templates",
-        "headers": {
-            "Content-type": "text/html"
-        }
-    }
+    templates = TemplateHandler(app.auth)
+    request = app.current_request
+    response = templates.render_authorized_route_template('/', request, {
+        "email": "dan.jones@digital.cabinet-office.gov.uk"
+    })
 
-    #templates = TemplateHandler(app.auth)
-    #request = app.current_request
-    #response = templates.render_authorized_route_template('/', request)
+    return Response(**response)
+
+
+@app.route('/audit')
+def audit_list():
+
+    templates = TemplateHandler(app.auth)
+    request = app.current_request
+    response = templates.render_authorized_route_template('/audit', request, dummy_data)
+
+    return Response(**response)
+
+
+@app.route('/audit/{id}')
+def audit_report(id):
+
+    templates = TemplateHandler(app.auth)
+    request = app.current_request
+    response = templates.render_authorized_route_template('/audit/{id}', request, dummy_data["audits"][0])
 
     return Response(**response)
 
@@ -131,12 +212,20 @@ def audit_account(event, context):
     return status
 
 
+@app.route('/wildcard/{relative_path+}')
+def wildcard_test():
+    return app.current_request.uri_params['relative_path']
+
 
 @app.route('/assets/{proxy+}')
 def asset_render():
+
     try:
         req = app.current_request
+
         proxy = req.uri_params['proxy']
+
+        print(proxy)
 
         binary_types = [
             "application/octet-stream",
@@ -159,7 +248,8 @@ def asset_render():
             "text/javascript"
         ]
 
-        true_path = os.path.join(os.path.dirname(__file__), 'chalicelib', 'templates', proxy)
+        true_path = os.path.join(os.path.dirname(__file__), 'chalicelib', 'assets', proxy)
+        print(true_path)
 
         if ".." in proxy:
             raise Exception(f"No back (..) navigating: {proxy}")
@@ -181,6 +271,7 @@ def asset_render():
             headers={"Content-Type": mime_type}
         )
     except Exception as e:
+        print(str(e))
         raise BadRequestError(str(e))
 
 
@@ -214,6 +305,7 @@ def get_mime_type(file):
         mime_type = default_type
 
     return mime_type
+
 
 
 # The view function above will return {"hello": "world"}

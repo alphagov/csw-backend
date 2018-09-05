@@ -31,6 +31,7 @@ class AuthHandler:
         ]
 
         self.user_info = "https://www.googleapis.com/oauth2/v2/userinfo?fields=email"
+        self.cookie = None
         self.logged_in = False
         self.login_data = {}
 
@@ -102,7 +103,7 @@ class AuthHandler:
 
         cookie = cookies.SimpleCookie()
         cookie["session"] = token
-        expiration = datetime.now() + self.cookie_expiration
+        expiration = datetime.utcnow() + self.cookie_expiration
         cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
         cookie["session"]["path"] = "/"
 

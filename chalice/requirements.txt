@@ -1,8 +1,9 @@
 boto3==1.7.59
 psycopg2-binary==2.7.5
 peewee==3.6.4
+httplib2==0.11.3
 google-auth==1.5.1
 google-auth-oauthlib==0.2.0
 jinja2==2.10
 webassets==0.12.1
-PyJWT==1.6.1
+jwt==0.5.4

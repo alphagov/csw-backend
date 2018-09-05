@@ -29,7 +29,9 @@ class TemplateHandler:
         self.logged_in = False
         self.login_data = {}
         self.route_templates = {
-            "/": "logged_in.html"
+            "/": "logged_in.html",
+            "/audit": "audit_list.html",
+            "/audit/{id}": "audit.html"
         }
 
     def get_route_template_file(self, route):
@@ -55,6 +57,9 @@ class TemplateHandler:
 
         return self.auth
 
+    def render_parameterized_message(self, message, params):
+        return message.format(*params)
+
     def render_authorized_route_template(self, route, req, data={}):
 
         try:
@@ -67,11 +72,15 @@ class TemplateHandler:
 
             self.request_url = auth.get_request_url(req)
 
-            self.auth_flow = auth.get_auth_flow(self.request_url + route)
+            if self.request_url.find('localhost') != -1:
 
-            login_url = self.auth_flow.authorization_url()
+                self.auth_flow = auth.get_auth_flow(self.request_url + route)
 
-            logged_in = self.auth.try_login(req)
+                login_url = self.auth_flow.authorization_url()
+
+                logged_in = self.auth.try_login(req)
+            else:
+                logged_in = True
 
             # if there is a user then show the requested route
             # TODO add permission control
@@ -79,13 +88,11 @@ class TemplateHandler:
 
                 template_file = self.get_route_template_file(route)
 
-                login_data = self.get_login_data()
-
-                headers["Set-Cookie"] = self.auth.cookie
-
-                data["email"] = login_data["email"]
-                data["token"] = login_data["token"]
-                data["asset_path"] = login_data["/app/assets"]
+                if self.auth.cookie is not None:
+                    login_data = self.auth.get_login_data()
+                    data["email"] = login_data["email"]
+                    data["token"] = login_data["token"]
+                    headers["Set-Cookie"] = self.auth.cookie
 
             else:
 
@@ -95,7 +102,8 @@ class TemplateHandler:
                 print(login_url)
 
                 data["login_url"] = login_url
-                data["asset_path"] = "/app/assets"
+
+            data["asset_path"] = "/assets"
 
             response_body = self.render_template(template_file, data)
         except Exception as err:

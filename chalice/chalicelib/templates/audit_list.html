@@ -1,0 +1,54 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+<div style="float:right;">
+  <p class="govuk-body-s" style="color:white">Logged in as: {{ email }}</p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="/">Home</a>
+        </li>
+      </ol>
+    </div>
+
+    <div>
+      <h2>Audits</h2>
+      <table class="govuk-table">
+        <thead class="govuk-table__header">
+          <tr>
+            <th>ID</th>
+            <th>Account ID</th>
+            <th>Account Name</th>
+            <th>Started</th>
+            <th>Completed</th>
+            <th>Active Criteria</th>
+            <th>Criteria Analysed</th>
+            <th>Criteria Failed</th>
+            <th>Issues Identified</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for audit in audits %}
+          <tr class="govuk-table__cell">
+            <td class="govuk-table__cell--numeric"><a href="/audit/{{ audit.id }}">{{ audit.id }}</a></td>
+            <td class="govuk-table__cell--numeric">{{ audit.account_subscription.account_id }}</td>
+            <td>{{ audit.account_subscription.account_name }}</td>
+            <td>{{ audit.date_started }}</td>
+            <td>{{ audit.date_completed }}</td>
+            <td>{{ audit.active_criteria }}</td>
+            <td>{{ audit.criteria_analysed }}</td>
+            <td>{{ audit.criteria_failed }}</td>
+            <td>{{ audit.issues_found }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

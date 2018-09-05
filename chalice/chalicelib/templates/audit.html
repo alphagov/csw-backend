@@ -1,0 +1,74 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+<div style="float:right;">
+  <p class="govuk-body-s" style="color:white">Logged in as: {{ email }}</p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="/">Home</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="/audit">Audit history</a>
+        </li>
+      </ol>
+    </div>
+
+    <div>
+        <h2>Criteria attempted</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Analysed</th>
+                    <th>Passed</th>
+                    <th>Issues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for criterion in criteria %}
+                    <tr>
+                        <td>{{ criterion.id }}</td>
+                        <td>{{ criterion.name }}</td>
+                        <td>{{ criterion.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <div>
+       <h2>Resources analysed</h2>
+       <table>
+            <thead>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Resource</th>
+                    <th>Pass/Fail</th>
+                    <th>What does it mean?</th>
+                    <th>How do I fix it?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for criterion in criteria %}
+                    {% for resource in criterion.resources %}
+                    <tr>
+                        <td>{{ criterion.name }}</td>
+                        <td>{{ resource.arn }}</td>
+                        <td>{{ resource.status }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  </main>
+</div>
+{% endblock %}
