@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -113,3 +112,9 @@ venv.bak/
 environments/*
 !environments/example
 !environments/example/*
+
+# npm
+build/node_modules
+
+# chalice package compiles
+build/packages

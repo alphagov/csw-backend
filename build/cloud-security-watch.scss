@@ -3,4 +3,4 @@ $govuk-global-styles: true;
 $govuk-assets-path: "/app/assets/govuk-frontend/assets/";
 
 
-@import "govuk-frontend/all";
+@import "node_modules/govuk-frontend/all";
