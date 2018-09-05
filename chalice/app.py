@@ -1,5 +1,6 @@
 from chalice import Chalice
 from chalicelib.models import DatabaseHandle
+from chalicelib.aws.gds_sqs_client import GdsSqsClient
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -15,39 +16,40 @@ def index():
 @app.lambda_function()
 def database_create_tables(event, context):
 
-    db = DatabaseHandle()
+    dbh = DatabaseHandle()
 
     try:
         table_list = []
+        message = ""
 
         # created = True
         for table_name in event['Tables']:
-            model = db.get_model(table_name)
+            model = dbh.get_model(table_name)
             table_list.append(model)
             # model.create_table(safe=True)
 
-        created = db.create_tables(table_list)
-    except Exception:
+        created = dbh.create_tables(table_list)
+    except Exception as err:
         created = False
-        db.rollback()
+        message = str(err)
 
     if created:
         response = ", ".join(event['Tables'])
     else:
-        response = "Table create failed"
+        response = f"Table create failed: {message}"
     return response
 
 
 @app.lambda_function()
 def database_create_item(event, context):
 
-    db = DatabaseHandle()
+    dbh = DatabaseHandle()
 
     try:
-        item = db.create_item(event)
+        item = dbh.create_item(event)
         data = item.serialize()
     except Exception:
-        db.rollback()
+        data = None
 
     return data
 
@@ -55,13 +57,13 @@ def database_create_item(event, context):
 @app.lambda_function()
 def database_get_item(event, context):
 
-    db = DatabaseHandle()
+    dbh = DatabaseHandle()
 
     try:
-        item = db.get_item(event)
+        item = dbh.get_item(event)
         data = item.serialize()
     except Exception:
-        db.rollback()
+        data = None
 
     return data
 
@@ -69,15 +71,46 @@ def database_get_item(event, context):
 @app.lambda_function()
 def database_run(event, context):
 
-    db = DatabaseHandle()
+    dbh = DatabaseHandle()
 
     try:
-        db.set_credentials(event['User'], event['Password'])
-        status = db.execute_commands(event['Commands'])
+        dbh.set_credentials(event['User'], event['Password'])
+        status = dbh.execute_commands(event['Commands'])
     except Exception:
         status = False
 
     return status
+
+@app.lambda_function()
+def audit_account(event, context):
+
+    status = False
+    dbh = DatabaseHandle()
+
+    try:
+        AccountSubscription = dbh.get_model("AccountSubscription")
+        AccountAudit = dbh.get_model("AccountAudit")
+        active_accounts = AccountSubscription.select().where(AccountSubscription.active == True)
+        #.order_by(User.username)
+
+        for account in active_accounts:
+            # print(tweet.user.username, '->', tweet.content)
+
+            # create a new empty account audit record
+            AccountAudit.create(
+                account_subscription_id = account.AccountSubscription
+            )
+
+            # create SQS message
+            sqs = GdsSqsClient()
+            sqs.get_default_client('SQS')
+
+        status = True
+    except Exception as err:
+        status = False
+
+    return status
+
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
