@@ -1,2 +1,6 @@
 .chalice/deployments/
 .chalice/venv/
+chalicelib/templates/govuk-frontend/
+chalicelib/templates/assets/
+chalicelib/templates/*.css
+node_modules/

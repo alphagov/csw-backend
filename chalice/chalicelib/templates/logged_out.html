@@ -1,0 +1,15 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+<div style="float:right;">
+  <p class="govuk-body-s"><a href="{{ login_url }}">Login</a></p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    
+    <p class="govuk-body-s">You are not logged in. You must <a href="{{ login_url }}">login</a> to continue</p>
+  </main>
+</div>	
+{% endblock %}
