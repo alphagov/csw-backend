@@ -1,8 +1,9 @@
 import os
 from peewee import Model
-from peewee import CharField, TextField, DateField, BooleanField, BigIntegerField, ForeignKeyField
+from peewee import CharField, TextField, DateField, DateTimeField, BooleanField, BigIntegerField, IntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
+from datetime import datetime
 
 
 class DatabaseHandle():
@@ -71,8 +72,10 @@ class DatabaseHandle():
             status = True
 
         except Exception as e:
-            db.rollback()
+            if db is not None:
+                db.rollback()
             status = False
+            print(str(e))
 
         db.close()
 
@@ -179,6 +182,41 @@ class AccountSubscription(BaseModel):
 
 
 dbh.add_model("AccountSubscription", AccountSubscription)
+
+
+# When an audit is triggered an audit record is created which
+# counts each criteria as it is measured so that we know
+# when an audit is complete
+
+# There is a bit of overkill in terms of storing numbers which
+# makes it easy to track progress when we're working with lambdas
+
+# active_criteria = the criteria present at the start of the audit
+# criteria_processed = we've tried to audit that criterion
+# criteria_analysed = we audited it successfully
+# criteria_failed = we were unable to get the data or complete the audit
+
+# a completed audit should have
+# active_criteria = criteria_processed
+# = (criteria_analysed + criteria_failed)
+
+# a successful audit should have
+# active_criteria = criteria_analysed
+class AccountAudit(BaseModel):
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_subscription')
+    date_started = DateTimeField(default=datetime.now)
+    date_updated = DateTimeField(default=datetime.now)
+    date_completed = DateTimeField(default=datetime.now)
+    active_criteria = IntegerField(default=0)
+    criteria_processed = IntegerField(default=0)
+    criteria_analysed = IntegerField(default=0)
+    criteria_failed = IntegerField(default=0)
+    issues_found = IntegerField(default=0)
+
+    class Meta:
+        table_name = "account_audit"
+
+dbh.add_model("AccountAudit", AccountAudit)
 
 
 '''
