@@ -1,8 +1,6 @@
 # GdsAwsClient
 # Manage sts assume-role calls and temporary credentials
-import os
 import boto3
-import configparser
 
 
 class GdsAwsClient:
@@ -12,23 +10,8 @@ class GdsAwsClient:
     clients = dict()
     sessions = dict()
 
-    # retrieve default key and secret from ~/.aws/credentials file
-    # this should not be needed since the lambda aws credentials are provided
-    # as env vars to the lambda function based on the execution role
-    def load_credentials(self):
-
-        # implement ini file parser for user home configuration file
-        config = configparser.ConfigParser()
-        home = os.getenv("HOME")
-        config.read(f"{home}/.aws/credentials")
-
-        # store the key and secret locally in the class
-        # ideally these should be protected/private variables
-        # there doesn't seem to be a way to do that in python
-        self.key = config['default']['aws_access_key_id']
-        self.secret = config['default']['aws_secret_access_key']
-        # print(self.key)
-        return True
+    def __init__(self, app=None):
+        self.app = app
 
     # store temporary credentials from sts-assume-roles
     # session names are based on the account and role
@@ -45,7 +28,7 @@ class GdsAwsClient:
     # which encompasses the account, role and service
     # {account-number}-{role-name}-{region}-{service}
     # eg: 779799343306-AdminRole-eu-west-2-s3
-    def get_client_name(self, service_name, session_name='default', region='eu-west-2'):
+    def get_client_name(self, service_name, session_name='default', region='eu-west-1'):
         return f"{session_name}-{region}-{service_name}"
 
     # gets a boto3.client class for the given service, account and role
@@ -74,15 +57,7 @@ class GdsAwsClient:
         session_name = self.get_session_name(account, role)
         client_name = self.get_client_name(service_name, session_name, region)
 
-        if not hasattr(self, 'key'):
-            self.load_credentials()
-
-        self.clients[client_name] = boto3.client(
-            service_name,
-            aws_access_key_id=self.key,
-            aws_secret_access_key=self.secret,
-            region_name=region
-        )  
+        self.clients[client_name] = boto3.client(service_name) #, **creds)
         return self.clients[client_name]
 
     # gets a boto3.client with the temporary session credentials

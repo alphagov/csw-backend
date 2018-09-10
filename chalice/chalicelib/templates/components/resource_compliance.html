@@ -1,0 +1,20 @@
+{% if resource['compliance']['IsApplicable'] %}
+    {% if not resource['compliance']['IsCompliant'] %}
+        <div>
+            <h4 class="govuk-heading-s">Failed resource:  {{ resource['GroupName'] }} ({{ resource['compliance']['ComplianceResourceId'] }})</h4>
+            <div>
+              <p>{{ resource['compliance']['Annotation'] }}</p>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <h5 class="govuk-heading-xs">Why is it important?</h5>
+                <p>{{ criterion.why_is_it_important }}</p>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <h5 class="govuk-heading-xs">How do I fix it?</h5>
+                <p>{{ criterion.how_do_i_fix_it }}</p>
+            </div>
+
+            <pre>{{ resource | tojson }}</pre>
+        </div>
+    {% endif %}
+{% endif %}

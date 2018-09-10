@@ -6,4 +6,4 @@ google-auth==1.5.1
 google-auth-oauthlib==0.2.0
 jinja2==2.10
 webassets==0.12.1
-jwt==0.5.4
+PyJWT==1.6.4

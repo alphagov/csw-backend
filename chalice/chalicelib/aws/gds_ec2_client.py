@@ -11,8 +11,14 @@ class GdsEc2Client(GdsAwsClient):
         # get a boto3 client for the EC2 service in the given region (default to London)
         ec2 = self.get_boto3_session_client('ec2', session, region)
 
+        #if hasattr(self,'app'):
+        #    self.app.log.debug('got session client')
+
         # run describe security groups api call
         response = ec2.describe_security_groups()
+
+        #if hasattr(self, 'app'):
+        #    self.app.log.debug('got response: ' + str(response))
 
         # return the security groups element of the response
         security_groups = response['SecurityGroups']

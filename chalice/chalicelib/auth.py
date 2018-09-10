@@ -1,22 +1,23 @@
 import os
 import datetime
-import httplib2
 from http import cookies
 import jwt
 import json
 import google_auth_oauthlib.flow
-from chalicelib.secrets import Secrets
-
+from chalicelib.aws.gds_secrets_manager_client import GdsSecretsManagerClient
+# from chalicelib.secrets import Secrets
 
 class AuthHandler:
 
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
 
         # TODO get this from AWS secret manager and move into a class method in auth
         self.cookie_expiration = datetime.timedelta(days=1)
 
         if 'CSW_ENV' in os.environ:
-            secrets = Secrets()
+            secrets = GdsSecretsManagerClient()
+            # secrets = Secrets()
             self.csw_secrets = json.loads(secrets.get_secret_value(os.environ['CSW_ENV']))
 
             self.token_secret = self.csw_secrets['token_secret']
@@ -26,7 +27,8 @@ class AuthHandler:
         self.token_algorithm = 'HS256'
 
         self.scopes = [
-            "https://www.googleapis.com/auth/plus.login",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/plus.me",
             "https://www.googleapis.com/auth/userinfo.email"
         ]
 
@@ -49,20 +51,7 @@ class AuthHandler:
         protocol = 'http'
         if 'X-Forwarded-Proto' in request.headers:
             protocol = request.headers['X-Forwarded-Proto']
-        return protocol + "://" + request.headers['Host']
-
-    def get_user(self, credentials):
-
-        user = ""
-
-        http = httplib2.Http()
-        http = credentials.authorize(http)
-        resp, content = http.request(self.user_info)
-
-        if resp.status == 200:
-            user = content
-
-        return user
+        return protocol + "://" + request.headers['Host'] + "/app"
 
     def get_user_token(self, request):
 
@@ -73,16 +62,29 @@ class AuthHandler:
 
     def get_cookie_value(self, req, cookie_name):
 
+        value = None
+
         if "cookie" in req.headers:
 
             cookie = cookies.SimpleCookie()
             cookie.load(req.headers["cookie"])
-            value = cookie[cookie_name].value
-
-        else:
-            value = None
+            if cookie_name in cookie:
+                value = cookie[cookie_name].value
 
         return value
+
+    def read_jwt(self, user_jwt):
+
+        user = None
+
+        self.app.log.debug('jwt: ' + user_jwt)
+
+        if (user_jwt is not None):
+            user = jwt.decode(user_jwt.encode(), self.token_secret, algorithms=[self.token_algorithm])
+
+            self.app.log.debug('user data: ' + str(user))
+
+        return user
 
     def has_valid_user(self, req):
         # TODO: There should be a list of valid sessions stored somewhere and
@@ -94,7 +96,7 @@ class AuthHandler:
 
             user_jwt = self.get_cookie_value(req, "session")
 
-            user = jwt.decode(user_jwt.encode(), self.token_secret, algorithms=[self.token_algorithm])
+            user = self.read_jwt(user_jwt)
 
         return user
 
@@ -103,7 +105,7 @@ class AuthHandler:
 
         cookie = cookies.SimpleCookie()
         cookie["session"] = token
-        expiration = datetime.utcnow() + self.cookie_expiration
+        expiration = datetime.datetime.now() + self.cookie_expiration
         cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
         cookie["session"]["path"] = "/"
 
@@ -114,55 +116,74 @@ class AuthHandler:
 
         return cookie_val
 
-    def get_credentials_from_code(self, url, code):
+    def get_user_from_code(self, url, code):
 
         flow = self.get_auth_flow(url)
+
+        self.app.log.debug("get_credentials_from_code: got flow")
+
+        self.app.log.debug("request context: " + str(self.app.current_request.context))
+
         self.google_token = flow.fetch_token(code=code)
 
-        credentials = self.flow.credentials
+        self.app.log.debug("get_credentials_from_code: got token: " + str(self.google_token))
 
-        return credentials
+        self.session = flow.authorized_session()
+
+        self.user_data = self.session.get('https://www.googleapis.com/userinfo/v2/me').json()
+
+        self.user = json.dumps(self.user_data)
+
+        return self.user
 
     def get_jwt(self, user):
 
         user_jwt = jwt.encode(json.loads(user), self.token_secret, algorithm=self.token_algorithm).decode('utf-8')
         return user_jwt
 
-    def get_user_data(self, user):
-
-        user_data = json.loads(user.decode('utf-8'))
-        return user_data
-
     def try_login(self, req):
 
         try:
-            self.user = self.has_valid_user(req)
+            self.user_data = self.has_valid_user(req)
 
-            if self.user is not None:
-                self.user_data = self.auth.get_user_data(self.user)
+            if self.user_data is not None:
+
+                self.app.log.debug('request user is set')
+
                 self.token = self.get_user_token(req)
+                self.logged_in = True
 
             else:
 
-                code = req.query_params["code"]
-                credentials = self.get_credentials_from_code(code)
-                self.user = self.get_user(credentials)
+                self.app.log.debug('no user check for code param')
 
-                self.user_jwt = self.get_jwt(self.user)
+                if "code" in req.query_params:
 
-                self.cookie = self.generate_cookie_header_val(self.user_jwt)
+                    self.app.log.debug('')
+                    url = self.get_request_url(req)
+                    code = req.query_params["code"]
 
-                self.user_data = self.get_user_data(self.user)
+                    self.app.log.debug(f"code: {code}")
 
-                self.token = credentials.get_access_token()[0]
+                    self.user = self.get_user_from_code(url, code)
 
+                    self.user_jwt = self.get_jwt(self.user)
+
+                    self.cookie = self.generate_cookie_header_val(self.user_jwt)
+
+                    self.token = self.google_token
+
+                    self.logged_in = True
+                else:
+                    self.logged_in = False
+
+            if self.logged_in:
+                self.login_data.update(self.user_data)
                 self.login_data["cookie"] = self.cookie
-                self.login_data["email"] = self.user_data['email']
                 self.login_data["token"] = self.token
-                self.login_data["asset_path"] = "/api/assets"
 
-                self.logged_in = True
-        except Exception:
+        except Exception as err:
+            self.app.log.debug(str(err))
             self.login_data["cookie"] = None
             self.login_data["message"] = "Login failed"
             self.logged_in = False

@@ -1,24 +1,71 @@
+import logging
 import os
-# from urllib.parse import urlparse, parse_qs
-
-from chalice import Chalice, Response, BadRequestError
-
-from chalicelib.models import DatabaseHandle
-from chalicelib.aws.gds_sqs_client import GdsSqsClient
-from chalicelib.views import TemplateHandler
-from chalicelib.auth import AuthHandler
+import json
 from datetime import datetime
+from chalice import Chalice, Response, BadRequestError
+from chalicelib.auth import AuthHandler
+from chalicelib.aws.gds_sqs_client import GdsSqsClient
+from chalicelib.aws.gds_ec2_client import GdsEc2Client
+from chalicelib.models import DatabaseHandle
+from chalicelib.views import TemplateHandler
+
+from chalicelib.evaluators.evaluator_ports_ingress_ssh import EvaluatorPortsIngressSsh
 
 
 app = Chalice(app_name='cloud-security-watch')
-app.auth = AuthHandler()
+
+# switch debug logging on
+app.log.setLevel(logging.DEBUG)
+print(app.log.getEffectiveLevel())
+
+app.auth = AuthHandler(app)
+app.templates = TemplateHandler(app)
+app.api.binary_types = [
+    "application/octet-stream",
+    "image/webp",
+    "image/apng",
+    "image/png",
+    "image/svg",
+    "image/jpeg",
+    "image/x-icon",
+    "image/vnd.microsoft.icon",
+    "application/x-font-woff",
+    "font/woff",
+    "font/woff2",
+    "font/eot"
+]
 
 
-dummy_data = {
-    "email": "dan.jones@digital.cabinet-office.gov.uk",
+@app.route('/')
+def index():
+
+    response = app.templates.render_authorized_route_template('/', app.current_request)
+
+    return Response(**response)
+
+
+@app.route('/audit')
+def audit_list():
+
+    response = app.templates.render_authorized_route_template('/audit', app.current_request)
+
+    return Response(**response)
+
+
+@app.route('/audit/{id}')
+def audit_report(id):
+
+    response = app.templates.render_authorized_route_template('/audit/{id}', app.current_request)
+
+    return Response(**response)
+
+
+# demo audit data
+app.dummy_data = {
+    "name": "[User Name]",
     "audits": [
         {
-            "email": "dan.jones@digital.cabinet-office.gov.uk",
+            "name": "[User Name]",
             "id": 1,
             "account_subscription": {
                 "account_id": 779799343306,
@@ -36,6 +83,10 @@ dummy_data = {
                 {
                     "id": 1,
                     "name": "SSH port ingress too open",
+                    "tested": False,
+                    "why_is_it_important": "Opening ports to the world exposes a greater risk if an SSH key is leaked",
+                    "how_do_i_fix_it": "The SSH port (22) should only be open to known GDS IP addresses including the cabinet office VPN",
+                    "processed": "yes",
                     "status": "fail",
                     "issues": 1,
                     "resources": [
@@ -56,6 +107,10 @@ dummy_data = {
                 {
                     "id": 2,
                     "name": "Security groups with open egress",
+                    "tested": False,
+                    "why_is_it_important": "Opening ports to the world exposes a greater risk of data been sent out from the service to an unknown location",
+                    "how_do_i_fix_it": "The egress rules should specify which ports can be used. Only http(s) should be open to the world and through a proxy service so that we can record traffic.",
+                    "processed": "yes",
                     "status": "fail",
                     "issues": 1,
                     "resources": [
@@ -79,37 +134,38 @@ dummy_data = {
 }
 
 
-@app.route('/')
+# demo routes with static data
+@app.route('/demo')
 def index():
 
-    templates = TemplateHandler(app.auth)
-    request = app.current_request
-    response = templates.render_authorized_route_template('/', request, {
-        "email": "dan.jones@digital.cabinet-office.gov.uk"
-    })
+    response = app.templates.render_authorized_route_template('/',
+        app.current_request,
+        { "name": "[User Name]" }
+    )
 
     return Response(**response)
 
 
-@app.route('/audit')
+@app.route('/demo/audit')
 def audit_list():
 
-    templates = TemplateHandler(app.auth)
-    request = app.current_request
-    response = templates.render_authorized_route_template('/audit', request, dummy_data)
+    response = app.templates.render_authorized_route_template('/audit',
+        app.current_request,
+        app.dummy_data
+    )
 
     return Response(**response)
 
 
-@app.route('/audit/{id}')
+@app.route('/demo/audit/{id}')
 def audit_report(id):
 
-    templates = TemplateHandler(app.auth)
-    request = app.current_request
-    response = templates.render_authorized_route_template('/audit/{id}', request, dummy_data["audits"][0])
+    response = app.templates.render_authorized_route_template('/audit/{id}',
+        app.current_request,
+        app.dummy_data["audits"][0]
+    )
 
     return Response(**response)
-
 
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
@@ -122,11 +178,9 @@ def database_create_tables(event, context):
         table_list = []
         message = ""
 
-        # created = True
         for table_name in event['Tables']:
             model = dbh.get_model(table_name)
             table_list.append(model)
-            # model.create_table(safe=True)
 
         created = dbh.create_tables(table_list)
     except Exception as err:
@@ -137,6 +191,26 @@ def database_create_tables(event, context):
         response = ", ".join(event['Tables'])
     else:
         response = f"Table create failed: {message}"
+    return response
+
+
+@app.lambda_function()
+def database_create_all_tables(event, context):
+    dbh = DatabaseHandle()
+
+    try:
+        table_list = dbh.get_models()
+        message = ""
+
+        created = dbh.create_tables(table_list)
+    except Exception as err:
+        created = False
+        message = str(err)
+
+    if created:
+        response = ", ".join(event['Tables'])
+    else:
+        response = f"Tables created"
     return response
 
 
@@ -191,19 +265,27 @@ def audit_account(event, context):
         AccountSubscription = dbh.get_model("AccountSubscription")
         AccountAudit = dbh.get_model("AccountAudit")
         active_accounts = AccountSubscription.select().where(AccountSubscription.active == True)
-        #.order_by(User.username)
+        # .order_by(User.username)
 
         for account in active_accounts:
-            # print(tweet.user.username, '->', tweet.content)
 
             # create a new empty account audit record
-            AccountAudit.create(
+            audit = AccountAudit.create(
                 account_subscription_id = account.AccountSubscription
             )
 
             # create SQS message
             sqs = GdsSqsClient()
-            sqs.get_default_client('SQS')
+            sqs_client = sqs.get_default_client('sqs')
+            prefix = os.environ["CSW_ENV"]
+
+            queue_url = sqs_client.get_queue_url(f"{prefix}-audit-account-queue.fifo")
+            message_body = json.dumps(audit)
+
+            message_id = sqs_client.send_message(
+                queue_url,
+                message_body
+            )
 
         status = True
     except Exception as err:
@@ -212,35 +294,108 @@ def audit_account(event, context):
     return status
 
 
-@app.route('/wildcard/{relative_path+}')
-def wildcard_test():
-    return app.current_request.uri_params['relative_path']
+@app.route('/test/ports_ingress_ssh')
+def test_assume():
+
+    try:
+        ec2 = GdsEc2Client(app)
+        session = ec2.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
+
+        app.log.debug("session: " + str(session))
+
+        groups = ec2.describe_security_groups(session, region='eu-west-1')
+
+        app.log.debug("groups: " + str(groups))
+
+        evaluator = EvaluatorPortsIngressSsh(app)
+
+        summary = {
+            'all': {
+                'display_stat': 0,
+                'category': 'all',
+                'modifier_class': 'tested'
+            },
+            'applicable': {
+                'display_stat': 0,
+                'category': 'tested',
+                'modifier_class': 'precheck'
+            },
+            'non_compliant': {
+                'display_stat': 0,
+                'category': 'failed',
+                'modifier_class': 'failed'
+            },
+            'compliant': {
+                'display_stat': 0,
+                'category': 'passed',
+                'modifier_class': 'passed'
+            },
+            'non_applicable': {
+                'display_stat': 0,
+                'category': 'ignored',
+                'modifier_class': 'passed'
+            }
+        }
+
+        for group in groups:
+
+            group['resourceType'] = 'AWS::EC2::SecurityGroup'
+
+            app.log.debug('set resource type')
+
+            compliance = evaluator.evaluate_compliance({}, group, [])
+
+            summary['all']['display_stat'] += 1
+
+            if compliance['IsApplicable']:
+                summary['applicable']['display_stat'] += 1
+
+                if compliance['IsCompliant']:
+                    summary['compliant']['display_stat'] += 1
+                else:
+                    summary['non_compliant']['display_stat'] += 1
+
+            else:
+                summary['non_applicable']['display_stat'] += 1
+
+            group['compliance'] = compliance
+
+            app.log.debug(str(compliance))
+
+        template_data = app.dummy_data["audits"][0]
+
+        template_data["criteria"][0]["compliance_results"] = groups
+        template_data["criteria"][0]["compliance_summary"] = summary
+        template_data["criteria"][0]["tested"] = True
+
+        app.log.debug("template data: " + str(template_data))
+
+        response = app.templates.render_authorized_route_template('/audit/{id}',
+            app.current_request,
+            template_data
+        )
+    except Exception as err:
+        { "body": str(err) }
+
+    return Response(**response)
+
 
 
 @app.route('/assets/{proxy+}')
 def asset_render():
 
+    app.log.debug('asset_render function called by /assets/{proxy+} route')
     try:
         req = app.current_request
 
-        proxy = req.uri_params['proxy']
+        app.log.debug(str(req.uri_params))
 
-        print(proxy)
+        if 'proxy' in req.uri_params:
+            proxy = req.uri_params['proxy']
+        else:
+            proxy = req.uri_params['proxy+']
 
-        binary_types = [
-            "application/octet-stream",
-            "image/webp",
-            "image/apng",
-            "image/png",
-            "image/svg",
-            "image/jpeg",
-            "image/x-icon",
-            "image/vnd.microsoft.icon",
-            "application/x-font-woff",
-            "font/woff",
-            "font/woff2",
-            "font/eot"
-        ]
+        binary_types = app.api.binary_types
 
         ascii_types = [
             "text/plain",
@@ -249,7 +404,7 @@ def asset_render():
         ]
 
         true_path = os.path.join(os.path.dirname(__file__), 'chalicelib', 'assets', proxy)
-        print(true_path)
+        app.log.debug(true_path)
 
         if ".." in proxy:
             raise Exception(f"No back (..) navigating: {proxy}")

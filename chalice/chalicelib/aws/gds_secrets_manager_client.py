@@ -1,7 +1,7 @@
 # GdsS3Client
 # extends GdsAwsClient
-# implements aws s3 and s3api endpoint queries
-
+# implements aws secrets manager endpoint queries
+import json
 from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
@@ -16,3 +16,7 @@ class GdsSecretsManagerClient(GdsAwsClient):
         )
 
         return response['SecretString']
+
+    def parse_escaped_json_secret(self, value):
+        parsed = json.loads(value.replace('\\', ''))
+        return parsed

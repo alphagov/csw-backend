@@ -1,29 +1,25 @@
 import os
 # from urllib.parse import urlparse, parse_qs
-from jinja2 import Environment as Jinja2Environment, FileSystemLoader, select_autoescape
-# from webassets import Environment as AssetsEnvironment
-from webassets.ext.jinja2 import AssetsExtension
-
-# assets_env = AssetsEnvironment('./assets', '/assets')
-# env.assets_environment = assets_env
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 class TemplateHandler:
 
-    def __init__(self, auth):
+    def __init__(self, app):
 
-        self.auth = auth
+        self.app = app
+        self.auth = app.auth
+
         self.base_dir = os.getcwd()
         self.template_dir = os.path.join(self.base_dir, 'chalicelib', 'templates')
         self.govuk_dir = os.path.join(self.template_dir, 'govuk-frontend')
 
-        self.env = Jinja2Environment(
+        self.env = Environment(
             loader=FileSystemLoader([
                 self.template_dir,
                 self.govuk_dir
             ]),
             autoescape=select_autoescape(['html', 'xml']),
-            extensions=[AssetsExtension]
         )
 
         self.logged_in = False
@@ -72,15 +68,20 @@ class TemplateHandler:
 
             self.request_url = auth.get_request_url(req)
 
-            if self.request_url.find('localhost') != -1:
+            self.app.log.debug('Request URL: '+ self.request_url)
+
+            if ((self.request_url.find('localhost') == -1) and (self.request_url.find('127.0.0.1') == -1)):
 
                 self.auth_flow = auth.get_auth_flow(self.request_url + route)
 
-                login_url = self.auth_flow.authorization_url()
-
                 logged_in = self.auth.try_login(req)
+                asset_path = "/app/assets"
+
+                self.app.log.debug('Not localhost')
             else:
                 logged_in = True
+                asset_path = "/assets"
+                self.app.log.debug('Is localhost')
 
             # if there is a user then show the requested route
             # TODO add permission control
@@ -88,10 +89,12 @@ class TemplateHandler:
 
                 template_file = self.get_route_template_file(route)
 
+                login_data = self.auth.get_login_data()
+                data.update(login_data)
+
+                self.app.log.debug('template data: '+str(data))
+
                 if self.auth.cookie is not None:
-                    login_data = self.auth.get_login_data()
-                    data["email"] = login_data["email"]
-                    data["token"] = login_data["token"]
                     headers["Set-Cookie"] = self.auth.cookie
 
             else:
@@ -99,11 +102,10 @@ class TemplateHandler:
                 template_file = 'logged_out.html'
 
                 login_url, _ = self.auth_flow.authorization_url()
-                print(login_url)
 
                 data["login_url"] = login_url
 
-            data["asset_path"] = "/assets"
+            data["asset_path"] = asset_path
 
             response_body = self.render_template(template_file, data)
         except Exception as err:

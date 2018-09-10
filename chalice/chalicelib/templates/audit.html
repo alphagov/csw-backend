@@ -1,8 +1,6 @@
 {% extends "govuk_template.html" %}
 {% block login %}
-<div style="float:right;">
-  <p class="govuk-body-s" style="color:white">Logged in as: {{ email }}</p>
-</div>
+{% include "components/logged_in.html" %}
 {% endblock %}
 {% block content %}
 <div class="govuk-width-container">
@@ -11,32 +9,34 @@
     <div class="govuk-breadcrumbs">
       <ol class="govuk-breadcrumbs__list">
         <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="/">Home</a>
+          <a class="govuk-breadcrumbs__link" href="../">Home</a>
         </li>
         <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="/audit">Audit history</a>
+          <a class="govuk-breadcrumbs__link" href="../audit">Audit history</a>
         </li>
       </ol>
     </div>
 
     <div>
-        <h2>Criteria attempted</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Analysed</th>
-                    <th>Passed</th>
-                    <th>Issues</th>
+        <h2 class="govuk-heading-l">Criteria attempted</h2>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">ID</th>
+                    <th class="govuk-table__header">Name</th>
+                    <th class="govuk-table__header">Analysed</th>
+                    <th class="govuk-table__header">Passed</th>
+                    <th class="govuk-table__header">Issues</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="govuk-table__body">
                 {% for criterion in criteria %}
-                    <tr>
-                        <td>{{ criterion.id }}</td>
-                        <td>{{ criterion.name }}</td>
-                        <td>{{ criterion.status }}</td>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{{ criterion.id }}</td>
+                        <td class="govuk-table__cell">{{ criterion.name }}</td>
+                        <td class="govuk-table__cell">{{ criterion.processed }}</td>
+                        <td class="govuk-table__cell">{{ criterion.status }}</td>
+                        <td class="govuk-table__cell">{{ criterion.issues }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -45,29 +45,56 @@
     </div>
 
     <div>
-       <h2>Resources analysed</h2>
-       <table>
-            <thead>
-                <tr>
-                    <th>Criteria</th>
-                    <th>Resource</th>
-                    <th>Pass/Fail</th>
-                    <th>What does it mean?</th>
-                    <th>How do I fix it?</th>
+       <h2 class="govuk-heading-l">Resources analysed</h2>
+       <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Criteria</th>
+                    <th class="govuk-table__header">Resource</th>
+                    <th class="govuk-table__header">Pass/Fail</th>
+                    <th class="govuk-table__header">What does it mean?</th>
+                    <th class="govuk-table__header">How do I fix it?</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="govuk-table__body">
                 {% for criterion in criteria %}
                     {% for resource in criterion.resources %}
-                    <tr>
-                        <td>{{ criterion.name }}</td>
-                        <td>{{ resource.arn }}</td>
-                        <td>{{ resource.status }}</td>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">{{ criterion.name }}</td>
+                        <td class="govuk-table__cell">{{ resource.arn }}</td>
+                        <td class="govuk-table__cell">{{ resource.status }}</td>
+                        <td class="govuk-table__cell">{{ criterion.significance }}</td>
+                        <td class="govuk-table__cell">{{ criterion.remediation }}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+
+    <div>
+        <h2 class="govuk-heading-l">Compliance results</h2>
+
+        {% for criterion in criteria %}
+
+            <h3 class="govuk-heading-m">{{ criterion.name }}</h3>
+
+            {% set stats = criterion.compliance_summary %}
+            {% include "components/5_column_status.html" %}
+
+            {% if criterion.tested and criterion.compliance_summary.non_compliant.display_stat == 0 %}
+
+                <p>All tested resources passed</p>
+
+            {% else %}
+
+                {% for resource in criterion.compliance_results %}
+                {% include "components/resource_compliance.html" %}
+
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
     </div>
   </main>
 </div>

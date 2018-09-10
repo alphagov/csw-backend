@@ -88,6 +88,10 @@ class DatabaseHandle():
 
         return self.models[model_name]
 
+    def get_models(self):
+
+        return self.models
+
     def create_item(self, event):
 
         db = self.get_handle()

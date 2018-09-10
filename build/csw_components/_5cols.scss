@@ -1,0 +1,109 @@
+
+.five-columns {
+    width: 100%;
+    border-color: #ccc;
+    border-width: 0 1px 0 1px;
+    border-style: solid;
+    margin-bottom: 1em;
+}
+
+.five-columns__column {
+    width: 20%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    display: inline-block;
+
+    &:first-child .five-columns__column-content {
+        margin-left: 1em;
+    }
+
+    &:last-child .five-columns__column-content {
+        margin-right: 1em;
+    }
+}
+
+.five-columns__column-content {
+    margin: 0.5em;
+    padding: 0.5em;
+    background-color: #999;
+    border-bottom: 2px solid #000;
+    font-weight: bold;
+
+    text-align: center;
+
+    .headline-stat {
+        font-size: 4em;
+        font-weight: lighter;
+        margin-bottom: 0;
+    }
+    .caption {
+
+    }
+}
+
+.five-columns__column-content--tested {
+    @extend .five-columns__column-content;
+    background-color: #ddd;
+    border-color: #000;
+
+    .headline-stat,
+    .caption {
+        color: #000;
+    }
+}
+
+.five-columns__column-content--passed {
+    @extend .five-columns__column-content;
+    background-color: #cfc;
+    border-color: #060;
+
+    .headline-stat,
+    .caption {
+        color: #060;
+    }
+}
+
+.five-columns__column-content--failed {
+    @extend .five-columns__column-content;
+    background-color: #fcc;
+    border-color: #600;
+
+    .headline-stat,
+    .caption {
+        color: #600;
+    }
+}
+
+.five-columns__column-content--issues {
+    @extend .five-columns__column-content;
+    background-color: #fdc;
+    border-color: #630;
+
+    .headline-stat,
+    .caption {
+        color: #630;
+    }
+}
+
+.five-columns__column-content--ignored {
+    @extend .five-columns__column-content;
+    background-color: #ffc;
+    border-color: #660;
+
+    .headline-stat,
+    .caption {
+        color: #660;
+    }
+}
+
+.five-columns__column-content--precheck {
+    @extend .five-columns__column-content;
+    background-color: #ccf;
+    border-color: #006;
+
+    .headline-stat,
+    .caption {
+        color: #006;
+    }
+}
