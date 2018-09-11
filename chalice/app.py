@@ -1,13 +1,14 @@
 import logging
 import os
 import json
-from chalice import Chalice, Response, BadRequestError, Rate
+from chalice import Chalice, Response, BadRequestError
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.views import TemplateHandler
 from chalicelib import audit
 from chalicelib import admin
 from chalicelib import demos
+from notifications_python_client.notifications import NotificationsAPIClient
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -296,3 +297,32 @@ def read_asset(proxy):
         raise Exception(f"Unsupported file type: {mime_type}")
 
     return data
+
+
+@app.lambda_function
+def notify_user(event, context):
+    """
+    expected JSON payload: {
+        "email": "user@domain.com",
+        "subject": "Notification Subject",
+        "message": "Notification message for the user"
+    }
+    """
+
+    NOTIFY_EMAIL_TEMPLATE_ID = os.environ.get('NOTIFY_EMAIL_TEMPLATE_ID')
+    NOTIFY_API_KEY = os.environ.get('NOTIFY_API_KEY')
+
+    data = {
+        'subject': event['subject'],
+        'message': event['subject']
+    }
+
+    notify_client = NotificationsAPIClient(NOTIFY_API_KEY)
+    notify_client.send_email_notification(
+        email_address=event['email'],
+        template_id=NOTIFY_EMAIL_TEMPLATE_ID,
+        personalisation=data,
+        reference=None
+    )
+
+    return "User notified"
