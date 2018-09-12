@@ -26,7 +26,7 @@
 .five-columns__column-content {
     margin: 0.5em;
     padding: 0.5em;
-    background-color: #999;
+    /*background-color: #999;*/
     border-bottom: 2px solid #000;
     font-weight: bold;
 
@@ -44,66 +44,66 @@
 
 .five-columns__column-content--tested {
     @extend .five-columns__column-content;
-    background-color: #ddd;
-    border-color: #000;
+    background-color: govuk-colour("grey-3");
+    border-color: govuk-colour("black");
 
     .headline-stat,
     .caption {
-        color: #000;
+        color: govuk-colour("black");
     }
 }
 
 .five-columns__column-content--passed {
     @extend .five-columns__column-content;
-    background-color: #cfc;
-    border-color: #060;
+    background-color: #cfc; /*lighten(govuk-colour("green"), 20%);*/
+    border-color: govuk-colour("green");
 
     .headline-stat,
     .caption {
-        color: #060;
+        color: govuk-colour("green");
     }
 }
 
 .five-columns__column-content--failed {
     @extend .five-columns__column-content;
     background-color: #fcc;
-    border-color: #600;
+    border-color: govuk-colour("red");
 
     .headline-stat,
     .caption {
-        color: #600;
+        color: govuk-colour("red");
     }
 }
 
 .five-columns__column-content--issues {
     @extend .five-columns__column-content;
     background-color: #fdc;
-    border-color: #630;
+    border-color: govuk-colour("orange");
 
     .headline-stat,
     .caption {
-        color: #630;
+        color: govuk-colour("orange");
     }
 }
 
 .five-columns__column-content--ignored {
     @extend .five-columns__column-content;
     background-color: #ffc;
-    border-color: #660;
+    border-color: govuk-colour("yellow");
 
     .headline-stat,
     .caption {
-        color: #660;
+        color: govuk-colour("yellow");
     }
 }
 
 .five-columns__column-content--precheck {
     @extend .five-columns__column-content;
     background-color: #ccf;
-    border-color: #006;
+    border-color: govuk-colour("blue");
 
     .headline-stat,
     .caption {
-        color: #006;
+        color: govuk-colour("blue");
     }
 }

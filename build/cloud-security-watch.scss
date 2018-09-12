@@ -3,6 +3,7 @@ $govuk-global-styles: true;
 $govuk-assets-path: "/app/assets/govuk-frontend/assets/";
 
 
+@import "csw_components/debug";
 @import "csw_components/5cols";
 @import "csw_components/compliance";
 
