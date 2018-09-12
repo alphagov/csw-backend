@@ -400,10 +400,8 @@ def account_audit_criteria(event):
             audit_data = json.loads(message.body)
             audit = AccountAudit.get_by_id(audit_data.id)
 
-
-
-
     except Exception as err:
+        app.log.error(str(err))
 
     return status
 
