@@ -375,7 +375,8 @@ def audit_account(event, context):
         status = False
         items = []
         if db is not None:
-            db.rollback();
+            db.rollback()
+            db.close()
 
     return status
 
@@ -435,7 +436,9 @@ def account_audit_criteria(event):
 
     except Exception as err:
         app.log.error(str(err))
-        db.rollback()
+        if db is not None:
+            db.rollback()
+            db.close()
 
     return status
 
