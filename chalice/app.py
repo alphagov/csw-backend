@@ -383,7 +383,7 @@ def audit_account(event, context):
     return status
 
 
-@app.on_sqs_message(queue=f"{prefix}-audit-account-queue")
+@app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
 def account_audit_criteria(event):
     try:
         status = False
