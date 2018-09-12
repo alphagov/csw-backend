@@ -206,7 +206,7 @@ class AccountAudit(BaseModel):
     account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_audits')
     date_started = DateTimeField(default=datetime.now)
     date_updated = DateTimeField(default=datetime.now)
-    date_completed = DateTimeField()
+    date_completed = DateTimeField(NULL=True)
     active_criteria = IntegerField(default=0)
     criteria_processed = IntegerField(default=0)
     criteria_analysed = IntegerField(default=0)
