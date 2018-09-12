@@ -352,7 +352,7 @@ def audit_account(event, context):
 
             app.log.debug("Created audit record")
 
-            message_body = dbh.to_json(audit)
+            message_body = dbh.to_json(audit.serialize())
 
             app.log.debug("Sending SQS message with body: " + message_body)
 
