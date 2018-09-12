@@ -329,6 +329,17 @@ def audit_account(event, context):
         items = []
         # .order_by(User.username)
 
+        # create SQS message
+        sqs = GdsSqsClient(app)
+
+        app.log.debug("Invoke SQS client")
+
+        app.log.debug("Set prefix: " + app.prefix)
+
+        queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-queue")
+
+        app.log.debug("Retrieved queue url: " + queue_url)
+
         for account in active_accounts:
 
             app.log.debug("Audit account: " + account.account_name)
@@ -341,20 +352,7 @@ def audit_account(event, context):
 
             app.log.debug("Created audit record")
 
-            # create SQS message
-            sqs = GdsSqsClient(app)
-
-            app.log.debug("Invoke SQS client")
-
-
-
-            app.log.debug("Set prefix: "+ app.prefix)
-
-            queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-queue")
-
-            app.log.debug("Retrieved queue url: " + queue_url)
-
-            message_body = dbh.to_json(audit.serialize()) #json.dumps(audit)
+            message_body = dbh.to_json(audit)
 
             app.log.debug("Sending SQS message with body: " + message_body)
 
@@ -391,13 +389,43 @@ def account_audit_criteria(event):
         db = dbh.get_handle()
         db.connect()
 
-        AccountSubscription = dbh.get_model("AccountSubscription")
-        AccountAudit = dbh.get_model("AccountAudit")
+        Criterion = dbh.get_model("Criterion")
+
+        # create SQS message
+        sqs = GdsSqsClient(app)
+
+        app.log.debug("Invoke SQS client")
+
+        app.log.debug("Set prefix: " + app.prefix)
+
+        queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-metric-queue")
+
+        app.log.debug("Retrieved queue url: " + queue_url)
+
+        active_criteria = (Criterion.select().where(Criterion.active == True))
+
+        messages = []
 
         for message in event:
 
             audit_data = json.loads(message.body)
-            audit = AccountAudit.get_by_id(audit_data.id)
+
+            for criterion in active_criteria:
+
+                criterion_data = criterion.serialize()
+
+                message_body = dbh.to_json({
+                    "audit": audit_data,
+                    "criterion": criterion_data
+                })
+
+                message_id = sqs.send_message(
+                    queue_url,
+                    message_body
+                )
+
+                messages.append(message_id)
+
 
     except Exception as err:
         app.log.error(str(err))
