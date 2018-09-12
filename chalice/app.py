@@ -17,6 +17,7 @@ app = Chalice(app_name='cloud-security-watch')
 
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
+app.prefix = os.environ["CSW_ENV"]
 
 
 def load_route_services():
@@ -304,7 +305,7 @@ def database_list_models(event, context):
         dbh = DatabaseHandle(app)
 
         models = dbh.get_models()
-        tables = models.keys();
+        tables = models.keys()
 
     except Exception:
         tables = []
@@ -346,11 +347,11 @@ def audit_account(event, context):
 
             app.log.debug("Invoke SQS client")
 
-            prefix = os.environ["CSW_ENV"]
 
-            app.log.debug("Set prefix: "+ prefix)
 
-            queue_url = sqs.get_queue_url(f"{prefix}-audit-account-queue")
+            app.log.debug("Set prefix: "+ app.prefix)
+
+            queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-queue")
 
             app.log.debug("Retrieved queue url: " + queue_url)
 
@@ -379,8 +380,32 @@ def audit_account(event, context):
         if db is not None:
             db.rollback();
 
-    return items
+    return status
 
+
+@app.on_sqs_message(queue=f"{prefix}-audit-account-queue")
+def account_audit_criteria(event):
+    try:
+        status = False
+        dbh = DatabaseHandle(app)
+
+        db = dbh.get_handle()
+        db.connect()
+
+        AccountSubscription = dbh.get_model("AccountSubscription")
+        AccountAudit = dbh.get_model("AccountAudit")
+
+        for message in event:
+
+            audit_data = json.loads(message.body)
+            audit = AccountAudit.get_by_id(audit_data.id)
+
+
+
+
+    except Exception as err:
+
+    return status
 
 @app.route('/test/ports_ingress_ssh')
 def test_ports_ingress_ssh():
