@@ -412,6 +412,8 @@ def account_audit_criteria(event):
 
             audit_data = json.loads(message.body)
 
+            app.log.debug(message.body)
+
             audit = AccountAudit.get_by_id(audit_data['id'])
             audit.date_updated = datetime.now()
             audit.active_criteria = len(list(active_criteria))
