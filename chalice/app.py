@@ -255,10 +255,12 @@ def database_create_item(event, context):
 
         item = dbh.create_item(event)
         data = item.serialize()
-    except Exception:
-        data = None
+        json = dbh.to_json(data)
 
-    return data
+    except Exception:
+        json = None
+
+    return json
 
 
 @app.lambda_function()
@@ -269,17 +271,14 @@ def database_get_item(event, context):
 
         dbh = DatabaseHandle(app)
 
-        app.log.debug('got database handle')
         item = dbh.get_item(event)
-
-        app.log.debug('got database item')
         data = item.serialize()
+        json = dbh.to_json(data)
 
-        app.log.debug('serialized item')
     except Exception:
-        data = None
+        json = None
 
-    return data
+    return json
 
 
 @app.lambda_function()
