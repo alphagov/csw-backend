@@ -243,6 +243,7 @@ class Criterion(BaseModel):
     description = TextField()
     why_is_it_important = TextField()
     how_do_i_fix_it = TextField()
+    active = BooleanField(default=True)
 
     class Meta:
         table_name = "criterion"
