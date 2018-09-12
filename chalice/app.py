@@ -389,6 +389,7 @@ def account_audit_criteria(event):
         db = dbh.get_handle()
         db.connect()
 
+        AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
 
         # create SQS message
@@ -410,6 +411,10 @@ def account_audit_criteria(event):
 
             audit_data = json.loads(message.body)
 
+            audit = AccountAudit.get_by_id(audit_data['id'])
+            audit.date_updated = datetime.now()
+            audit.active_criteria = len(list(active_criteria))
+
             for criterion in active_criteria:
 
                 criterion_data = criterion.serialize()
@@ -426,9 +431,11 @@ def account_audit_criteria(event):
 
                 messages.append(message_id)
 
+            audit.save()
 
     except Exception as err:
         app.log.error(str(err))
+        db.rollback()
 
     return status
 
