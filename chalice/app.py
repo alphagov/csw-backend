@@ -314,7 +314,7 @@ def send_user_email_notification(event, context):
 
     data = {
         'subject': event['subject'],
-        'message': event['subject']
+        'message': event['message']
     }
 
     notify_client = NotificationsAPIClient(NOTIFY_API_KEY)
