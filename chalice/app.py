@@ -300,7 +300,7 @@ def read_asset(proxy):
 
 
 @app.lambda_function
-def notify_user(event, context):
+def send_user_email_notification(event, context):
     """
     expected JSON payload: {
         "email": "user@domain.com",
