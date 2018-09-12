@@ -20,17 +20,75 @@ class EvaluatorPortsIngressSsh(Evaluator):
         self.default_resource_type = 'AWS::EC2::SecurityGroup'
         self.applicable_resources = ['AWS::EC2::SecurityGroup']
 
-    def evaluate_compliance(self, event, item, valid_rule_parameters):
+    def evaluate_dataset_compliance(self, groups):
+
+        summary = {
+            'all': {
+                'display_stat': 0,
+                'category': 'all',
+                'modifier_class': 'tested'
+            },
+            'applicable': {
+                'display_stat': 0,
+                'category': 'tested',
+                'modifier_class': 'precheck'
+            },
+            'non_compliant': {
+                'display_stat': 0,
+                'category': 'failed',
+                'modifier_class': 'failed'
+            },
+            'compliant': {
+                'display_stat': 0,
+                'category': 'passed',
+                'modifier_class': 'passed'
+            },
+            'non_applicable': {
+                'display_stat': 0,
+                'category': 'ignored',
+                'modifier_class': 'passed'
+            }
+        }
+
+        for group in groups:
+
+            group['resourceType'] = 'AWS::EC2::SecurityGroup'
+
+            self.app.log.debug('set resource type')
+
+            compliance = self.evaluate_compliance({}, group, self.valid_ranges)
+
+            summary['all']['display_stat'] += 1
+
+            if compliance['IsApplicable']:
+                summary['applicable']['display_stat'] += 1
+
+                if compliance['IsCompliant']:
+                    summary['compliant']['display_stat'] += 1
+                else:
+                    summary['non_compliant']['display_stat'] += 1
+
+            else:
+                summary['non_applicable']['display_stat'] += 1
+
+            group['compliance'] = compliance
+
+            self.app.log.debug(str(compliance))
+
+        return summary, groups
+
+
+    def evaluate_compliance(self, event, item, whitelist=[]):
 
         self.app.log.debug('Evaluating compliance')
-        annotation = None
+        self.annotation = ""
 
         if item["resourceType"] not in self.applicable_resources:
             compliance_type = 'NON_APPLICABLE'
-            annotation = f"This rule does not apply to the supplied resource { item['resourceName'] }"
+            self.annotation = f"This rule does not apply to the supplied resource { item['resourceName'] }"
 
         else:
-            compliance_type = 'NON_COMPLIANT'
+
             has_relevant_rule = False
             is_compliant = True
 
@@ -42,7 +100,7 @@ class EvaluatorPortsIngressSsh(Evaluator):
                 if self.rule_applies_to_ssh(ingress_rule):
                     self.app.log.debug('Applies to SSH')
                     has_relevant_rule = True
-                    rule_is_compliant = self.rule_is_compliant(ingress_rule)
+                    rule_is_compliant = self.rule_is_compliant(ingress_rule, whitelist)
                     is_compliant &= rule_is_compliant
 
             if has_relevant_rule:
@@ -58,20 +116,23 @@ class EvaluatorPortsIngressSsh(Evaluator):
 
         return evaluation
 
-    def rule_is_compliant(self, rule):
+
+    def rule_is_compliant(self, rule, whitelist):
 
         compliant = True
 
         for ip_range in rule['IpRanges']:
 
             cidr = ip_range["CidrIp"]
-            cidr_is_valid = cidr in self.valid_ranges
+            cidr_is_valid = cidr in whitelist
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
-                self.annotation += f"The IP range {cidr} is not valid. "
+                self.annotation += f"The IP range {cidr} is not valid."
+                self.app.log.debug(f"The IP range {cidr} is not valid.")
 
         return compliant
+
 
     def rule_applies_to_ssh(self, rule):
 
@@ -84,6 +145,7 @@ class EvaluatorPortsIngressSsh(Evaluator):
 
         return is_protocol and in_port_range
 
+
     def is_protocol(self, rule, required_protocol):
 
         protocol = rule['IpProtocol']
@@ -91,6 +153,7 @@ class EvaluatorPortsIngressSsh(Evaluator):
         self.app.log.debug('protocol: ' + protocol)
 
         return protocol in [required_protocol,'-1']
+
 
     def in_port_range(self, rule, required_port):
 
@@ -102,4 +165,3 @@ class EvaluatorPortsIngressSsh(Evaluator):
             in_range = False
 
         return in_range
-

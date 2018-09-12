@@ -1,11 +1,15 @@
-<div class="five-columns">
-    {%- for key in stats -%}
-    {%- set item = stats[key] -%}
-    <div class="five-columns__column">
-      <div class="five-columns__column-content--{{ item.modifier_class }}">
-          <p class="headline-stat">{{ item.display_stat }}</p>
-          <p class="caption">{{ item.category | title }}</p>
-      </div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="five-columns">
+            {%- for key in stats -%}
+            {%- set item = stats[key] -%}
+            <div class="five-columns__column">
+              <div class="five-columns__column-content--{{ item.modifier_class }}">
+                  <p class="headline-stat">{{ item.display_stat }}</p>
+                  <p class="caption">{{ item.category | title }}</p>
+              </div>
+            </div>
+            {%- endfor -%}
+        </div>
     </div>
-    {%- endfor -%}
 </div>

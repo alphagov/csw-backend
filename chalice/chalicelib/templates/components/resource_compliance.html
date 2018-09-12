@@ -1,20 +1,22 @@
 {% if resource['compliance']['IsApplicable'] %}
     {% if not resource['compliance']['IsCompliant'] %}
-        <div>
-            <h4 class="govuk-heading-s">Failed resource:  {{ resource['GroupName'] }} ({{ resource['compliance']['ComplianceResourceId'] }})</h4>
-            <div>
-              <p>{{ resource['compliance']['Annotation'] }}</p>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h4 class="govuk-heading-s">Failed resource:  &quot;{{ resource['GroupName'] }}&quot; ({{ resource['compliance']['ComplianceResourceId'] }})</h4>
+                <p class="govuk-body">{{ resource['compliance']['Annotation'] }}</p>
             </div>
             <div class="govuk-grid-column-one-half">
-                <h5 class="govuk-heading-xs">Why is it important?</h5>
-                <p>{{ criterion.why_is_it_important }}</p>
+                <h5 class="govuk-heading-s">Why is it important?</h5>
+                <p class="govuk-body">{{ criterion.why_is_it_important }}</p>
             </div>
             <div class="govuk-grid-column-one-half">
-                <h5 class="govuk-heading-xs">How do I fix it?</h5>
-                <p>{{ criterion.how_do_i_fix_it }}</p>
+                <h5 class="govuk-heading-s">How do I fix it?</h5>
+                <p class="govuk-body">{{ criterion.how_do_i_fix_it }}</p>
             </div>
 
-            <pre>{{ resource | tojson }}</pre>
+            <div class="govuk-grid-column-full">
+                <p class="debug">{{ resource | tojson }}</p>
+            </div>
         </div>
     {% endif %}
 {% endif %}

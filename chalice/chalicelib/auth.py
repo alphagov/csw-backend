@@ -16,7 +16,7 @@ class AuthHandler:
         self.cookie_expiration = datetime.timedelta(days=1)
 
         if 'CSW_ENV' in os.environ:
-            secrets = GdsSecretsManagerClient()
+            secrets = GdsSecretsManagerClient(self.app)
             # secrets = Secrets()
             self.csw_secrets = json.loads(secrets.get_secret_value(os.environ['CSW_ENV']))
 
@@ -96,7 +96,8 @@ class AuthHandler:
 
             user_jwt = self.get_cookie_value(req, "session")
 
-            user = self.read_jwt(user_jwt)
+            if user_jwt is not None:
+                user = self.read_jwt(user_jwt)
 
         return user
 

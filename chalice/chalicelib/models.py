@@ -4,12 +4,17 @@ from peewee import CharField, TextField, DateField, DateTimeField, BooleanField,
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
 from datetime import datetime
+import json
 
 
 class DatabaseHandle():
 
     handle = None
     models = dict()
+
+    def __init__(self, app=None):
+        self.app = app
+
 
     def get_env_var(self, var_name):
 
@@ -20,21 +25,37 @@ class DatabaseHandle():
 
         return value
 
+    def log(self, type, message):
+
+        if (self.app is not None):
+            if (type == 'error'):
+                self.app.log.error(message)
+            elif (type == 'debug'):
+                self.app.log.debug(message)
+
+
     def get_handle(self):
 
-        if self.handle is None:
-            db_host = self.get_env_var('CSW_HOST')
-            db_port = self.get_env_var('CSW_PORT')
-            db_user = self.get_env_var('CSW_USER')
-            db_password = self.get_env_var('CSW_PASSWORD')
+        try:
 
-            self.handle = PostgresqlExtDatabase(
-                'csw',
-                user=db_user,
-                password=db_password,
-                host=db_host,
-                port=db_port
-            )
+            if self.handle is None:
+                db_host = self.get_env_var('CSW_HOST')
+                db_port = self.get_env_var('CSW_PORT')
+                db_user = self.get_env_var('CSW_USER')
+                db_password = self.get_env_var('CSW_PASSWORD')
+
+                self.log('debug', db_user + '@' + db_host)
+
+                self.handle = PostgresqlExtDatabase(
+                    'csw',
+                    user=db_user,
+                    password=db_password,
+                    host=db_host,
+                    port=db_port
+                )
+        except Exception as err:
+            self.app.log.error("Error connecting to db: " + str(err))
+            self.handle = None
 
         return self.handle
 
@@ -112,6 +133,13 @@ class DatabaseHandle():
 
         return item
 
+    def to_json(self, data):
+        return json.dumps(data, default = self.to_json_type_convert)
+
+    def to_json_type_convert(self, item):
+        if isinstance(item, datetime):
+            return item.__str__()
+
 
 dbh = DatabaseHandle()
 db = dbh.get_handle()
@@ -146,7 +174,7 @@ dbh.add_model("ProductTeam", ProductTeam)
 class AccountSubscription(BaseModel):
     account_id = BigIntegerField()
     account_name = CharField()
-    product_team_id = ForeignKeyField(ProductTeam, backref='product_team')
+    product_team_id = ForeignKeyField(ProductTeam, backref='account_subscriptions')
     active = BooleanField()
 
     class Meta:
@@ -175,7 +203,7 @@ dbh.add_model("AccountSubscription", AccountSubscription)
 # a successful audit should have
 # active_criteria = criteria_analysed
 class AccountAudit(BaseModel):
-    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_subscription')
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_audits')
     date_started = DateTimeField(default=datetime.now)
     date_updated = DateTimeField(default=datetime.now)
     date_completed = DateTimeField(default=datetime.now)
@@ -229,7 +257,7 @@ dbh.add_model("Criterion", Criterion)
 # region and possibly language could be hard-coded rather than passing them through the db each time
 # TODO ADD SEVERITY ?
 class CriterionParams(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion')
+    criterion_id = ForeignKeyField(Criterion, backref='criterion_params')
     param_name = CharField()
     param_value = CharField()
 
@@ -293,8 +321,8 @@ dbh.add_model("NotificationMethod", NotificationMethod)
 # via splunk in the future or we could broaden the reach of the
 # tool to check other vulnerabilities.
 class CachedDataResponse(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion')
-    account_audit_id = ForeignKeyField(AccountAudit, backref='account_audit')
+    criterion_id = ForeignKeyField(Criterion, backref='cached_data_responses')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='cached_data_responses')
     invoke_class_name = CharField()
     invoke_class_get_data_method = CharField()
     response = TextField()
@@ -310,8 +338,8 @@ dbh.add_model("CachedDataResponse", CachedDataResponse)
 # This should include "green" status checks as well as
 # identified risks.
 class CriterionStatus(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion')
-    account_audit_id = ForeignKeyField(AccountAudit, backref='account_audit')
+    criterion_id = ForeignKeyField(Criterion, backref='criterion_status')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status')
     resource_arn = CharField()
     resource_name = CharField()
     status_id = ForeignKeyField(Status, backref='status')
@@ -327,13 +355,13 @@ dbh.add_model("CriterionStatus", CriterionStatus)
 
 # For non-green status issues we record a risk record
 class CriterionStatusRiskAssessment(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion')
-    criterion_status = ForeignKeyField(CriterionStatus, backref='criterion_status')
-    account_audit_id = ForeignKeyField(AccountAudit, backref='account_audit')
+    criterion_id = ForeignKeyField(Criterion, backref='criterion_status_risk_assessments')
+    criterion_status = ForeignKeyField(CriterionStatus, backref='criterion_status_risk_assessments')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status_risk_assessments')
     resource_arn = CharField()
     date_first_identifed = DateField()
     date_last_notifier = DateField()
-    notification_method = ForeignKeyField(NotificationMethod, backref='notification_method')
+    notification_method = ForeignKeyField(NotificationMethod, backref='criterion_status_risk_assessments')
     date_of_review = DateField()
     accepted_risk = BooleanField()
     analyst_assessed = BooleanField()
