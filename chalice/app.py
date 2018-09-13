@@ -498,7 +498,9 @@ def account_evaluate_criteria(event):
             ClientClass = app.utilities.get_class_by_name(provider["invoke_class_name"])
             client = ClientClass(app)
 
-            session = client.get_session(account='103495720024', role=f"{app.prefix}_CstSecurityInspectorRole")
+            account_id = audit.account_subscription_id.account_id
+
+            session = client.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
 
             method = criterion.invoke_class_get_data_method
 
