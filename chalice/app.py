@@ -508,7 +508,7 @@ def account_evaluate_criteria(event):
 
             app.log.debug("params: " + app.utilities.to_json(params))
 
-            data = getattr(client, method)(session, params)
+            data = getattr(client, method)(session, **params)
 
             app.log.debug("api response: " + app.utilities.to_json(data))
 
