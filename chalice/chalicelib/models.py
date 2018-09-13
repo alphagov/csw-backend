@@ -244,6 +244,7 @@ class Criterion(BaseModel):
     why_is_it_important = TextField()
     how_do_i_fix_it = TextField()
     active = BooleanField(default=True)
+    is_regional = BooleanField(default=True)
 
     class Meta:
         table_name = "criterion"
