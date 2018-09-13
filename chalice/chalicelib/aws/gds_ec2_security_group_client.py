@@ -80,18 +80,18 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
         for group in groups:
 
-            group['resourceType'] = 'AWS::EC2::SecurityGroup'
+            group.resourceType = 'AWS::EC2::SecurityGroup'
+
+            compliance = group.resource_compliance
 
             self.app.log.debug('set resource type')
 
-            compliance = self.evaluate_compliance({}, group, self.valid_ranges)
-
             summary['all']['display_stat'] += 1
 
-            if compliance['IsApplicable']:
+            if compliance.is_applicable:
                 summary['applicable']['display_stat'] += 1
 
-                if compliance['IsCompliant']:
+                if compliance.is_compliant:
                     summary['compliant']['display_stat'] += 1
                 else:
                     summary['non_compliant']['display_stat'] += 1
@@ -99,11 +99,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
             else:
                 summary['non_applicable']['display_stat'] += 1
 
-            group['compliance'] = compliance
-
-            self.app.log.debug(str(compliance))
-
-        return summary, groups
+        return summary
 
 
     def evaluate(self, event, item, whitelist=[]):
