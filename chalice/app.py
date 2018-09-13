@@ -478,6 +478,19 @@ def account_evaluate_criteria(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
 
+            criterion = audit_criteria_data['criterion']
+
+            app.log.debug("criterion: " + criterion["title"])
+
+            provider = criterion["criteria_provider_id"]
+
+            app.log.debug("provider: " + provider["provider_name"])
+
+            ClientClass = app.utilities.get_class_by_name(provider["invoke_class_name"])
+            client = ClientClass(app)
+
+            session = client.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
+
 
 
     except Exception as err:
@@ -494,7 +507,7 @@ def test_ports_ingress_ssh():
 
         ec2 = GdsEc2Client(app)
 
-        session = ec2.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
+        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
         app.log.debug("session: " + str(session))
 
