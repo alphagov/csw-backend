@@ -498,9 +498,15 @@ def account_evaluate_criteria(event):
 
             session = client.get_session(account='103495720024', role=f"{app.prefix}_CstSecurityInspectorRole")
 
-            #getattr(client, criterion["invoke_class_get_data_method"])()
+            method = criterion["invoke_class_get_data_method"]
 
-            app.debug.log("params: " + app.utilities.to_json(criterion.criterion_params))
+            app.log.debug("get data method: " + method)
+
+            app.log.debug("params: " + app.utilities.to_json(criterion.criterion_params))
+
+            #getattr(client, method)()
+
+
 
 
             audit.date_updated = datetime.now()
