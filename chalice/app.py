@@ -516,6 +516,7 @@ def account_evaluate_criteria(event):
                 regions = ec2.describe_regions()
                 for region in regions:
                     params["region"] = region["RegionName"]
+                    app.log.debug("Create request from region: " + params["region"])
                     requests.append(params)
             else:
                 requests.append(params)
