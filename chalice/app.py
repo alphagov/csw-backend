@@ -532,7 +532,7 @@ def account_evaluate_criteria(event):
 
                 for group in data:
 
-                    json = app.utilities.to_json(data.serialize())
+                    json = app.utilities.to_json(group.serialize())
 
                     item = {
                         "account_audit_id": audit.id,
