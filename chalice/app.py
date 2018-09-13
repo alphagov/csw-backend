@@ -530,9 +530,9 @@ def account_evaluate_criteria(event):
 
                 app.log.debug("api response: " + app.utilities.to_json(data))
 
-                for group in data:
+                for item_raw in data:
 
-                    json = app.utilities.to_json(group.serialize())
+                    json = app.utilities.to_json(item_raw.serialize())
 
                     item = {
                         "account_audit_id": audit.id,
@@ -543,7 +543,7 @@ def account_evaluate_criteria(event):
                         "date_evaluated": datetime.now()
                     }
 
-                    item.update(client.translate(group))
+                    item.update(client.translate(item_raw))
 
                     CriterionStatus.create(**item)
 
