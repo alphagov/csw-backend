@@ -507,9 +507,10 @@ def account_evaluate_criteria(event):
                 params[param.param_name] = param.param_value
 
             app.log.debug("params: " + app.utilities.to_json(params))
-            #getattr(client, method)()
 
+            data = getattr(client, method)(session, params)
 
+            app.log.debug("api response: " + app.utilities.to_json(data))
 
 
             audit.date_updated = datetime.now()

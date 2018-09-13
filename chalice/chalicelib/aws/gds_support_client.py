@@ -30,13 +30,10 @@ class GdsSupportClient(GdsAwsClient):
 
         return checks
 
-    def describe_trusted_advisor_check_result(self, session, check_id):
+    def describe_trusted_advisor_check_result(self, session, **kwargs):
 
         support = self.get_boto3_session_client('support', session, 'us-east-1')
-        response = support.describe_trusted_advisor_check_result(
-            checkId=check_id,
-            language='en'
-        )
+        response = support.describe_trusted_advisor_check_result(kwargs)
 
         result = response['result']
         return result
