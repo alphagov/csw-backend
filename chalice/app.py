@@ -535,7 +535,7 @@ def account_evaluate_criteria(event):
                     item = {
                         "account_audit_id": audit.id,
                         "criterion_id": criterion.id,
-                        "resource_data": app.utilities.to_json(item_raw.serialize()),
+                        "resource_data": app.utilities.to_json(item_raw),
                         "compliance": "NOT TESTED",
                         "status_id": None,
                         "date_evaluated": datetime.now()
