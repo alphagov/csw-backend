@@ -498,7 +498,7 @@ def account_evaluate_criteria(event):
 
             session = client.get_session(account='103495720024', role=f"{app.prefix}_CstSecurityInspectorRole")
 
-            method = criterion["invoke_class_get_data_method"]
+            method = criterion.invoke_class_get_data_method
 
             app.log.debug("get data method: " + method)
 
