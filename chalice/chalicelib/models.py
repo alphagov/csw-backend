@@ -342,11 +342,12 @@ dbh.add_model("CachedDataResponse", CachedDataResponse)
 class CriterionStatus(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='criterion_status')
     account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status')
-    resource_arn = CharField()
+    resource_id = CharField()
     resource_name = CharField()
+    resource_data = TextField()
+    compliance = TextField()
     status_id = ForeignKeyField(Status, backref='status')
     date_evaluated = DateTimeField(default=datetime.now)
-    date_changed = DateTimeField(default=datetime.now)
 
     class Meta:
         table_name = "criterion_status"

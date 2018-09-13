@@ -463,7 +463,8 @@ def account_evaluate_criteria(event):
 
         AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
-        CriterionParams = dbh.get_model("CriterionParams")
+        # CriterionParams = dbh.get_model("CriterionParams")
+        CriterionStatus = dbh.get_model("CriterionStatus")
 
         # create SQS message
         sqs = GdsSqsClient(app)
@@ -520,6 +521,7 @@ def account_evaluate_criteria(event):
                     params["region"] = region["RegionName"]
                     app.log.debug("Create request from region: " + params["region"])
                     requests.append(params)
+
             else:
                 requests.append(params)
 
@@ -528,8 +530,25 @@ def account_evaluate_criteria(event):
 
                 app.log.debug("api response: " + app.utilities.to_json(data))
 
+                for group in data:
+
+                    json = app.utilities.to_json(data.serialize())
+
+                    item = {
+                        "account_audit_id": audit.id,
+                        "criterion_id": criterion.id,
+                        "resource_data": json,
+                        "compliance": "NOT TESTED",
+                        "status_id": None,
+                        "date_evaluated": datetime.now()
+                    }
+
+                    item.update(client.translate(group))
+
+                    CriterionStatus.create(**item)
 
             audit.date_updated = datetime.now()
+
             audit.save()
 
     except Exception as err:

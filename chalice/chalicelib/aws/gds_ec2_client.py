@@ -32,3 +32,12 @@ class GdsEc2Client(GdsAwsClient):
         security_groups = response['SecurityGroups']
 
         return security_groups
+
+    def translate(self, data):
+
+        item = {
+            "resource_id": data['GroupId'],
+            "resource_name": data['GroupName'],
+        }
+
+        return item
