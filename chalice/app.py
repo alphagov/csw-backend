@@ -487,7 +487,7 @@ def account_evaluate_criteria(event):
 
             criterion = Criterion.get_by_id(criterion_data['id'])
 
-            app.log.debug("criterion: " + criterion["title"])
+            app.log.debug("criterion: " + criterion.title)
 
             provider = criterion_data["criteria_provider_id"]
 
