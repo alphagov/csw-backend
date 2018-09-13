@@ -502,8 +502,11 @@ def account_evaluate_criteria(event):
 
             app.log.debug("get data method: " + method)
 
-            app.log.debug("params: " + app.utilities.to_json(criterion.criterion_params))
+            params = {}
+            for param in criterion.criterion_/params:
+                params[param.param_name] = param.param_value
 
+            app.log.debug("params: " + app.utilities.to_json(params))
             #getattr(client, method)()
 
 
