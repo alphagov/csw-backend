@@ -418,7 +418,6 @@ def account_audit_criteria(event):
             app.log.debug(message.body)
 
             audit = AccountAudit.get_by_id(audit_data['id'])
-            audit.date_updated = datetime.now()
             audit.active_criteria = len(list(active_criteria))
 
             for criterion in active_criteria:
@@ -437,6 +436,7 @@ def account_audit_criteria(event):
 
                 messages.append(message_id)
 
+            audit.date_updated = datetime.now()
             audit.save()
 
     except Exception as err:
@@ -461,6 +461,7 @@ def account_evaluate_criteria(event):
 
         AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
+        CriterionParams = dbh.get_model("CriterionParams")
 
         # create SQS message
         sqs = GdsSqsClient(app)
@@ -478,20 +479,32 @@ def account_evaluate_criteria(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
 
-            criterion = audit_criteria_data['criterion']
+            audit_data = audit_criteria_data['audit']
+
+            audit = AccountAudit.get_by_id(audit_data['id'])
+
+            criterion_data = audit_criteria_data['criterion']
+
+            criterion = Criterion.get_by_id(criterion_data['id'])
 
             app.log.debug("criterion: " + criterion["title"])
 
-            provider = criterion["criteria_provider_id"]
+            provider = criterion_data["criteria_provider_id"]
 
             app.log.debug("provider: " + provider["provider_name"])
 
             ClientClass = app.utilities.get_class_by_name(provider["invoke_class_name"])
             client = ClientClass(app)
 
-            session = client.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
+            session = client.get_session(account='103495720024', role=f"{app.prefix}_CstSecurityInspectorRole")
+
+            #getattr(client, criterion["invoke_class_get_data_method"])()
+
+            app.debug.log("params: " + app.utilities.to_json(criterion.criterion_params))
 
 
+            audit.date_updated = datetime.now()
+            audit.save()
 
     except Exception as err:
         app.log.error(str(err))
