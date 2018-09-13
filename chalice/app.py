@@ -534,7 +534,7 @@ def test_ports_ingress_ssh():
 
         app.log.debug("session: " + str(session))
 
-        groups = ec2.describe_security_groups(session, region='eu-west-1')
+        groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
 
         # app.log.debug("groups: " + str(groups))
 
@@ -570,7 +570,7 @@ def test_importlib():
         session = client.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
 
         app.log.debug("Created assumed session")
-        data = client.describe_security_groups(session, region='eu-west-1')
+        data = client.describe_security_groups(session, **{"region":'eu-west-1'})
 
         app.log.debug("Got data from client")
         response = {

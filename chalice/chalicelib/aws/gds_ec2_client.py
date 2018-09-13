@@ -6,7 +6,9 @@ from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 class GdsEc2Client(GdsAwsClient):
 
-    def describe_security_groups(self, session, region='eu-west-2'):
+    def describe_security_groups(self, session, **kwargs):
+
+
 
         # get a boto3 client for the EC2 service in the given region (default to London)
         ec2 = self.get_boto3_session_client('ec2', session, region)
