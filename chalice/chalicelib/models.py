@@ -369,6 +369,9 @@ class ResourceCompliance(BaseModel):
         table_name = "resource_compliance"
 
 
+dbh.add_model("ResourceCompliance", ResourceCompliance)
+
+
 # For non-green status issues we record a risk record
 class CriterionStatusRiskAssessment(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='criterion_status_risk_assessments')
