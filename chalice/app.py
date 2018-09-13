@@ -537,7 +537,7 @@ def account_evaluate_criteria(event):
                         "criterion_id": criterion.id,
                         "resource_data": app.utilities.to_json(item_raw),
                         "compliance": "NOT TESTED",
-                        "status_id": None,
+                        "status_id": 1,
                         "date_evaluated": datetime.now()
                     }
 
