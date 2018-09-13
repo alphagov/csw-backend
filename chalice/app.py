@@ -1,8 +1,10 @@
 import logging
 import os
 import json
+import importlib
 from datetime import datetime
 from chalice import Chalice, Response, BadRequestError
+from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
@@ -18,6 +20,7 @@ app = Chalice(app_name='cloud-security-watch')
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
 app.prefix = os.environ["CSW_ENV"]
+app.utilities = Utilities()
 
 
 def load_route_services():
@@ -255,7 +258,7 @@ def database_create_item(event, context):
 
         item = dbh.create_item(event)
         data = item.serialize()
-        json = dbh.to_json(data)
+        json = app.utilities.to_json(data)
 
     except Exception:
         json = None
@@ -273,7 +276,7 @@ def database_get_item(event, context):
 
         item = dbh.get_item(event)
         data = item.serialize()
-        json = dbh.to_json(data)
+        json = app.utilities.to_json(data)
 
     except Exception:
         json = None
@@ -352,7 +355,7 @@ def audit_account(event, context):
 
             app.log.debug("Created audit record")
 
-            message_body = dbh.to_json(audit.serialize())
+            message_body = app.utilities.to_json(audit.serialize())
 
             app.log.debug("Sending SQS message with body: " + message_body)
 
@@ -422,7 +425,7 @@ def account_audit_criteria(event):
 
                 criterion_data = criterion.serialize()
 
-                message_body = dbh.to_json({
+                message_body = app.utilities.to_json({
                     "audit": audit_data,
                     "criterion": criterion_data
                 })
@@ -443,6 +446,45 @@ def account_audit_criteria(event):
             db.close()
 
     return status
+
+
+@app.on_sqs_message(queue=f"{app.prefix}-audit-account-metric-queue")
+def account_evaluate_criteria(event):
+
+    status = False
+    try:
+        status = False
+        dbh = DatabaseHandle(app)
+
+        db = dbh.get_handle()
+        db.connect()
+
+        AccountAudit = dbh.get_model("AccountAudit")
+        Criterion = dbh.get_model("Criterion")
+
+        # create SQS message
+        sqs = GdsSqsClient(app)
+
+        app.log.debug("Invoke SQS client")
+
+        app.log.debug("Set prefix: " + app.prefix)
+
+        queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-metric-queue")
+
+        app.log.debug("Retrieved queue url: " + queue_url)
+
+        messages = []
+
+        for message in event:
+            audit_criteria_data = json.loads(message.body)
+
+
+
+    except Exception as err:
+        app.log.error(str(err))
+
+    return status
+
 
 @app.route('/test/ports_ingress_ssh')
 def test_ports_ingress_ssh():
@@ -476,10 +518,33 @@ def test_ports_ingress_ssh():
             template_data
         )
     except Exception as err:
-        { "body": str(err) }
+        response = { "body": str(err) }
 
     return Response(**response)
 
+
+@app.route('/test/importlib')
+def test_importlib():
+
+    try:
+
+        ClientClass = app.utilities.get_class_by_name("chalicelib.aws.gds_ec2_client.GdsEc2Client")
+        client = ClientClass(app)
+
+        session = client.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
+
+        app.log.debug("Created assumed session")
+        data = client.describe_security_groups(session, region='eu-west-1')
+
+        app.log.debug("Got data from client")
+        response = {
+            "body": data
+        }
+        app.log.debug("Created response dictionary")
+    except Exception as err:
+        response = {"body": str(err)}
+
+    return Response(**response)
 
 @app.route('/test/ports_egress_open')
 def test_ports_egress_open():
@@ -510,7 +575,7 @@ def test_ports_egress_open():
             template_data
         )
     except Exception as err:
-        { "body": str(err) }
+        response = { "body": str(err) }
 
     return Response(**response)
 
@@ -529,7 +594,7 @@ def asset_render_qs():
         if 'proxy' in req.uri_params:
             proxy = req.uri_params['proxy']
 
-        mime_type = get_mime_type(proxy)
+        mime_type = app.utilities.get_mime_type(proxy)
 
         data = read_asset(proxy)
 
@@ -557,7 +622,7 @@ def asset_render():
         else:
             proxy = req.uri_params['proxy+']
 
-        mime_type = get_mime_type(proxy)
+        mime_type = app.utilities.get_mime_type(proxy)
 
         data = read_asset(proxy)
 
@@ -586,7 +651,7 @@ def read_asset(proxy):
     if ".." in proxy:
         raise Exception(f"No back (..) navigating: {proxy}")
 
-    mime_type = get_mime_type(true_path)
+    mime_type = app.utilities.get_mime_type(true_path)
 
     if mime_type in ascii_types:
         with open(true_path, 'r') as text:
@@ -599,33 +664,3 @@ def read_asset(proxy):
 
     return data
 
-def get_mime_type(file):
-    # I've removed the python-magic library because the
-    # it fails to be installed in the chalice deploy
-    # and returns the wrong type for a number of common types
-    file_name, ext = os.path.splitext(file)
-
-    known_types = {
-        ".html": "text/html",
-        ".js": "text/javascript",
-        ".css": "text/css",
-        ".svg": "image/svg",
-        ".png": "image/png",
-        ".jpeg": "image/jpeg",
-        ".jpg": "image/jpeg",
-        ".ico": "image/x-icon",
-        ".woff": "font/woff",
-        ".woff2": "font/woff",
-        ".eot": "font/eot",
-        ".txt": "text/plain",
-        ".md": "text/plain"
-    }
-
-    default_type = "application/octet-stream"
-
-    if ext in known_types:
-        mime_type = known_types[ext]
-    else:
-        mime_type = default_type
-
-    return mime_type
