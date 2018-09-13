@@ -463,8 +463,8 @@ def account_evaluate_criteria(event):
 
         AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
-        # CriterionParams = dbh.get_model("CriterionParams")
         CriterionStatus = dbh.get_model("CriterionStatus")
+        ResourceCompliance = dbh.get_model("ResourceCompliance")
 
         # create SQS message
         sqs = GdsSqsClient(app)
@@ -532,18 +532,20 @@ def account_evaluate_criteria(event):
 
                 for item_raw in data:
 
+                    compliance = client.evaluate({}, item_raw)
+
                     item = {
                         "account_audit_id": audit.id,
                         "criterion_id": criterion.id,
                         "resource_data": app.utilities.to_json(item_raw),
-                        "compliance": "NOT TESTED",
-                        "status_id": 1,
                         "date_evaluated": datetime.now()
                     }
 
                     item.update(client.translate(item_raw))
 
                     CriterionStatus.create(**item)
+
+                    ResourceCompliance.create(**compliance)
 
             audit.date_updated = datetime.now()
 

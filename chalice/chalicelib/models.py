@@ -342,11 +342,10 @@ dbh.add_model("CachedDataResponse", CachedDataResponse)
 class CriterionStatus(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='criterion_status')
     account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status')
+    region = CharField(null = True)
     resource_id = CharField()
     resource_name = CharField()
     resource_data = TextField()
-    compliance = TextField()
-    status_id = ForeignKeyField(Status, backref='status')
     date_evaluated = DateTimeField(default=datetime.now)
 
     class Meta:
@@ -356,18 +355,32 @@ class CriterionStatus(BaseModel):
 dbh.add_model("CriterionStatus", CriterionStatus)
 
 
+class ResourceCompliance(BaseModel):
+    criterion_status_id = ForeignKeyField(CriterionStatus, backref='resource_compliance')
+    annotation = TextField()
+    resource_type = CharField()
+    resource_id = CharField()
+    compliance_type = CharField()
+    is_compliant = BooleanField(default = False)
+    is_applicable = BooleanField(default = True)
+    status_id = ForeignKeyField(Status, backref='status')
+
+    class Meta:
+        table_name = "resource_compliance"
+
+
 # For non-green status issues we record a risk record
 class CriterionStatusRiskAssessment(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='criterion_status_risk_assessments')
     criterion_status = ForeignKeyField(CriterionStatus, backref='criterion_status_risk_assessments')
     account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status_risk_assessments')
-    resource_arn = CharField()
+    resource_id = CharField()
     date_first_identifed = DateField()
-    date_last_notifier = DateField()
+    date_last_notified = DateField(null = True)
     notification_method = ForeignKeyField(NotificationMethod, backref='criterion_status_risk_assessments')
-    date_of_review = DateField()
-    accepted_risk = BooleanField()
-    analyst_assessed = BooleanField()
+    date_of_review = DateField(null = True)
+    accepted_risk = BooleanField(default = False)
+    analyst_assessed = BooleanField(default = False)
     severity = ForeignKeyField(Severity, backref='severity')
 
     class Meta:

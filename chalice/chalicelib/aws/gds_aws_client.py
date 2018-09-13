@@ -12,6 +12,9 @@ class GdsAwsClient:
     clients = dict()
     sessions = dict()
 
+    resource_type = "AWS::*::*"
+    annotation = ""
+
     def __init__(self, app=None):
         self.app = app
 
@@ -213,3 +216,38 @@ class GdsAwsClient:
             session = False
 
         return session
+
+
+    def build_evaluation(self, resource_id, compliance_type, event, resource_type, annotation=None):
+
+        """Form an evaluation as a dictionary. Usually suited to report on scheduled rules.
+        Keyword arguments:
+        resource_id -- the unique id of the resource to report
+        compliance_type -- either COMPLIANT, NON_COMPLIANT or NOT_APPLICABLE
+        event -- the event variable given in the lambda handler
+        resource_type -- the CloudFormation resource type (or AWS::::Account) to report on the rule (default DEFAULT_RESOURCE_TYPE)
+        annotation -- an annotation to be added to the evaluation (default None)
+        """
+        eval = {}
+        if annotation:
+            eval['annotation'] = annotation
+        eval['compliance_resource_type'] = resource_type
+        eval['compliance_resource_id'] = resource_id
+        eval['compliance_type'] = compliance_type
+        eval['is_compliant'] = compliance_type == 'COMPLIANT'
+        eval['is_applicable'] = compliance_type != 'NON_APPLICABLE'
+        eval['status'] = self.get_status(eval)
+
+        return eval
+
+
+    def get_status(self, eval):
+
+        status = 1 # Not tested
+
+        if eval["is_compliant"] or not eval["is_applicable"]:
+            status = 2 # Pass
+        elif not eval["is_compliant"]:
+            status = 3 # Fail
+
+        return status
