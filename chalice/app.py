@@ -258,12 +258,12 @@ def database_create_item(event, context):
 
         item = dbh.create_item(event)
         data = item.serialize()
-        json = app.utilities.to_json(data)
+        json_data = app.utilities.to_json(data)
 
     except Exception:
-        json = None
+        json_data = None
 
-    return json
+    return json_data
 
 
 @app.lambda_function()
@@ -276,12 +276,12 @@ def database_get_item(event, context):
 
         item = dbh.get_item(event)
         data = item.serialize()
-        json = app.utilities.to_json(data)
+        json_data = app.utilities.to_json(data)
 
     except Exception:
-        json = None
+        json_data = None
 
-    return json
+    return json_data
 
 
 @app.lambda_function()
@@ -532,12 +532,10 @@ def account_evaluate_criteria(event):
 
                 for item_raw in data:
 
-                    json = app.utilities.to_json(item_raw.serialize())
-
                     item = {
                         "account_audit_id": audit.id,
                         "criterion_id": criterion.id,
-                        "resource_data": json,
+                        "resource_data": app.utilities.to_json(item_raw.serialize()),
                         "compliance": "NOT TESTED",
                         "status_id": None,
                         "date_evaluated": datetime.now()
