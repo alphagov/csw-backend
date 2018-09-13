@@ -11,7 +11,7 @@ class GdsEc2Client(GdsAwsClient):
 
 
         # get a boto3 client for the EC2 service in the given region (default to London)
-        ec2 = self.get_boto3_session_client('ec2', session, region)
+        ec2 = self.get_boto3_session_client('ec2', session, kwargs["region"])
 
         #if hasattr(self,'app'):
         #    self.app.log.debug('got session client')
