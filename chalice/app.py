@@ -386,8 +386,10 @@ def audit_account(event, context):
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
 def account_audit_criteria(event):
+
+    status = False
     try:
-        status = False
+
         dbh = DatabaseHandle(app)
 
         db = dbh.get_handle()
@@ -508,9 +510,20 @@ def account_evaluate_criteria(event):
 
             app.log.debug("params: " + app.utilities.to_json(params))
 
-            data = getattr(client, method)(session, **params)
+            requests = []
+            if criterion.is_regional:
+                ec2 = GdsEc2Client(app)
+                regions = ec2.describe_regions()
+                for region in regions:
+                    params["region"] = region["RegionName"]
+                    requests.append(params)
+            else:
+                requests.append(params)
 
-            app.log.debug("api response: " + app.utilities.to_json(data))
+            for params in requests:
+                data = getattr(client, method)(session, **params)
+
+                app.log.debug("api response: " + app.utilities.to_json(data))
 
 
             audit.date_updated = datetime.now()

@@ -6,6 +6,13 @@ from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 class GdsEc2Client(GdsAwsClient):
 
+    def describe_regions(self):
+
+        ec2 = self.get_boto3_default_client('ec2')
+        response = ec2.describe_regions()
+
+        return response['Regions']
+
     def describe_security_groups(self, session, **kwargs):
 
 
