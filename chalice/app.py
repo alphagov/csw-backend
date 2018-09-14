@@ -586,7 +586,7 @@ def account_evaluate_criteria(event):
 
             audit.save()
 
-    except Exception as err:r
+    except Exception as err:
         app.log.error(str(err))
         if db is not None:
             db.rollback()
