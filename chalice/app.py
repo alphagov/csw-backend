@@ -579,7 +579,7 @@ def evaluated_metric(event):
 
                 criteria_data = []
                 for criteria in audit_criteria:
-                    criteria_data.append(criteria.serlialize())
+                    criteria_data.append(criteria.serialize())
 
                 message_data["criteria"] = criteria_data
 
