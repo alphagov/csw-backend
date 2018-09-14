@@ -8,8 +8,6 @@ from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
-from chalicelib.aws.gds_ec2_security_group_ingress_ssh_client import GdsEc2SecurityGroupIngressSshClient
-from chalicelib.aws.gds_support_client import GdsSupportClient
 from chalicelib.models import DatabaseHandle
 from chalicelib.views import TemplateHandler
 
@@ -602,7 +600,10 @@ def test_ports_ingress_ssh():
     try:
         load_route_services()
 
-        ec2 = GdsEc2SecurityGroupIngressSshClient(app)
+        Client = app.utilities.get_class_by_name(
+            "chalicelib.aws.gds_ec2_security_group_ingress_ssh_client.GdsEc2SecurityGroupIngressSshClient"
+        )
+        ec2 = Client(app)
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
@@ -637,43 +638,40 @@ def test_ports_ingress_ssh():
     return Response(**response)
 
 
-@app.route('/test/importlib')
-def test_importlib():
+@app.route('/test/ports_ingress_open')
+def test_ports_ingress_open():
 
-    try:
-
-        ClientClass = app.utilities.get_class_by_name("chalicelib.aws.gds_ec2_client.GdsEc2Client")
-        client = ClientClass(app)
-
-        session = client.get_session(account='103495720024', role='sandbox_cst_security_inspector_role')
-
-        app.log.debug("Created assumed session")
-        data = client.describe_security_groups(session, **{"region":'eu-west-1'})
-
-        app.log.debug("Got data from client")
-        response = {
-            "body": data
-        }
-        app.log.debug("Created response dictionary")
-    except Exception as err:
-        response = {"body": str(err)}
-
-    return Response(**response)
-
-@app.route('/test/ports_egress_open')
-def test_ports_egress_open():
 
     try:
         load_route_services()
-        support = GdsSupportClient(app)
-        session = support.get_session(account='779799343306', role='sandbox_csw_inspector_role')
-        checks = support.describe_trusted_advisor_checks(session)
+
+        Client = app.utilities.get_class_by_name(
+            "chalicelib.aws.gds_ec2_security_group_ingress_open_client.GdsEc2SecurityGroupIngressOpenClient"
+        )
+        ec2 = Client(app)
+
+        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+
+        groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
 
         # app.log.debug("groups: " + str(groups))
-        app.log.debug(json.dumps(checks))
 
+        for group in groups:
 
-        template_data = json.dumps(checks)
+            compliance = ec2.evaluate({}, group, [])
+
+            app.log.debug(app.utilities.to_json(compliance))
+
+            group['resource_compliance'] = compliance
+
+        summary = ec2.summarize(groups)
+
+        template_data = app.dummy_data["audits"][0]
+        template_data["criteria"][0]["compliance_results"] = groups
+        template_data["criteria"][0]["compliance_summary"] = summary
+        template_data["criteria"][0]["tested"] = True
+
+        # app.log.debug("template data: " + str(template_data))
 
         response = app.templates.render_authorized_route_template('/audit/{id}',
             app.current_request,

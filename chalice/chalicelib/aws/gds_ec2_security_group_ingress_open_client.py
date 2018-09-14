@@ -36,58 +36,13 @@ class GdsEc2SecurityGroupIngressOpenClient(GdsEc2SecurityGroupClient):
         5500
     ]
 
-    def summarize(self, groups):
+    def get_port_list(self):
 
-        summary = {
-            'all': {
-                'display_stat': 0,
-                'category': 'all',
-                'modifier_class': 'tested'
-            },
-            'applicable': {
-                'display_stat': 0,
-                'category': 'tested',
-                'modifier_class': 'precheck'
-            },
-            'non_compliant': {
-                'display_stat': 0,
-                'category': 'failed',
-                'modifier_class': 'failed'
-            },
-            'compliant': {
-                'display_stat': 0,
-                'category': 'passed',
-                'modifier_class': 'passed'
-            },
-            'non_applicable': {
-                'display_stat': 0,
-                'category': 'ignored',
-                'modifier_class': 'passed'
-            }
-        }
+        string_ports = []
+        for port in self.flag_unrestricted_ports:
+            string_ports.append(str(port))
 
-        for group in groups:
-
-            group.resourceType = 'AWS::EC2::SecurityGroup'
-
-            compliance = group.resource_compliance
-
-            self.app.log.debug('set resource type')
-
-            summary['all']['display_stat'] += 1
-
-            if compliance.is_applicable:
-                summary['applicable']['display_stat'] += 1
-
-                if compliance.is_compliant:
-                    summary['compliant']['display_stat'] += 1
-                else:
-                    summary['non_compliant']['display_stat'] += 1
-
-            else:
-                summary['non_applicable']['display_stat'] += 1
-
-        return summary
+        return ", ".join(string_ports)
 
 
     def evaluate(self, event, item, whitelist=[]):
@@ -118,8 +73,8 @@ class GdsEc2SecurityGroupIngressOpenClient(GdsEc2SecurityGroupClient):
                 compliance_type = 'NON_COMPLIANT'
         else:
             compliance_type = 'NOT_APPLICABLE'
-            self.annotation = "This group does not contain rules applying to flagged ports " \
-                              + ", ".join(self.flag_unrestricted_ports)
+            self.annotation = "This group does not contain rules applying to flagged ports "
+            self.annotation += self.get_port_list()
 
         evaluation = self.build_evaluation(item['GroupId'], compliance_type, event, self.resource_type, self.annotation)
 
@@ -142,7 +97,6 @@ class GdsEc2SecurityGroupIngressOpenClient(GdsEc2SecurityGroupClient):
                 cidr = ip_range["CidrIpv6"]
                 cidr_is_valid = (cidr != "::/0")
 
-            cidr_is_valid = cidr in whitelist
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
@@ -165,6 +119,10 @@ class GdsEc2SecurityGroupIngressOpenClient(GdsEc2SecurityGroupClient):
 
             if flag_port_in_port_range:
                 in_port_range = True
+
+            self.app.log.debug("port: " + str(port) + " is flagged: " + str(flag_port_in_port_range))
+
+        self.app.log.debug("rule applies: " + str(in_port_range))
 
         rule['MatchesProtocol'] = is_protocol
         rule['MatchesPortRange'] = in_port_range

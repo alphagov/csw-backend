@@ -56,7 +56,13 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         if "ToPort" in rule:
             range.append(str(rule["ToPort"]))
 
-        return '-'.join(range)
+        # if port range from and to are the same just return one
+        if len(range) == 2 and range[0] == range[1]:
+            port_range = range[0]
+        else:
+            port_range = '-'.join(range)
+
+        return port_range
 
 
     def in_port_range(self, rule, required_port):
