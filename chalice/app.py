@@ -7,8 +7,8 @@ from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.views import TemplateHandler
 from chalicelib.audit.lambdas import *
-from chalicelib.admin.lambdas import *
-from chalicelib.tests.lambdas import *
+from chalicelib import admin
+from chalicelib import demos
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -197,38 +197,38 @@ def demo_audit_report(id):
 # TODO add authentication or rely on API permissions and assume roles to control access
 @app.lambda_function()
 def database_create_tables(event, context):
-    return execute_database_create_tables(app, event, context)
+    return admin.execute_database_create_tables(app, event, context)
 
 
 # @app.lambda_function()
-# def chalice_database_create_all_tables(event, context):
-#   database_create_all_tables(app, event, context)
+# def database_create_all_tables(event, context):
+#   admin.execute_database_create_all_tables(app, event, context)
 
 
 @app.lambda_function()
 def database_create_item(event, context):
-    return execute_database_create_item(app, event, context)
+    return admin.execute_database_create_item(app, event, context)
 
 
 @app.lambda_function()
 def database_get_item(event, context):
-    return execute_database_get_item(app, event, context)
+    return admin.execute_database_get_item(app, event, context)
 
 
 @app.lambda_function()
 def database_run(event, context):
-    return execute_database_run(app, event, context)
+    return admin.execute_database_run(app, event, context)
 
 
 @app.lambda_function()
 def database_list_models(event, context):
-    return execute_database_list_models(app, event, context)
+    return admin.execute_database_list_models(app, event, context)
 
 
 # AUDIT LAMBDAS START HERE
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account_schedule(event):
-    return execute_on_audit_accounts_event(app, event, {})
+    return .execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()
@@ -255,14 +255,14 @@ def audit_evaluated_metric(event):
 @app.route('/test/ports_ingress_ssh')
 def test_ports_ingress_ssh():
 
-    response = execute_test_ports_ingress_ssh(app, load_route_services)
+    response = demos.execute_test_ports_ingress_ssh(app, load_route_services)
     return Response(**response)
 
 
 @app.route('/test/ports_ingress_open')
 def test_ports_ingress_open():
 
-    response = execute_test_ports_ingress_open(app, load_route_services)
+    response = demos.execute_test_ports_ingress_open(app, load_route_services)
     return Response(**response)
 
 
