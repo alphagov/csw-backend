@@ -219,11 +219,10 @@ class AccountAudit(BaseModel):
 dbh.add_model("AccountAudit", AccountAudit)
 
 
-# eg Trusted Advisor, Config ...
-# invoke_class_name like GdsSupportClient for Trusted Advisor
+# eg AWS domain - Trusted Advisor EC2...
+# The tool could be extended beyond the scope of AWS
 class CriteriaProvider(BaseModel):
     provider_name = CharField()
-    invoke_class_name = CharField()
 
     class Meta:
         table_name = "criteria_provider"
@@ -236,7 +235,8 @@ dbh.add_model("CriteriaProvider", CriteriaProvider)
 # invoke_class_method like describe_trusted_advisor_check_result
 class Criterion(BaseModel):
     criterion_name = CharField()
-    criteria_provider_id = ForeignKeyField(CriteriaProvider, backref='criteria_provider')
+    criteria_provider_id = ForeignKeyField(CriteriaProvider, backref='criteria')
+    invoke_class_name = CharField()
     invoke_class_get_data_method = CharField()
     evaluation_lambda_function = CharField()
     title = TextField()

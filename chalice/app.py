@@ -498,7 +498,7 @@ def account_evaluate_criteria(event):
 
             app.log.debug("provider: " + provider["provider_name"])
 
-            ClientClass = app.utilities.get_class_by_name(provider["invoke_class_name"])
+            ClientClass = app.utilities.get_class_by_name(criterion.invoke_class_name)
             client = ClientClass(app)
 
             account_id = audit.account_subscription_id.account_id
