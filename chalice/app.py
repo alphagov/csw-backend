@@ -520,9 +520,10 @@ def account_evaluate_criteria(event):
                 ec2 = GdsEc2Client(app)
                 regions = ec2.describe_regions()
                 for region in regions:
-                    params["region"] = region["RegionName"]
-                    app.log.debug("Create request from region: " + params["region"])
-                    requests.append(params)
+                    region_params = params.copy()
+                    region_params["region"] = region["RegionName"]
+                    app.log.debug("Create request from region: " + region_params["region"])
+                    requests.append(region_params)
 
             else:
                 requests.append(params)
@@ -563,6 +564,8 @@ def account_evaluate_criteria(event):
 
                         compliance["audit_resource_id"] = audit_resource
                         resource_compliance = ResourceCompliance.create(**compliance)
+
+                    audit.criteria_processed += 1
 
             audit.date_updated = datetime.now()
 
