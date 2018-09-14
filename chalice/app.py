@@ -397,6 +397,7 @@ def account_audit_criteria(event):
 
         AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
+        AuditCriterion = dbh.get_model("AuditCriterion")
 
         # create SQS message
         sqs = GdsSqsClient(app)
@@ -424,12 +425,18 @@ def account_audit_criteria(event):
 
             for criterion in active_criteria:
 
+                audit_criterion = AuditCriterion.create(
+                    account_audit_id = audit,
+                    criterion_id = criterion
+                )
+
                 criterion_data = criterion.serialize()
 
-                message_body = app.utilities.to_json({
-                    "audit": audit_data,
-                    "criterion": criterion_data
-                })
+                #message_body = app.utilities.to_json({
+                #    "audit": audit_data,
+                #    "criterion": criterion_data
+                #})
+                message_body = app.utilities.to_json(audit.criterion.serlialize())
 
                 message_id = sqs.send_message(
                     queue_url,
@@ -463,7 +470,7 @@ def account_evaluate_criteria(event):
 
         AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
-        CriterionStatus = dbh.get_model("CriterionStatus")
+        AuditResource = dbh.get_model("AuditResource")
         ResourceCompliance = dbh.get_model("ResourceCompliance")
 
         # create SQS message
@@ -482,11 +489,11 @@ def account_evaluate_criteria(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
 
-            audit_data = audit_criteria_data['audit']
+            audit_data = audit_criteria_data['account_audit_id']
 
             audit = AccountAudit.get_by_id(audit_data['id'])
 
-            criterion_data = audit_criteria_data['criterion']
+            criterion_data = audit_criteria_data['criterion_id']
 
             criterion = Criterion.get_by_id(criterion_data['id'])
 
@@ -534,6 +541,8 @@ def account_evaluate_criteria(event):
 
                     compliance = client.evaluate({}, item_raw)
 
+                    app.log.debug(app.utilities.to_json(compliance))
+
                     item = {
                         "account_audit_id": audit.id,
                         "criterion_id": criterion.id,
@@ -543,9 +552,11 @@ def account_evaluate_criteria(event):
 
                     item.update(client.translate(item_raw))
 
-                    CriterionStatus.create(**item)
+                    app.log.debug(app.utilities.to_json(item))
 
-                    ResourceCompliance.create(**compliance)
+                    #AuditResource.create(**item)
+
+                    #ResourceCompliance.create(**compliance)
 
             audit.date_updated = datetime.now()
 

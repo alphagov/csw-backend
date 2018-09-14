@@ -336,12 +336,29 @@ class CachedDataResponse(BaseModel):
 dbh.add_model("CachedDataResponse", CachedDataResponse)
 
 
+class AuditCriterion(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
+    regions = IntegerField(default = 0)
+    resources = IntegerField(default = 0)
+    tested = IntegerField(default = 0)
+    passed = IntegerField(default = 0)
+    failed = IntegerField(default = 0)
+    ignored = IntegerField(default = 0)
+
+    class Meta:
+        table_name = "audit_criterion"
+
+
+dbh.add_model("AuditCriterion", AuditCriterion)
+
+
 # This is where we store the results of quering the API
 # This should include "green" status checks as well as
 # identified risks.
-class CriterionStatus(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion_status')
-    account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status')
+class AuditResource(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
     region = CharField(null = True)
     resource_id = CharField()
     resource_name = CharField()
@@ -349,14 +366,14 @@ class CriterionStatus(BaseModel):
     date_evaluated = DateTimeField(default=datetime.now)
 
     class Meta:
-        table_name = "criterion_status"
+        table_name = "audit_resource"
 
 
-dbh.add_model("CriterionStatus", CriterionStatus)
+dbh.add_model("AuditResource", AuditResource)
 
 
 class ResourceCompliance(BaseModel):
-    criterion_status_id = ForeignKeyField(CriterionStatus, backref='resource_compliance')
+    criterion_status_id = ForeignKeyField(AuditResource, backref='resource_compliance')
     annotation = TextField()
     resource_type = CharField()
     resource_id = CharField()
@@ -373,24 +390,24 @@ dbh.add_model("ResourceCompliance", ResourceCompliance)
 
 
 # For non-green status issues we record a risk record
-class CriterionStatusRiskAssessment(BaseModel):
-    criterion_id = ForeignKeyField(Criterion, backref='criterion_status_risk_assessments')
-    criterion_status = ForeignKeyField(CriterionStatus, backref='criterion_status_risk_assessments')
-    account_audit_id = ForeignKeyField(AccountAudit, backref='criterion_status_risk_assessments')
+class ResourceRiskAssessment(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='resource_risk_assessments')
+    audit_resource = ForeignKeyField(AuditResource, backref='resource_risk_assessments')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
     resource_id = CharField()
     date_first_identifed = DateField()
     date_last_notified = DateField(null = True)
-    notification_method = ForeignKeyField(NotificationMethod, backref='criterion_status_risk_assessments')
+    notification_method = ForeignKeyField(NotificationMethod, backref='resource_risk_assessments', null = True)
     date_of_review = DateField(null = True)
     accepted_risk = BooleanField(default = False)
     analyst_assessed = BooleanField(default = False)
-    severity = ForeignKeyField(Severity, backref='severity')
+    severity = ForeignKeyField(Severity, backref='severity', null=True)
 
     class Meta:
-        table_name = "criterion_status_assessment"
+        table_name = "resource_risk_assessment"
 
 
-dbh.add_model("CriterionStatusRiskAssessment", CriterionStatusRiskAssessment)
+dbh.add_model("ResourceRiskAssessment", ResourceRiskAssessment)
 
 
 '''
