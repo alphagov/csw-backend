@@ -461,9 +461,10 @@ def account_evaluate_criteria(event):
         db = dbh.get_handle()
         db.connect()
 
-        AccountAudit = dbh.get_model("AccountAudit")
         Criterion = dbh.get_model("Criterion")
+        AccountAudit = dbh.get_model("AccountAudit")
         AuditResource = dbh.get_model("AuditResource")
+        AuditCriterion = dbh.get_model("AuditCriterion")
         ResourceCompliance = dbh.get_model("ResourceCompliance")
 
         # create SQS message
