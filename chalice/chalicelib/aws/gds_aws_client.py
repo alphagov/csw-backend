@@ -231,8 +231,8 @@ class GdsAwsClient:
         eval = {}
         if annotation:
             eval['annotation'] = annotation
-        eval['compliance_resource_type'] = resource_type
-        eval['compliance_resource_id'] = resource_id
+        eval['resource_type'] = resource_type
+        eval['resource_id'] = resource_id
         eval['compliance_type'] = compliance_type
         eval['is_compliant'] = compliance_type == 'COMPLIANT'
         eval['is_applicable'] = compliance_type != 'NON_APPLICABLE'
