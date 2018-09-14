@@ -373,7 +373,7 @@ dbh.add_model("AuditResource", AuditResource)
 
 
 class ResourceCompliance(BaseModel):
-    criterion_status_id = ForeignKeyField(AuditResource, backref='resource_compliance')
+    audit_resource_id = ForeignKeyField(AuditResource, backref='resource_compliance')
     annotation = TextField()
     resource_type = CharField()
     resource_id = CharField()
@@ -392,7 +392,7 @@ dbh.add_model("ResourceCompliance", ResourceCompliance)
 # For non-green status issues we record a risk record
 class ResourceRiskAssessment(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='resource_risk_assessments')
-    audit_resource = ForeignKeyField(AuditResource, backref='resource_risk_assessments')
+    audit_resource_id = ForeignKeyField(AuditResource, backref='resource_risk_assessments')
     account_audit_id = ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
     resource_id = CharField()
     date_first_identifed = DateField()

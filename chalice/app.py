@@ -430,12 +430,6 @@ def account_audit_criteria(event):
                     criterion_id = criterion
                 )
 
-                #criterion_data = criterion.serialize()
-
-                #message_body = app.utilities.to_json({
-                #    "audit": audit_data,
-                #    "criterion": criterion_data
-                #})
                 message_body = app.utilities.to_json(audit_criterion.serialize())
 
                 message_id = sqs.send_message(
@@ -554,9 +548,10 @@ def account_evaluate_criteria(event):
 
                     app.log.debug(app.utilities.to_json(item))
 
-                    #AuditResource.create(**item)
+                    audit_resource = AuditResource.create(**item)
 
-                    #ResourceCompliance.create(**compliance)
+                    compliance["audit_resource_id"] = audit_resource
+                    resource_compliance = ResourceCompliance.create(**compliance)
 
             audit.date_updated = datetime.now()
 
@@ -564,6 +559,9 @@ def account_evaluate_criteria(event):
 
     except Exception as err:
         app.log.error(str(err))
+        if db is not None:
+            db.rollback()
+            db.close()
 
     return status
 
