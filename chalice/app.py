@@ -430,13 +430,13 @@ def account_audit_criteria(event):
                     criterion_id = criterion
                 )
 
-                criterion_data = criterion.serialize()
+                #criterion_data = criterion.serialize()
 
                 #message_body = app.utilities.to_json({
                 #    "audit": audit_data,
                 #    "criterion": criterion_data
                 #})
-                message_body = app.utilities.to_json(audit_criterion.serlialize())
+                message_body = app.utilities.to_json(audit_criterion.serialize())
 
                 message_id = sqs.send_message(
                     queue_url,
