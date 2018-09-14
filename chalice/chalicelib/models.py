@@ -397,7 +397,6 @@ class ResourceRiskAssessment(BaseModel):
     resource_id = CharField()
     date_first_identifed = DateField()
     date_last_notified = DateField(null = True)
-    notification_method = ForeignKeyField(NotificationMethod, backref='resource_risk_assessments', null = True)
     date_of_review = DateField(null = True)
     accepted_risk = BooleanField(default = False)
     analyst_assessed = BooleanField(default = False)
