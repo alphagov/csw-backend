@@ -236,7 +236,7 @@ class GdsAwsClient:
         eval['compliance_type'] = compliance_type
         eval['is_compliant'] = compliance_type == 'COMPLIANT'
         eval['is_applicable'] = compliance_type != 'NON_APPLICABLE'
-        eval['status'] = self.get_status(eval)
+        eval['status_id'] = self.get_status(eval)
 
         return eval
 
