@@ -130,7 +130,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
             compliance_type = 'NON_APPLICABLE'
             self.annotation = "This group does not contain rules applying to SSH"
 
-        evaluation = self.build_evaluation(item['GroupId'], compliance_type, event, item["resourceType"], self.annotation)
+        evaluation = self.build_evaluation(item['GroupId'], compliance_type, event, self.resource_type, self.annotation)
 
         return evaluation
 
