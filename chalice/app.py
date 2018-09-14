@@ -583,7 +583,6 @@ def account_evaluate_criteria(event):
             audit_criterion.ignored = summary['not_applicable']['display_stat']
             audit_criterion.save()
 
-            audit.criteria_processed += 1
             audit.date_updated = datetime.now()
 
             queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
@@ -597,8 +596,37 @@ def account_evaluate_criteria(event):
                 message_body
             )
 
-            if audit.criteria_processed == audit.active_criteria:
+            status = True
 
+    except Exception as err:
+        app.log.error(str(err))
+        if db is not None:
+            db.rollback()
+            db.close()
+
+    return status
+
+
+@app.on_sqs_message(queue=f"{app.prefix}-evaluated-metric-queue")
+def evaluated_metric(event):
+    status = False
+    try:
+        status = False
+        dbh = DatabaseHandle(app)
+
+        db = dbh.get_handle()
+        db.connect()
+
+        sqs = GdsSqsClient(app)
+        AccountAudit = dbh.get_model("AccountAudit")
+
+        for message in event:
+            audit_criteria_data = json.loads(message.body)
+
+            audit = AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
+            audit.criteria_processed += 1
+
+            if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
                 # create SQS message
 
@@ -614,8 +642,6 @@ def account_evaluate_criteria(event):
                 )
 
             audit.save()
-
-            status = True
 
     except Exception as err:
         app.log.error(str(err))
@@ -633,7 +659,7 @@ def test_ports_ingress_ssh():
         load_route_services()
 
         Client = app.utilities.get_class_by_name(
-            "chalicelib.aws.gds_ec2_security_group_ingress_ssh_client.GdsEc2SecurityGroupIngressSshClient"
+            "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
         )
         ec2 = Client(app)
 
@@ -674,7 +700,7 @@ def test_ports_ingress_open():
         load_route_services()
 
         Client = app.utilities.get_class_by_name(
-            "chalicelib.aws.gds_ec2_security_group_ingress_open_client.GdsEc2SecurityGroupIngressOpenClient"
+            "chalicelib.criteria.aws_ec2_security_group_ingress_open.AwsEc2SecurityGroupIngressOpen"
         )
         ec2 = Client(app)
 

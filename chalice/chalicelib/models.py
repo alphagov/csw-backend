@@ -238,7 +238,6 @@ class Criterion(BaseModel):
     criteria_provider_id = ForeignKeyField(CriteriaProvider, backref='criteria')
     invoke_class_name = CharField()
     invoke_class_get_data_method = CharField()
-    evaluation_lambda_function = CharField()
     title = TextField()
     description = TextField()
     why_is_it_important = TextField()
