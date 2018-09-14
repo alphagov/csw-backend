@@ -1,7 +1,8 @@
+### TODO - THIS HAS BEEN REPLACED BUT I'M HANGING ON TO THE CODE FOR NOW AS A REFERENCE FOR CALLING TRUSTED ADVISOR
 # GdsSupportClient
 # extends GdsAwsClient
 # implements aws support endpoint queries for Trusted Advisor data
-import boto3
+
 
 '''
 {
@@ -42,7 +43,6 @@ import boto3
 '''
 
 from chalicelib.aws.gds_support_client import GdsSupportClient
-from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
 class GdsSupportEgressOpenClient(GdsSupportClient):
