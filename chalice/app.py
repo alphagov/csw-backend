@@ -313,8 +313,13 @@ def database_list_models(event, context):
     return tables
 
 @app.schedule(Rate(24, unit=Rate.HOURS))
-def audit_account(event, context):
+def audit_account_schedule(event):
+    return Response(**{
+        "body": "not yet implemented"
+    })
 
+@app.lambda_function()
+def audit_account(event, context):
     db = None
     try:
         status = False
