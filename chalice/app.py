@@ -193,6 +193,7 @@ def demo_audit_report(id):
     return Response(**response)
 
 
+
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
 @app.lambda_function()
@@ -459,6 +460,8 @@ def account_evaluate_criteria(event):
         db = dbh.get_handle()
         db.connect()
 
+        sqs = GdsSqsClient(app)
+
         Criterion = dbh.get_model("Criterion")
         AccountAudit = dbh.get_model("AccountAudit")
         AuditResource = dbh.get_model("AuditResource")
@@ -583,7 +586,36 @@ def account_evaluate_criteria(event):
             audit.criteria_processed += 1
             audit.date_updated = datetime.now()
 
+            queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
+
+            app.log.debug("Retrieved queue url: " + queue_url)
+
+            message_body = app.utilities.to_json(audit_criterion.serialize())
+
+            message_id = sqs.send_message(
+                queue_url,
+                message_body
+            )
+
+            if audit.criteria_processed == audit.active_criteria:
+
+                audit.date_completed = datetime.now()
+                # create SQS message
+
+                queue_url = sqs.get_queue_url(f"{app.prefix}-completed-audit-queue")
+
+                app.log.debug("Retrieved queue url: " + queue_url)
+
+                message_body = app.utilities.to_json(audit.serialize())
+
+                message_id = sqs.send_message(
+                    queue_url,
+                    message_body
+                )
+
             audit.save()
+
+            status = True
 
     except Exception as err:
         app.log.error(str(err))
@@ -607,12 +639,9 @@ def test_ports_ingress_ssh():
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
-        groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
-
-        # app.log.debug("groups: " + str(groups))
+        groups = ec2.describe_security_groups(session, **{"region": 'eu-west-1'})
 
         for group in groups:
-
             compliance = ec2.evaluate({}, group, [])
 
             app.log.debug(app.utilities.to_json(compliance))
@@ -626,9 +655,8 @@ def test_ports_ingress_ssh():
         template_data["criteria"][0]["compliance_summary"] = summary
         template_data["criteria"][0]["tested"] = True
 
-        # app.log.debug("template data: " + str(template_data))
-
-        response = app.templates.render_authorized_route_template('/audit/{id}',
+        response = app.templates.render_authorized_route_template(
+            '/audit/{id}',
             app.current_request,
             template_data
         )
@@ -654,8 +682,6 @@ def test_ports_ingress_open():
 
         groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
 
-        # app.log.debug("groups: " + str(groups))
-
         for group in groups:
 
             compliance = ec2.evaluate({}, group, [])
@@ -671,9 +697,8 @@ def test_ports_ingress_open():
         template_data["criteria"][0]["compliance_summary"] = summary
         template_data["criteria"][0]["tested"] = True
 
-        # app.log.debug("template data: " + str(template_data))
-
-        response = app.templates.render_authorized_route_template('/audit/{id}',
+        response = app.templates.render_authorized_route_template(
+            '/audit/{id}',
             app.current_request,
             template_data
         )
