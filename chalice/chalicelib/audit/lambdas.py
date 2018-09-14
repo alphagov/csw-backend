@@ -137,7 +137,7 @@ def execute_on_account_audit_criteria_event(app, event):
     return status
 
 
-def execute_on_audit_evaluate_criteria_event(app, event):
+def execute_on_account_evaluate_criteria_event(app, event):
     status = False
     try:
         status = False

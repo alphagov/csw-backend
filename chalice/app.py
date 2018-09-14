@@ -242,7 +242,7 @@ def account_audit_criteria(event):
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-metric-queue")
-def chalice_account_evaluate_criteria(event):
+def account_evaluate_criteria(event):
     return execute_on_account_evaluate_criteria_event(app, event)
 
 
