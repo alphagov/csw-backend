@@ -1,7 +1,6 @@
 import logging
 import os
 import json
-from botocore.exceptions import ClientError
 from datetime import datetime
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
@@ -11,6 +10,7 @@ from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.models import DatabaseHandle
 from chalicelib.views import TemplateHandler
 from chalicelib.audit.lambdas import *
+from chalicelib.admin.lambdas import *
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -198,420 +198,58 @@ def demo_audit_report(id):
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
 @app.lambda_function()
-def database_create_tables(event, context):
-
-    try:
-        dbh = DatabaseHandle(app)
-
-        table_list = []
-        message = ""
-
-        for table_name in event['Tables']:
-            model = dbh.get_model(table_name)
-            table_list.append(model)
-
-        created = dbh.create_tables(table_list)
-    except Exception as err:
-        created = False
-        message = str(err)
-
-    if created:
-        response = ", ".join(event['Tables'])
-    else:
-        response = f"Table create failed: {message}"
-    return response
+def chalice_database_create_tables(event, context):
+    return database_create_tables(app, event, context)
 
 
 # @app.lambda_function()
-# def database_create_all_tables(event, context):
-    #
-    #     try:
-    #     dbh = DatabaseHandle(app)
-    #
-    #   models = dbh.get_models()
-    #   table_names = []
-    #   table_list = []
-    #
-    #   for table_name in models:
-    #       table_list.append(models[table_name])
-    #       table_names.append(table_name)
-    #   message = ""
-    #
-    #   created = dbh.create_tables(table_list)
-    # except Exception as err:
-    #   created = False
-    #   message = str(err)
-    #
-    # if created:
-    #   response = ", ".join(table_names)
-    # else:
-    #   response = f"Tables created"
-    # return response
+# def chalice_database_create_all_tables(event, context):
+#   database_create_all_tables(app, event, context)
 
 
 @app.lambda_function()
-def database_create_item(event, context):
-
-    try:
-        dbh = DatabaseHandle(app)
-
-        item = dbh.create_item(event)
-        data = item.serialize()
-        json_data = app.utilities.to_json(data)
-
-    except Exception:
-        json_data = None
-
-    return json_data
+def chalice_database_create_item(event, context):
+    return database_create_item(app, event, context)
 
 
 @app.lambda_function()
-def database_get_item(event, context):
-
-    app.log.debug('database_get_item function')
-    try:
-
-        dbh = DatabaseHandle(app)
-
-        item = dbh.get_item(event)
-        data = item.serialize()
-        json_data = app.utilities.to_json(data)
-
-    except Exception:
-        json_data = None
-
-    return json_data
+def chalice_database_get_item(event, context):
+    return database_get_item(app, event, context)
 
 
 @app.lambda_function()
-def database_run(event, context):
-
-    try:
-
-        dbh = DatabaseHandle(app)
-
-        dbh.set_credentials(event['User'], event['Password'])
-        status = dbh.execute_commands(event['Commands'])
-    except Exception:
-        status = False
-
-    return status
+def chalice_database_run(event, context):
+    return database_run(app, event, context)
 
 
 @app.lambda_function()
-def database_list_models(event, context):
+def chalice_database_list_models(event, context):
+    return database_list_models(app, event, context)
 
-    try:
-
-        dbh = DatabaseHandle(app)
-
-        models = dbh.get_models()
-        tables = models.keys()
-
-    except Exception:
-        tables = []
-
-    return tables
 
 @app.schedule(Rate(24, unit=Rate.HOURS))
-def audit_account_schedule(event):
-    return audit_lambda_audit_active_accounts(app)
+def chalice_audit_account_schedule(event):
+    return audit_active_accounts(app, event, {})
+
 
 @app.lambda_function()
-def audit_account(event, context):
-    return audit_lambda_audit_active_accounts(app)
+def chalice_audit_account(event, context):
+    return audit_active_accounts(app, event, context)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
-def account_audit_criteria(event):
-
-    status = False
-    try:
-
-        dbh = DatabaseHandle(app)
-
-        db = dbh.get_handle()
-        db.connect()
-
-        AccountAudit = dbh.get_model("AccountAudit")
-        Criterion = dbh.get_model("Criterion")
-        AuditCriterion = dbh.get_model("AuditCriterion")
-
-        # create SQS message
-        sqs = GdsSqsClient(app)
-
-        app.log.debug("Invoke SQS client")
-
-        app.log.debug("Set prefix: " + app.prefix)
-
-        queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-metric-queue")
-
-        app.log.debug("Retrieved queue url: " + queue_url)
-
-        active_criteria = (Criterion.select().where(Criterion.active == True))
-
-        messages = []
-
-        for message in event:
-
-            audit_data = json.loads(message.body)
-
-            app.log.debug(message.body)
-
-            audit = AccountAudit.get_by_id(audit_data['id'])
-            audit.active_criteria = len(list(active_criteria))
-
-            for criterion in active_criteria:
-
-                audit_criterion = AuditCriterion.create(
-                    account_audit_id = audit,
-                    criterion_id = criterion
-                )
-
-                message_body = app.utilities.to_json(audit_criterion.serialize())
-
-                message_id = sqs.send_message(
-                    queue_url,
-                    message_body
-                )
-
-                messages.append(message_id)
-
-            audit.date_updated = datetime.now()
-            audit.save()
-
-    except Exception as err:
-        app.log.error(str(err))
-        if db is not None:
-            db.rollback()
-            db.close()
-
-    return status
+def chalice_account_audit_criteria(event):
+    return account_audit_criteria(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-metric-queue")
-def account_evaluate_criteria(event):
-
-    status = False
-    try:
-        status = False
-        dbh = DatabaseHandle(app)
-
-        db = dbh.get_handle()
-        db.connect()
-
-        Criterion = dbh.get_model("Criterion")
-        AccountAudit = dbh.get_model("AccountAudit")
-        AuditResource = dbh.get_model("AuditResource")
-        AuditCriterion = dbh.get_model("AuditCriterion")
-        ResourceCompliance = dbh.get_model("ResourceCompliance")
-
-        # create SQS message
-        sqs = GdsSqsClient(app)
-
-        app.log.debug("Invoke SQS client")
-
-        app.log.debug("Set prefix: " + app.prefix)
-
-        queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
-
-        app.log.debug("Retrieved queue url: " + queue_url)
-
-        messages = []
-
-        for message in event:
-
-            app.log.debug("parse message body")
-
-            audit_criteria_data = json.loads(message.body)
-
-            audit_criterion = AuditCriterion.get_by_id(audit_criteria_data["id"])
-
-            app.log.debug("loaded audit criterion")
-
-            audit_data = audit_criteria_data['account_audit_id']
-
-            audit = AccountAudit.get_by_id(audit_data['id'])
-
-            app.log.debug("loaded audit")
-
-            criterion_data = audit_criteria_data['criterion_id']
-
-            criterion = Criterion.get_by_id(criterion_data['id'])
-
-            app.log.debug("criterion: " + criterion.title)
-
-            provider = criterion_data["criteria_provider_id"]
-
-            app.log.debug("provider: " + provider["provider_name"])
-
-            ClientClass = app.utilities.get_class_by_name(criterion.invoke_class_name)
-            client = ClientClass(app)
-
-            account_id = audit.account_subscription_id.account_id
-
-            session = client.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
-
-            method = criterion.invoke_class_get_data_method
-
-            app.log.debug("get data method: " + method)
-
-            params = {}
-            for param in criterion.criterion_params:
-                params[param.param_name] = param.param_value
-
-            app.log.debug("params: " + app.utilities.to_json(params))
-
-            requests = []
-            if criterion.is_regional:
-                ec2 = GdsEc2Client(app)
-                regions = ec2.describe_regions()
-                for region in regions:
-                    region_params = params.copy()
-                    region_params["region"] = region["RegionName"]
-                    app.log.debug("Create request from region: " + region_params["region"])
-                    requests.append(region_params)
-
-            else:
-                requests.append(params)
-
-            summary = None
-            for params in requests:
-
-                try:
-                    data = getattr(client, method)(session, **params)
-                except ClientError as boto3_error:
-                    app.log.error(str(boto3_error))
-                    audit.criteria_failed += 1
-                    data = None
-
-                if data is not None:
-
-                    app.log.debug("api response: " + app.utilities.to_json(data))
-
-                    for item_raw in data:
-
-                        compliance = client.evaluate({}, item_raw)
-
-                        app.log.debug(app.utilities.to_json(compliance))
-
-                        item = {
-                            "account_audit_id": audit.id,
-                            "criterion_id": criterion.id,
-                            "resource_data": app.utilities.to_json(item_raw),
-                            "date_evaluated": datetime.now()
-                        }
-
-                        if "region" in params:
-                            item["region"] = params["region"]
-
-                        item.update(client.translate(item_raw))
-
-                        app.log.debug(app.utilities.to_json(item))
-
-                        audit_resource = AuditResource.create(**item)
-
-                        compliance["audit_resource_id"] = audit_resource
-
-                        item_raw["resource_compliance"] = compliance
-
-                        resource_compliance = ResourceCompliance.create(**compliance)
-
-                    summary = client.summarize(data, summary)
-
-            app.log.debug(app.utilities.to_json(summary))
-
-            audit_criterion.resources = summary['all']['display_stat']
-            audit_criterion.tested = summary['applicable']['display_stat']
-            audit_criterion.passed = summary['compliant']['display_stat']
-            audit_criterion.failed = summary['non_compliant']['display_stat']
-            audit_criterion.ignored = summary['not_applicable']['display_stat']
-            audit_criterion.save()
-
-            audit.date_updated = datetime.now()
-
-            message_body = app.utilities.to_json(audit_criterion.serialize())
-
-            message_id = sqs.send_message(
-                queue_url,
-                message_body
-            )
-
-            status = True
-
-    except Exception as err:
-        app.log.error(str(err))
-        if db is not None:
-            db.rollback()
-            db.close()
-
-    return status
+def chalice_account_evaluate_criteria(event):
+    return account_evaluate_criteria(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-evaluated-metric-queue")
-def evaluated_metric(event):
-    status = False
-    try:
-        status = False
-        dbh = DatabaseHandle(app)
-
-        db = dbh.get_handle()
-        db.connect()
-
-        sqs = GdsSqsClient(app)
-        AccountAudit = dbh.get_model("AccountAudit")
-        AuditCriterion = dbh.get_model("AuditCriterion")
-        AuditResource = dbh.get_model("AuditResource")
-        ResourceCompliance = dbh.get_model("ResourceCompliance")
-
-        for message in event:
-            audit_criteria_data = json.loads(message.body)
-
-            audit = AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
-            audit.criteria_processed += 1
-
-            if (audit.criteria_processed + audit.criteria_failed) == audit.active_criteria:
-                audit.date_completed = datetime.now()
-
-                message_data = audit.serialize()
-
-                audit_criteria = (AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == audit.id))
-
-                criteria_data = []
-                for criteria in audit_criteria:
-                    criteria_data.append(criteria.serialize())
-
-                message_data["criteria"] = criteria_data
-
-                failed_resources = (ResourceCompliance.select().join(AuditResource).join(AccountAudit).where(ResourceCompliance.status_id == 3, AccountAudit.id == audit.id))
-
-                resources_data = []
-                for resource in failed_resources:
-                    resources_data.append(resource.serialize())
-
-                message_data["failed_resources"] = resources_data
-
-                # create SQS message
-                queue_url = sqs.get_queue_url(f"{app.prefix}-completed-audit-queue")
-
-                app.log.debug("Retrieved queue url: " + queue_url)
-
-                message_body = app.utilities.to_json(message_data)
-
-                message_id = sqs.send_message(
-                    queue_url,
-                    message_body
-                )
-
-            audit.save()
-
-    except Exception as err:
-        app.log.error(str(err))
-        if db is not None:
-            db.rollback()
-            db.close()
-
-    return status
+def chalice_evaluated_metric(event):
+    return audit_evaluated_metric(app, event)
 
 
 @app.route('/test/ports_ingress_ssh')
