@@ -192,7 +192,7 @@ def demo_audit_report(id):
     return Response(**response)
 
 
-
+# DATABASE ADMIN HELPER LAMBDAS
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
 @app.lambda_function()
@@ -225,6 +225,7 @@ def database_list_models(event, context):
     return execute_database_list_models(app, event, context)
 
 
+# AUDIT LAMBDAS START HERE
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account_schedule(event):
     return execute_on_audit_accounts_event(app, event, {})
@@ -250,6 +251,7 @@ def audit_evaluated_metric(event):
     return execute_on_audit_evaluated_metric_event(app, event)
 
 
+# TEST ROUTES START HERE - RUN AWS API ON DEMAND
 @app.route('/test/ports_ingress_ssh')
 def test_ports_ingress_ssh():
 
@@ -264,6 +266,8 @@ def test_ports_ingress_open():
     return Response(**response)
 
 
+# ASSET RENDERERS
+# TODO This doesn't work for binary file types
 @app.route('/assets')
 def asset_render_qs():
     load_route_services()
