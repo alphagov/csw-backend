@@ -361,7 +361,7 @@ class AuditResource(BaseModel):
     account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
     region = CharField(null = True)
     resource_id = CharField()
-    resource_name = CharField()
+    resource_name = CharField(null = True)
     resource_data = TextField()
     date_evaluated = DateTimeField(default=datetime.now)
 
@@ -374,7 +374,7 @@ dbh.add_model("AuditResource", AuditResource)
 
 class ResourceCompliance(BaseModel):
     audit_resource_id = ForeignKeyField(AuditResource, backref='resource_compliance')
-    annotation = TextField()
+    annotation = TextField(null = True)
     resource_type = CharField()
     resource_id = CharField()
     compliance_type = CharField()
