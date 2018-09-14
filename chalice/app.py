@@ -5,9 +5,6 @@ from datetime import datetime
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
-from chalicelib.aws.gds_sqs_client import GdsSqsClient
-from chalicelib.aws.gds_ec2_client import GdsEc2Client
-from chalicelib.models import DatabaseHandle
 from chalicelib.views import TemplateHandler
 from chalicelib.audit.lambdas import *
 from chalicelib.admin.lambdas import *
