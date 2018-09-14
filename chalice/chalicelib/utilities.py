@@ -3,15 +3,15 @@ import json
 import importlib
 from datetime import datetime
 
+
 class Utilities():
 
     def to_json(self, data):
-        return json.dumps(data, default = self.to_json_type_convert)
+        return json.dumps(data, default=self.to_json_type_convert)
 
     def to_json_type_convert(self, item):
         if isinstance(item, datetime):
             return item.__str__()
-
 
     def get_mime_type(self, file):
         # I've removed the python-magic library because the
@@ -43,7 +43,6 @@ class Utilities():
             mime_type = default_type
 
         return mime_type
-
 
     # use importlib to create an instance of a class defined
     # as a string in the database

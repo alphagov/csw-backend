@@ -1,6 +1,5 @@
-import os
-import json
 from datetime import datetime
+
 
 def execute_test_ports_ingress_ssh(app, load_route_services):
 
@@ -36,13 +35,14 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
             template_data
         )
     except Exception as err:
-        response = { "body": str(err) }
+        response = {
+            "body": str(err)
+        }
 
     return response
 
 
 def execute_test_ports_ingress_open(app, load_route_services):
-
 
     try:
         load_route_services()
@@ -54,7 +54,11 @@ def execute_test_ports_ingress_open(app, load_route_services):
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
-        groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
+        params = {
+            "region": 'eu-west-1'
+        }
+
+        groups = ec2.describe_security_groups(session, **params)
 
         for group in groups:
 
@@ -77,9 +81,12 @@ def execute_test_ports_ingress_open(app, load_route_services):
             template_data
         )
     except Exception as err:
-        response = { "body": str(err) }
+        response = {
+            "body": str(err)
+        }
 
     return response
+
 
 audit = {
     "name": "[User Name]",
@@ -105,7 +112,10 @@ audit = {
                     "name": "SSH port ingress too open",
                     "tested": False,
                     "why_is_it_important": "Opening ports to the world exposes a greater risk if an SSH key is leaked",
-                    "how_do_i_fix_it": "The SSH port (22) should only be open to known GDS IP addresses including the cabinet office VPN",
+                    "how_do_i_fix_it": (
+                        "The SSH port (22) should only be open to known GDS IP addresses including the cabinet "
+                        "office VPN"
+                    ),
                     "processed": "yes",
                     "status": "fail",
                     "issues": 1,
@@ -128,8 +138,14 @@ audit = {
                     "id": 2,
                     "name": "Security groups with open egress",
                     "tested": False,
-                    "why_is_it_important": "Opening ports to the world exposes a greater risk of data been sent out from the service to an unknown location",
-                    "how_do_i_fix_it": "The egress rules should specify which ports can be used. Only http(s) should be open to the world and through a proxy service so that we can record traffic.",
+                    "why_is_it_important": (
+                        "Opening ports to the world exposes a greater risk of data been sent out "
+                        "from the service to an unknown location"
+                    ),
+                    "how_do_i_fix_it": (
+                        "The egress rules should specify which ports can be used. Only http(s) should "
+                        "be open to the world and through a proxy service so that we can record traffic."
+                    ),
                     "processed": "yes",
                     "status": "fail",
                     "issues": 1,

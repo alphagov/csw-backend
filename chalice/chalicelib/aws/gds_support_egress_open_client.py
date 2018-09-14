@@ -1,4 +1,4 @@
-### TODO - THIS HAS BEEN REPLACED BUT I'M HANGING ON TO THE CODE FOR NOW AS A REFERENCE FOR CALLING TRUSTED ADVISOR
+# TODO - THIS HAS BEEN REPLACED BUT I'M HANGING ON TO THE CODE FOR NOW AS A REFERENCE FOR CALLING TRUSTED ADVISOR
 # GdsSupportClient
 # extends GdsAwsClient
 # implements aws support endpoint queries for Trusted Advisor data
@@ -49,15 +49,12 @@ class GdsSupportEgressOpenClient(GdsSupportClient):
 
     def translate(self, data):
 
-
-
         item = {
             "resource_id": data['GroupId'],
             "resource_name": data['GroupName'],
         }
 
         return item
-
 
     def summarize(self, groups):
 
@@ -111,7 +108,6 @@ class GdsSupportEgressOpenClient(GdsSupportClient):
                 summary['non_applicable']['display_stat'] += 1
 
         return summary
-
 
     def evaluate(self, event, item, whitelist=[]):
 

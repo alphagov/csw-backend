@@ -1,9 +1,9 @@
 # GdsAwsClient
 # Manage sts assume-role calls and temporary credentials
 import boto3
-import re
 import os
 from datetime import datetime
+
 
 class GdsAwsClient:
 
@@ -28,15 +28,14 @@ class GdsAwsClient:
 
         return ''.join(x.title() for x in components)
 
-
     # store temporary credentials from sts-assume-roles
     # session names are based on the account and role
     # {account-number}-{role-name}
     # eg: 779799343306-AdminRole
-    def get_session_name(self, account, role=''): 
+    def get_session_name(self, account, role=''):
         if (role == ""):
             session_name = account
-        else: 
+        else:
             session_name = f"{account}-{role}"
         return session_name
 
@@ -59,6 +58,7 @@ class GdsAwsClient:
 
             if (session_name == 'default'):
                 client = self.get_default_client(service_name, region)
+
             else:
                 client = self.get_assumed_client(service_name, account, role, region)
 
@@ -82,17 +82,12 @@ class GdsAwsClient:
         )
         return self.clients[client_name]
 
-
     # gets a boto3.client with the temporary session credentials
     # resulting from sts assume-role command
     def get_assumed_client(self, service_name, account='default', role='', region=None):
 
         session_name = self.get_session_name(account, role)
         client_name = self.get_client_name(service_name, session_name)
-
-
-        #if session_name not in self.sessions.keys():
-        #    self.assume_role(account, role)
 
         session = self.get_session(session_name)
         self.clients[client_name] = boto3.client(
@@ -174,7 +169,8 @@ class GdsAwsClient:
             role_assumed = 'Credentials' in assumed_credentials.keys()
 
             if role_assumed:
-                self.app.log.debug('Session expiry: ' + assumed_credentials['Credentials']['Expiration'].strftime("%Y-%m-%d %H:%M:%S"))
+                expiry = assumed_credentials['Credentials']['Expiration'].strftime("%Y-%m-%d %H:%M:%S")
+                self.app.log.debug('Session expiry: ' + expiry)
                 # self.app.log.debug('Time now: ' + datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
                 self.sessions[session_name] = assumed_credentials['Credentials']
             else:
@@ -217,7 +213,6 @@ class GdsAwsClient:
 
         return session
 
-
     def build_evaluation(self, resource_id, compliance_type, event, resource_type, annotation=None):
 
         """Form an evaluation as a dictionary. Usually suited to report on scheduled rules.
@@ -225,7 +220,8 @@ class GdsAwsClient:
         resource_id -- the unique id of the resource to report
         compliance_type -- either COMPLIANT, NON_COMPLIANT or NOT_APPLICABLE
         event -- the event variable given in the lambda handler
-        resource_type -- the CloudFormation resource type (or AWS::::Account) to report on the rule (default DEFAULT_RESOURCE_TYPE)
+        resource_type -- the CloudFormation resource type (or AWS::::Account)
+        to report on the rule (default DEFAULT_RESOURCE_TYPE)
         annotation -- an annotation to be added to the evaluation (default None)
         """
         eval = {}
@@ -240,18 +236,17 @@ class GdsAwsClient:
 
         return eval
 
-
     def get_status(self, eval):
 
-        status = 1 # Not tested
+        status = 1  # Not tested
 
         if eval["is_compliant"] or not eval["is_applicable"]:
-            status = 2 # Pass
+            status = 2  # Pass
+
         elif not eval["is_compliant"]:
-            status = 3 # Fail
+            status = 3  # Fail
 
         return status
-
 
     def empty_summary(self):
 
@@ -311,5 +306,3 @@ class GdsAwsClient:
                 summary['not_applicable']['display_stat'] += 1
 
         return summary
-
-

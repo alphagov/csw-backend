@@ -44,7 +44,6 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
         return ", ".join(string_ports)
 
-
     def evaluate(self, event, item, whitelist=[]):
 
         self.app.log.debug('Evaluating compliance')
@@ -80,7 +79,6 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
         return evaluation
 
-
     def rule_is_compliant(self, rule, whitelist):
 
         compliant = True
@@ -105,7 +103,6 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
                 self.app.log.debug(add_note)
 
         return compliant
-
 
     def rule_applies_to_flagged_port(self, rule):
 

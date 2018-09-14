@@ -15,18 +15,6 @@ class GdsSqsClient(GdsAwsClient):
 
             self.app.log.debug("Try getting queue URL for: " + queue_name)
 
-            #sqs = self.get_default_client('sqs', 'eu-west-1')
-
-            #self.app.log.debug("Got default client")
-
-            #response = sqs.get_queue_url(
-            #    QueueName=queue_name
-            #)
-
-            #self.app.log.debug("Got queue URL")
-
-            #queue_url = response['QueueUrl']
-
             queue_url = f"https://eu-west-1.queue.amazonaws.com/103495720024/{queue_name}"
 
             self.app.log.debug("Queue URL: " + queue_url)
@@ -57,4 +45,3 @@ class GdsSqsClient(GdsAwsClient):
             message_id = None
 
         return message_id
-

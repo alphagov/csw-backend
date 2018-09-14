@@ -5,6 +5,7 @@ from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.models import DatabaseHandle
 
+
 def execute_on_audit_accounts_event(app, event, context):
     db = None
     try:
@@ -16,7 +17,7 @@ def execute_on_audit_accounts_event(app, event, context):
 
         AccountSubscription = dbh.get_model("AccountSubscription")
         AccountAudit = dbh.get_model("AccountAudit")
-        active_accounts = (AccountSubscription.select().where(AccountSubscription.active == True))
+        active_accounts = (AccountSubscription.select().where(AccountSubscription.active is True))
 
         items = []
         # .order_by(User.username)
@@ -97,7 +98,7 @@ def execute_on_account_audit_criteria_event(app, event):
 
         app.log.debug("Retrieved queue url: " + queue_url)
 
-        active_criteria = (Criterion.select().where(Criterion.active == True))
+        active_criteria = (Criterion.select().where(Criterion.active is True))
 
         messages = []
 
@@ -162,8 +163,6 @@ def execute_on_account_evaluate_criteria_event(app, event):
         queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
 
         app.log.debug("Retrieved queue url: " + queue_url)
-
-        messages = []
 
         for message in event:
 
@@ -358,4 +357,3 @@ def execute_on_audit_evaluated_metric_event(app, event):
             db.close()
 
     return status
-

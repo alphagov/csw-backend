@@ -1,5 +1,6 @@
 from chalicelib.models import DatabaseHandle
 
+
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
 def execute_database_create_tables(app, event, context):

@@ -1,6 +1,7 @@
 import os
 from peewee import Model
-from peewee import CharField, TextField, DateField, DateTimeField, BooleanField, BigIntegerField, IntegerField, ForeignKeyField
+from peewee import CharField, TextField, DateField, DateTimeField, BooleanField
+from peewee import BigIntegerField, IntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
 from datetime import datetime
@@ -13,7 +14,6 @@ class DatabaseHandle():
 
     def __init__(self, app=None):
         self.app = app
-
 
     def get_env_var(self, var_name):
 
@@ -31,7 +31,6 @@ class DatabaseHandle():
                 self.app.log.error(message)
             elif (type == 'debug'):
                 self.app.log.debug(message)
-
 
     def get_handle(self):
 
@@ -136,6 +135,7 @@ class DatabaseHandle():
 dbh = DatabaseHandle()
 db = dbh.get_handle()
 
+
 class BaseModel(Model):
 
     def serialize(self):
@@ -208,6 +208,7 @@ class AccountAudit(BaseModel):
     class Meta:
         table_name = "account_audit"
 
+
 dbh.add_model("AccountAudit", AccountAudit)
 
 
@@ -243,12 +244,11 @@ class Criterion(BaseModel):
 
 dbh.add_model("Criterion", Criterion)
 
+
 # Primarily for trusted advisor checks specifies arguments that need to be provided
-# eg 	region=us-east-1
-#		language=en
-#		checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
-# region and possibly language could be hard-coded rather than passing them through the db each time
-# TODO ADD SEVERITY ?
+# eg
+# language=en
+# checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
 class CriterionParams(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='criterion_params')
     param_name = CharField()
@@ -330,12 +330,12 @@ dbh.add_model("CachedDataResponse", CachedDataResponse)
 class AuditCriterion(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
     account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
-    regions = IntegerField(default = 0)
-    resources = IntegerField(default = 0)
-    tested = IntegerField(default = 0)
-    passed = IntegerField(default = 0)
-    failed = IntegerField(default = 0)
-    ignored = IntegerField(default = 0)
+    regions = IntegerField(default=0)
+    resources = IntegerField(default=0)
+    tested = IntegerField(default=0)
+    passed = IntegerField(default=0)
+    failed = IntegerField(default=0)
+    ignored = IntegerField(default=0)
 
     class Meta:
         table_name = "audit_criterion"
@@ -350,9 +350,9 @@ dbh.add_model("AuditCriterion", AuditCriterion)
 class AuditResource(BaseModel):
     criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
     account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
-    region = CharField(null = True)
+    region = CharField(null=True)
     resource_id = CharField()
-    resource_name = CharField(null = True)
+    resource_name = CharField(null=True)
     resource_data = TextField()
     date_evaluated = DateTimeField(default=datetime.now)
 
@@ -365,12 +365,12 @@ dbh.add_model("AuditResource", AuditResource)
 
 class ResourceCompliance(BaseModel):
     audit_resource_id = ForeignKeyField(AuditResource, backref='resource_compliance')
-    annotation = TextField(null = True)
+    annotation = TextField(null=True)
     resource_type = CharField()
     resource_id = CharField()
     compliance_type = CharField()
-    is_compliant = BooleanField(default = False)
-    is_applicable = BooleanField(default = True)
+    is_compliant = BooleanField(default=False)
+    is_applicable = BooleanField(default=True)
     status_id = ForeignKeyField(Status, backref='status')
 
     class Meta:
@@ -387,10 +387,10 @@ class ResourceRiskAssessment(BaseModel):
     account_audit_id = ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
     resource_id = CharField()
     date_first_identifed = DateField()
-    date_last_notified = DateField(null = True)
-    date_of_review = DateField(null = True)
-    accepted_risk = BooleanField(default = False)
-    analyst_assessed = BooleanField(default = False)
+    date_last_notified = DateField(null=True)
+    date_of_review = DateField(null=True)
+    accepted_risk = BooleanField(default=False)
+    analyst_assessed = BooleanField(default=False)
     severity = ForeignKeyField(Severity, backref='severity', null=True)
 
     class Meta:

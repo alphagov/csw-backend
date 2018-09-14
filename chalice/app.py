@@ -1,7 +1,6 @@
 import logging
 import os
 import json
-from datetime import datetime
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
@@ -90,9 +89,12 @@ def demo_index():
     app.dummy_data = demos.audit
 
     load_route_services()
-    response = app.templates.render_authorized_route_template('/',
+    response = app.templates.render_authorized_route_template(
+        '/',
         app.current_request,
-        { "name": "[User Name]" }
+        {
+            "name": "[User Name]"
+        }
     )
 
     return Response(**response)
@@ -104,7 +106,8 @@ def demo_audit_list():
     app.dummy_data = demos.audit
 
     load_route_services()
-    response = app.templates.render_authorized_route_template('/audit',
+    response = app.templates.render_authorized_route_template(
+        '/audit',
         app.current_request,
         app.dummy_data
     )
@@ -119,7 +122,8 @@ def demo_audit_report(id):
 
     load_route_services()
     app.templates = TemplateHandler(app)
-    response = app.templates.render_authorized_route_template('/audit/{id}',
+    response = app.templates.render_authorized_route_template(
+        '/audit/{id}',
         app.current_request,
         app.dummy_data["audits"][0]
     )
@@ -235,6 +239,7 @@ def asset_render_qs():
         app.log.debug(str(e))
         raise BadRequestError(str(e))
 
+
 @app.route('/assets/{proxy+}')
 def asset_render():
     load_route_services()
@@ -261,6 +266,7 @@ def asset_render():
     except Exception as e:
         app.log.debug(str(e))
         raise BadRequestError(str(e))
+
 
 def read_asset(proxy):
 
@@ -290,4 +296,3 @@ def read_asset(proxy):
         raise Exception(f"Unsupported file type: {mime_type}")
 
     return data
-

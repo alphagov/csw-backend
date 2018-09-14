@@ -52,7 +52,6 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
 
         return evaluation
 
-
     def rule_is_compliant(self, rule, whitelist):
 
         compliant = True
@@ -69,7 +68,6 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
 
         return compliant
 
-
     def rule_applies_to_ssh(self, rule):
 
         is_protocol = self.is_protocol(rule, 'tcp')
@@ -80,4 +78,3 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
         rule['MatchesPortRange'] = in_port_range
 
         return is_protocol and in_port_range
-

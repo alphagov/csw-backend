@@ -68,7 +68,7 @@ class TemplateHandler:
 
             self.request_url = auth.get_request_url(req)
 
-            self.app.log.debug('Request URL: '+ self.request_url)
+            self.app.log.debug('Request URL: ' + self.request_url)
 
             if ((self.request_url.find('localhost') == -1) and (self.request_url.find('127.0.0.1') == -1)):
 

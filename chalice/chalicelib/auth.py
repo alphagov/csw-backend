@@ -5,7 +5,7 @@ import jwt
 import json
 import google_auth_oauthlib.flow
 from chalicelib.aws.gds_secrets_manager_client import GdsSecretsManagerClient
-# from chalicelib.secrets import Secrets
+
 
 class AuthHandler:
 

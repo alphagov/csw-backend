@@ -1,8 +1,6 @@
 # GdsSupportClient
 # extends GdsAwsClient
 # implements aws support endpoint queries for Trusted Advisor data
-import boto3
-
 from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
@@ -14,7 +12,6 @@ class GdsSupportClient(GdsAwsClient):
         try:
             self.app.log.debug('describe trusted advisor checks')
 
-            #support = boto3.client('support', region_name='us-east-1')
             support = self.get_boto3_session_client('support', session, 'us-east-1')
 
             self.app.log.debug('created boto3 client')

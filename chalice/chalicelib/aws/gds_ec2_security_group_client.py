@@ -13,20 +13,13 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         # get a boto3 client for the EC2 service in the given region (default to London)
         ec2 = self.get_boto3_session_client('ec2', session, kwargs["region"])
 
-        #if hasattr(self,'app'):
-        #    self.app.log.debug('got session client')
-
         # run describe security groups api call
         response = ec2.describe_security_groups()
-
-        #if hasattr(self, 'app'):
-        #    self.app.log.debug('got response: ' + str(response))
 
         # return the security groups element of the response
         security_groups = response['SecurityGroups']
 
         return security_groups
-
 
     def translate(self, data):
 
@@ -37,15 +30,13 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
         return item
 
-
     def is_protocol(self, rule, required_protocol):
 
         protocol = rule['IpProtocol']
 
         self.app.log.debug('protocol: ' + protocol)
 
-        return protocol in [required_protocol,'-1']
-
+        return protocol in [required_protocol, '-1']
 
     def get_port_range(self, rule):
 
@@ -63,7 +54,6 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
             port_range = '-'.join(range)
 
         return port_range
-
 
     def in_port_range(self, rule, required_port):
 
