@@ -27,6 +27,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
         return security_groups
 
+
     def translate(self, data):
 
         item = {
@@ -35,3 +36,36 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         }
 
         return item
+
+
+    def is_protocol(self, rule, required_protocol):
+
+        protocol = rule['IpProtocol']
+
+        self.app.log.debug('protocol: ' + protocol)
+
+        return protocol in [required_protocol,'-1']
+
+
+    def get_port_range(self, rule):
+
+        range = []
+        if "FromPort" in rule:
+            range.append(str(rule["FromPort"]))
+
+        if "ToPort" in rule:
+            range.append(str(rule["ToPort"]))
+
+        return '-'.join(range)
+
+
+    def in_port_range(self, rule, required_port):
+
+        if ('FromPort' in rule):
+            from_port = rule['FromPort']
+            to_port = rule['ToPort']
+            in_range = ((from_port <= required_port) and (to_port >= required_port))
+        else:
+            in_range = False
+
+        return in_range

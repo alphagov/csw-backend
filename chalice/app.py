@@ -531,6 +531,7 @@ def account_evaluate_criteria(event):
                 try:
                     data = getattr(client, method)(session, **params)
                 except ClientError as boto3_error:
+                    app.log.error(str(boto3_error))
                     audit.criteria_failed += 1
                     data = None
 
@@ -571,7 +572,7 @@ def account_evaluate_criteria(event):
 
             summary = client.summarize(data)
 
-            item.log.debug(app.utilities.to_json(summary))
+            app.log.debug(app.utilities.to_json(summary))
 
             audit.date_updated = datetime.now()
 
