@@ -50,18 +50,16 @@ class GdsEc2SecurityGroupIngressSshClient(GdsEc2SecurityGroupClient):
 
         for group in groups:
 
-            group.resourceType = 'AWS::EC2::SecurityGroup'
-
-            compliance = group.resource_compliance
+            compliance = group["resource_compliance"]
 
             self.app.log.debug('set resource type')
 
             summary['all']['display_stat'] += 1
 
-            if compliance.is_applicable:
+            if compliance["is_applicable"]:
                 summary['applicable']['display_stat'] += 1
 
-                if compliance.is_compliant:
+                if compliance["is_compliant"]:
                     summary['compliant']['display_stat'] += 1
                 else:
                     summary['non_compliant']['display_stat'] += 1

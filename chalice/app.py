@@ -1,7 +1,6 @@
 import logging
 import os
 import json
-import importlib
 from botocore.exceptions import ClientError
 from datetime import datetime
 from chalice import Chalice, Response, BadRequestError
@@ -9,11 +8,10 @@ from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
+from chalicelib.aws.gds_ec2_security_group_ingress_ssh_client import GdsEc2SecurityGroupIngressSshClient
 from chalicelib.aws.gds_support_client import GdsSupportClient
 from chalicelib.models import DatabaseHandle
 from chalicelib.views import TemplateHandler
-
-from chalicelib.evaluators.evaluator_ports_ingress_ssh import EvaluatorPortsIngressSsh
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -563,9 +561,17 @@ def account_evaluate_criteria(event):
                         audit_resource = AuditResource.create(**item)
 
                         compliance["audit_resource_id"] = audit_resource
+
+                        item_raw["resource_compliance"] = compliance
+
                         resource_compliance = ResourceCompliance.create(**compliance)
 
                     audit.criteria_processed += 1
+
+
+            summary = client.summarize(data)
+
+            item.log.debug(app.utilities.to_json(summary))
 
             audit.date_updated = datetime.now()
 
@@ -586,7 +592,7 @@ def test_ports_ingress_ssh():
     try:
         load_route_services()
 
-        ec2 = GdsEc2Client(app)
+        ec2 = GdsEc2SecurityGroupIngressSshClient(app)
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
@@ -596,9 +602,11 @@ def test_ports_ingress_ssh():
 
         # app.log.debug("groups: " + str(groups))
 
-        evaluator = EvaluatorPortsIngressSsh(app)
+        for group in groups:
+            compliance = ec2.evaluate({}, group, [])
+            group['resource_compliance'] = compliance
 
-        summary, groups = evaluator.evaluate_dataset_compliance(groups)
+        summary = ec2.summarize(groups)
 
         template_data = app.dummy_data["audits"][0]
         template_data["criteria"][0]["compliance_results"] = groups
@@ -652,16 +660,7 @@ def test_ports_egress_open():
         # app.log.debug("groups: " + str(groups))
         app.log.debug(json.dumps(checks))
 
-        #evaluator = EvaluatorPortsIngressSsh(app)
 
-        #summary, groups = evaluator.evaluate_dataset_compliance(groups)
-
-        #template_data = app.dummy_data["audits"][0]
-        #template_data["criteria"][0]["compliance_results"] = groups
-        #template_data["criteria"][0]["compliance_summary"] = summary
-        #template_data["criteria"][0]["tested"] = True
-
-        # app.log.debug("template data: " + str(template_data))
         template_data = json.dumps(checks)
 
         response = app.templates.render_authorized_route_template('/audit/{id}',
