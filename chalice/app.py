@@ -3,7 +3,7 @@ import os
 import json
 from botocore.exceptions import ClientError
 from datetime import datetime
-from chalice import Chalice, Response, BadRequestError
+from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
@@ -312,7 +312,7 @@ def database_list_models(event, context):
 
     return tables
 
-@app.lambda_function()
+@app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account(event, context):
 
     db = None
@@ -619,6 +619,9 @@ def evaluated_metric(event):
 
         sqs = GdsSqsClient(app)
         AccountAudit = dbh.get_model("AccountAudit")
+        AuditCriterion = dbh.get_model("AuditCriterion")
+        AuditResource = dbh.get_model("AuditResource")
+        ResourceCompliance = dbh.get_model("ResourceCompliance")
 
         for message in event:
             audit_criteria_data = json.loads(message.body)
@@ -628,13 +631,31 @@ def evaluated_metric(event):
 
             if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
-                # create SQS message
 
+                message_data = audit.serialize()
+
+                audit_criteria = (AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == audit.id))
+
+                criteria_data = []
+                for criteria in audit_criteria:
+                    criteria_data.append(criteria.serlialize())
+
+                message_data["criteria"] = criteria_data
+
+                failed_resources = (AuditResource.select().join(AccountAudit).join(ResourceCompliance).where(AccountAudit == audit, ResourceCompliance.status == 3))
+
+                resources_data = []
+                for resource in failed_resources:
+                    resources_data.append(resource.serialize(True))
+
+                message_data["failed_resources"] = resources_data
+
+                # create SQS message
                 queue_url = sqs.get_queue_url(f"{app.prefix}-completed-audit-queue")
 
                 app.log.debug("Retrieved queue url: " + queue_url)
 
-                message_body = app.utilities.to_json(audit.serialize())
+                message_body = app.utilities.to_json(message_data)
 
                 message_id = sqs.send_message(
                     queue_url,

@@ -146,9 +146,9 @@ db = dbh.get_handle()
 
 class BaseModel(Model):
 
-    def serialize(self):
+    def serialize(self, backrefs=False):
         # front end does not need user ID here
-        data = model_to_dict(self)
+        data = model_to_dict(self, backrefs)
         return data
 
     class Meta:
