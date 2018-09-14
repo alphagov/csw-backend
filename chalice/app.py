@@ -570,7 +570,7 @@ def evaluated_metric(event):
             audit = AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
             audit.criteria_processed += 1
 
-            if audit.criteria_processed == audit.active_criteria:
+            if (audit.criteria_processed + audit.criteria_failed) == audit.active_criteria:
                 audit.date_completed = datetime.now()
 
                 message_data = audit.serialize()
