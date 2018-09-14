@@ -6,7 +6,7 @@ from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
 from chalicelib.views import TemplateHandler
-from chalicelib.audit.lambdas import *
+from chalicelib import audit
 from chalicelib import admin
 from chalicelib import demos
 
@@ -228,27 +228,27 @@ def database_list_models(event, context):
 # AUDIT LAMBDAS START HERE
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account_schedule(event):
-    return execute_on_audit_accounts_event(app, event, {})
+    return audit.execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()
 def audit_account(event, context):
-    return execute_on_audit_accounts_event(app, event, context)
+    return audit.execute_on_audit_accounts_event(app, event, context)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
 def account_audit_criteria(event):
-    return execute_on_account_audit_criteria_event(app, event)
+    return audit.execute_on_account_audit_criteria_event(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-metric-queue")
 def account_evaluate_criteria(event):
-    return execute_on_account_evaluate_criteria_event(app, event)
+    return audit.execute_on_account_evaluate_criteria_event(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-evaluated-metric-queue")
 def audit_evaluated_metric(event):
-    return execute_on_audit_evaluated_metric_event(app, event)
+    return audit.execute_on_audit_evaluated_metric_event(app, event)
 
 
 # TEST ROUTES START HERE - RUN AWS API ON DEMAND
