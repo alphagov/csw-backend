@@ -73,7 +73,7 @@ def execute_on_audit_accounts_event(app, event, context):
     return status
 
 
-def execute_on_audit_account_criteria_event(app, event):
+def execute_on_account_audit_criteria_event(app, event):
     status = False
     try:
 
