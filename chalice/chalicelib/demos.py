@@ -1,3 +1,6 @@
+import os
+import json
+from datetime import datetime
 
 def execute_test_ports_ingress_ssh(app, load_route_services):
 
@@ -77,3 +80,75 @@ def execute_test_ports_ingress_open(app, load_route_services):
         response = { "body": str(err) }
 
     return response
+
+audit = {
+    "name": "[User Name]",
+    "audits": [
+        {
+            "name": "[User Name]",
+            "id": 1,
+            "account_subscription": {
+                "account_id": 779799343306,
+                "account_name": "gds-digital-security"
+            },
+            "date_started": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "date_updated": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "date_completed": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "active_criteria": 5,
+            "criteria_processed": 5,
+            "criteria_analysed": 2,
+            "criteria_failed": 3,
+            "issues_found": 2,
+            "criteria": [
+                {
+                    "id": 1,
+                    "name": "SSH port ingress too open",
+                    "tested": False,
+                    "why_is_it_important": "Opening ports to the world exposes a greater risk if an SSH key is leaked",
+                    "how_do_i_fix_it": "The SSH port (22) should only be open to known GDS IP addresses including the cabinet office VPN",
+                    "processed": "yes",
+                    "status": "fail",
+                    "issues": 1,
+                    "resources": [
+                        {
+                            "arn": "arn-1",
+                            "status": "pass",
+                            "issues": "",
+                            "advice": ""
+                        },
+                        {
+                            "arn": "arn-2",
+                            "status": "fail",
+                            "issues": "",
+                            "advice": ""
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Security groups with open egress",
+                    "tested": False,
+                    "why_is_it_important": "Opening ports to the world exposes a greater risk of data been sent out from the service to an unknown location",
+                    "how_do_i_fix_it": "The egress rules should specify which ports can be used. Only http(s) should be open to the world and through a proxy service so that we can record traffic.",
+                    "processed": "yes",
+                    "status": "fail",
+                    "issues": 1,
+                    "resources": [
+                        {
+                            "arn": "arn-1",
+                            "status": "pass",
+                            "issues": "",
+                            "advice": ""
+                        },
+                        {
+                            "arn": "arn-2",
+                            "status": "fail",
+                            "issues": "The security group can connect outbound to anywhere",
+                            "advice": "You can remediate this by narrowing the ports or ip ranges."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -83,83 +83,12 @@ def audit_report(id):
     return Response(**response)
 
 
-# demo audit data
-app.dummy_data = {
-    "name": "[User Name]",
-    "audits": [
-        {
-            "name": "[User Name]",
-            "id": 1,
-            "account_subscription": {
-                "account_id": 779799343306,
-                "account_name": "gds-digital-security"
-            },
-            "date_started": datetime.now().strftime("%d/%m/%Y %H:%M"),
-            "date_updated": datetime.now().strftime("%d/%m/%Y %H:%M"),
-            "date_completed": datetime.now().strftime("%d/%m/%Y %H:%M"),
-            "active_criteria": 5,
-            "criteria_processed": 5,
-            "criteria_analysed": 2,
-            "criteria_failed": 3,
-            "issues_found": 2,
-            "criteria": [
-                {
-                    "id": 1,
-                    "name": "SSH port ingress too open",
-                    "tested": False,
-                    "why_is_it_important": "Opening ports to the world exposes a greater risk if an SSH key is leaked",
-                    "how_do_i_fix_it": "The SSH port (22) should only be open to known GDS IP addresses including the cabinet office VPN",
-                    "processed": "yes",
-                    "status": "fail",
-                    "issues": 1,
-                    "resources": [
-                        {
-                            "arn": "arn-1",
-                            "status": "pass",
-                            "issues": "",
-                            "advice": ""
-                        },
-                        {
-                            "arn": "arn-2",
-                            "status": "fail",
-                            "issues": "",
-                            "advice": ""
-                        }
-                    ]
-                },
-                {
-                    "id": 2,
-                    "name": "Security groups with open egress",
-                    "tested": False,
-                    "why_is_it_important": "Opening ports to the world exposes a greater risk of data been sent out from the service to an unknown location",
-                    "how_do_i_fix_it": "The egress rules should specify which ports can be used. Only http(s) should be open to the world and through a proxy service so that we can record traffic.",
-                    "processed": "yes",
-                    "status": "fail",
-                    "issues": 1,
-                    "resources": [
-                        {
-                            "arn": "arn-1",
-                            "status": "pass",
-                            "issues": "",
-                            "advice": ""
-                        },
-                        {
-                            "arn": "arn-2",
-                            "status": "fail",
-                            "issues": "The security group can connect outbound to anywhere",
-                            "advice": "You can remediate this by narrowing the ports or ip ranges."
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
-
-
 # demo routes with static data
 @app.route('/demo')
 def demo_index():
+    # demo audit data
+    app.dummy_data = demos.audit
+
     load_route_services()
     response = app.templates.render_authorized_route_template('/',
         app.current_request,
@@ -171,6 +100,9 @@ def demo_index():
 
 @app.route('/demo/audit')
 def demo_audit_list():
+    # demo audit data
+    app.dummy_data = demos.audit
+
     load_route_services()
     response = app.templates.render_authorized_route_template('/audit',
         app.current_request,
@@ -182,6 +114,9 @@ def demo_audit_list():
 
 @app.route('/demo/audit/{id}')
 def demo_audit_report(id):
+    # demo audit data
+    app.dummy_data = demos.audit
+
     load_route_services()
     app.templates = TemplateHandler(app)
     response = app.templates.render_authorized_route_template('/audit/{id}',
@@ -254,6 +189,8 @@ def audit_evaluated_metric(event):
 # TEST ROUTES START HERE - RUN AWS API ON DEMAND
 @app.route('/test/ports_ingress_ssh')
 def test_ports_ingress_ssh():
+    # demo audit data
+    app.dummy_data = demos.audit
 
     response = demos.execute_test_ports_ingress_ssh(app, load_route_services)
     return Response(**response)
@@ -261,6 +198,8 @@ def test_ports_ingress_ssh():
 
 @app.route('/test/ports_ingress_open')
 def test_ports_ingress_open():
+    # demo audit data
+    app.dummy_data = demos.audit
 
     response = demos.execute_test_ports_ingress_open(app, load_route_services)
     return Response(**response)
