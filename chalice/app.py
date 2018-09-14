@@ -544,6 +544,9 @@ def account_evaluate_criteria(event):
                         "date_evaluated": datetime.now()
                     }
 
+                    if hasattr("region",params):
+                        item["region"] = params["region"]
+
                     item.update(client.translate(item_raw))
 
                     app.log.debug(app.utilities.to_json(item))
