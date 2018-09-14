@@ -1,9 +1,9 @@
-{% if resource['compliance']['IsApplicable'] %}
-    {% if not resource['compliance']['IsCompliant'] %}
+{% if resource['resource_compliance']['IsApplicable'] %}
+    {% if not resource['resource_compliance']['IsCompliant'] %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h4 class="govuk-heading-s">Failed resource:  &quot;{{ resource['GroupName'] }}&quot; ({{ resource['compliance']['ComplianceResourceId'] }})</h4>
-                <p class="govuk-body">{{ resource['compliance']['Annotation'] }}</p>
+                <h4 class="govuk-heading-s">Failed resource:  &quot;{{ resource['GroupName'] }}&quot; ({{ resource['resource_compliance']['ComplianceResourceId'] }})</h4>
+                <p class="govuk-body">{{ resource['resource_compliance']['Annotation'] }}</p>
             </div>
             <div class="govuk-grid-column-one-half">
                 <h5 class="govuk-heading-s">Why is it important?</h5>
