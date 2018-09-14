@@ -4,7 +4,6 @@ from peewee import CharField, TextField, DateField, DateTimeField, BooleanField,
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
 from datetime import datetime
-import json
 
 
 class DatabaseHandle():
