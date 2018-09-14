@@ -436,7 +436,7 @@ def account_audit_criteria(event):
                 #    "audit": audit_data,
                 #    "criterion": criterion_data
                 #})
-                message_body = app.utilities.to_json(audit.criterion.serlialize())
+                message_body = app.utilities.to_json(audit_criterion.serlialize())
 
                 message_id = sqs.send_message(
                     queue_url,
