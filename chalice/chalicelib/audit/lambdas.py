@@ -5,7 +5,7 @@ from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.models import DatabaseHandle
 
-def audit_active_accounts(app, event, context):
+def execute_on_audit_accounts_event(app, event, context):
     db = None
     try:
         status = False
@@ -73,7 +73,7 @@ def audit_active_accounts(app, event, context):
     return status
 
 
-def audit_account_criteria(app, event):
+def execute_on_audit_account_criteria_event(app, event):
     status = False
     try:
 
@@ -137,7 +137,7 @@ def audit_account_criteria(app, event):
     return status
 
 
-def account_evaluate_criteria(app, event):
+def execute_on_audit_evaluate_criteria_event(app, event):
     status = False
     try:
         status = False
@@ -294,7 +294,7 @@ def account_evaluate_criteria(app, event):
     return status
 
 
-def audit_evaluate_metric(app, event):
+def execute_on_audit_evaluated_metric_event(app, event):
     status = False
     try:
         status = False

@@ -2,7 +2,7 @@ from chalicelib.models import DatabaseHandle
 
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
-def database_create_tables(app, event, context):
+def execute_database_create_tables(app, event, context):
 
     try:
         dbh = DatabaseHandle(app)
@@ -26,7 +26,7 @@ def database_create_tables(app, event, context):
     return response
 
 
-# def database_create_all_tables(event, context):
+# def execute_database_create_all_tables(event, context):
     #
     #     try:
     #     dbh = DatabaseHandle(app)
@@ -52,7 +52,7 @@ def database_create_tables(app, event, context):
     # return response
 
 
-def database_create_item(app, event, context):
+def execute_database_create_item(app, event, context):
 
     try:
         dbh = DatabaseHandle(app)
@@ -67,7 +67,7 @@ def database_create_item(app, event, context):
     return json_data
 
 
-def database_get_item(app, event, context):
+def execute_database_get_item(app, event, context):
 
     app.log.debug('database_get_item function')
     try:
@@ -84,7 +84,7 @@ def database_get_item(app, event, context):
     return json_data
 
 
-def database_run(app, event, context):
+def execute_database_run(app, event, context):
 
     try:
 
@@ -98,7 +98,7 @@ def database_run(app, event, context):
     return status
 
 
-def database_list_models(app, event, context):
+def execute_database_list_models(app, event, context):
 
     try:
 

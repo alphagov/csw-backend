@@ -195,8 +195,8 @@ def demo_audit_report(id):
 # native lambda admin function to be invoked
 # TODO add authentication or rely on API permissions and assume roles to control access
 @app.lambda_function()
-def chalice_database_create_tables(event, context):
-    return database_create_tables(app, event, context)
+def database_create_tables(event, context):
+    return execute_database_create_tables(app, event, context)
 
 
 # @app.lambda_function()
@@ -205,48 +205,48 @@ def chalice_database_create_tables(event, context):
 
 
 @app.lambda_function()
-def chalice_database_create_item(event, context):
-    return database_create_item(app, event, context)
+def database_create_item(event, context):
+    return execute_database_create_item(app, event, context)
 
 
 @app.lambda_function()
-def chalice_database_get_item(event, context):
-    return database_get_item(app, event, context)
+def database_get_item(event, context):
+    return execute_database_get_item(app, event, context)
 
 
 @app.lambda_function()
-def chalice_database_run(event, context):
-    return database_run(app, event, context)
+def database_run(event, context):
+    return execute_database_run(app, event, context)
 
 
 @app.lambda_function()
-def chalice_database_list_models(event, context):
-    return database_list_models(app, event, context)
+def database_list_models(event, context):
+    return execute_database_list_models(app, event, context)
 
 
 @app.schedule(Rate(24, unit=Rate.HOURS))
-def chalice_audit_account_schedule(event):
-    return audit_active_accounts(app, event, {})
+def audit_account_schedule(event):
+    return execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()
-def chalice_audit_account(event, context):
-    return audit_active_accounts(app, event, context)
+def audit_account(event, context):
+    return execute_on_audit_accounts_event(app, event, context)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
-def chalice_account_audit_criteria(event):
-    return account_audit_criteria(app, event)
+def account_audit_criteria(event):
+    return execute_on_account_audit_criteria_event(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-metric-queue")
 def chalice_account_evaluate_criteria(event):
-    return account_evaluate_criteria(app, event)
+    return execute_on_account_evaluate_criteria_event(app, event)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-evaluated-metric-queue")
-def chalice_evaluated_metric(event):
-    return audit_evaluated_metric(app, event)
+def audit_evaluated_metric(event):
+    return execute_on_audit_evaluated_metric_event(app, event)
 
 
 @app.route('/test/ports_ingress_ssh')
