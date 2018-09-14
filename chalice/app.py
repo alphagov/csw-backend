@@ -583,11 +583,12 @@ def evaluated_metric(event):
 
                 message_data["criteria"] = criteria_data
 
-                failed_resources = (AuditResource.select().join(AccountAudit).where(AccountAudit == audit))
+                failed_resources = (AuditResource.select().join(AccountAudit).where(AccountAudit.id == audit.id))
 
                 resources_data = []
                 for resource in failed_resources:
-                    resources_data.append(resource.serialize())
+                    if not resource.resource_compliance.is_compliant:
+                        resources_data.append(resource.serialize())
 
                 message_data["failed_resources"] = resources_data
 
