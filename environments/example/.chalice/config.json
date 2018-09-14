@@ -8,7 +8,9 @@
         "CSW_USER": "cloud_sec_watch",
         "CSW_PASSWORD": "<your db user password>",
         "CSW_HOST": "<your rds hostname>",
-        "CSW_PORT": "5432"
+        "CSW_PORT": "5432",
+        "NOTIFY_EMAIL_TEMPLATE_ID": "aabbccdd1234",
+        "NOTIFY_API_KEY": "aabbccdd1234"
       },
       "api_gateway_stage": "app",
       "lambda_functions": {
