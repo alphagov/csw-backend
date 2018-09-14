@@ -315,13 +315,11 @@ def database_list_models(event, context):
 
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account_schedule(event):
-    return Response(**{
-        "body": "not yet implemented"
-    })
+    return audit_lambda_audit_active_accounts(app)
 
 @app.lambda_function()
 def audit_account(event, context):
-    return audit_all_active_accounts(app)
+    return audit_lambda_audit_active_accounts(app)
 
 
 @app.on_sqs_message(queue=f"{app.prefix}-audit-account-queue")
@@ -402,8 +400,6 @@ def account_evaluate_criteria(event):
         db = dbh.get_handle()
         db.connect()
 
-        sqs = GdsSqsClient(app)
-
         Criterion = dbh.get_model("Criterion")
         AccountAudit = dbh.get_model("AccountAudit")
         AuditResource = dbh.get_model("AuditResource")
@@ -417,20 +413,27 @@ def account_evaluate_criteria(event):
 
         app.log.debug("Set prefix: " + app.prefix)
 
-        queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-metric-queue")
+        queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
 
         app.log.debug("Retrieved queue url: " + queue_url)
 
         messages = []
 
         for message in event:
+
+            app.log.debug("parse message body")
+
             audit_criteria_data = json.loads(message.body)
 
             audit_criterion = AuditCriterion.get_by_id(audit_criteria_data["id"])
 
+            app.log.debug("loaded audit criterion")
+
             audit_data = audit_criteria_data['account_audit_id']
 
             audit = AccountAudit.get_by_id(audit_data['id'])
+
+            app.log.debug("loaded audit")
 
             criterion_data = audit_criteria_data['criterion_id']
 
@@ -527,10 +530,6 @@ def account_evaluate_criteria(event):
 
             audit.date_updated = datetime.now()
 
-            queue_url = sqs.get_queue_url(f"{app.prefix}-evaluated-metric-queue")
-
-            app.log.debug("Retrieved queue url: " + queue_url)
-
             message_body = app.utilities.to_json(audit_criterion.serialize())
 
             message_id = sqs.send_message(
@@ -588,7 +587,7 @@ def evaluated_metric(event):
 
                 resources_data = []
                 for resource in failed_resources:
-                    resources_data.append(resource.serialize(True))
+                    resources_data.append(resource.serialize())
 
                 message_data["failed_resources"] = resources_data
 

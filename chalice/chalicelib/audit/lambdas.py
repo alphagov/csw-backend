@@ -1,7 +1,7 @@
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.models import DatabaseHandle
 
-def audit_all_active_accounts(app):
+def audit_lambda_audit_active_accounts(app):
     db = None
     try:
         status = False
