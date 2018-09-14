@@ -234,8 +234,8 @@ class GdsAwsClient:
         eval['resource_type'] = resource_type
         eval['resource_id'] = resource_id
         eval['compliance_type'] = compliance_type
-        eval['is_compliant'] = compliance_type == 'COMPLIANT'
-        eval['is_applicable'] = compliance_type != 'NON_APPLICABLE'
+        eval['is_compliant'] = (compliance_type == 'COMPLIANT')
+        eval['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
         eval['status_id'] = self.get_status(eval)
 
         return eval
@@ -251,3 +251,59 @@ class GdsAwsClient:
             status = 3 # Fail
 
         return status
+
+
+    def summarize(self, resources):
+
+        summary = {
+            'all': {
+                'display_stat': 0,
+                'category': 'all',
+                'modifier_class': 'tested'
+            },
+            'applicable': {
+                'display_stat': 0,
+                'category': 'tested',
+                'modifier_class': 'precheck'
+            },
+            'non_compliant': {
+                'display_stat': 0,
+                'category': 'failed',
+                'modifier_class': 'failed'
+            },
+            'compliant': {
+                'display_stat': 0,
+                'category': 'passed',
+                'modifier_class': 'passed'
+            },
+            'not_applicable': {
+                'display_stat': 0,
+                'category': 'ignored',
+                'modifier_class': 'passed'
+            }
+        }
+
+        for resource in resources:
+
+            compliance = resource["resource_compliance"]
+
+            self.app.log.debug("summarize resource compliance: " + self.app.utilities.to_json(compliance))
+
+            self.app.log.debug('set resource type')
+
+            summary['all']['display_stat'] += 1
+
+            if compliance["is_applicable"]:
+                summary['applicable']['display_stat'] += 1
+
+                if compliance["is_compliant"]:
+                    summary['compliant']['display_stat'] += 1
+                else:
+                    summary['non_compliant']['display_stat'] += 1
+
+            else:
+                summary['not_applicable']['display_stat'] += 1
+
+        return summary
+
+

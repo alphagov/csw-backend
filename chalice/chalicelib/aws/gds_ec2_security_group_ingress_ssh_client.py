@@ -18,59 +18,9 @@ class GdsEc2SecurityGroupIngressSshClient(GdsEc2SecurityGroupClient):
         "192.168.0.0/16"
     ]
 
-    def summarize(self, groups):
-
-        summary = {
-            'all': {
-                'display_stat': 0,
-                'category': 'all',
-                'modifier_class': 'tested'
-            },
-            'applicable': {
-                'display_stat': 0,
-                'category': 'tested',
-                'modifier_class': 'precheck'
-            },
-            'non_compliant': {
-                'display_stat': 0,
-                'category': 'failed',
-                'modifier_class': 'failed'
-            },
-            'compliant': {
-                'display_stat': 0,
-                'category': 'passed',
-                'modifier_class': 'passed'
-            },
-            'non_applicable': {
-                'display_stat': 0,
-                'category': 'ignored',
-                'modifier_class': 'passed'
-            }
-        }
-
-        for group in groups:
-
-            compliance = group["resource_compliance"]
-
-            self.app.log.debug('set resource type')
-
-            summary['all']['display_stat'] += 1
-
-            if compliance["is_applicable"]:
-                summary['applicable']['display_stat'] += 1
-
-                if compliance["is_compliant"]:
-                    summary['compliant']['display_stat'] += 1
-                else:
-                    summary['non_compliant']['display_stat'] += 1
-
-            else:
-                summary['non_applicable']['display_stat'] += 1
-
-        return summary
-
-
     def evaluate(self, event, item, whitelist=[]):
+
+        whitelist.extend(self.valid_ranges)
 
         self.app.log.debug('Evaluating compliance')
         self.annotation = ""
@@ -114,8 +64,8 @@ class GdsEc2SecurityGroupIngressSshClient(GdsEc2SecurityGroupClient):
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
-                self.annotation += f"The IP range {cidr} is not valid."
-                self.app.log.debug(f"The IP range {cidr} is not valid.")
+                self.annotation += f"The IP range {cidr} is not valid. "
+                self.app.log.debug(f"The IP range {cidr} is not valid. ")
 
         return compliant
 

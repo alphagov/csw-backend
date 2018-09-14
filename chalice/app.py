@@ -596,14 +596,16 @@ def test_ports_ingress_ssh():
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
-        app.log.debug("session: " + str(session))
-
         groups = ec2.describe_security_groups(session, **{ "region": 'eu-west-1'})
 
         # app.log.debug("groups: " + str(groups))
 
         for group in groups:
+
             compliance = ec2.evaluate({}, group, [])
+
+            app.log.debug(app.utilities.to_json(compliance))
+
             group['resource_compliance'] = compliance
 
         summary = ec2.summarize(groups)
