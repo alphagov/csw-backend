@@ -482,6 +482,8 @@ def account_evaluate_criteria(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
 
+            audit_criterion = AuditCriterion.get_by_id(audit_criteria_data["id"])
+
             audit_data = audit_criteria_data['account_audit_id']
 
             audit = AccountAudit.get_by_id(audit_data['id'])
@@ -526,6 +528,7 @@ def account_evaluate_criteria(event):
             else:
                 requests.append(params)
 
+            summary = None
             for params in requests:
 
                 try:
@@ -567,18 +570,23 @@ def account_evaluate_criteria(event):
 
                         resource_compliance = ResourceCompliance.create(**compliance)
 
-                    audit.criteria_processed += 1
-
-
-            summary = client.summarize(data)
+                    summary = client.summarize(data, summary)
 
             app.log.debug(app.utilities.to_json(summary))
 
+            audit_criterion.resources = summary['all']['display_stat']
+            audit_criterion.tested = summary['applicable']['display_stat']
+            audit_criterion.passed = summary['compliant']['display_stat']
+            audit_criterion.failed = summary['non_compliant']['display_stat']
+            audit_criterion.ignored = summary['not_applicable']['display_stat']
+            audit_criterion.save()
+
+            audit.criteria_processed += 1
             audit.date_updated = datetime.now()
 
             audit.save()
 
-    except Exception as err:
+    except Exception as err:r
         app.log.error(str(err))
         if db is not None:
             db.rollback()

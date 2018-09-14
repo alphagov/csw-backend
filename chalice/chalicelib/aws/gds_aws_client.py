@@ -253,9 +253,9 @@ class GdsAwsClient:
         return status
 
 
-    def summarize(self, resources):
+    def empty_summary(self):
 
-        summary = {
+        return {
             'all': {
                 'display_stat': 0,
                 'category': 'all',
@@ -282,6 +282,12 @@ class GdsAwsClient:
                 'modifier_class': 'passed'
             }
         }
+
+    def summarize(self, resources, summary=None):
+
+        if summary is None:
+
+            summary = self.empty_summary()
 
         for resource in resources:
 
