@@ -587,7 +587,7 @@ def evaluated_metric(event):
 
                 resources_data = []
                 for resource in failed_resources:
-                    if not resource.resource_compliance.is_compliant:
+                    if resource.resource_compliance.status_id.id == 3:
                         resources_data.append(resource.serialize())
 
                 message_data["failed_resources"] = resources_data
