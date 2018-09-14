@@ -133,13 +133,6 @@ class DatabaseHandle():
 
         return item
 
-    def to_json(self, data):
-        return json.dumps(data, default = self.to_json_type_convert)
-
-    def to_json_type_convert(self, item):
-        if isinstance(item, datetime):
-            return item.__str__()
-
 
 dbh = DatabaseHandle()
 db = dbh.get_handle()
