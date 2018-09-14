@@ -228,7 +228,7 @@ def database_list_models(event, context):
 # AUDIT LAMBDAS START HERE
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def audit_account_schedule(event):
-    return .execute_on_audit_accounts_event(app, event, {})
+    return execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()
