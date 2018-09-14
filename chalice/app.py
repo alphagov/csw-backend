@@ -2,6 +2,7 @@ import logging
 import os
 import json
 import importlib
+from botocore.exceptions import ClientError
 from datetime import datetime
 from chalice import Chalice, Response, BadRequestError
 from chalicelib.utilities import Utilities
@@ -527,34 +528,41 @@ def account_evaluate_criteria(event):
                 requests.append(params)
 
             for params in requests:
-                data = getattr(client, method)(session, **params)
 
-                app.log.debug("api response: " + app.utilities.to_json(data))
+                try:
+                    data = getattr(client, method)(session, **params)
+                except ClientError as boto3_error:
+                    audit.criteria_failed += 1
+                    data = None
 
-                for item_raw in data:
+                if data is not None:
 
-                    compliance = client.evaluate({}, item_raw)
+                    app.log.debug("api response: " + app.utilities.to_json(data))
 
-                    app.log.debug(app.utilities.to_json(compliance))
+                    for item_raw in data:
 
-                    item = {
-                        "account_audit_id": audit.id,
-                        "criterion_id": criterion.id,
-                        "resource_data": app.utilities.to_json(item_raw),
-                        "date_evaluated": datetime.now()
-                    }
+                        compliance = client.evaluate({}, item_raw)
 
-                    if "region" in params:
-                        item["region"] = params["region"]
+                        app.log.debug(app.utilities.to_json(compliance))
 
-                    item.update(client.translate(item_raw))
+                        item = {
+                            "account_audit_id": audit.id,
+                            "criterion_id": criterion.id,
+                            "resource_data": app.utilities.to_json(item_raw),
+                            "date_evaluated": datetime.now()
+                        }
 
-                    app.log.debug(app.utilities.to_json(item))
+                        if "region" in params:
+                            item["region"] = params["region"]
 
-                    audit_resource = AuditResource.create(**item)
+                        item.update(client.translate(item_raw))
 
-                    compliance["audit_resource_id"] = audit_resource
-                    resource_compliance = ResourceCompliance.create(**compliance)
+                        app.log.debug(app.utilities.to_json(item))
+
+                        audit_resource = AuditResource.create(**item)
+
+                        compliance["audit_resource_id"] = audit_resource
+                        resource_compliance = ResourceCompliance.create(**compliance)
 
             audit.date_updated = datetime.now()
 
