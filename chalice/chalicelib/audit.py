@@ -18,9 +18,11 @@ def execute_on_audit_accounts_event(app, event, context):
         AccountSubscription = dbh.get_model("AccountSubscription")
         AccountAudit = dbh.get_model("AccountAudit")
         active_accounts = (AccountSubscription.select().where(AccountSubscription.active is True))
+        # .order_by(AccountSubscription.product_team_id)
+
+        app.log.debug("Found active accounts: " + str(len(list(active_accounts))))
 
         items = []
-        # .order_by(User.username)
 
         # create SQS message
         sqs = GdsSqsClient(app)
