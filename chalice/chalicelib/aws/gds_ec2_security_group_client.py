@@ -106,11 +106,11 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         parsed_cidr = self.parse_v4_cidr(cidr)
 
         is_private = False
-        if parsed_cidr.a == 10:
+        if parsed_cidr["a"] == 10:
             is_private = True
-        elif parsed_cidr.a == 192 and parsed_cidr.b == 168:
+        elif parsed_cidr["a"] == 192 and parsed_cidr["b"] == 168:
             is_private = True
-        elif parsed_cidr.a == 172 and (16 <= parsed_cidr.b <= 31):
+        elif parsed_cidr["a"] == 172 and (16 <= parsed_cidr["b"] <= 31):
             is_private = True
 
         return is_private
