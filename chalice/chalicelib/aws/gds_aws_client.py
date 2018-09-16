@@ -275,7 +275,8 @@ class GdsAwsClient:
                 'display_stat': 0,
                 'category': 'ignored',
                 'modifier_class': 'passed'
-            }
+            },
+            'regions': 0
         }
 
     def summarize(self, resources, summary=None):
