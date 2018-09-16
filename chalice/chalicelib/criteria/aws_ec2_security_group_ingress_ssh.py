@@ -13,14 +13,10 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
         "213.86.153.235/32",
         "213.86.153.236/32",
         "213.86.153.237/32",
-        "85.133.67.244/32",
-        "10.0.0.0/8",
-        "192.168.0.0/16"
+        "85.133.67.244/32"
     ]
 
     def evaluate(self, event, item, whitelist=[]):
-
-        whitelist.extend(self.valid_ranges)
 
         self.app.log.debug('Evaluating compliance')
         self.annotation = ""
@@ -36,7 +32,7 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
             if self.rule_applies_to_ssh(ingress_rule):
                 self.app.log.debug('Applies to SSH')
                 has_relevant_rule = True
-                rule_is_compliant = self.rule_is_compliant(ingress_rule, whitelist)
+                rule_is_compliant = self.rule_is_compliant(ingress_rule)
                 is_compliant &= rule_is_compliant
 
         if has_relevant_rule:
@@ -52,14 +48,19 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
 
         return evaluation
 
-    def rule_is_compliant(self, rule, whitelist):
+    def rule_is_compliant(self, rule):
 
         compliant = True
 
         for ip_range in rule['IpRanges']:
 
             cidr = ip_range["CidrIp"]
-            cidr_is_valid = cidr in whitelist
+
+            if cidr in self.valid_ranges:
+                cidr_is_valid = True
+            else:
+                cidr_is_valid = self.cidr_is_private_network(cidr)
+
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:

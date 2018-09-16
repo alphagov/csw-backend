@@ -1,6 +1,8 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
+import re
+from netaddr import IPNetwork
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
 
 
@@ -65,3 +67,61 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
             in_range = False
 
         return in_range
+
+    def parse_v4_cidr(self, cidr):
+
+        cidr_pattern = '^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$'
+
+        m = re.search(cidr_pattern, cidr)
+
+        parsed = {
+            "cidr": int(m.group(0)),
+            "a": int(m.group(1)),
+            "b": int(m.group(2)),
+            "c": int(m.group(3)),
+            "d": int(m.group(4)),
+            "mask": int(m.group(5)),
+            "v": 4
+        }
+        return parsed
+
+    def parse_v6_cidr(self, cidr):
+
+        cidr_pattern = '^([0-9a-f]*)\:([0-9a-f]*)\:([0-9a-f]*)\/(\d+)$'
+
+        m = re.search(cidr_pattern, cidr)
+
+        parsed = {
+            "cidr": int(m.group(0)),
+            "a": int(m.group(1)),
+            "b": int(m.group(2)),
+            "c": int(m.group(3)),
+            "mask": int(m.group(4)),
+            "v": 6
+        }
+        return parsed
+
+    def cidr_is_private_network(self, cidr):
+
+        parsed_cidr = self.parse_cidr(cidr)
+
+        is_private = False
+        if parsed_cidr.a == 10:
+            is_private = True
+        elif parsed_cidr.a == 192 and parsed_cidr.b == 168:
+            is_private = True
+        elif parsed_cidr.a == 172 and (16 <= parsed_cidr.b <= 31):
+            is_private = True
+
+        return is_private
+
+    def parent_cidr_contains_chlid_cidr(self, parent, child):
+
+        return IPNetwork(child) in IPNetwork(parent)
+
+    def cidrs_equivalent(self, cidr_a, cidr_b):
+
+        a_in_b = self.parent_cidr_contains_chlid_cidr(self, cidr_a, cidr_b)
+        b_in_a = self.parent_cidr_contains_chlid_cidr(self, cidr_b, cidr_a)
+
+        return (a_in_b and b_in_a)

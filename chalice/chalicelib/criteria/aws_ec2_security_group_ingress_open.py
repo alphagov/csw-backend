@@ -89,11 +89,13 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
             if "CidrIp" in ip_range:
                 cidr = ip_range["CidrIp"]
-                cidr_is_valid = (cidr != "0.0.0.0/0")
+                parsed_cidr = self.parse_v4_cidr(cidr)
+                cidr_is_valid = (parsed_cidr.mask != 0)
 
             elif "CidrIpv6" in ip_range:
                 cidr = ip_range["CidrIpv6"]
-                cidr_is_valid = (cidr != "::/0")
+                parsed_cidr = self.parse_v6_cidr(cidr)
+                cidr_is_valid = (parsed_cidr.mask != 0)
 
             compliant &= cidr_is_valid
 
