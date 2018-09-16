@@ -217,7 +217,7 @@ class AccountLatestAudit(BaseModel):
         table_name = "account_latest_audit"
 
 
-dbh.add_model("AccountLatestAudit", AccountAudit)
+dbh.add_model("AccountLatestAudit", AccountLatestAudit)
 
 
 # eg AWS domain - Trusted Advisor EC2...
