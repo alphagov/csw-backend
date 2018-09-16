@@ -315,6 +315,7 @@ def execute_on_audit_evaluated_metric_event(app, event):
 
         sqs = GdsSqsClient(app)
         AccountAudit = dbh.get_model("AccountAudit")
+        AccountLatestAudit = dbh.get_model("AccountLatestAudit")
         AuditCriterion = dbh.get_model("AuditCriterion")
         AuditResource = dbh.get_model("AuditResource")
         ResourceCompliance = dbh.get_model("ResourceCompliance")
@@ -353,6 +354,11 @@ def execute_on_audit_evaluated_metric_event(app, event):
                 app.log.debug("Retrieved queue url: " + queue_url)
 
                 message_body = app.utilities.to_json(message_data)
+
+                latest = AccountLatestAudit.create({
+                    "account_subscription_id":  audit.account_subscription_id,
+                    "account_audit_id": audit.id
+                })
 
                 message_id = sqs.send_message(
                     queue_url,

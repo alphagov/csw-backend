@@ -209,6 +209,13 @@ class AccountAudit(BaseModel):
 
 dbh.add_model("AccountAudit", AccountAudit)
 
+class AccountLatestAudit(BaseModel):
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_latest_audit')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='account_latest_audit')
+
+    class Meta:
+        table_name = "account_latest_audit"
+
 
 # eg AWS domain - Trusted Advisor EC2...
 # The tool could be extended beyond the scope of AWS
