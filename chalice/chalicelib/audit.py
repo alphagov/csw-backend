@@ -355,10 +355,10 @@ def execute_on_audit_evaluated_metric_event(app, event):
 
                 message_body = app.utilities.to_json(message_data)
 
-                latest = AccountLatestAudit.create({
-                    "account_subscription_id":  audit.account_subscription_id,
-                    "account_audit_id": audit.id
-                })
+                latest = AccountLatestAudit.create(
+                    account_subscription_id=audit.account_subscription_id,
+                    account_audit_id=audit
+                )
 
                 message_id = sqs.send_message(
                     queue_url,
