@@ -355,10 +355,17 @@ def execute_on_audit_evaluated_metric_event(app, event):
 
                 message_body = app.utilities.to_json(message_data)
 
-                latest = AccountLatestAudit.create(
-                    account_subscription_id=audit.account_subscription_id,
-                    account_audit_id=audit
-                )
+                try:
+                    latest = AccountLatestAudit.get(
+                        AccountLatestAudit.account_subscription_id == audit.account_subscription_id
+                    )
+                    latest.account_audit_id=audit
+                    latest.save()
+                except AccountLatestAudit.DoesNotExist:
+                    latest = AccountLatestAudit.create(
+                        account_subscription_id=audit.account_subscription_id,
+                        account_audit_id=audit
+                    )
 
                 app.log.debug("latest_audit: " + app.utilities.to_json(latest.serialize()))
 
