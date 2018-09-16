@@ -17,7 +17,7 @@ def execute_on_audit_accounts_event(app, event, context):
 
         AccountSubscription = dbh.get_model("AccountSubscription")
         AccountAudit = dbh.get_model("AccountAudit")
-        active_accounts = (AccountSubscription.select().where(AccountSubscription.active is True))
+        active_accounts = (AccountSubscription.select().where(AccountSubscription.active == True))
         # .order_by(AccountSubscription.product_team_id)
 
         app.log.debug("Found active accounts: " + str(len(list(active_accounts))))
@@ -100,7 +100,7 @@ def execute_on_account_audit_criteria_event(app, event):
 
         app.log.debug("Retrieved queue url: " + queue_url)
 
-        active_criteria = (Criterion.select().where(Criterion.active is True))
+        active_criteria = (Criterion.select().where(Criterion.active == True))
 
         messages = []
 
