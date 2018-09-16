@@ -360,6 +360,8 @@ def execute_on_audit_evaluated_metric_event(app, event):
                     account_audit_id=audit
                 )
 
+                app.log.debug("latest_audit: " + app.utilities.to_json(latest.serialize()))
+
                 message_id = sqs.send_message(
                     queue_url,
                     message_body
