@@ -283,8 +283,6 @@ def execute_on_account_evaluate_criteria_event(app, event):
             if (audit_criterion.failed > 0):
                 audit.criteria_failed += 1
                 audit.issues_found += audit_criterion.failed
-            else:
-                audit.criteria_passed += 1
 
             audit.date_updated = datetime.now()
 
