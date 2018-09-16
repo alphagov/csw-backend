@@ -280,11 +280,20 @@ class GdsAwsClient:
 
     def summarize(self, resources, summary=None):
 
+        regions = []
+
         if summary is None:
 
             summary = self.empty_summary()
 
         for resource in resources:
+
+            has_region = "region" in resource
+            is_default = resource["name"] == "default"
+            in_regions = resource["region"] in regions
+
+            if has_region and (not is_default) and (not in_regions):
+                regions.append(resource["region"])
 
             compliance = resource["resource_compliance"]
 
@@ -304,5 +313,7 @@ class GdsAwsClient:
 
             else:
                 summary['not_applicable']['display_stat'] += 1
+
+            summary["regions"] = regions
 
         return summary

@@ -140,6 +140,7 @@ def execute_on_account_audit_criteria_event(app, event):
     return status
 
 
+# TODO break down into multiple steps
 def execute_on_account_evaluate_criteria_event(app, event):
     status = False
     try:
@@ -227,9 +228,9 @@ def execute_on_account_evaluate_criteria_event(app, event):
 
                 try:
                     data = getattr(client, method)(session, **params)
+
                 except ClientError as boto3_error:
                     app.log.error(str(boto3_error))
-                    audit.criteria_failed += 1
                     data = None
 
                 if data is not None:
@@ -249,10 +250,13 @@ def execute_on_account_evaluate_criteria_event(app, event):
                             "date_evaluated": datetime.now()
                         }
 
+                        item_standard = client.translate(item_raw)
+                        item.update(item_standard)
+                        item_raw.update(item_standard)
+
                         if "region" in params:
                             item["region"] = params["region"]
-
-                        item.update(client.translate(item_raw))
+                            item_raw["region"] = params["region"]
 
                         app.log.debug(app.utilities.to_json(item))
 
@@ -273,7 +277,14 @@ def execute_on_account_evaluate_criteria_event(app, event):
             audit_criterion.passed = summary['compliant']['display_stat']
             audit_criterion.failed = summary['non_compliant']['display_stat']
             audit_criterion.ignored = summary['not_applicable']['display_stat']
+            audit_criterion.regions = summary['regions']
             audit_criterion.save()
+
+            if (audit_criterion.failed > 0):
+                audit.criteria_failed += 1
+                audit.issues_found += audit_criterion.failed
+            else:
+                audit.criteria_passed += 1
 
             audit.date_updated = datetime.now()
 
@@ -316,7 +327,7 @@ def execute_on_audit_evaluated_metric_event(app, event):
             audit = AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
             audit.criteria_processed += 1
 
-            if (audit.criteria_processed + audit.criteria_failed) == audit.active_criteria:
+            if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
 
                 message_data = audit.serialize()
