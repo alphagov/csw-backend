@@ -277,7 +277,7 @@ def execute_on_account_evaluate_criteria_event(app, event):
             audit_criterion.passed = summary['compliant']['display_stat']
             audit_criterion.failed = summary['non_compliant']['display_stat']
             audit_criterion.ignored = summary['not_applicable']['display_stat']
-            audit_criterion.regions = summary['regions']
+            audit_criterion.regions = summary['regions']['count']
             audit_criterion.save()
 
             if (audit_criterion.failed > 0):

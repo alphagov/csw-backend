@@ -276,7 +276,10 @@ class GdsAwsClient:
                 'category': 'ignored',
                 'modifier_class': 'passed'
             },
-            'regions': 0
+            'regions': {
+                'list': [],
+                'count': 0
+            }
         }
 
     def summarize(self, resources, summary=None):
@@ -315,6 +318,7 @@ class GdsAwsClient:
             else:
                 summary['not_applicable']['display_stat'] += 1
 
-            summary["regions"] = regions
+            summary["regions"]["list"] = regions
+            summary["regions"]["count"] = len(regions)
 
         return summary
