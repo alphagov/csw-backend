@@ -103,7 +103,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
     def cidr_is_private_network(self, cidr):
 
-        parsed_cidr = self.parse_cidr(cidr)
+        parsed_cidr = self.parse_v4_cidr(cidr)
 
         is_private = False
         if parsed_cidr.a == 10:
