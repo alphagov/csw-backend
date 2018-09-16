@@ -217,6 +217,9 @@ class AccountLatestAudit(BaseModel):
         table_name = "account_latest_audit"
 
 
+dbh.add_model("AccountLatestAudit", AccountAudit)
+
+
 # eg AWS domain - Trusted Advisor EC2...
 # The tool could be extended beyond the scope of AWS
 class CriteriaProvider(BaseModel):
