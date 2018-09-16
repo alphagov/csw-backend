@@ -75,7 +75,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         m = re.search(cidr_pattern, cidr)
 
         parsed = {
-            "cidr": int(m.group(0)),
+            "cidr": m.group(0),
             "a": int(m.group(1)),
             "b": int(m.group(2)),
             "c": int(m.group(3)),
@@ -92,7 +92,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         m = re.search(cidr_pattern, cidr)
 
         parsed = {
-            "cidr": int(m.group(0)),
+            "cidr": m.group(0),
             "a": int(m.group(1)),
             "b": int(m.group(2)),
             "c": int(m.group(3)),
