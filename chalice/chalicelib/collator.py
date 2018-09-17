@@ -102,7 +102,7 @@ class Collator():
 
                     self.app.log.debug('Team ID: ' + str(account.product_team_id.id))
 
-                    if account.product_team_id.id == team.id:
+                    if account.active and account.product_team_id.id == team.id:
 
                         latest = self.get_latest_audit(account.id)
 
