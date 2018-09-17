@@ -318,11 +318,15 @@ def send_user_email_notification(event, context):
     }
 
     notify_client = NotificationsAPIClient(NOTIFY_API_KEY)
-    notify_client.send_email_notification(
-        email_address=event['email'],
-        template_id=NOTIFY_EMAIL_TEMPLATE_ID,
-        personalisation=data,
-        reference=None
-    )
+
+    try:
+        notify_client.send_email_notification(
+            email_address=event['email'],
+            template_id=NOTIFY_EMAIL_TEMPLATE_ID,
+            personalisation=data,
+            reference=None
+        )
+    except Exception:
+        return "Error during notification"
 
     return "User notified"
