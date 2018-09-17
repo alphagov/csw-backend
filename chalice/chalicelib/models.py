@@ -18,7 +18,7 @@ class BaseModel(Model):
         # front end does not need user ID here
         data = model_to_dict(self)
 
-        data = self.parse_stored_json(data)
+        # data = self.parse_stored_json(data)
 
         return data
 
