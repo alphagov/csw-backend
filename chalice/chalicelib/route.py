@@ -30,6 +30,7 @@ def route_team_dashboard(app, team_id):
         }
 
     except Exception as err:
+        app.log.error("Route: team/x/dashboard error: " + str(err))
         response = {
             "body": str(err)
         }
