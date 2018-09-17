@@ -21,14 +21,22 @@ def get_default_criteria_stats():
     }
 
 
-def get_team_stats(team_accounts):
+def get_team_stats(team_accounts, app, dbh):
+
+    AccountAudit = dbh.get_model("AccountAudit")
+    AccountLatestAudit = dbh.get_model("AccountLatestAudit")
 
     team_stats = get_default_audit_stats()
 
     for account in team_accounts:
         if account.active:
-            latest = account.account_latest_audit.account_audit_id
+
+            latest = (AccountAudit.join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
+
             latest_data = latest.serialize()
+
+            app.log.debug(app.utilties.to_json(latest_data))
+
             for stat in team_stats:
                 team_stats[stat] += latest_data[stat]
 
