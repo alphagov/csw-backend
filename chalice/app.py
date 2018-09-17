@@ -4,10 +4,11 @@ import json
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
-from chalicelib.views import TemplateHandler
+from chalicelib.template_handler import TemplateHandler
 from chalicelib import audit
 from chalicelib import admin
 from chalicelib import demos
+from chalicelib import route
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -78,6 +79,15 @@ def audit_list():
 def audit_report(id):
     load_route_services()
     response = app.templates.render_authorized_route_template('/audit/{id}', app.current_request)
+
+    return Response(**response)
+
+
+@app.route('/team/{id}/dashboard')
+def team_dashboard(id):
+    load_route_services()
+
+    response = route.team_dashboard(app, id)
 
     return Response(**response)
 

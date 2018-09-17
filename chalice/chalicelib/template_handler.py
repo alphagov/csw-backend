@@ -27,7 +27,9 @@ class TemplateHandler:
         self.route_templates = {
             "/": "logged_in.html",
             "/audit": "audit_list.html",
-            "/audit/{id}": "audit.html"
+            "/audit/{id}": "audit.html",
+            "/overview": "overview.html",
+            "/team/{id}/dashboard": "team_dashboard.html"
         }
 
     def get_route_template_file(self, route):

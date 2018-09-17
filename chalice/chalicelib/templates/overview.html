@@ -1,0 +1,21 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+{% include "components/logged_in.html" %}
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="../">Home</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="../audit">Audit history</a>
+        </li>
+      </ol>
+    </div>
+  </main>
+</div>
+{% endblock %}
