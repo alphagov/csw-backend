@@ -89,11 +89,16 @@ class Collator():
 
                 team_stats = self.get_default_criteria_stats()
 
+                self.app.log.debug("Got default criteria stats")
+
                 for account in accounts:
+
+                    self.app.log.debug("Get latest account stats for account: " + str(account.id))
 
                     account_stats = self.get_default_criteria_stats()
 
-                    self.app.log.debug('Team ID: ' + account.product_team_id.id)
+                    self.app.log.debug('Team ID: ' + str(account.product_team_id.id))
+
                     if account.product_team_id.id == team.id:
 
                         latest = self.get_latest_audit(account.id)
@@ -102,7 +107,7 @@ class Collator():
 
                         for audit_criterion in audit_criteria:
 
-                            self.app.log.debug('Criterion ID: ' + audit_criterion.criterion_id.id)
+                            self.app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
 
                             if audit_criterion.criterion_id.id == criterion.id:
                                 audit_criterion_stats = {
