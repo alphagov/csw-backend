@@ -31,7 +31,7 @@ def get_team_stats(team_accounts, app, dbh):
     for account in team_accounts:
         if account.active:
 
-            latest = (AccountAudit.join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
+            latest = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
 
             latest_data = latest.serialize()
 
