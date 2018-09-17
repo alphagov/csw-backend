@@ -299,6 +299,20 @@ def read_asset(proxy):
     return data
 
 
+def format_sqs_message_for_notification(payload):
+    data = json.loads(payload)
+    message = "Misconfigurations have been found in the following resources: \n\n"
+
+    for failed_resource in data["failed_resources"]:
+        message += '* {0} - {1} - {2} \n'.format(
+            failed_resource["resource_id"],
+            failed_resource["audit_resource_id"]["criterion_id"]["criterion_name"],
+            failed_resource["audit_resource_id"]["criterion_id"]["description"]
+        )
+
+    return message
+
+
 @app.lambda_function()
 def send_user_email_notification(event, context):
     """
