@@ -54,6 +54,7 @@ class Collator():
     def get_team_stats(self, team_accounts):
 
         team_stats = self.get_default_audit_stats()
+        team_stats["accounts"] = []
 
         self.app.log.debug("Got default stats")
 
@@ -67,6 +68,10 @@ class Collator():
 
                 if latest is not None:
                     latest_data = latest.serialize()
+                    team_stats["accounts"].append({
+                        "account": account,
+                        "stats": latest_data
+                    })
 
                     self.app.log.debug("Latest audit: " + self.app.utilities.to_json(latest_data))
 
