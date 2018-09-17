@@ -18,13 +18,14 @@ def route_team_dashboard(app, team_id):
 
         app.log.debug(f"Get team dashboard for team: {team.team_name}  ({ team_id })")
 
-
         accounts = (AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id))
 
         for account in accounts:
             app.log.debug(account.account_name)
 
         team_stats = collator.get_team_stats(accounts)
+
+        app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
 
         active_criteria = (Criterion.select().where(Criterion.active == True))
         criteria_stats = collator.get_criteria_stats(active_criteria, accounts, [team])
@@ -34,8 +35,7 @@ def route_team_dashboard(app, team_id):
             "criteria_summary": criteria_stats
         }
 
-        app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
-        app.log.debug("Team stats: " + app.utilities.to_json(criteria_stats))
+        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
 
         response = {
             "body": app.utilities.to_json(template_data)
