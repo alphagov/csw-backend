@@ -1,5 +1,5 @@
-from chalicelib.models import DatabaseHandle
-import chalicelib.collate
+from chalicelib.database_handle import DatabaseHandle
+from chalicelib import collate
 
 
 def route_team_dashboard(app, team_id):
