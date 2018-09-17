@@ -81,6 +81,9 @@ class Collator():
 
     def get_criteria_stats(self, criteria, accounts, teams):
 
+        AccountAudit = self.dbh.get_model("AccountAudit")
+        AuditCriterion = self.dbh.get_model("AuditCriterion")
+
         criteria_stats = []
         for criterion in criteria:
             team_data = []
@@ -103,7 +106,7 @@ class Collator():
 
                         latest = self.get_latest_audit(account.id)
 
-                        audit_criteria = latest.audit_criteria
+                        audit_criteria = (AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id))
 
                         for audit_criterion in audit_criteria:
 
