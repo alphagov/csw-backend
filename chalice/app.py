@@ -313,22 +313,26 @@ def format_sqs_message_for_notification(payload):
     return message
 
 
-@app.lambda_function()
+@app.on_sqs_message(queue='<prefix>-completed-audit-queue') # TODO: Dinamically change te prefix
 def send_user_email_notification(event, context):
     """
     expected JSON payload: {
         "email": "user@domain.com",
         "subject": "Notification Subject",
-        "message": "Notification message for the user"
+        "message": "JSON payload"
     }
     """
+
+    # TODO: how do we pass the email to notify with the SQS message?
 
     NOTIFY_EMAIL_TEMPLATE_ID = os.environ.get('NOTIFY_EMAIL_TEMPLATE_ID')
     NOTIFY_API_KEY = os.environ.get('NOTIFY_API_KEY')
 
+    message = format_sqs_message_for_notification(event['message'])
+
     data = {
         'subject': event['subject'],
-        'message': event['message']
+        'message': message
     }
 
     notify_client = NotificationsAPIClient(NOTIFY_API_KEY)
