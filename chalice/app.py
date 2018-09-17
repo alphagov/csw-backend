@@ -87,7 +87,7 @@ def audit_report(id):
 def team_dashboard(id):
     load_route_services()
 
-    response = route.team_dashboard(app, id)
+    response = route.team_dashboard(app, int(id))
 
     return Response(**response)
 
