@@ -6,6 +6,7 @@ class Collator():
     def __init__(self, app=None, dbh=None):
         self.app = app
         self.dbh = dbh
+        self.app.log.debug("Created Collator instance")
 
     def set_database_handle(self, dbh):
         self.dbh = dbh
@@ -54,7 +55,11 @@ class Collator():
 
         team_stats = self.get_default_audit_stats()
 
+        self.app.log.debug("Got default stats")
+
         for account in team_accounts:
+
+            self.app.log.debug("Get account stats for " + account.account_name)
 
             if account.active:
 
