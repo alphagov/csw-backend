@@ -101,6 +101,7 @@ venv.bak/
 
 # PyCharm
 .idea/
+**/.DS_Store
 
 # mypy
 .mypy_cache/
