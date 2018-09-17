@@ -31,14 +31,18 @@ def get_team_stats(team_accounts, app, dbh):
     for account in team_accounts:
         if account.active:
 
-            latest = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
+            try:
+                latest = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
 
-            latest_data = latest.serialize()
+                latest_data = latest.serialize()
 
-            app.log.debug(app.utilities.to_json(latest_data))
+                app.log.debug(app.utilities.to_json(latest_data))
 
-            for stat in team_stats:
-                team_stats[stat] += latest_data[stat]
+                for stat in team_stats:
+                    team_stats[stat] += latest_data[stat]
+
+            except AccountLatestAudit.DoesNotExist as err:
+                app.log.error("Latest audit not found: " + str(err))
 
     return team_stats
 
