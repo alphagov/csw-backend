@@ -32,7 +32,9 @@ def get_team_stats(team_accounts, app, dbh):
         if account.active:
 
             try:
-                latest = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id).get())
+                query = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account.id))
+                app.log.debug(query.sql())
+                latest = query.get()
 
                 latest_data = latest.serialize()
 
