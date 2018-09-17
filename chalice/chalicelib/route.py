@@ -21,9 +21,9 @@ def route_team_dashboard(app, team_id):
         for account in accounts:
             app.log.debug(account.account_name)
 
-        app.log.debug(app.utilities.to_json(accounts))
+        team_stats = collate.get_team_stats(accounts)
 
-        # team_stats = collate.get_team_stats(accounts)
+        app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
 
         response = {
             "body": app.utilities.to_json(accounts.serialize())
