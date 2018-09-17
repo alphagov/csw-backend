@@ -8,9 +8,17 @@ def route_team_dashboard(app, team_id):
     db = dbh.get_handle()
     db.connect()
 
+    ProductTeam = dbh.get_model("ProductTeam")
+    team = ProductTeam.get_by_id(team_id)
+
+    app.log.debug(f"Get team dashboard for team: {team.team_name}  ({ team_id })")
+
     AccountSubscription = dbh.get_model("AccountSubscription")
 
     accounts = (AccountSubscription.select().where(AccountSubscription.product_team_id.id == team_id))
+
+    for account in accounts:
+        app.log.debug(account.account_name)
 
     app.log.debug(app.utilities.to_json(accounts))
 
