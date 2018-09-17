@@ -44,6 +44,9 @@ class Collator():
         except AccountLatestAudit.DoesNotExist as err:
             latest = None
             self.app.log.debug("Failed to get latest audit: " + str(err))
+        except Exception as err:
+            latest = None
+            self.app.log.debug("Catch generic exception from get_latest_audit: " + str(err))
 
         return latest
 
