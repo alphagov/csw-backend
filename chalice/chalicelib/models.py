@@ -76,7 +76,7 @@ class AccountAudit(BaseModel):
     date_completed = DateTimeField(null=True)
     active_criteria = IntegerField(default=0)
     criteria_processed = IntegerField(default=0)
-    criteria_analysed = IntegerField(default=0)
+    criteria_passed = IntegerField(default=0)
     criteria_failed = IntegerField(default=0)
     issues_found = IntegerField(default=0)
 

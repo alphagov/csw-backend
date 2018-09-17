@@ -280,10 +280,6 @@ def execute_on_account_evaluate_criteria_event(app, event):
             audit_criterion.regions = summary['regions']['count']
             audit_criterion.save()
 
-            if (audit_criterion.failed > 0):
-                audit.criteria_failed += 1
-                audit.issues_found += audit_criterion.failed
-
             audit.date_updated = datetime.now()
 
             message_body = app.utilities.to_json(audit_criterion.serialize())
@@ -325,6 +321,12 @@ def execute_on_audit_evaluated_metric_event(app, event):
 
             audit = AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
             audit.criteria_processed += 1
+
+            if (audit_criteria_data['failed'] > 0):
+                audit.criteria_failed += 1
+                audit.issues_found += audit_criteria_data['failed']
+            else:
+                audit.criteria_passed += 1
 
             if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()

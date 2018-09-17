@@ -5,7 +5,7 @@ def get_default_audit_stats():
     return {
         "active_criteria": 0,
         "criteria_processed": 0,
-        "criteria_analysed": 0,
+        "criteria_passed": 0,
         "criteria_failed": 0,
         "issues_found": 0
     }
