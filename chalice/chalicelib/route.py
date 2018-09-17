@@ -24,7 +24,7 @@ def route_team_dashboard(app, team_id):
         for account in accounts:
             app.log.debug(account.account_name)
 
-        team_stats = collator.get_team_stats(accounts, app, dbh)
+        team_stats = collator.get_team_stats(accounts)
 
         active_criteria = (Criterion.select().where(Criterion.active == True))
         criteria_stats = collator.get_criteria_stats(active_criteria, accounts, [team])
