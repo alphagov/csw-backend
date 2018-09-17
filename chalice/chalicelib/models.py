@@ -1,3 +1,4 @@
+import json
 from peewee import Model
 from peewee import CharField, TextField, DateField, DateTimeField, BooleanField
 from peewee import BigIntegerField, IntegerField, ForeignKeyField
@@ -16,6 +17,21 @@ class BaseModel(Model):
     def serialize(self):
         # front end does not need user ID here
         data = model_to_dict(self)
+
+        data = self.parse_stored_json(data)
+
+        return data
+
+    def parse_stored_json(self, data):
+
+        for field in data:
+            if data[field][:1] in ['{','[']:
+                try:
+                    parsed = json.loads(data[field])
+                    data[field] = parsed
+                except ValueError:
+                    pass
+
         return data
 
     class Meta:
