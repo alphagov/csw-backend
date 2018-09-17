@@ -16,7 +16,7 @@ def route_team_dashboard(app, team_id):
 
         AccountSubscription = dbh.get_model("AccountSubscription")
 
-        accounts = (AccountSubscription.select().where(AccountSubscription.product_team_id.id == team_id))
+        accounts = (AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id))
 
         for account in accounts:
             app.log.debug(account.account_name)
