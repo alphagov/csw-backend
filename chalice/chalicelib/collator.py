@@ -41,6 +41,7 @@ class Collator():
                     .where(AccountLatestAudit.account_subscription_id == account_id))
 
             latest = query.get()
+            self.app.log.debug("Found latest audit: " + self.app.utilities.to_json(latest.serialize()))
 
         except AccountLatestAudit.DoesNotExist as err:
             latest = None
@@ -54,12 +55,15 @@ class Collator():
         team_stats = self.get_default_audit_stats()
 
         for account in team_accounts:
+
             if account.active:
 
                 latest = self.get_latest_audit(account.id)
 
                 if latest is not None:
                     latest_data = latest.serialize()
+
+                    self.app.log.debug("Latest audit: " + self.app.utilities.to_json(latest_data))
 
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
