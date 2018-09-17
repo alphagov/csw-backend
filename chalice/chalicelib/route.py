@@ -26,7 +26,7 @@ def route_team_dashboard(app, team_id):
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
 
         response = {
-            "body": app.utilities.to_json(accounts.serialize())
+            "body": app.utilities.to_json(team_stats)
         }
 
     except Exception as err:
