@@ -35,7 +35,7 @@ def get_team_stats(team_accounts, app, dbh):
 
             latest_data = latest.serialize()
 
-            app.log.debug(app.utilties.to_json(latest_data))
+            app.log.debug(app.utilities.to_json(latest_data))
 
             for stat in team_stats:
                 team_stats[stat] += latest_data[stat]
