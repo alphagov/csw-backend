@@ -36,10 +36,7 @@ class Collator():
         try:
             AccountAudit = self.dbh.get_model("AccountAudit")
             AccountLatestAudit = self.dbh.get_model("AccountLatestAudit")
-            query = (
-                AccountAudit.select()
-                    .join(AccountLatestAudit)
-                    .where(AccountLatestAudit.account_subscription_id == account_id))
+            query = (AccountAudit.select().join(AccountLatestAudit).where(AccountLatestAudit.account_subscription_id == account_id))
 
             latest = query.get()
             self.app.log.debug("Found latest audit: " + self.app.utilities.to_json(latest.serialize()))
