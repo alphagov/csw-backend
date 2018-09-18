@@ -17,8 +17,7 @@ class Collator():
             "criteria_processed": 0,
             "criteria_passed": 0,
             "criteria_failed": 0,
-            "issues_found": 0,
-            "accounts": []
+            "issues_found": 0
         }
 
 
@@ -55,6 +54,7 @@ class Collator():
     def get_team_stats(self, team_accounts):
 
         team_stats = self.get_default_team_stats()
+        account_audits = []
 
         self.app.log.debug("Got default stats")
 
@@ -72,10 +72,10 @@ class Collator():
                     self.app.log.debug("Latest audit: " + self.app.utilities.to_json(latest_data))
 
                     account_data = account.serialize()
-                    # team_stats["accounts"].append({
-                    #    "account": account_data,
-                    #    "stats": latest_data
-                    # })
+                    account_audits.append({
+                        "account": account_data,
+                        "stats": latest_data
+                    })
 
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
@@ -83,7 +83,10 @@ class Collator():
                 else:
                     self.app.log.error("Latest audit not found for account: " + account.id)
 
-        return team_stats
+        return {
+            "team": team_stats,
+            "accounts": account_data
+        }
 
 
     def get_criteria_stats(self, criteria, accounts, teams):
