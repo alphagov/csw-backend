@@ -65,9 +65,9 @@ class TemplateHandler:
 
         def format_datetime(value, format='datetime'):
             if format == 'datetime':
-                render_as = value.strftime('%Y-%m-%d %H:%M')
+                render_as = value.strftime('%d/%m/%Y %H:%M')
             elif format == 'date':
-                render_as = value.strftime('%Y-%m-%d')
+                render_as = value.strftime('%d/%m/%Y')
             elif format == 'time':
                 render_as = value.strftime('%H:%M')
 
