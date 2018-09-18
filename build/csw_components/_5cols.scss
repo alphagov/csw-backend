@@ -80,12 +80,12 @@
 
 .five-columns__column-content--issues {
     @extend .five-columns__column-content;
-    background-color: lighten(govuk-colour("orange"), 60%);
-    border-color: govuk-colour("orange");
+    background-color: lighten(govuk-colour("purple"), 60%);
+    border-color: govuk-colour("purple");
 
     .headline-stat,
     .caption {
-        color: govuk-colour("orange");
+        color: govuk-colour("purple");
     }
 }
 
@@ -155,6 +155,6 @@
 
 .govuk-tag__fixed-width--issues {
     @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("orange");
+    background-color: govuk-colour("purple");
 
 }
