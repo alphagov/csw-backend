@@ -17,7 +17,7 @@
                 {% for team_summary in criterion_summary.product_teams %}
                 {%- set item = team_summary.stats -%}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__header">{{ team_summary.product_team.team_name }}</td>
+                    <th class="govuk-table__header">{{ team_summary.product_team.team_name }}</th>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--all">{{ item.resources }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.passed }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
@@ -27,7 +27,7 @@
                 {% for account_summary in criterion_summary.account_subscriptions %}
                 {%- set item = account_summary.stats -%}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__header">{{ account_summary.account_subscription.account_name }}</td>
+                    <td class="govuk-table__cell">{{ account_summary.account_subscription.account_name }}</td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--all">{{ item.resources }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.passed }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
