@@ -111,6 +111,18 @@
     }
 }
 
+.govuk-table__header--tag-fixed-centred {
+    @extend .govuk-table__header;
+    width: 4em;
+    text-align: center;
+}
+
+.govuk-table__cell--tag-fixed-centred {
+    @extend .govuk-table__cell;
+    width: 4em;
+    text-align: center;
+}
+
 .govuk-tag__fixed-width {
     @extend .govuk-tag;
     width: 3em;
