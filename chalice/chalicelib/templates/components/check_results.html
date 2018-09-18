@@ -13,6 +13,9 @@
             </thead>
             <tbody class="govuk-table__body">
                 {% for criterion_summary in criteria_summary %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__header" colspan="5">{{ criterion_summary.criterion.criterion_name }}</td>
+                </tr>
                 {% for team_summary in criterion_summary.product_teams %}
                 {%- set item = team_summary.stats -%}
                 <tr class="govuk-table__row">
