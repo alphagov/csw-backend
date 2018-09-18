@@ -15,7 +15,7 @@
             <tbody class="govuk-table__body">
                 {%- set item = team_summary.team -%}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ team.team_name }}</td>
+                    <th class="govuk-table__header">{{ team.team_name }}</th>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--all">{{ item.active_criteria }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.criteria_passed }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.criteria_failed }}</strong></td>
