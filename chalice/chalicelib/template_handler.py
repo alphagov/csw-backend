@@ -64,6 +64,19 @@ class TemplateHandler:
     def register_filters(self):
 
         def format_datetime(value, format='datetime'):
+            if format == 'datetime':
+                render_as = value.strftime('%Y-%m-%d %H:%M')
+            elif format == 'date':
+                render_as = value.strftime('%Y-%m-%d')
+            elif format == 'time':
+                render_as = value.strftime('%H:%M')
+
+            return render_as
+
+        self.env.filters['datetime'] = format_datetime
+
+        def format_timestamp(value, format='datetime'):
+
             timestamp_pattern = '^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$'
 
             m = re.search(timestamp_pattern, value)
@@ -77,7 +90,7 @@ class TemplateHandler:
 
             return render_as
 
-        self.env.filters['datetime'] = format_datetime
+        self.env.filters['timestamp'] = format_datetime
 
     def render_authorized_route_template(self, route, req, data={}):
 
