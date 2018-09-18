@@ -69,7 +69,7 @@ class Collator():
                 if latest is not None:
                     latest_data = latest.serialize()
                     team_stats["accounts"].append({
-                        "account": account,
+                        "account": account.serialize(),
                         "stats": latest_data
                     })
 
@@ -130,7 +130,7 @@ class Collator():
                                     account_stats[stat] += audit_criterion_stats[stat]
 
                         account_data.append({
-                            "account_subscription": account,
+                            "account_subscription": account.serialize(),
                             "stats": account_stats
                         })
 
@@ -138,12 +138,12 @@ class Collator():
                             team_stats[stat] += account_stats[stat]
 
                 team_data.append({
-                    "product_team": team,
+                    "product_team": team.serialize(),
                     "stats": team_stats
                 })
 
             criteria_stats.append({
-                "criterion": criterion,
+                "criterion": criterion.serialize(),
                 "product_teams": team_data,
                 "account_subscriptions": account_data
             })
