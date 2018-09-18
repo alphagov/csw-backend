@@ -313,7 +313,7 @@ def format_sqs_message_for_notification(payload):
     return message
 
 
-@app.on_sqs_message(queue='<prefix>-completed-audit-queue') # TODO: Dinamically change te prefix
+@app.on_sqs_message(queue='<prefix>-completed-audit-queue')  # TODO: Dinamically change te prefix
 def send_user_email_notification(event, context):
     """
     expected JSON payload: {
