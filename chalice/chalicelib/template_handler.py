@@ -142,9 +142,10 @@ class TemplateHandler:
 
                 data["login_url"] = login_url
 
-                status_code = 302
-
-                headers["Location"] = self.request_url
+                # Redirect to homepage to login
+                if route != "/":
+                    status_code = 302
+                    headers["Location"] = self.request_url
 
             data["asset_path"] = asset_path
 
