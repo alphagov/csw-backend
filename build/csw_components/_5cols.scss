@@ -110,3 +110,33 @@
         color: govuk-colour("blue");
     }
 }
+
+.govuk-tag__fixed-width {
+    @extend .govuk-tag;
+    width: 3em;
+}
+
+.govuk-tag__fixed-width--all {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("blue");
+
+}
+
+.govuk-tag__fixed-width--tested {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("purple");
+
+}
+
+.govuk-tag__fixed-width--passed,
+.govuk-tag__fixed-width--ignored {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("green");
+
+}
+
+.govuk-tag__fixed-width--failed {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("red");
+
+}

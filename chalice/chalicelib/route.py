@@ -31,6 +31,7 @@ def route_team_dashboard(app, team_id):
         criteria_stats = collator.get_criteria_stats(active_criteria, accounts, [team])
 
         template_data = {
+            "team": team.serialize(),
             "team_summary": team_stats,
             "criteria_summary": criteria_stats
         }
