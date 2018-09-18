@@ -8,7 +8,7 @@
                     <th class="govuk-table__header">Criteria</th>
                     <th class="govuk-table__header">Passed</th>
                     <th class="govuk-table__header">Failed</th>
-                    <th class="govuk-table__header">Ignored</th>
+                    <th class="govuk-table__header">Issues</th>
                     <th class="govuk-table__header">Date Audited</th>
                 </tr>
             </thead>
@@ -19,7 +19,7 @@
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--all">{{ item.active_criteria }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.criteria_passed }}</strong></td>
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.criteria_failed }}</strong></td>
-                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.issues_found }}</strong></td>
+                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--issues">{{ item.issues_found }}</strong></td>
                     <td class="govuk-table__cell"></td>
                 </tr>
                 {% for account_audit in team_summary.accounts %}
