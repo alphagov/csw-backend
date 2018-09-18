@@ -98,7 +98,7 @@ class Collator():
                     compliance_data = compliance.serialize()
                     audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)\
 
-                    resource_data.resources.append({
+                    resource_data["resources"].append({
                         "compliance": compliance_data,
                         "resource": audit_resource.serialize()
                     })
