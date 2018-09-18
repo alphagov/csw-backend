@@ -80,6 +80,8 @@ class Collator():
     def get_team_failed_resources(self, team_id):
 
         AuditResource = self.dbh.get_model("AuditResource")
+        Criterion = self.dbh.get_model("Criterion")
+        Status = self.dbh.get_model("Status")
 
         team_failed_resources = []
         accounts = self.get_team_accounts(team_id)
@@ -98,12 +100,15 @@ class Collator():
                         "resources": []
                     }
                     for compliance in failed_resources:
-                        compliance_data = compliance.serialize()
-                        audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)\
+                        audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                        criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                        status = Status.get_by_id(compliance.status_id)
 
                         resource_data["resources"].append({
-                            "compliance": compliance_data,
-                            "resource": audit_resource.serialize()
+                            "compliance": compliance.serialize(),
+                            "resource": audit_resource.serialize(),
+                            "criterion": criterion.serialize(),
+                            "status": status.serialize()
                         })
 
                     team_failed_resources.append(resource_data)
