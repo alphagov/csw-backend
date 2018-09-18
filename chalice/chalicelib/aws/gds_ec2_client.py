@@ -1,20 +1,16 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
-from aws.gds_aws_client import GdsAwsClient
+from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
 class GdsEc2Client(GdsAwsClient):
 
-    def describe_security_groups(self, session, region='eu-west-2'):
+    resource_type = "AWS::EC2::*"
 
-        # get a boto3 client for the EC2 service in the given region (default to London)
-        ec2 = self.get_boto3_session_client('ec2', session, region)
+    def describe_regions(self):
 
-        # run describe security groups api call
-        response = ec2.describe_security_groups()
+        ec2 = self.get_default_client('ec2')
+        response = ec2.describe_regions()
 
-        # return the security groups element of the response
-        security_groups = response['SecurityGroups']
-
-        return security_groups
+        return response['Regions']

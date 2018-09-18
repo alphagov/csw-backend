@@ -1,14 +1,19 @@
 import os
 from peewee import Model
-from peewee import CharField, TextField, DateField, BooleanField, BigIntegerField, ForeignKeyField
+from peewee import CharField, TextField, DateField, DateTimeField, BooleanField
+from peewee import BigIntegerField, IntegerField, ForeignKeyField
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from playhouse.shortcuts import model_to_dict
+from datetime import datetime
 
 
 class DatabaseHandle():
 
     handle = None
     models = dict()
+
+    def __init__(self, app=None):
+        self.app = app
 
     def get_env_var(self, var_name):
 
@@ -19,21 +24,34 @@ class DatabaseHandle():
 
         return value
 
+    def log(self, type, message):
+
+        if (self.app is not None):
+            if (type == 'error'):
+                self.app.log.error(message)
+            elif (type == 'debug'):
+                self.app.log.debug(message)
+
     def get_handle(self):
 
-        if self.handle is None:
-            db_host = self.get_env_var('CSW_HOST')
-            db_port = self.get_env_var('CSW_PORT')
-            db_user = self.get_env_var('CSW_USER')
-            db_password = self.get_env_var('CSW_PASSWORD')
+        try:
 
-            self.handle = PostgresqlExtDatabase(
-                'csw',
-                user=db_user,
-                password=db_password,
-                host=db_host,
-                port=db_port
-            )
+            if self.handle is None:
+                db_host = self.get_env_var('CSW_HOST')
+                db_port = self.get_env_var('CSW_PORT')
+                db_user = self.get_env_var('CSW_USER')
+                db_password = self.get_env_var('CSW_PASSWORD')
+
+                self.handle = PostgresqlExtDatabase(
+                    'csw',
+                    user=db_user,
+                    password=db_password,
+                    host=db_host,
+                    port=db_port
+                )
+        except Exception as err:
+            self.app.log.error("Error connecting to db: " + str(err))
+            self.handle = None
 
         return self.handle
 
@@ -71,8 +89,10 @@ class DatabaseHandle():
             status = True
 
         except Exception as e:
-            db.rollback()
+            if db is not None:
+                db.rollback()
             status = False
+            print(str(e))
 
         db.close()
 
@@ -84,6 +104,10 @@ class DatabaseHandle():
     def get_model(self, model_name):
 
         return self.models[model_name]
+
+    def get_models(self):
+
+        return self.models
 
     def create_item(self, event):
 
@@ -109,29 +133,6 @@ class DatabaseHandle():
 dbh = DatabaseHandle()
 db = dbh.get_handle()
 
-'''
--- table to store
-CREATE TABLE cloud_security_watch.csw_aws_api_cache (
-    id SERIAL,
-    account_id REFERENCES cloud_security_watch.csw_subscription(account_id),
-    domain VARCHAR(100) NOT NULL,
-    method VARCHAR(100) NOT NULL,
-    params VARCHAR(100) NOT NULL,
-    response JSON,
-    expires DATETIME
-);
-'''
-
-'''
--- Create a product team reference table to link AWS
--- accounts to the teams who they belong to
-CREATE TABLE cloud_security_watch.csw_product_team (
-    id SERIAL,
-    team_name VARCHAR(80) NOT NULL,
-    active BOOLEAN DEFAULT FALSE
-);
-'''
-
 
 class BaseModel(Model):
 
@@ -145,6 +146,8 @@ class BaseModel(Model):
         schema = "public"
 
 
+# Create a product team reference table to link AWS
+# accounts to the teams who they belong to
 class ProductTeam(BaseModel):
     team_name = CharField()
     active = BooleanField()
@@ -156,22 +159,12 @@ class ProductTeam(BaseModel):
 dbh.add_model("ProductTeam", ProductTeam)
 
 
-'''
--- Create a subscriptions table which designates
--- which AWS accounts we should scan
-CREATE TABLE cloud_security_watch.csw_subscription (
-    id SERIAL,
-    account_id  INT UNSIGNED,
-    team_id INT UNSIGNED REFERENCES cloud_security_watch.csw_product_team(id),
-    active BOOLEAN DEFAULT FALSE
-);
-'''
-
-
+# Create a subscriptions table which designates
+# which AWS accounts we should scan
 class AccountSubscription(BaseModel):
     account_id = BigIntegerField()
     account_name = CharField()
-    product_team_id = ForeignKeyField(ProductTeam, backref='product_team')
+    product_team_id = ForeignKeyField(ProductTeam, backref='account_subscriptions')
     active = BooleanField()
 
     class Meta:
@@ -181,89 +174,102 @@ class AccountSubscription(BaseModel):
 dbh.add_model("AccountSubscription", AccountSubscription)
 
 
-'''
--- eg Trusted Advisor, Config ...
--- invoke_class_name like GdsSupportClient for Trusted Advisor
-CREATE TABLE cloud_security_watch.csw_metric_provider (
-    id SERIAL,
-    provider_name VARCHAR(100) NOT NULL,
-    invoke_class_name VARCHAR(100) NOT NULL
-);
-'''
+# When an audit is triggered an audit record is created which
+# counts each criteria as it is measured so that we know
+# when an audit is complete
+
+# There is a bit of overkill in terms of storing numbers which
+# makes it easy to track progress when we're working with lambdas
+
+# active_criteria = the criteria present at the start of the audit
+# criteria_processed = we've tried to audit that criterion
+# criteria_analysed = we audited it successfully
+# criteria_failed = we were unable to get the data or complete the audit
+
+# a completed audit should have
+# active_criteria = criteria_processed
+# = (criteria_analysed + criteria_failed)
+
+# a successful audit should have
+# active_criteria = criteria_analysed
+class AccountAudit(BaseModel):
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_audits')
+    date_started = DateTimeField(default=datetime.now)
+    date_updated = DateTimeField(default=datetime.now)
+    date_completed = DateTimeField(null=True)
+    active_criteria = IntegerField(default=0)
+    criteria_processed = IntegerField(default=0)
+    criteria_analysed = IntegerField(default=0)
+    criteria_failed = IntegerField(default=0)
+    issues_found = IntegerField(default=0)
+
+    class Meta:
+        table_name = "account_audit"
 
 
-class MetricProvider(BaseModel):
+dbh.add_model("AccountAudit", AccountAudit)
+
+class AccountLatestAudit(BaseModel):
+    account_subscription_id = ForeignKeyField(AccountSubscription, backref='account_latest_audit')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='account_latest_audit')
+
+    class Meta:
+        table_name = "account_latest_audit"
+
+
+dbh.add_model("AccountLatestAudit", AccountLatestAudit)
+
+
+# eg AWS domain - Trusted Advisor EC2...
+# The tool could be extended beyond the scope of AWS
+class CriteriaProvider(BaseModel):
     provider_name = CharField()
+
+    class Meta:
+        table_name = "criteria_provider"
+
+
+dbh.add_model("CriteriaProvider", CriteriaProvider)
+
+
+# eg Trusted Advisor - Security Groups - Specific Ports Unrestricted
+# invoke_class_method like describe_trusted_advisor_check_result
+class Criterion(BaseModel):
+    criterion_name = CharField()
+    criteria_provider_id = ForeignKeyField(CriteriaProvider, backref='criteria')
     invoke_class_name = CharField()
-
-    class Meta:
-        table_name = "metric_provider"
-
-
-dbh.add_model("MetricProvider", MetricProvider)
-
-
-'''
--- eg Trusted Advisor - Security Groups - Specific Ports Unrestricted
--- invoke_class_method like describe_trusted_advisor_check_result
-CREATE TABLE cloud_security_watch.csw_metric (
-    id SERIAL,
-    metric_name VARCHAR(100) NOT NULL,
-    metric_provider_id INT UNSIGNED REFERENCES cloud_security_watch.cst_metric_provider(id),
-    invoke_class_method VARCHAR(100) NOT NULL
-);
-'''
-
-
-class Metric(BaseModel):
-    metric_name = CharField()
-    metric_provider_id = ForeignKeyField(MetricProvider, backref='metric_provider')
     invoke_class_get_data_method = CharField()
-    evaluation_lambda_function = CharField()
+    title = TextField()
+    description = TextField()
+    why_is_it_important = TextField()
+    how_do_i_fix_it = TextField()
+    active = BooleanField(default=True)
+    is_regional = BooleanField(default=True)
 
     class Meta:
-        table_name = "metric"
+        table_name = "criterion"
 
 
-dbh.add_model("Metric", Metric)
-
-'''
--- Primarily for trusted advisor checks specifies arguments that need to be provided
--- eg 	region=us-east-1
---		language=en
---		checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
--- region and possibly language could be hard-coded rather than passing them through the db each time
--- TODO ADD SEVERITY ?
-CREATE TABLE cloud_security_watch.csw_metric_params (
-    id SERIAL,
-    metric_id INT UNSIGNED REFERENCES cloud_security_watch.cst_metric(id),
-    param_name VARCHAR(100),
-    param_value VARCHAR(100)
-);
-'''
+dbh.add_model("Criterion", Criterion)
 
 
-class MetricParams(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric')
+# Primarily for trusted advisor checks specifies arguments that need to be provided
+# eg
+# language=en
+# checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
+class CriterionParams(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='criterion_params')
     param_name = CharField()
     param_value = CharField()
 
     class Meta:
-        table_name = "metric_params"
+        table_name = "criterion_params"
 
 
-dbh.add_model("MetricParams", MetricParams)
-
-'''
--- We may want more statuses than Red/Amber/Green
-CREATE TABLE cloud_security_watch.csw_status (
-    id SERIAL,
-    status_name VARCHAR(20),
-    description TEXT
-);
-'''
+dbh.add_model("CriterionParams", CriterionParams)
 
 
+# We may want more statuses than Red/Amber/Green
 class Status(BaseModel):
     status_name = CharField()
     description = TextField()
@@ -275,17 +281,8 @@ class Status(BaseModel):
 dbh.add_model("Status", Status)
 
 
-'''
--- For metrics and accepted risks we can associate a severity which
--- allows us to float higher value issues to the top
-CREATE TABLE cloud_security_watch.csw_severity (
-    id SERIAL,
-    severity_name VARCHAR(20),
-    description TEXT
-);
-'''
-
-
+# For metrics and accepted risks we can associate a severity which
+# allows us to float higher value issues to the top
 class Severity(BaseModel):
     severity_name = CharField()
     description = TextField()
@@ -297,20 +294,10 @@ class Severity(BaseModel):
 dbh.add_model("Severity", Severity)
 
 
-'''
--- For metrics and accepted risks we can associate a severity which
--- allows us to float higher value issues to the top
--- notification classes should extend a base Notification class
--- and then override a notify method
-CREATE TABLE cloud_security_watch.csw_notification_method (
-    id SERIAL,
-    system_name VARCHAR(20),
-    description TEXT,
-    class_name VARCHAR(100)
-);
-'''
-
-
+# For metrics and accepted risks we can associate a severity which
+# allows us to float higher value issues to the top
+# notification classes should extend a base Notification class
+# and then override a notify method
 # This is a stub that will need to be expanded to enable reporting to things like ZenDesk
 class NotificationMethod(BaseModel):
     system_name = CharField()
@@ -324,69 +311,101 @@ class NotificationMethod(BaseModel):
 dbh.add_model("NotificationMethod", NotificationMethod)
 
 
-'''
--- This is where we store the results of quering the API
--- This should include "green" status checks as well as
--- identified risks.
-CREATE TABLE cloud_security_watch.csw_metric_status (
-    id SERIAL,
-    metric_id INT UNSIGNED REFERENCES cloud_security_watch.cst_metric(id),
-    account_id REFERENCES cloud_security_watch.csw_subscription(account_id),
-    resource_arn VARCHAR(100) NOT NULL,
-    status_id INT UNSIGNED REFERENCES cloud_security_watch.csw_status(id),
-    date_last_checked DATETIME,
-    date_last_changed DATETIME
-);
-'''
+# For each audit if we're querying the same domain and the same
+# method for multiple checks (eg ec2 describe-security-groups)
+# we can get the data once, store and re-use it rather than calling
+# the api to get the same data multiple times.
+
+# If it's part of a separate audit we need to do it again
+
+# It has a generic name since we may choose to get the AWS data
+# via splunk in the future or we could broaden the reach of the
+# tool to check other vulnerabilities.
+class CachedDataResponse(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='cached_data_responses')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='cached_data_responses')
+    invoke_class_name = CharField()
+    invoke_class_get_data_method = CharField()
+    response = TextField()
+
+    class Meta:
+        table_name = "cached_data_response"
 
 
-class MetricStatus(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric')
-    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription')
-    resource_arn = CharField()
+dbh.add_model("CachedDataResponse", CachedDataResponse)
+
+
+class AuditCriterion(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
+    regions = IntegerField(default=0)
+    resources = IntegerField(default=0)
+    tested = IntegerField(default=0)
+    passed = IntegerField(default=0)
+    failed = IntegerField(default=0)
+    ignored = IntegerField(default=0)
+
+    class Meta:
+        table_name = "audit_criterion"
+
+
+dbh.add_model("AuditCriterion", AuditCriterion)
+
+
+# This is where we store the results of quering the API
+# This should include "green" status checks as well as
+# identified risks.
+class AuditResource(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='audit_resource')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='audit_resource')
+    region = CharField(null=True)
+    resource_id = CharField()
+    resource_name = CharField(null=True)
+    resource_data = TextField()
+    date_evaluated = DateTimeField(default=datetime.now)
+
+    class Meta:
+        table_name = "audit_resource"
+
+
+dbh.add_model("AuditResource", AuditResource)
+
+
+class ResourceCompliance(BaseModel):
+    audit_resource_id = ForeignKeyField(AuditResource, backref='resource_compliance')
+    annotation = TextField(null=True)
+    resource_type = CharField()
+    resource_id = CharField()
+    compliance_type = CharField()
+    is_compliant = BooleanField(default=False)
+    is_applicable = BooleanField(default=True)
     status_id = ForeignKeyField(Status, backref='status')
-    date_last_checked = DateField()
-    date_last_changed = DateField()
 
     class Meta:
-        table_name = "metric_status"
+        table_name = "resource_compliance"
 
 
-dbh.add_model("MetricStatus", MetricStatus)
+dbh.add_model("ResourceCompliance", ResourceCompliance)
 
 
-'''
--- For non-green status issues we record a risk record
-CREATE TABLE cloud_security_watch.csw_metric_status_risk (
-    id SERIAL,
-    date_first_identified DATETIME,
-    date_last_notified DATETIME,
-    notification_method INT UNSIGNED REFERENCES cloud_security_watch.csw_notification_method(id),
-    date_of_review DATETIME,
-    accepted_risk BOOLEAN DEFAULT FALSE,
-    analyst_assessed BOOLEAN DEFAULT FALSE,
-    assessment_severity INT UNSIGNED REFERENCES cloud_security_watch.csw_severity(id)
-);
-'''
-
-
-class MetricStatusRisk(BaseModel):
-    metric_id = ForeignKeyField(Metric, backref='metric')
-    account_subscription_id = ForeignKeyField(AccountSubscription, backref='subscription')
-    resource_arn = CharField()
+# For non-green status issues we record a risk record
+class ResourceRiskAssessment(BaseModel):
+    criterion_id = ForeignKeyField(Criterion, backref='resource_risk_assessments')
+    audit_resource_id = ForeignKeyField(AuditResource, backref='resource_risk_assessments')
+    account_audit_id = ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
+    resource_id = CharField()
     date_first_identifed = DateField()
-    date_last_notifier = DateField()
-    notification_method = ForeignKeyField(NotificationMethod, backref='notification_method')
-    date_of_review = DateField()
-    accepted_risk = BooleanField()
-    analyst_assessed = BooleanField()
-    assessment_severity = ForeignKeyField(Severity, backref='severity')
+    date_last_notified = DateField(null=True)
+    date_of_review = DateField(null=True)
+    accepted_risk = BooleanField(default=False)
+    analyst_assessed = BooleanField(default=False)
+    severity = ForeignKeyField(Severity, backref='severity', null=True)
 
     class Meta:
-        table_name = "metric_status_risk"
+        table_name = "resource_risk_assessment"
 
 
-dbh.add_model("MetricStatusRisk", MetricStatusRisk)
+dbh.add_model("ResourceRiskAssessment", ResourceRiskAssessment)
 
 
 '''

@@ -1,0 +1,52 @@
+{% extends "govuk_template.html" %}
+{% block login %}
+{% include "components/logged_in.html" %}
+{% endblock %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="./">Home</a>
+        </li>
+      </ol>
+    </div>
+
+    <div>
+      <h2 class="govuk-heading-l">Audits</h2>
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header">ID</th>
+            <th class="govuk-table__header">Account ID</th>
+            <th class="govuk-table__header">Account Name</th>
+            <th class="govuk-table__header">Started</th>
+            <th class="govuk-table__header">Completed</th>
+            <th class="govuk-table__header">Active Criteria</th>
+            <th class="govuk-table__header">Criteria Analysed</th>
+            <th class="govuk-table__header">Criteria Failed</th>
+            <th class="govuk-table__header">Issues Identified</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for audit in audits %}
+          <tr class="govuk-table__cell">
+            <td class="govuk-table__cell--numeric"><a href="./audit/{{ audit.id }}">{{ audit.id }}</a></td>
+            <td class="govuk-table__cell--numeric">{{ audit.account_subscription.account_id }}</td>
+            <td>{{ audit.account_subscription.account_name }}</td>
+            <td>{{ audit.date_started }}</td>
+            <td>{{ audit.date_completed }}</td>
+            <td>{{ audit.active_criteria }}</td>
+            <td>{{ audit.criteria_analysed }}</td>
+            <td>{{ audit.criteria_failed }}</td>
+            <td>{{ audit.issues_found }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+{% endblock %}

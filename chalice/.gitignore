@@ -1,2 +1,5 @@
 .chalice/deployments/
 .chalice/venv/
+chalicelib/assets/
+chalicelib/templates/*.css
+node_modules/

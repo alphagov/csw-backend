@@ -1,0 +1,15 @@
+{
+  "name": "chalice-govuk-frontend",
+  "description": "GOVUK frontend template dependency installs",
+  "version": "7.0.0",
+  "private": true,
+  "engines": {
+    "node": "^8.9.1"
+  },
+  "dependencies": {
+    "govuk-frontend": "^1.2.0",
+    "gulp": "^3.9.1",
+    "gulp-sass": "^4.0.1",
+    "uuid": "^3.2.1"
+  }
+}
