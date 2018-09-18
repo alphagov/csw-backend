@@ -2,7 +2,6 @@
     <div class="govuk-grid-column-full">
         <h3 class="govuk-heading-m">Non-compliant resources</h3>
         {% for account_resources in failed_resources %}
-        {% if length(account_resources.resources) > 0 %}
         <table class="govuk-table">
             <caption class="govuk-table__caption">{{ account_resources.account.account_name }} ({{ account_resources.audit.date_completed | datetime }})</caption>
             <thead class="govuk-table__head">
@@ -22,7 +21,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% endif %}
         {% endfor %}
     </div>
 </div>

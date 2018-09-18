@@ -87,23 +87,26 @@ class Collator():
         for account in accounts:
             if account.active:
                 latest = self.get_latest_audit(account.id)
+
                 failed_resources = self.get_audit_failed_resources(latest.id)
 
-                resource_data = {
-                    "account": account.serialize(),
-                    "audit": latest.serialize(),
-                    "resources": []
-                }
-                for compliance in failed_resources:
-                    compliance_data = compliance.serialize()
-                    audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)\
+                if len(failed_resources) > 0:
 
-                    resource_data["resources"].append({
-                        "compliance": compliance_data,
-                        "resource": audit_resource.serialize()
-                    })
+                    resource_data = {
+                        "account": account.serialize(),
+                        "audit": latest.serialize(),
+                        "resources": []
+                    }
+                    for compliance in failed_resources:
+                        compliance_data = compliance.serialize()
+                        audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)\
 
-                team_failed_resources.append(resource_data)
+                        resource_data["resources"].append({
+                            "compliance": compliance_data,
+                            "resource": audit_resource.serialize()
+                        })
+
+                    team_failed_resources.append(resource_data)
 
         self.app.log.debug(self.app.utilities.to_json(team_failed_resources))
 
