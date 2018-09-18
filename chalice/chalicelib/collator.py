@@ -50,6 +50,64 @@ class Collator():
 
         return latest
 
+    def get_audit_failed_resources(self, account_audit_id):
+        try:
+            AuditResource = self.dbh.get_model("AuditResource")
+            ResourceCompliance = self.dbh.get_model("ResourceCompliance")
+
+            failed_resources = (ResourceCompliance.select().join(AuditResource).where(AuditResource.account_audit_id == account_audit_id, ResourceCompliance.status_id == 3))
+
+        except Exception as err:
+            self.app.log.error("Failed to get audit failed resources: " + str(err))
+            failed_resources = []
+
+        return failed_resources
+
+    def get_team_accounts(self, team_id):
+
+        try:
+            AccountSubscription = self.dbh.get_model("AccountSubscription")
+            ProductTeam = self.dbh.get_model("ProductTeam")
+
+            accounts = (AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id))
+
+        except Exception as err:
+            self.app.log.debug("Failed to get team accounts: " + str(err))
+            accounts = []
+
+        return accounts
+
+    def get_team_failed_resources(self, team):
+
+        AuditResource = self.dbh.get_model("AuditResource")
+
+        team_failed_resources = []
+        accounts = self.get_team_accounts()
+
+        for account in accounts:
+            if account.active:
+                latest = self.get_latest_audit(account.id)
+                failed_resources = self.get_audit_failed_resources(latest.id)
+
+                resource_data = {
+                    "account": account.serialize(),
+                    "audit": latest.serialize(),
+                    "resources": []
+                }
+                for compliance in failed_resources:
+                    compliance_data = compliance.serialize()
+                    audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)\
+
+                    resource_data.append({
+                        "compliance": compliance_data,
+                        "resource": audit_resource.serialize()
+                    })
+
+                team_failed_resources.append(resource_data)
+
+        self.app.log.debug(self.app.utilities.to_json(team_failed_resources))
+
+        return team_failed_resources
 
     def get_team_stats(self, team_accounts):
 

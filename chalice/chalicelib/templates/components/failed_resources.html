@@ -1,0 +1,26 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h3 class="govuk-heading-m">Non-compliant resources</h3>
+        {% for account_resources in failed_resources %}
+        <table class="govuk-table">
+            <caption class="govuk-table__caption">{{ account_resources.account.account_name }} ({{ account_resources.audit.date_completed | datetime }})</caption>
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Name</th>
+                    <th class="govuk-table__header">ID</th>
+                    <th class="govuk-table__header">Reason</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for item in account_resources.resources %}
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__cell">{{ item.resource.resource_name }}</th>
+                    <td class="govuk-table__cell">{{ item.resource.resource_id }}</td>
+                    <td class="govuk-table__cell">{{ item.compliance.annotation }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+</div>

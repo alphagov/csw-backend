@@ -30,10 +30,13 @@ def route_team_dashboard(app, team_id):
         active_criteria = (Criterion.select().where(Criterion.active == True))
         criteria_stats = collator.get_criteria_stats(active_criteria, accounts, [team])
 
+        failed_resources = collator.get_team_failed_resources(team.id)
+
         template_data = {
             "team": team.serialize(),
             "team_summary": team_stats,
-            "criteria_summary": criteria_stats
+            "criteria_summary": criteria_stats,
+            "failed_resources": failed_resources
         }
 
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
