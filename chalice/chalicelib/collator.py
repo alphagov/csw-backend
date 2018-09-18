@@ -85,7 +85,7 @@ class Collator():
 
         return {
             "team": team_stats,
-            "accounts": account_data
+            "accounts": account_audits
         }
 
 
