@@ -24,7 +24,16 @@
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.ignored }}</strong></td>
                 </tr>
                 {% endfor %}
-
+                {% for account_summary in criterion_summary.account_subscriptions %}
+                {%- set item = account_summary.stats -%}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__header">{{ account_summary.account_subscriptions.account_name }}</td>
+                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--all">{{ item.resources }}</strong></td>
+                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.passed }}</strong></td>
+                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
+                    <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.ignored }}</strong></td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
         {% endfor %}
