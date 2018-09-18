@@ -1,7 +1,9 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
        <h3 class="govuk-heading-m">Check Results</h3>
-       <table class="govuk-table">
+        {% for criterion_summary in criteria_summary %}
+        <caption class="govuk-table__caption">{{ criterion_summary.criterion.criterion_name }}</caption>
+        <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
@@ -12,10 +14,6 @@
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
-                {% for criterion_summary in criteria_summary %}
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__header" colspan="5">{{ criterion_summary.criterion.criterion_name }}</td>
-                </tr>
                 {% for team_summary in criterion_summary.product_teams %}
                 {%- set item = team_summary.stats -%}
                 <tr class="govuk-table__row">
@@ -26,8 +24,9 @@
                     <td class="govuk-table__cell"><strong class="govuk-tag__fixed-width--passed">{{ item.ignored }}</strong></td>
                 </tr>
                 {% endfor %}
-                {% endfor %}
+
             </tbody>
         </table>
+        {% endfor %}
     </div>
 </div>
