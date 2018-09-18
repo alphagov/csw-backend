@@ -23,6 +23,8 @@ class TemplateHandler:
             autoescape=select_autoescape(['html', 'xml']),
         )
 
+        self.register_filters()
+
         self.logged_in = False
         self.login_data = {}
         self.route_templates = {
