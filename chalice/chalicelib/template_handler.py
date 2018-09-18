@@ -95,6 +95,7 @@ class TemplateHandler:
     def render_authorized_route_template(self, route, req, data={}):
 
         try:
+            status_code = 200
 
             headers = {
                 "Content-Type": "text/html"
@@ -141,13 +142,19 @@ class TemplateHandler:
 
                 data["login_url"] = login_url
 
+                status_code = 302
+
+                headers["Location"] = self.request_url
+
             data["asset_path"] = asset_path
 
             response_body = self.render_template(template_file, data)
+
         except Exception as err:
             response_body = "Error text: {0}".format(err)
 
         return {
             "body": response_body,
+            "status_code": status_code,
             "headers": headers
         }
