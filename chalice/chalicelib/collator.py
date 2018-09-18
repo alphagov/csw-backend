@@ -68,13 +68,14 @@ class Collator():
 
                 if latest is not None:
                     latest_data = latest.serialize()
+
+                    self.app.log.debug("Latest audit: " + self.app.utilities.to_json(latest_data))
+
                     account_data = account.serialize()
                     # team_stats["accounts"].append({
                     #    "account": account_data,
                     #    "stats": latest_data
                     # })
-
-                    self.app.log.debug("Latest audit: " + self.app.utilities.to_json(latest_data))
 
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
