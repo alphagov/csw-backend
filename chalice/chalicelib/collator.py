@@ -11,13 +11,14 @@ class Collator():
     def set_database_handle(self, dbh):
         self.dbh = dbh
 
-    def get_default_audit_stats(self):
+    def get_default_team_stats(self):
         return {
             "active_criteria": 0,
             "criteria_processed": 0,
             "criteria_passed": 0,
             "criteria_failed": 0,
-            "issues_found": 0
+            "issues_found": 0,
+            "accounts": []
         }
 
 
@@ -53,8 +54,7 @@ class Collator():
 
     def get_team_stats(self, team_accounts):
 
-        team_stats = self.get_default_audit_stats()
-        team_stats["accounts"] = []
+        team_stats = self.get_default_team_stats()
 
         self.app.log.debug("Got default stats")
 
@@ -68,8 +68,9 @@ class Collator():
 
                 if latest is not None:
                     latest_data = latest.serialize()
+                    account_data = account.serialize()
                     team_stats["accounts"].append({
-                        "account": account.serialize(),
+                        "account": account_data,
                         "stats": latest_data
                     })
 
