@@ -114,12 +114,12 @@
 .govuk-tag__fixed-width {
     @extend .govuk-tag;
     width: 3em;
+    tex-align: center;
 }
 
 .govuk-tag__fixed-width--all {
     @extend .govuk-tag__fixed-width;
     background-color: govuk-colour("blue");
-
 }
 
 .govuk-tag__fixed-width--tested {
@@ -138,5 +138,11 @@
 .govuk-tag__fixed-width--failed {
     @extend .govuk-tag__fixed-width;
     background-color: govuk-colour("red");
+
+}
+
+.govuk-tag__fixed-width--issues {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("orange");
 
 }

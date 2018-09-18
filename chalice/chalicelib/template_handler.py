@@ -1,4 +1,5 @@
 import os
+import re
 # from urllib.parse import urlparse, parse_qs
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -57,6 +58,24 @@ class TemplateHandler:
 
     def render_parameterized_message(self, message, params):
         return message.format(*params)
+
+    def register_filters(self):
+
+        def format_datetime(value, format='datetime'):
+            timestamp_pattern = '^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$'
+
+            m = re.search(timestamp_pattern, value)
+
+            if format == 'datetime':
+                render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1) + " " + m.group(4) + ":" + m.group(5)
+            elif format == 'date':
+                render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1)
+            elif format == 'time':
+                render_as = m.group(4) + ":" + m.group(5)
+
+            return render_as
+
+        self.env.filters['datetime'] = format_datetime
 
     def render_authorized_route_template(self, route, req, data={}):
 
