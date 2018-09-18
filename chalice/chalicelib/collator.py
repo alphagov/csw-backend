@@ -77,12 +77,12 @@ class Collator():
 
         return accounts
 
-    def get_team_failed_resources(self, team):
+    def get_team_failed_resources(self, team_id):
 
         AuditResource = self.dbh.get_model("AuditResource")
 
         team_failed_resources = []
-        accounts = self.get_team_accounts()
+        accounts = self.get_team_accounts(team_id)
 
         for account in accounts:
             if account.active:
