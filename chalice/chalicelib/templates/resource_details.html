@@ -6,29 +6,8 @@
 
     <h1 class="govuk-heading-l">Resource Status</h1>
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-s">Resource identifier</h2>
-            <p class="govuk-body">
-                {{ resource.resource_name }} ({{ resource.resource_id }})
-                <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
-            </p>
-        </div>
-        <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-s">Reason flagged</h2>
-            <p class="govuk-body">{{ compliance.annotation|safe }}</p>
-            <p class="govuk-body">{{ criterion.description|safe }}</p>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <h2 class="govuk-heading-s">Why is it important?</h2>
-            <p class="govuk-body">{{ criterion.why_is_it_important|safe }}</p>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <h2 class="govuk-heading-s">How do I fix it?</h2>
-            <p class="govuk-body">{{ criterion.how_do_i_fix_it|safe }}</p>
-        </div>
+    {% include "components/resource_compliance.html" %}
 
-    </div>
   </main>
 </div>
 {% endblock %}

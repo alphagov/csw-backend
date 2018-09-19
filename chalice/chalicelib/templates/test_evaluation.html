@@ -1,0 +1,37 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/">Home</a>
+        </li>
+      </ol>
+    </div>
+
+    <h1 class="govuk-heading-l">Test compliance evaluation</h1>
+    <h2 class="govuk-heading-l">{{ criterion.criterion_name }}</h2>
+
+    {% set stats = compliance_summary %}
+    {% include "components/5_column_status.html" %}
+
+    {% if criterion.tested and compliance_summary.non_compliant.display_stat == 0 %}
+
+        <p>All tested resources passed</p>
+
+    {% else %}
+
+        {% for resource in compliance_results %}
+            {% if resource.resource_compliance.is_applicable %}
+                {% if not resource.resource_compliance.is_compliant %}
+                    {% include "components/resource_compliance.html" %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+    {% endif %}
+
+  </main>
+</div>
+{% endblock %}

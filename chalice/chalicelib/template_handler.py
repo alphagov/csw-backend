@@ -35,7 +35,8 @@ class TemplateHandler:
             "/overview": "overview.html",
             "/team": "teams.html",
             "/team/{id}/dashboard": "team_dashboard.html",
-            "/resource/{id}": "resource_details.html"
+            "/resource/{id}": "resource_details.html",
+            "/test/ports_ingress_ssh": "test_evaluation.html"
         }
         # "/team/{team_id}/account/{account_id}/resource/{audit_resource_id}": "resource_details.html"
 
