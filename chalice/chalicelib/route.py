@@ -135,12 +135,13 @@ def route_overview_dashboard(app):
     return response
 
 
-def route_team_resource(app, team_id, account_id, audit_resource_id):
+def route_resource_details(app, id):
     try:
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
         db.connect()
 
+        AccountAudit = dbh.get_model("AccountAudit")
         ProductTeam = dbh.get_model("ProductTeam")
         AccountSubscription = dbh.get_model("AccountSubscription")
         AuditResource = dbh.get_model("AuditResource")
@@ -148,15 +149,17 @@ def route_team_resource(app, team_id, account_id, audit_resource_id):
         Criterion = dbh.get_model("Criterion")
         Status = dbh.get_model("Status")
 
-        team = ProductTeam.get_by_id(team_id)
+        resource = AuditResource.get_by_id(id)
 
-        account = AccountSubscription.get_by_id(account_id)
+        audit = AccountAudit.get_by_id(resource.account_audit_id)
 
-        resource = AuditResource.get_by_id(audit_resource_id)
+        account = AccountSubscription.get_by_id(audit.account_id)
+
+        team = ProductTeam.get_by_id(account.team_id)
 
         criterion = Criterion.get_by_id(resource.criterion_id)
 
-        compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == audit_resource_id)).get()
+        compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == id)).get()
 
         status = Status.get_by_id(Status.id == compliance.status_id)
 
@@ -170,7 +173,7 @@ def route_team_resource(app, team_id, account_id, audit_resource_id):
         }
 
         response = app.templates.render_authorized_route_template(
-            '/team/{team_id}/account/{account_id}/resource/{audit_resource_id}',
+            '/resource/{id}',
             app.current_request,
             template_data
         )

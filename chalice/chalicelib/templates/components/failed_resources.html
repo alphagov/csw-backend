@@ -16,7 +16,7 @@
                 {% for item in account_resources.resources %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                        <a href="{{ base_path }}/team/{{ account_resources.account.team_id }}/account/{{ account_resources.account.id }}/resource/{{ item.resource.id }}">
+                        <a href="{{ base_path }}/resource/{{ item.resource.id }}">
                             {{ item.resource.resource_name }} ({{ item.resource.resource_id }})
                         </a>
                     </td>

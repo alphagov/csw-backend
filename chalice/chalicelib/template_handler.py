@@ -35,8 +35,9 @@ class TemplateHandler:
             "/overview": "overview.html",
             "/team": "teams.html",
             "/team/{id}/dashboard": "team_dashboard.html",
-            "/team/{team_id}/account/{account_id}/resource/{audit_resource_id}": "resource_details.html"
+            "/resource/{id}": "resource_details.html"
         }
+        # "/team/{team_id}/account/{account_id}/resource/{audit_resource_id}": "resource_details.html"
 
     def get_route_template_file(self, route):
         if route in self.route_templates:

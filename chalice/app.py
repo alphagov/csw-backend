@@ -89,11 +89,11 @@ def team_dashboard(id):
     return Response(**response)
 
 
-@app.route('/team/{team_id}/account/{account_id}/resource/{audit_resource_id}')
-def team_dashboard_resource(team_id, account_id, audit_resource_id):
+@app.route('/resource/{id}')
+def resource_details(id):
     load_route_services()
 
-    response = route.route_team_resource(app, int(team_id), int(account_id), int(audit_resource_id))
+    response = route.route_resource_details(app, int(id))
 
     return Response(**response)
 
