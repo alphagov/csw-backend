@@ -145,7 +145,6 @@ class TemplateHandler:
             else:
                 logged_in = True
                 root_path = ""
-                data["menu"] = self.get_menu(root_path, route)
                 data["name"] = "[User]"
 
                 self.app.log.debug('Is localhost')
@@ -171,6 +170,7 @@ class TemplateHandler:
                     headers["Set-Cookie"] = self.auth.cookie
 
                 data["logout_url"] = f"{root_path}/logout"
+                data["menu"] = self.get_menu(root_path, route)
 
             else:
 
