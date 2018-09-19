@@ -190,6 +190,7 @@ class TemplateHandler:
 
             data["asset_path"] = asset_path
             data["base_path"] = root_path
+            data["back_link"] = req.headers['referer']
 
             response_body = self.render_template(template_file, data)
 
