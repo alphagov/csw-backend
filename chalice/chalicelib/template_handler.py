@@ -126,7 +126,7 @@ class TemplateHandler:
             if route == '/logout':
 
                 logged_in = False
-                headers["Set-Cookie"] = self.auth.generate_logout_cookie_val()
+                headers["Set-Cookie"] = self.auth.generate_logout_header_val()
 
             if logged_in:
 
