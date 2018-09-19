@@ -170,6 +170,8 @@ class TemplateHandler:
                 if self.auth.cookie is not None:
                     headers["Set-Cookie"] = self.auth.cookie
 
+                data["logout_url"] = f"{root_path}/logout"
+
             else:
 
                 template_file = 'logged_out.html'
