@@ -6,19 +6,19 @@
             <caption class="govuk-table__caption">{{ account_resources.account.account_name }} ({{ account_resources.audit.date_completed | datetime }})</caption>
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header">Resource</th>
                     <th class="govuk-table__header">Check</th>
                     <th class="govuk-table__header">Reason</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
                 {% for item in account_resources.resources %}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong></td>
                     <td class="govuk-table__cell">{{ item.resource.resource_name }} ({{ item.resource.resource_id }})</td>
                     <td class="govuk-table__cell">{{ item.criterion.criterion_name }}</td>
                     <td class="govuk-table__cell">{{ item.compliance.annotation }}</td>
+                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong></td>
                 </tr>
                 {% endfor %}
             </tbody>
