@@ -43,6 +43,7 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         template_data = {
             "criterion": criterion.serialize(),
+            "compliance_summary": summary,
             "compliance_results": groups,
             "tested": True
         }
