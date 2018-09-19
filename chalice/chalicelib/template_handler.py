@@ -34,8 +34,7 @@ class TemplateHandler:
             "/audit/{id}": "audit.html",
             "/overview": "overview.html",
             "/team": "teams.html",
-            "/team/{id}/dashboard": "team_dashboard.html",
-            "/overview": "overview.html"
+            "/team/{id}/dashboard": "team_dashboard.html"
         }
 
     def get_route_template_file(self, route):
