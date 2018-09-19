@@ -20,7 +20,7 @@ def route_team_list(app):
         }
 
         response = app.templates.render_authorized_route_template(
-            '/teams',
+            '/team',
             app.current_request,
             template_data
         )
