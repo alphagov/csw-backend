@@ -184,7 +184,7 @@ def database_create_tables(event, context):
 
 # @app.lambda_function()
 # def database_create_all_tables(event, context):
-#   admin.execute_database_create_all_tables(app, event, context)
+#    admin.execute_database_create_all_tables(app, event, context)
 
 
 @app.lambda_function()
@@ -208,9 +208,9 @@ def database_list_models(event, context):
 
 
 # AUDIT LAMBDAS START HERE
-# @app.schedule(Rate(24, unit=Rate.HOURS))
-# def audit_account_schedule(event):
-#    return audit.execute_on_audit_accounts_event(app, event, {})
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def audit_account_schedule(event):
+    return audit.execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()
