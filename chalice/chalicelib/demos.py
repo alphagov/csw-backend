@@ -35,7 +35,7 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
             group['resource_compliance'] = compliance
 
-            status = Status.get_by_id(compliance.status_id)
+            status = Status.get_by_id(compliance['status_id'])
 
             group['status'] = status
 
