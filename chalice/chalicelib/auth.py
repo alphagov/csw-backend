@@ -117,6 +117,21 @@ class AuthHandler:
 
         return cookie_val
 
+    def generate_logout_header_val(self):
+
+        cookie = cookies.SimpleCookie()
+        cookie["session"] = None
+        expiration = datetime.datetime.now()
+        cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+        cookie["session"]["path"] = "/"
+
+        # Workaround the fact that cookie.output returns a string like: 'Set-Cookie: session=650406237; etc..'
+        # but we don't want the 'Set-Cookie: ' part in the actual header.
+        raw_cookie_output = cookie.output()
+        cookie_val = raw_cookie_output.replace("Set-Cookie: ", "")
+
+        return cookie_val
+
     def get_user_from_code(self, url, code):
 
         flow = self.get_auth_flow(url)

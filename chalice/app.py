@@ -65,6 +65,20 @@ def index():
     return Response(**response)
 
 
+@app.route('/')
+def index():
+
+    app.log.debug('Try loading route services')
+
+    load_route_services()
+
+    app.log.debug('Loaded route services')
+
+    response = app.templates.render_authorized_route_template('/logout', app.current_request)
+
+    return Response(**response)
+
+
 @app.route('/audit')
 def audit_list():
 

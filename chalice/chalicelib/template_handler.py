@@ -29,6 +29,7 @@ class TemplateHandler:
         self.login_data = {}
         self.route_templates = {
             "/": "logged_in.html",
+            "/logout": "logged_out.html",
             "/audit": "audit_list.html",
             "/audit/{id}": "audit.html",
             "/overview": "overview.html",
@@ -122,6 +123,11 @@ class TemplateHandler:
 
             # if there is a user then show the requested route
             # TODO add permission control
+            if route == 'logout':
+
+                logged_in = False
+                headers["Set-Cookie"] = self.auth.generate_logout_cookie_val()
+
             if logged_in:
 
                 template_file = self.get_route_template_file(route)
