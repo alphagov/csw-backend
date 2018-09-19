@@ -7,6 +7,11 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
     try:
         load_route_services()
 
+        dbh = DatabaseHandle(app)
+
+        db = dbh.get_handle()
+        db.connect()
+
         Criterion = dbh.get_model("Criterion")
         Status = dbh.get_model('Status')
 
@@ -44,11 +49,6 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
         #template_data["criteria"][0]["compliance_results"] = groups
         #template_data["criteria"][0]["compliance_summary"] = summary
         #template_data["criteria"][0]["tested"] = True
-
-        dbh = DatabaseHandle(app)
-
-        db = dbh.get_handle()
-        db.connect()
 
         template_data = {
             "criterion": criterion.serialize(),
