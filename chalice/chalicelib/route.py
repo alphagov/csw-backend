@@ -162,12 +162,15 @@ def route_resource_details(app, id):
 
         compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == resource.id)).get()
 
+        status = Status.get_by_id(compliance.status_id)
+
         template_data = {
             "team": team.serialize(),
             "account": account.serialize(),
             "resource": resource.serialize(),
             "criterion": criterion.serialize(),
-            "compliance": compliance.serialize()
+            "compliance": compliance.serialize(),
+            "status": status.serialize()
         }
 
         response = app.templates.render_authorized_route_template(
