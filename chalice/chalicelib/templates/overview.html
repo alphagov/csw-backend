@@ -2,17 +2,16 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
     <div class="govuk-breadcrumbs">
       <ol class="govuk-breadcrumbs__list">
         <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="../">Home</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="../audit">Audit history</a>
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/">Home</a>
         </li>
       </ol>
     </div>
+
+    {% include "components/check_results.html" %}
+
   </main>
 </div>
 {% endblock %}

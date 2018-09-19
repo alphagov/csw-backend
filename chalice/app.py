@@ -89,6 +89,15 @@ def team_dashboard(id):
     return Response(**response)
 
 
+@app.route('/overview')
+def overview():
+    load_route_services()
+
+    response = route.route_overview_dashboard(app)
+
+    return Response(**response)
+
+
 @app.route('/audit')
 def audit_list():
 
