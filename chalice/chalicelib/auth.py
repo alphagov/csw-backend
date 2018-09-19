@@ -185,7 +185,7 @@ class AuthHandler:
                     self.user = self.get_user_from_code(url, code)
 
                     # Make sure the email Google OAuthed is on the GDS domain
-                    if re.match("digital\.cabinet-office\.gov\.uk$", self.user_data['email']):
+                    if re.match("digital\.cabinet-office\.gov\.uk", self.user_data['email']):
 
                         self.user_jwt = self.get_jwt(self.user)
 
@@ -196,6 +196,7 @@ class AuthHandler:
                         self.logged_in = True
 
                     else:
+                        self.app.log.debug(json.dumps(self.user_data))
                         self.logged_in = False
                 else:
                     self.logged_in = False
