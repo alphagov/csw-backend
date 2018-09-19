@@ -136,6 +136,7 @@ def route_overview_dashboard(app):
 
 
 def route_resource_details(app, id):
+    db = None
     try:
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
@@ -159,7 +160,7 @@ def route_resource_details(app, id):
 
         criterion = Criterion.get_by_id(resource.criterion_id)
 
-        compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == id)).get()
+        compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == resource.id)).get()
 
         status = Status.get_by_id(Status.id == compliance.status_id)
 
@@ -179,7 +180,11 @@ def route_resource_details(app, id):
         )
 
     except Exception as err:
+        if db is not None:
+            db.rollback()
+
         app.log.error("Route: overview error: " + str(err))
+
         response = {
             "body": str(err)
         }
