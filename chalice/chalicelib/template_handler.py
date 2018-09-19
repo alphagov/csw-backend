@@ -187,6 +187,7 @@ class TemplateHandler:
                     headers["Location"] = self.request_url
 
             data["asset_path"] = asset_path
+            data["base_path"] = root_path
 
             response_body = self.render_template(template_file, data)
 
