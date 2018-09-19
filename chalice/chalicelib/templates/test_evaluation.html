@@ -25,6 +25,8 @@
         {% for resource in compliance_results %}
             {% if resource.resource_compliance.is_applicable %}
                 {% if not resource.resource_compliance.is_compliant %}
+                    {% set compliance = resource.resource_compliance %}
+                    {% set status = resource.status %}
                     {% include "components/resource_compliance.html" %}
                 {% endif %}
             {% endif %}

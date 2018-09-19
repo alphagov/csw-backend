@@ -7,6 +7,9 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
     try:
         load_route_services()
 
+        Criterion = dbh.get_model("Criterion")
+        Status = dbh.get_model('Status')
+
         Client = app.utilities.get_class_by_name(
             "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
         )
@@ -18,12 +21,18 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         groups = ec2.describe_security_groups(session, **{"region": region})
 
+        criterion = Criterion.get_by_id(1)
+
         for group in groups:
             compliance = ec2.evaluate({}, group, [])
 
             app.log.debug(app.utilities.to_json(compliance))
 
             group['resource_compliance'] = compliance
+
+            status = Status.get_by_id(compliance.status_id)
+
+            group['status'] = status
 
             group['resource_name'] = group['GroupName']
             group['resource_id'] = group['GroupId']
@@ -40,9 +49,6 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         db = dbh.get_handle()
         db.connect()
-
-        Criterion = dbh.get_model("Criterion")
-        criterion = Criterion.get_by_id(1)
 
         template_data = {
             "criterion": criterion.serialize(),
