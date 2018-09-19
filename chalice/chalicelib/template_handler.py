@@ -38,7 +38,6 @@ class TemplateHandler:
             "/resource/{id}": "resource_details.html",
             "/test/ports_ingress_ssh": "test_evaluation.html"
         }
-        # "/team/{team_id}/account/{account_id}/resource/{audit_resource_id}": "resource_details.html"
 
     def get_route_template_file(self, route):
         if route in self.route_templates:

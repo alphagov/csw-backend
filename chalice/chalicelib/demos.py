@@ -14,7 +14,9 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
-        groups = ec2.describe_security_groups(session, **{"region": 'eu-west-1'})
+        region = 'eu-west-1'
+
+        groups = ec2.describe_security_groups(session, **{"region": region})
 
         for group in groups:
             compliance = ec2.evaluate({}, group, [])
@@ -25,6 +27,7 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
             group['resource_name'] = group['GroupName']
             group['resource_id'] = group['GroupId']
+            group['region'] = region
 
         summary = ec2.summarize(groups)
 
