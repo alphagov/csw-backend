@@ -1,0 +1,45 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/">Home</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/team">Product Teams</a>
+        </li>
+      </ol>
+    </div>
+
+    <h1 class="govuk-heading-l">Resource Status</h1>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h2 class="govuk-heading-s">Resource identifier</h2>
+            <p class="govuk-body">
+                {{ resource.resource_name }} ({{ resource.resource_id }})
+                <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
+            </p>
+        </div>
+        <div class="govuk-grid-column-full">
+            <h2 class="govuk-heading-s">Reason flagged</h2>
+            <p class="govuk-body">{{ compliance.annotation }}</p>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <h2 class="govuk-heading-s">Why is it important?</h2>
+            <p class="govuk-body">{{ criterion.why_is_it_important }}</p>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <h2 class="govuk-heading-s">How do I fix it?</h2>
+            <p class="govuk-body">{{ criterion.how_do_i_fix_it }}</p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+            <p class="debug">{{ resource | tojson }}</p>
+        </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

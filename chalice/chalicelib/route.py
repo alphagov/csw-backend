@@ -133,3 +133,54 @@ def route_overview_dashboard(app):
     # response = app.templates.render_authorized_route_template('/team/{id}/dashboard', app.current_request)
 
     return response
+
+
+def route_team_resource(app, team_id, account_id, audit_resource_id):
+    try:
+        dbh = DatabaseHandle(app)
+        db = dbh.get_handle()
+        db.connect()
+
+        ProductTeam = dbh.get_model("ProductTeam")
+        AccountSubscription = dbh.get_model("AccountSubscription")
+        AuditResource = dbh.get_model("AuditResource")
+        ResourceCompliance = dbh.get_model("ResourceCompliance")
+        Criterion = dbh.get_model("Criterion")
+        Status = dbh.get_model("Status")
+
+        team = ProductTeam.get_by_id(team_id)
+
+        account = AccountSubscription.get_by_id(account_id)
+
+        resource = AuditResource.get_by_id(audit_resource_id)
+
+        criterion = Criterion.get_by_id(resource.criterion_id)
+
+        compliance = (ResourceCompliance.select().join(AuditResource).where(AuditResource.id == audit_resource_id)).get()
+
+        status = Status.get_by_id(Status.id == compliance.status_id)
+
+        template_data = {
+            "team": team.serialize(),
+            "account": account.serialize(),
+            "resource": resource.serialize(),
+            "criterion": criterion.serialize(),
+            "compliance": compliance.serialize(),
+            "status": status.serialize()
+        }
+
+        response = app.templates.render_authorized_route_template(
+            '/team/{team_id}/account/{account_id}/resource/{audit_resource_id}',
+            app.current_request,
+            template_data
+        )
+
+    except Exception as err:
+        app.log.error("Route: overview error: " + str(err))
+        response = {
+            "body": str(err)
+        }
+
+    # response = app.templates.render_authorized_route_template('/team/{id}/dashboard', app.current_request)
+
+    return response

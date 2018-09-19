@@ -15,7 +15,11 @@
             <tbody class="govuk-table__body">
                 {% for item in account_resources.resources %}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ item.resource.resource_name }} ({{ item.resource.resource_id }})</td>
+                    <td class="govuk-table__cell">
+                        <a href="{{ base_path }}/team/{{ account_resources.account.team_id }}/account/{{ account_resources.account.id }}/resource/{{ item.resource.id }}">
+                            {{ item.resource.resource_name }} ({{ item.resource.resource_id }})
+                        </a>
+                    </td>
                     <td class="govuk-table__cell">{{ item.criterion.criterion_name }}</td>
                     <td class="govuk-table__cell">{{ item.compliance.annotation }}</td>
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong></td>
