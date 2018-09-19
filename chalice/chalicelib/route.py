@@ -119,7 +119,7 @@ def route_overview_dashboard(app):
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
 
         response = app.templates.render_authorized_route_template(
-            '/team/{id}/dashboard',
+            '/overview',
             app.current_request,
             template_data
         )
