@@ -179,7 +179,10 @@ class TemplateHandler:
 
                 template_file = 'logged_out.html'
 
-                login_url, _ = self.auth_flow.authorization_url()
+                login_url, _ = self.auth_flow.authorization_url(
+                    prompt="select_account",
+                    hd="digital.cabinet-office.gov.uk"
+                )
 
                 data["login_url"] = login_url
 
