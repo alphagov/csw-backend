@@ -44,7 +44,7 @@
   {% block login %}
   <div class="govuk-width-container">
     <div class="csw-login-status">
-      {% if email == "None" %}
+      {% if not email %}
       <p class="govuk-body-s"><a class="login" href="{{ login_url }}">Login</a></p>
       {% else %}
       <p class="govuk-body-s">Logged in as: {{ name }} <a class="logout" href="{{ logout_url }}">Logout</a></p>
