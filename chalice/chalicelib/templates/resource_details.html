@@ -2,7 +2,9 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% if back_link %}
     <a href="{{ back_link }}" class="govuk-back-link">Back</a>
+    {% endif %}
 
     <h1 class="govuk-heading-l">Resource Status</h1>
 
