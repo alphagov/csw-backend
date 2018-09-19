@@ -1,6 +1,38 @@
 from chalicelib.database_handle import DatabaseHandle
 from chalicelib.collator import Collator
 
+def route_team_list(app):
+    try:
+        dbh = DatabaseHandle(app)
+        db = dbh.get_handle()
+        db.connect()
+
+        ProductTeam = dbh.get_model("ProductTeam")
+
+        teams = (ProductTeam.select().where(ProductTeam.active == True))
+
+        team_list = []
+        for team in teams:
+            team_list.append(team.serialize())
+
+        template_data = {
+            "teams": team_list
+        }
+
+        response = app.templates.render_authorized_route_template(
+            '/teams',
+            app.current_request,
+            template_data
+        )
+
+    except Exception as err:
+        app.log.error("Route: team error: " + str(err))
+        response = {
+            "body": str(err)
+        }
+
+    return response
+
 
 def route_team_dashboard(app, team_id):
 

@@ -1,0 +1,18 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <h1 class="govuk-heading-xl">Teams</h1>
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="../">Home</a>
+        </li>
+      </ol>
+    </div>
+
+    {% include "components/team_list.html" %}
+
+  </main>
+</div>
+{% endblock %}

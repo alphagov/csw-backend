@@ -33,6 +33,7 @@ class TemplateHandler:
             "/audit": "audit_list.html",
             "/audit/{id}": "audit.html",
             "/overview": "overview.html",
+            "/team": "teams.html",
             "/team/{id}/dashboard": "team_dashboard.html"
         }
 
@@ -110,12 +111,12 @@ class TemplateHandler:
             {
                 "name": "Overview",
                 "link": f"{root_path}/overview",
-                "active": ('--active' if route == "/overview" else '')
+                "active": ('--active' if re.match("^\/overview",route) else '')
             },
             {
                 "name": "Product Teams",
                 "link": f"{root_path}/team",
-                "active": ('--active' if route == "/team" else '')
+                "active": ('--active' if re.match("^\/team",route) else '')
             }
         ]
 

@@ -71,6 +71,24 @@ def logout():
     return Response(**response)
 
 
+@app.route('/team')
+def team_list(id):
+    load_route_services()
+
+    response = route.route_team_list(app)
+
+    return Response(**response)
+
+
+@app.route('/team/{id}/dashboard')
+def team_dashboard(id):
+    load_route_services()
+
+    response = route.route_team_dashboard(app, int(id))
+
+    return Response(**response)
+
+
 @app.route('/audit')
 def audit_list():
 
@@ -85,15 +103,6 @@ def audit_list():
 def audit_report(id):
     load_route_services()
     response = app.templates.render_authorized_route_template('/audit/{id}', app.current_request)
-
-    return Response(**response)
-
-
-@app.route('/team/{id}/dashboard')
-def team_dashboard(id):
-    load_route_services()
-
-    response = route.route_team_dashboard(app, int(id))
 
     return Response(**response)
 
