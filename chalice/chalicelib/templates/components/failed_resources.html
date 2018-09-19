@@ -1,6 +1,6 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-        <h3 class="govuk-heading-m">Non-compliant resources</h3>
+        <h2 class="govuk-heading-m">Non-compliant resources</h2>
         {% for account_resources in failed_resources %}
         <table class="govuk-table">
             <caption class="govuk-table__caption">{{ account_resources.account.account_name }} ({{ account_resources.audit.date_completed | datetime }})</caption>
