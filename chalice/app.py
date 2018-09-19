@@ -72,7 +72,7 @@ def logout():
 
 
 @app.route('/team')
-def team_list(id):
+def team_list():
     load_route_services()
 
     response = route.route_team_list(app)
