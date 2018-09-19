@@ -16,7 +16,7 @@
     {% set stats = compliance_summary %}
     {% include "components/5_column_status.html" %}
 
-    {% if criterion.tested and compliance_summary.non_compliant.display_stat == 0 %}
+    {% if compliance_summary.non_compliant.display_stat == 0 %}
 
         <p>All tested resources passed</p>
 
