@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 from http import cookies
 import jwt
@@ -183,13 +184,19 @@ class AuthHandler:
 
                     self.user = self.get_user_from_code(url, code)
 
-                    self.user_jwt = self.get_jwt(self.user)
+                    # Make sure the email Google OAuthed is on the GDS domain
+                    if re.match("digital\.cabinet-office\.gov\.uk$", self.user_data['email']):
 
-                    self.cookie = self.generate_cookie_header_val(self.user_jwt)
+                        self.user_jwt = self.get_jwt(self.user)
 
-                    self.token = self.google_token
+                        self.cookie = self.generate_cookie_header_val(self.user_jwt)
 
-                    self.logged_in = True
+                        self.token = self.google_token
+
+                        self.logged_in = True
+
+                    else:
+                        self.logged_in = False
                 else:
                     self.logged_in = False
 
