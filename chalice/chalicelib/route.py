@@ -153,9 +153,9 @@ def route_resource_details(app, id):
 
         audit = AccountAudit.get_by_id(resource.account_audit_id)
 
-        account = AccountSubscription.get_by_id(audit.account_id)
+        account = AccountSubscription.get_by_id(audit.account_subscription_id)
 
-        team = ProductTeam.get_by_id(account.team_id)
+        team = ProductTeam.get_by_id(account.product_team_id)
 
         criterion = Criterion.get_by_id(resource.criterion_id)
 
