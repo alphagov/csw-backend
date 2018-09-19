@@ -93,6 +93,32 @@ class TemplateHandler:
 
         self.env.filters['timestamp'] = format_datetime
 
+    def is_real(self):
+        return ((self.request_url.find('localhost') == -1) and (self.request_url.find('127.0.0.1') == -1))
+
+    def get_menu_active_class_modifier(self, route, test):
+        return ('--active' if route == test else '')
+
+    def get_menu(app, root_path="", route="/"):
+
+        return [
+            {
+                "name": "Home",
+                "link": f"{root_path}",
+                "active": ('--active' if route == "/" else '')
+            },
+            {
+                "name": "Overview",
+                "link": f"{root_path}/overview",
+                "active": ('--active' if route == "/overview" else '')
+            },
+            {
+                "name": "Product Teams",
+                "link": f"{root_path}/team",
+                "active": ('--active' if route == "/team" else '')
+            }
+        ]
+
     def render_authorized_route_template(self, route, req, data={}):
 
         try:
@@ -108,19 +134,23 @@ class TemplateHandler:
 
             self.app.log.debug('Request URL: ' + self.request_url)
 
-            if ((self.request_url.find('localhost') == -1) and (self.request_url.find('127.0.0.1') == -1)):
+            if self.is_real():
 
                 self.auth_flow = auth.get_auth_flow(self.request_url + route)
+                root_path = "/app"
 
                 logged_in = self.auth.try_login(req)
-                asset_path = "/app/assets"
 
                 self.app.log.debug('Not localhost')
             else:
                 logged_in = True
-                asset_path = "/assets"
+                root_path = ""
+                data["menu"] = self.get_menu(root_path, route)
+                data["name"] = "[User]"
+
                 self.app.log.debug('Is localhost')
 
+            asset_path = f"{root_path}/assets"
             # if there is a user then show the requested route
             # TODO add permission control
             if route == '/logout':

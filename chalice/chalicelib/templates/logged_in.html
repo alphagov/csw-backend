@@ -1,13 +1,18 @@
 {% extends "govuk_template.html" %}
-{% block login %}
-{% include "components/logged_in.html" %}
-{% endblock %}
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    <h1 class="govuk-heading-xl">Cloud Security Watch</h1>
-    <p class="govuk-body-s" style='font-size:smaller;color:#ccc;word-break: break-all;'>{{ token }}</p>
-    <a href="./audit">Audit history</a>
+    <h1 class="govuk-heading-xl">What is this for?</h1>
+    <p>Cloud Security Watch is a tool aimed at highlighting common configurations in AWS which are not secure.</p>
+    <p>Examples of these things are security groups with critical ports open to the outside world or S3 buckets
+    with read/write access open to anyone.</p>
+    <p>The aims of Cloud Security Watch are:</p>
+    <ul>
+      <li>To provide actionable and unambiguous warnings</li>
+      <li>To provide clear remediation advice and instruction</li>
+      <li>To remove false positives and allow for recording known exceptions</li>
+    </ul>
+    <!--p class="govuk-body-s" style='font-size:smaller;color:#ccc;word-break: break-all;'>{{ token }}</p-->
   </main>
 </div>	
 {% endblock %}
