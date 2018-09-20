@@ -1,4 +1,5 @@
 import json
+import re
 from peewee import Model
 from peewee import CharField, TextField, DateField, DateTimeField, BooleanField
 from peewee import BigIntegerField, IntegerField, ForeignKeyField
@@ -25,11 +26,16 @@ class BaseModel(Model):
     def parse_stored_json(self, data):
 
         for field in data:
-            if data[field][:1] in ['{','[']:
+
+            looks_like_json = re.search("^\\*[\[\{]", data[field])
+
+            if looks_like_json:
+
                 try:
-                    parsed = json.loads(data[field])
+                    unescaped = data[field].decode('string_escape')
+                    parsed = json.loads(unescaped)
                     data[field] = parsed
-                except ValueError:
+                except Exception:
                     pass
 
         return data
