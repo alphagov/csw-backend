@@ -45,11 +45,6 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         summary = ec2.summarize(groups)
 
-        #template_data = app.dummy_data["audits"][0]
-        #template_data["criteria"][0]["compliance_results"] = groups
-        #template_data["criteria"][0]["compliance_summary"] = summary
-        #template_data["criteria"][0]["tested"] = True
-
         template_data = {
             "criterion": criterion.serialize(),
             "compliance_summary": summary,
@@ -105,6 +100,66 @@ def execute_test_ports_ingress_open(app, load_route_services):
 
         response = app.templates.render_authorized_route_template(
             '/audit/{id}',
+            app.current_request,
+            template_data
+        )
+    except Exception as err:
+        response = {
+            "body": str(err)
+        }
+
+    return response
+
+
+def execute_test_root_mfa(app, load_route_services):
+
+    try:
+        load_route_services()
+
+        Client = app.utilities.get_class_by_name(
+            "chalicelib.criteria.aws_support_root_mfa.AwsSupportRootMfa"
+        )
+        support = Client(app)
+
+        session = support.get_session(
+            account='103495720024',
+            role='csw-dan_CstSecurityInspectorRole'
+        )
+
+        data = support.get_root_mfa_status_data(session)
+
+        criterion = {
+            "id": 3,
+            "criterion_name": "MFA enabled on root user account",
+            "description": "Checks whether the root IAM user associated with the AWS account has Multi Factor Authentication enabled.",
+            "why_is_it_important": "Without MFA it is easier for someone to gain access to your account",
+            "how_do_i_fix_it": "If you have the root credentials for your account enable MFA - otherwise speak to RE"
+        }
+
+        for item in data:
+            compliance = support.evaluate({}, item, [])
+
+            app.log.debug(app.utilities.to_json(compliance))
+
+            item['resource_compliance'] = compliance
+
+            status = {}
+
+            item['status'] = status
+
+            item.update(support.translate(item))
+
+        summary = support.summarize(data)
+
+        template_data = {
+            "criterion": criterion,
+            "compliance_summary": summary,
+            "compliance_results": data,
+            "tested": True
+        }
+
+        response = app.templates.render_authorized_route_template(
+            '/test/ports_ingress_ssh',
             app.current_request,
             template_data
         )

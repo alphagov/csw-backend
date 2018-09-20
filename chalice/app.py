@@ -252,6 +252,13 @@ def test_ports_ingress_open():
     return Response(**response)
 
 
+@app.route('/test/root_mfa')
+def test_root_mfa():
+
+    response = demos.execute_test_root_mfa(app, load_route_services)
+    return Response(**response)
+
+
 # ASSET RENDERERS
 # TODO This doesn't work for binary file types
 @app.route('/assets')
