@@ -17,6 +17,7 @@ def execute_database_create_tables(app, event, context):
 
         created = dbh.create_tables(table_list)
     except Exception as err:
+        app.log.error(str(err))
         created = False
         message = str(err)
 
@@ -62,7 +63,8 @@ def execute_database_create_item(app, event, context):
         data = item.serialize()
         json_data = app.utilities.to_json(data)
 
-    except Exception:
+    except Exception as err:
+        app.log.error(str(err))
         json_data = None
 
     return json_data
@@ -79,7 +81,8 @@ def execute_database_get_item(app, event, context):
         data = item.serialize()
         json_data = app.utilities.to_json(data)
 
-    except Exception:
+    except Exception as err:
+        app.log.error(str(err))
         json_data = None
 
     return json_data
@@ -93,7 +96,8 @@ def execute_database_run(app, event, context):
 
         dbh.set_credentials(event['User'], event['Password'])
         status = dbh.execute_commands(event['Commands'])
-    except Exception:
+    except Exception as err:
+        app.log.error(str(err))
         status = False
 
     return status
@@ -108,7 +112,8 @@ def execute_database_list_models(app, event, context):
         models = dbh.get_models()
         tables = models.keys()
 
-    except Exception:
+    except Exception as err:
+        app.log.error(str(err))
         tables = []
 
     return tables
