@@ -24,7 +24,7 @@ class AwsIamValidateInspectorPolicy(GdsIamClient):
 
         self.app.log.debug("Policy: " + policy_name)
 
-        data = self.get_role_policy(role_name, policy_name)
+        data = self.get_role_policy(session, role_name, policy_name)
 
         applied_policy_json = json.dumps(data['PolicyDocument'])
 

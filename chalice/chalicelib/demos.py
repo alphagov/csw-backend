@@ -191,7 +191,7 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
 
         criterion = {
             "id": 4,
-            "criterion_name": "Inspector policy is up-to-date",
+            "criterion_name": "IAM inspector policy is up-to-date",
             "description": "Checks whether the Cloud Security Watch role matches the current definition.",
             "why_is_it_important": "If the role policy doesn't grant the right permissions checks will fail to be processed.",
             "how_do_i_fix_it": "Update the module and re-run the terraform apply to re-deploy the role and policy."
