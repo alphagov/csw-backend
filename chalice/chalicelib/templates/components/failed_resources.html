@@ -3,7 +3,10 @@
         <h2 class="govuk-heading-m">Non-compliant resources</h2>
         {% for account_resources in failed_resources %}
         <table class="govuk-table">
-            <caption class="govuk-table__caption">{{ account_resources.account.account_name }} ({{ account_resources.audit.date_completed | datetime }})</caption>
+            <caption class="govuk-table__caption">
+                {{ account_resources.account.account_name }}
+                ({{ account_resources.audit.date_completed | datetime }})
+            </caption>
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Resource</th>
@@ -16,13 +19,19 @@
                 {% for item in account_resources.resources %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                        <a href="{{ base_path }}/resource/{{ item.resource.id }}">
-                            {{ item.resource.resource_name }} ({{ item.resource.resource_id }})
-                        </a>
+                        {{ item.resource.resource_name }}
+                        {% if item.resource.resource_name != item.resource.resource_id %}
+                        ({{ item.resource.resource_id }})
+                        {% endif %}
                     </td>
                     <td class="govuk-table__cell">{{ item.criterion.criterion_name }}</td>
                     <td class="govuk-table__cell">{{ item.compliance.annotation|safe }}</td>
-                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong></td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong>
+                        <p>
+                            <a href="{{ base_path }}/resource/{{ item.resource.id }}">Details</a>
+                        </p>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
