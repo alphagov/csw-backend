@@ -1,10 +1,19 @@
 from datetime import datetime
+from chalicelib.database_handle import DatabaseHandle
 
 
 def execute_test_ports_ingress_ssh(app, load_route_services):
 
     try:
         load_route_services()
+
+        dbh = DatabaseHandle(app)
+
+        db = dbh.get_handle()
+        db.connect()
+
+        Criterion = dbh.get_model("Criterion")
+        Status = dbh.get_model('Status')
 
         Client = app.utilities.get_class_by_name(
             "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
@@ -13,7 +22,11 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
 
-        groups = ec2.describe_security_groups(session, **{"region": 'eu-west-1'})
+        region = 'eu-west-1'
+
+        groups = ec2.describe_security_groups(session, **{"region": region})
+
+        criterion = Criterion.get_by_id(1)
 
         for group in groups:
             compliance = ec2.evaluate({}, group, [])
@@ -22,15 +35,30 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
             group['resource_compliance'] = compliance
 
+            status = Status.get_by_id(compliance['status_id'])
+
+            group['status'] = status
+
+            group['resource_name'] = group['GroupName']
+            group['resource_id'] = group['GroupId']
+            group['region'] = region
+
         summary = ec2.summarize(groups)
 
-        template_data = app.dummy_data["audits"][0]
-        template_data["criteria"][0]["compliance_results"] = groups
-        template_data["criteria"][0]["compliance_summary"] = summary
-        template_data["criteria"][0]["tested"] = True
+        #template_data = app.dummy_data["audits"][0]
+        #template_data["criteria"][0]["compliance_results"] = groups
+        #template_data["criteria"][0]["compliance_summary"] = summary
+        #template_data["criteria"][0]["tested"] = True
+
+        template_data = {
+            "criterion": criterion.serialize(),
+            "compliance_summary": summary,
+            "compliance_results": groups,
+            "tested": True
+        }
 
         response = app.templates.render_authorized_route_template(
-            '/audit/{id}',
+            '/test/ports_ingress_ssh',
             app.current_request,
             template_data
         )

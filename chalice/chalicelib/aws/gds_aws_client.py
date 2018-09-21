@@ -294,7 +294,7 @@ class GdsAwsClient:
 
             has_region = "region" in resource
             is_default = resource["resource_name"] == "default"
-            in_regions = resource["region"] in regions
+            in_regions = has_region and resource["region"] in regions
 
             if has_region and (not is_default) and (not in_regions):
                 regions.append(resource["region"])

@@ -1,0 +1,26 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <div class="govuk-breadcrumbs">
+      <ol class="govuk-breadcrumbs__list">
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/">Home</a>
+        </li>
+        <li class="govuk-breadcrumbs__list-item">
+          <a class="govuk-breadcrumbs__link" href="{{base_path}}/team">Product Teams</a>
+        </li>
+      </ol>
+    </div>
+
+    <h1 class="govuk-heading-l">{{ team.team_name }} Team Dashboard</h1>
+
+    {% include "components/team_stats.html" %}
+
+    {% include "components/check_results.html" %}
+
+    {% include "components/failed_resources.html" %}
+
+  </main>
+</div>
+{% endblock %}

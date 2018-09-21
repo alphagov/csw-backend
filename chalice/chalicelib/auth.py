@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 from http import cookies
 import jwt
@@ -117,6 +118,21 @@ class AuthHandler:
 
         return cookie_val
 
+    def generate_logout_header_val(self):
+
+        cookie = cookies.SimpleCookie()
+        cookie["session"] = None
+        expiration = datetime.datetime.now()
+        cookie["session"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+        cookie["session"]["path"] = "/"
+
+        # Workaround the fact that cookie.output returns a string like: 'Set-Cookie: session=650406237; etc..'
+        # but we don't want the 'Set-Cookie: ' part in the actual header.
+        raw_cookie_output = cookie.output()
+        cookie_val = raw_cookie_output.replace("Set-Cookie: ", "")
+
+        return cookie_val
+
     def get_user_from_code(self, url, code):
 
         flow = self.get_auth_flow(url)
@@ -168,13 +184,20 @@ class AuthHandler:
 
                     self.user = self.get_user_from_code(url, code)
 
-                    self.user_jwt = self.get_jwt(self.user)
+                    # Make sure the email Google OAuthed is on the GDS domain
+                    if re.search("digital\.cabinet-office\.gov\.uk", self.user_data['email']):
 
-                    self.cookie = self.generate_cookie_header_val(self.user_jwt)
+                        self.user_jwt = self.get_jwt(self.user)
 
-                    self.token = self.google_token
+                        self.cookie = self.generate_cookie_header_val(self.user_jwt)
 
-                    self.logged_in = True
+                        self.token = self.google_token
+
+                        self.logged_in = True
+
+                    else:
+                        self.app.log.debug(json.dumps(self.user_data))
+                        self.logged_in = False
                 else:
                     self.logged_in = False
 
@@ -182,6 +205,10 @@ class AuthHandler:
                 self.login_data.update(self.user_data)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
+            else:
+                # explicitly empty login data
+                self.login_data = {}
+
 
         except Exception as err:
             self.app.log.debug(str(err))

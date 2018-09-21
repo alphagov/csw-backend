@@ -4,10 +4,11 @@ import json
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.utilities import Utilities
 from chalicelib.auth import AuthHandler
-from chalicelib.views import TemplateHandler
+from chalicelib.template_handler import TemplateHandler
 from chalicelib import audit
 from chalicelib import admin
 from chalicelib import demos
+from chalicelib import route
 
 
 app = Chalice(app_name='cloud-security-watch')
@@ -53,13 +54,55 @@ def load_route_services():
 @app.route('/')
 def index():
 
-    app.log.debug('Try loading route services')
+    load_route_services()
+
+    response = app.templates.render_authorized_route_template('/', app.current_request)
+
+    return Response(**response)
+
+
+@app.route('/logout')
+def logout():
 
     load_route_services()
 
-    app.log.debug('Loaded route services')
+    response = app.templates.render_authorized_route_template('/logout', app.current_request)
 
-    response = app.templates.render_authorized_route_template('/', app.current_request)
+    return Response(**response)
+
+
+@app.route('/team')
+def team_list():
+    load_route_services()
+
+    response = route.route_team_list(app)
+
+    return Response(**response)
+
+
+@app.route('/team/{id}/dashboard')
+def team_dashboard(id):
+    load_route_services()
+
+    response = route.route_team_dashboard(app, int(id))
+
+    return Response(**response)
+
+
+@app.route('/resource/{id}')
+def resource_details(id):
+    load_route_services()
+
+    response = route.route_resource_details(app, int(id))
+
+    return Response(**response)
+
+
+@app.route('/overview')
+def overview():
+    load_route_services()
+
+    response = route.route_overview_dashboard(app)
 
     return Response(**response)
 
@@ -141,7 +184,7 @@ def database_create_tables(event, context):
 
 # @app.lambda_function()
 # def database_create_all_tables(event, context):
-#   admin.execute_database_create_all_tables(app, event, context)
+#    admin.execute_database_create_all_tables(app, event, context)
 
 
 @app.lambda_function()
@@ -165,9 +208,9 @@ def database_list_models(event, context):
 
 
 # AUDIT LAMBDAS START HERE
-# @app.schedule(Rate(24, unit=Rate.HOURS))
-# def audit_account_schedule(event):
-#    return audit.execute_on_audit_accounts_event(app, event, {})
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def audit_account_schedule(event):
+    return audit.execute_on_audit_accounts_event(app, event, {})
 
 
 @app.lambda_function()

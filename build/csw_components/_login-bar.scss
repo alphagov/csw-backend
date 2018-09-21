@@ -1,0 +1,14 @@
+.govuk-header {
+    a.login,
+    a.logout {
+        color: govuk-colour("white");
+        &:hover,
+        &:active {
+            color: govuk-colour("grey-3");
+        }
+    }
+}
+
+.csw-login-status {
+    float: right;
+}
