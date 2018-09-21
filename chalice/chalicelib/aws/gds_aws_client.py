@@ -182,6 +182,24 @@ class GdsAwsClient:
 
         return role_assumed
 
+    # get the role and account id assumed by the current session credentials
+    def get_caller_details(self, session):
+
+        caller_details = None
+        try:
+            sts = boto3.client(
+                'sts',
+                aws_access_key_id=session['AccessKeyId'],
+                aws_secret_access_key=session['SecretAccessKey'],
+                aws_session_token=session['SessionToken']
+            )
+
+            caller_details = sts.get_caller_identity()
+        except Exception:
+            pass
+
+        return caller_details
+
     # get_session returns the existing session if it already exists
     # or assumes the role and returns the new session if it doesn't
     def get_session(self, account="default", role=""):
