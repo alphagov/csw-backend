@@ -195,7 +195,8 @@ class GdsAwsClient:
             )
 
             caller_details = sts.get_caller_identity()
-        except Exception:
+        except Exception as err:
+            self.app.log.error("Failed to get caller details: " + str(err))
             pass
 
         return caller_details

@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from chalicelib.database_handle import DatabaseHandle
 
 
@@ -163,6 +164,35 @@ def execute_test_root_mfa(app, load_route_services):
             app.current_request,
             template_data
         )
+    except Exception as err:
+        response = {
+            "body": str(err)
+        }
+
+    return response
+
+
+def execute_test_iam_validate_inspector_policy(app, load_route_services):
+
+    try:
+        load_route_services()
+
+        Client = app.utilities.get_class_by_name(
+            "chalicelib.criteria.aws_iam_validate_inspector_policy.AwsIamValidateInspectorPolicy"
+        )
+        iam = Client(app)
+
+        session = iam.get_session(
+            account='103495720024',
+            role='csw-dan_CstSecurityInspectorRole'
+        )
+
+        data = iam.get_inspector_role_policy_data(session)
+
+        response = {
+            "body": json.dumps(data)
+        }
+
     except Exception as err:
         response = {
             "body": str(err)

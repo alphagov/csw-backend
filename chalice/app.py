@@ -259,6 +259,13 @@ def test_root_mfa():
     return Response(**response)
 
 
+@app.route('/test/validate_iam_policy', cors=True)
+def validate_iam_policy():
+
+    response = demos.execute_test_iam_validate_inspector_policy(app, load_route_services)
+    return Response(**response)
+
+
 # ASSET RENDERERS
 # TODO This doesn't work for binary file types
 @app.route('/assets')
