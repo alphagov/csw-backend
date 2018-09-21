@@ -189,9 +189,39 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
 
         data = iam.get_inspector_role_policy_data(session)
 
-        response = {
-            "body": json.dumps(data)
+        criterion = {
+            "id": 4,
+            "criterion_name": "Inspector policy is up-to-date",
+            "description": "Checks whether the Cloud Security Watch role matches the current definition.",
+            "why_is_it_important": "If the role policy doesn't grant the right permissions checks will fail to be processed.",
+            "how_do_i_fix_it": "Update the module and re-run the terraform apply to re-deploy the role and policy."
         }
+
+        for item in data:
+            compliance = iam.evaluate({}, item, [])
+
+            item['resource_compliance'] = compliance
+
+            status = {}
+
+            item['status'] = status
+
+            item.update(iam.translate(item))
+
+        summary = iam.summarize(data)
+
+        template_data = {
+            "criterion": criterion,
+            "compliance_summary": summary,
+            "compliance_results": data,
+            "tested": True
+        }
+
+        response = app.templates.render_authorized_route_template(
+            '/test/ports_ingress_ssh',
+            app.current_request,
+            template_data
+        )
 
     except Exception as err:
         response = {

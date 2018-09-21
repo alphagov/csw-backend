@@ -39,9 +39,19 @@ class AwsIamValidateInspectorPolicy(GdsIamClient):
 
         self.app.log.debug("Policies equal = " + str(applied_policy_json == standard_policy_json))
 
+        data['PolicyUrl'] = self.policy_url
         data['PolicyRequired'] = standard_policy
 
         return [data]
+
+    def translate(self, data):
+
+        item = {
+            "resource_id": data['RoleName'],
+            "resource_name": data['RoleName'],
+        }
+
+        return item
 
     def evaluate(self, event, item, whitelist=[]):
 
@@ -55,6 +65,10 @@ class AwsIamValidateInspectorPolicy(GdsIamClient):
             compliance_type = "COMPLIANT"
         else:
             compliance_type = "NON_COMPLIANT"
+            role_name = item['RoleName']
+            self.annotation = f"<p>The policy attached to {role_name} does not match the current version.</p>"
+            self.annotation += f"<p>The current policy can be viewed on <a target=\"github\" href=\"{self.policy_url}\">GitHub</a>.</p>"
+            self.annotation += "<p>You may need to run Terraform again.</p>"
 
         evaluation = self.build_evaluation(
             "root",
