@@ -205,6 +205,10 @@ class AuthHandler:
                 self.login_data.update(self.user_data)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
+            else:
+                # explicitly empty login data
+                self.login_data = {}
+
 
         except Exception as err:
             self.app.log.debug(str(err))
