@@ -36,7 +36,7 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
     ]
 
     def get_data(self, session, **kwargs):
-        return self.client.describe_security_groups(session, kwargs)
+        return self.client.describe_security_groups(session, **kwargs)
 
     def get_port_list(self):
 

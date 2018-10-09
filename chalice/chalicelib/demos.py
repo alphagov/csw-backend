@@ -25,7 +25,7 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         region = 'eu-west-1'
 
-        groups = ec2.describe_security_groups(session, **{"region": region})
+        groups = ec2.get_data(session, **{"region": region})
 
         criterion = Criterion.get_by_id(1)
 
@@ -82,7 +82,7 @@ def execute_test_ports_ingress_open(app, load_route_services):
             "region": 'eu-west-1'
         }
 
-        groups = ec2.describe_security_groups(session, **params)
+        groups = ec2.get_data(session, **params)
 
         for group in groups:
 
@@ -127,7 +127,7 @@ def execute_test_root_mfa(app, load_route_services):
             role='csw-dan_CstSecurityInspectorRole'
         )
 
-        data = support.get_root_mfa_status_data(session)
+        data = support.get_data(session)
 
         criterion = {
             "id": 3,

@@ -14,7 +14,7 @@ class AwsSupportRootMfa(CriteriaDefault):
     language = "en"
     region = "us-east-1"
 
-    client_class = GdsSupportClient
+    ClientClass = GdsSupportClient
 
     title = "Multi-Factor Authentication enabled for root user on account"
 
@@ -36,7 +36,7 @@ class AwsSupportRootMfa(CriteriaDefault):
         output = self.client.describe_trusted_advisor_check_result(
             session,
             checkId=self.check_id,
-            language=self.language,
+            language=self.language
         )
 
         self.app.log.debug(self.app.utilities.to_json(output))

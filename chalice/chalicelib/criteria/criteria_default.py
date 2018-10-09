@@ -18,7 +18,7 @@ class CriteriaDefault():
     why_is_it_important = None
     how_do_i_fix_it = None
 
-    def __init(self, app):
+    def __init__(self, app):
         self.app = app
         self.client = self.ClientClass(app)
 
