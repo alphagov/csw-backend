@@ -21,7 +21,10 @@ def get_audit_criteria(app):
 
     for CriteriaClass in criteria:
         if CriteriaClass.active:
+            criteria = CriteriaClass(app)
+            active_criteria.append(criteria.describe())
 
+    return active_criteria
 
 
 def execute_on_audit_accounts_event(app, event, context):
