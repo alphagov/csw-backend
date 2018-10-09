@@ -3,7 +3,6 @@
 # implements aws ec2 api queries
 from chalicelib.aws.gds_aws_client import GdsAwsClient
 
-
 class GdsIamClient(GdsAwsClient):
 
     resource_type = "AWS::IAM::*"

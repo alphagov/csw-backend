@@ -3,18 +3,33 @@
 # implements aws ec2 api queries
 import requests
 import json
+from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_iam_client import GdsIamClient
 
 
-class AwsIamValidateInspectorPolicy(GdsIamClient):
 
-    policy_url = "https://raw.githubusercontent.com/alphagov/csw-client-role/master/csw_role/json/policy.json"
+class AwsIamValidateInspectorPolicy(CriteriaDefault):
+
+    active = True
+
+    ClientClass = GdsIamClient
 
     resource_type = "AWS::IAM::Policy"
 
+    title = "Cloud Security Watch - IAM Inspector Role Policy is up-to-date"
+
+    description = """Checks whether the Cloud Security Watch role matches the current definition."""
+
+    why_is_it_important = """If the role policy does not grant the right permissions checks will fail 
+        to be processed."""
+
+    how_do_i_fix_it = """Update the module and re-run the terraform apply to re-deploy the role and policy."""
+
+    policy_url = "https://raw.githubusercontent.com/alphagov/csw-client-role/master/csw_role/json/policy.json"
+
     role_name_default = "_CstSecurityInspectorRole"
 
-    def get_inspector_role_policy_data(self, session):
+    def get_data(self, session, **kwargs):
 
         role_name = self.app.prefix + self.role_name_default
 
@@ -24,7 +39,7 @@ class AwsIamValidateInspectorPolicy(GdsIamClient):
 
         self.app.log.debug("Policy: " + policy_name)
 
-        data = self.get_role_policy(session, role_name, policy_name)
+        data = self.client.get_role_policy(session, role_name, policy_name)
 
         applied_policy_json = json.dumps(data['PolicyDocument'])
 

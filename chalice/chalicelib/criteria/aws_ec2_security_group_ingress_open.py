@@ -1,29 +1,28 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
+from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
-class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
+class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
-    '''
-    Red: Access
-    to
-    port
-    20, 21, 1433, 1434, 3306, 3389, 4333, 5432, or 5500 is unrestricted.
+    active = True
 
-    -- only implement RED for now
-    Yellow: Access
-    to
-    any
-    other
-    port is unrestricted.
+    ClientClass = GdsEc2SecurityGroupClient
 
-    Green: Access
-    to
-    port
-    80, 25, 443, or 465 is unrestricted.
-    '''
+    resource_type = "AWS::EC2::SecurityGroup"
+
+    title = "Security Groups - Ingress open for flagged ports"
+
+    description = """Unrestricted inbound connections should not be allowed for certain ports"""
+
+    why_is_it_important = """By opening ports like FTP or common database connection ports to the 
+    world you dramatically increase the risk to your service"""
+
+    how_do_i_fix_it = """Change unrestricted CIDR to an internal IP range or a whitelist of specific 
+    IP addresses"""
+
     flag_unrestricted_ports = [
         20,
         21,
@@ -35,6 +34,9 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
         5432,
         5500
     ]
+
+    def get_data(self, session, **kwargs):
+        return self.client.describe_security_groups(session, kwargs)
 
     def get_port_list(self):
 

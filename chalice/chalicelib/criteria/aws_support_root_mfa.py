@@ -1,19 +1,39 @@
 # AwsSupportRootMfa
 # extends GdsSupportClient
 # implements aws ec2 api queries
+from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_support_client import GdsSupportClient
 
 
-class AwsSupportRootMfa(GdsSupportClient):
+class AwsSupportRootMfa(CriteriaDefault):
+
+    active = True
 
     resource_type = "AWS::IAM::User"
     check_id = "7DAFEmoDos"
     language = "en"
     region = "us-east-1"
 
-    def get_root_mfa_status_data(self, session):
+    client_class = GdsSupportClient
 
-        output = self.describe_trusted_advisor_check_result(
+    title = "Multi-Factor Authentication enabled for root user on account"
+
+    description = """Checks the root account and warns if multi-factor authentication (MFA) 
+    is not enabled. For increased security, we recommend that you protect your account by 
+    using MFA, which requires a user to enter a unique authentication code from their MFA 
+    hardware or virtual device when interacting with the AWS console and associated websites."""
+
+    why_is_it_important = """MFA on root is not enabled. If the account gets compromised, 
+    an attacker will be able to access all resources in the root account, deleting configuration, 
+    creating resources for malicious activity or to lunch further attacks."""
+
+    how_do_i_fix_it = """If you have the root credentials for your account enable MFA - otherwise 
+    speak to Tech-ops Reliability Engineering 
+    <a target="slack" href="https://gds.slack.com/messages/reliability-eng/">#reliability-engineering</a>"""
+
+    def get_data(self, session, **kwargs):
+
+        output = self.client.describe_trusted_advisor_check_result(
             session,
             checkId=self.check_id,
             language=self.language,

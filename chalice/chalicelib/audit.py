@@ -4,6 +4,24 @@ from botocore.exceptions import ClientError
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.models import DatabaseHandle
+from chalicelib.criteria.aws_ec2_security_group_ingress_open import AwsEc2SecurityGroupIngressOpen
+from chalicelib.criteria.aws_ec2_security_group_ingress_ssh import AwsEc2SecurityGroupIngressSsh
+from chalicelib.criteria.aws_iam_validate_inspector_policy import AwsIamValidateInspectorPolicy
+from chalicelib.criteria.aws_support_root_mfa import AwsSupportRootMfa
+
+def get_audit_criteria(app):
+    criteria = [
+        AwsIamValidateInspectorPolicy,
+        AwsEc2SecurityGroupIngressOpen,
+        AwsEc2SecurityGroupIngressSsh,
+        AwsSupportRootMfa
+    ]
+
+    active_criteria = []
+
+    for CriteriaClass in criteria:
+        if CriteriaClass.active:
+
 
 
 def execute_on_audit_accounts_event(app, event, context):
@@ -227,7 +245,8 @@ def execute_on_account_evaluate_criteria_event(app, event):
             for params in requests:
 
                 try:
-                    data = getattr(client, method)(session, **params)
+                    #data = getattr(client, method)(session, **params)
+                    data = client.get_data(session, **params)
 
                 except ClientError as boto3_error:
                     app.log.error(str(boto3_error))
