@@ -91,12 +91,12 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
             if "CidrIp" in ip_range:
                 cidr = ip_range["CidrIp"]
-                parsed_cidr = self.parse_v4_cidr(cidr)
+                parsed_cidr = self.client.parse_v4_cidr(cidr)
                 cidr_is_valid = (parsed_cidr["mask"] != 0)
 
             elif "CidrIpv6" in ip_range:
                 cidr = ip_range["CidrIpv6"]
-                parsed_cidr = self.parse_v6_cidr(cidr)
+                parsed_cidr = self.client.parse_v6_cidr(cidr)
                 cidr_is_valid = (parsed_cidr["mask"] != 0)
 
             compliant &= cidr_is_valid
@@ -110,13 +110,13 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
     def rule_applies_to_flagged_port(self, rule):
 
-        is_protocol = self.is_protocol(rule, 'tcp')
+        is_protocol = self.client.is_protocol(rule, 'tcp')
 
         in_port_range = False
 
         for port in self.flag_unrestricted_ports:
 
-            flag_port_in_port_range = self.in_port_range(rule, port)
+            flag_port_in_port_range = self.client.in_port_range(rule, port)
 
             if flag_port_in_port_range:
                 in_port_range = True

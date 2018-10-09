@@ -80,7 +80,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
             if cidr in self.valid_ranges:
                 cidr_is_valid = True
             else:
-                cidr_is_valid = self.cidr_is_private_network(cidr)
+                cidr_is_valid = self.client.cidr_is_private_network(cidr)
 
             compliant &= cidr_is_valid
 
@@ -92,9 +92,9 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     def rule_applies_to_ssh(self, rule):
 
-        is_protocol = self.is_protocol(rule, 'tcp')
+        is_protocol = self.client.is_protocol(rule, 'tcp')
 
-        in_port_range = self.in_port_range(rule, 22)
+        in_port_range = self.client.in_port_range(rule, 22)
 
         rule['MatchesProtocol'] = is_protocol
         rule['MatchesPortRange'] = in_port_range
