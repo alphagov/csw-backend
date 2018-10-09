@@ -111,7 +111,7 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
-                add_note = f"The IP range {cidr} is not valid for port range: " + self.get_port_range(rule) + " "
+                add_note = f"The IP range {cidr} is not valid for port range: " + self.client.get_port_range(rule) + " "
                 self.annotation += add_note
                 self.app.log.debug(add_note)
 
