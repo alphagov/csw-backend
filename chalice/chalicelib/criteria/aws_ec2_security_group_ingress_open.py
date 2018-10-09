@@ -70,7 +70,7 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
             if self.rule_applies_to_flagged_port(ingress_rule):
 
-                self.app.log.debug("Port range applies to flagged port: " + self.get_port_range(ingress_rule))
+                self.app.log.debug("Port range applies to flagged port: " + self.client.get_port_range(ingress_rule))
 
                 has_relevant_rule = True
                 rule_is_compliant = self.rule_is_compliant(ingress_rule, whitelist)
