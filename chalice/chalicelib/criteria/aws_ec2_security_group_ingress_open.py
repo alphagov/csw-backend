@@ -38,6 +38,15 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
     def get_data(self, session, **kwargs):
         return self.client.describe_security_groups(session, **kwargs)
 
+    def translate(self, data):
+
+        item = {
+            "resource_id": data['GroupId'],
+            "resource_name": data['GroupName'],
+        }
+
+        return item
+
     def get_port_list(self):
 
         string_ports = []
