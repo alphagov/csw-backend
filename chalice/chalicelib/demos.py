@@ -187,7 +187,7 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
             role='csw-dan_CstSecurityInspectorRole'
         )
 
-        data = iam.get_inspector_role_policy_data(session)
+        data = iam.get_data(session)
 
         criterion = {
             "id": 4,
@@ -218,7 +218,7 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
         }
 
         response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+            '/test/validate_iam_policy',
             app.current_request,
             template_data
         )
