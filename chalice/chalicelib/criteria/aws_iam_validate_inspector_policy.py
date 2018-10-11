@@ -99,7 +99,7 @@ class AwsIamValidateInspectorPolicy(CriteriaDefault):
 
         current_policy = None
         try:
-            caller = self.get_caller_details(session)
+            caller = self.client.get_caller_details(session)
 
             self.app.log.debug(json.dumps(caller))
 
