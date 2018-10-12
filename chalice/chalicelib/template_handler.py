@@ -36,7 +36,8 @@ class TemplateHandler:
             "/team": "teams.html",
             "/team/{id}/dashboard": "team_dashboard.html",
             "/resource/{id}": "resource_details.html",
-            "/test/ports_ingress_ssh": "test_evaluation.html"
+            "/test/ports_ingress_ssh": "test_evaluation.html",
+            "/test/root_mfa": "test_evaluation.html"
         }
 
     def get_route_template_file(self, route):
