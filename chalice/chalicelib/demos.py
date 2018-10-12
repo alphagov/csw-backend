@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from chalicelib.database_handle import DatabaseHandle
 
 
@@ -24,7 +25,7 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
 
         region = 'eu-west-1'
 
-        groups = ec2.describe_security_groups(session, **{"region": region})
+        groups = ec2.get_data(session, **{"region": region})
 
         criterion = Criterion.get_by_id(1)
 
@@ -81,7 +82,7 @@ def execute_test_ports_ingress_open(app, load_route_services):
             "region": 'eu-west-1'
         }
 
-        groups = ec2.describe_security_groups(session, **params)
+        groups = ec2.get_data(session, **params)
 
         for group in groups:
 
@@ -126,7 +127,7 @@ def execute_test_root_mfa(app, load_route_services):
             role='csw-dan_CstSecurityInspectorRole'
         )
 
-        data = support.get_root_mfa_status_data(session)
+        data = support.get_data(session)
 
         criterion = {
             "id": 3,
@@ -163,6 +164,65 @@ def execute_test_root_mfa(app, load_route_services):
             app.current_request,
             template_data
         )
+    except Exception as err:
+        response = {
+            "body": str(err)
+        }
+
+    return response
+
+
+def execute_test_iam_validate_inspector_policy(app, load_route_services):
+
+    try:
+        load_route_services()
+
+        Client = app.utilities.get_class_by_name(
+            "chalicelib.criteria.aws_iam_validate_inspector_policy.AwsIamValidateInspectorPolicy"
+        )
+        iam = Client(app)
+
+        session = iam.get_session(
+            account='103495720024',
+            role='csw-dan_CstSecurityInspectorRole'
+        )
+
+        data = iam.get_data(session)
+
+        criterion = {
+            "id": 4,
+            "criterion_name": "IAM inspector policy is up-to-date",
+            "description": "Checks whether the Cloud Security Watch role matches the current definition.",
+            "why_is_it_important": "If the role policy doesn't grant the right permissions checks will fail to be processed.",
+            "how_do_i_fix_it": "Update the module and re-run the terraform apply to re-deploy the role and policy."
+        }
+
+        for item in data:
+            compliance = iam.evaluate({}, item, [])
+
+            item['resource_compliance'] = compliance
+
+            status = {}
+
+            item['status'] = status
+
+            item.update(iam.translate(item))
+
+        summary = iam.summarize(data)
+
+        template_data = {
+            "criterion": criterion,
+            "compliance_summary": summary,
+            "compliance_results": data,
+            "tested": True
+        }
+
+        response = app.templates.render_authorized_route_template(
+            '/test/validate_iam_policy',
+            app.current_request,
+            template_data
+        )
+
     except Exception as err:
         response = {
             "body": str(err)

@@ -1,29 +1,28 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
+from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
-class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
+class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
-    '''
-    Red: Access
-    to
-    port
-    20, 21, 1433, 1434, 3306, 3389, 4333, 5432, or 5500 is unrestricted.
+    active = True
 
-    -- only implement RED for now
-    Yellow: Access
-    to
-    any
-    other
-    port is unrestricted.
+    ClientClass = GdsEc2SecurityGroupClient
 
-    Green: Access
-    to
-    port
-    80, 25, 443, or 465 is unrestricted.
-    '''
+    resource_type = "AWS::EC2::SecurityGroup"
+
+    title = "Security Groups - Ingress open for flagged ports"
+
+    description = """Unrestricted inbound connections should not be allowed for certain ports"""
+
+    why_is_it_important = """By opening ports like FTP or common database connection ports to the 
+    world you dramatically increase the risk to your service"""
+
+    how_do_i_fix_it = """Change unrestricted CIDR to an internal IP range or a whitelist of specific 
+    IP addresses"""
+
     flag_unrestricted_ports = [
         20,
         21,
@@ -35,6 +34,18 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
         5432,
         5500
     ]
+
+    def get_data(self, session, **kwargs):
+        return self.client.describe_security_groups(session, **kwargs)
+
+    def translate(self, data):
+
+        item = {
+            "resource_id": data['GroupId'],
+            "resource_name": data['GroupName'],
+        }
+
+        return item
 
     def get_port_list(self):
 
@@ -59,7 +70,7 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
             if self.rule_applies_to_flagged_port(ingress_rule):
 
-                self.app.log.debug("Port range applies to flagged port: " + self.get_port_range(ingress_rule))
+                self.app.log.debug("Port range applies to flagged port: " + self.client.get_port_range(ingress_rule))
 
                 has_relevant_rule = True
                 rule_is_compliant = self.rule_is_compliant(ingress_rule, whitelist)
@@ -89,18 +100,18 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
             if "CidrIp" in ip_range:
                 cidr = ip_range["CidrIp"]
-                parsed_cidr = self.parse_v4_cidr(cidr)
+                parsed_cidr = self.client.parse_v4_cidr(cidr)
                 cidr_is_valid = (parsed_cidr["mask"] != 0)
 
             elif "CidrIpv6" in ip_range:
                 cidr = ip_range["CidrIpv6"]
-                parsed_cidr = self.parse_v6_cidr(cidr)
+                parsed_cidr = self.client.parse_v6_cidr(cidr)
                 cidr_is_valid = (parsed_cidr["mask"] != 0)
 
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
-                add_note = f"The IP range {cidr} is not valid for port range: " + self.get_port_range(rule) + " "
+                add_note = f"The IP range {cidr} is not valid for port range: " + self.client.get_port_range(rule) + " "
                 self.annotation += add_note
                 self.app.log.debug(add_note)
 
@@ -108,13 +119,13 @@ class AwsEc2SecurityGroupIngressOpen(GdsEc2SecurityGroupClient):
 
     def rule_applies_to_flagged_port(self, rule):
 
-        is_protocol = self.is_protocol(rule, 'tcp')
+        is_protocol = self.client.is_protocol(rule, 'tcp')
 
         in_port_range = False
 
         for port in self.flag_unrestricted_ports:
 
-            flag_port_in_port_range = self.in_port_range(rule, port)
+            flag_port_in_port_range = self.client.in_port_range(rule, port)
 
             if flag_port_in_port_range:
                 in_port_range = True

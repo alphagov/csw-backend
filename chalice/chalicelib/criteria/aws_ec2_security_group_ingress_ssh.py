@@ -1,10 +1,28 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
+from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
-class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
+class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
+
+    active = True
+
+    ClientClass = GdsEc2SecurityGroupClient
+
+    resource_type = "AWS::EC2::SecurityGroup"
+
+    title = "Security Groups - SSH ingress enabled from unknown IPs"
+
+    description = """If SSH is enabled into a VPC it should be limited to known IPs"""
+
+    why_is_it_important = """If someone has access to either one of our WiFis or our 
+    VPN then there is more chance they should have access"""
+
+    how_do_i_fix_it = """In almost all cases, SSH ingress should be limited to the 
+    <a target="gds-wiki" href="https://sites.google.com/a/digital.cabinet-office.gov.uk/gds-internal-it/news/aviationhouse-sourceipaddresses">GDS public IPs</a>. 
+    There may be exceptions where we are working closely in partnership with another organisation."""
 
     valid_ranges = [
         "213.86.153.212/32",
@@ -15,6 +33,18 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
         "213.86.153.237/32",
         "85.133.67.244/32"
     ]
+
+    def get_data(self, session, **kwargs):
+        return self.client.describe_security_groups(session, **kwargs)
+
+    def translate(self, data):
+
+        item = {
+            "resource_id": data['GroupId'],
+            "resource_name": data['GroupName'],
+        }
+
+        return item
 
     def evaluate(self, event, item, whitelist=[]):
 
@@ -59,7 +89,7 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
             if cidr in self.valid_ranges:
                 cidr_is_valid = True
             else:
-                cidr_is_valid = self.cidr_is_private_network(cidr)
+                cidr_is_valid = self.client.cidr_is_private_network(cidr)
 
             compliant &= cidr_is_valid
 
@@ -71,9 +101,9 @@ class AwsEc2SecurityGroupIngressSsh(GdsEc2SecurityGroupClient):
 
     def rule_applies_to_ssh(self, rule):
 
-        is_protocol = self.is_protocol(rule, 'tcp')
+        is_protocol = self.client.is_protocol(rule, 'tcp')
 
-        in_port_range = self.in_port_range(rule, 22)
+        in_port_range = self.client.in_port_range(rule, 22)
 
         rule['MatchesProtocol'] = is_protocol
         rule['MatchesPortRange'] = in_port_range
