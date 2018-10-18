@@ -11,7 +11,6 @@ class CriteriaDefault():
     annotation = ""
 
     ClientClass = GdsAwsClient
-    client = None
 
     title = None
     description = None
