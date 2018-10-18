@@ -60,8 +60,6 @@ class CriteriaDefault():
 
     def get_status(self, eval):
 
-        status = 1  # Not tested
-
         if eval["is_compliant"] or not eval["is_applicable"]:
             status = 2  # Pass
 
