@@ -1,5 +1,10 @@
-# csw-backend
-Cloud Security Watch - Backend
+# Cloud Security Watch - Backend
+(csw-backend)
+This repository contains the code for creating an 
+instance of Cloud Security Watch running in an 
+infrastructure created by [csw-infra](https://github.com/alphagov/csw-infra)
+
+
 
 ## Create your virtual env 
 
