@@ -10,7 +10,11 @@
     "govuk-frontend": "^1.2.0",
     "uuid": "^3.2.1"
   },
+  "scripts": {
+    "test": "snyk test"
+  },
   "devDependencies": {
+    "snyk": "^1.100.1",
     "aws-param-store": "^2.1.0",
     "aws-sdk": "^2.338.0",
     "csw-infra": "github:alphagov/csw-infra#script-dev",
