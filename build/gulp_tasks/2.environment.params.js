@@ -51,7 +51,7 @@ gulp.task('environment.params', function() {
   .pipe(data(function(file) {
 
     // create random token secret for JWTs.
-    var root = randomstring.generate(20);
+    var root_password = randomstring.generate(20);
     AWS.config.update({region: file.data.region});
 
     var ssm = new AWS.SSM({region: file.data.region});
@@ -59,7 +59,7 @@ gulp.task('environment.params', function() {
     var params = {
       Name: '/'+file.data.tool+'/'+env+'/rds/root',
       Type: 'SecureString',
-      Value: root,
+      Value: root_password,
       Overwrite: true
     };
 
@@ -67,12 +67,12 @@ gulp.task('environment.params', function() {
     var promise = request.promise()
     .then(function(data) {
       /* process the data */
-      file.data.root = root;
+      file.data.root_password = root_password;
       return file.data;
     },
     function(error) {
       /* handle the error */
-      console.log('Failed to write token secret to parameter store');
+      console.log('Failed to write RDS password to parameter store');
       console.log(error);
       return file.data;
     })
@@ -81,7 +81,7 @@ gulp.task('environment.params', function() {
   .pipe(data(function(file) {
 
     // create random token secret for JWTs.
-    var user = randomstring.generate(20);
+    var user_password = randomstring.generate(20);
     AWS.config.update({region: file.data.region});
 
     var ssm = new AWS.SSM({region: file.data.region});
@@ -89,7 +89,7 @@ gulp.task('environment.params', function() {
     var params = {
       Name: '/'+file.data.tool+'/'+env+'/rds/user',
       Type: 'SecureString',
-      Value: root,
+      Value: user_password,
       Overwrite: true
     };
 
@@ -97,12 +97,12 @@ gulp.task('environment.params', function() {
     var promise = request.promise()
     .then(function(data) {
       /* process the data */
-      file.data.user = user;
+      file.data.user_password = user_password;
       return file.data;
     },
     function(error) {
       /* handle the error */
-      console.log('Failed to write token secret to parameter store');
+      console.log('Failed to write RDS password to parameter store');
       console.log(error);
       return file.data;
     });

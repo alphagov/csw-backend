@@ -20,12 +20,22 @@ gulp.task('environment.backend.tfvars', function() {
       file.data.bucket = "" + file.data.bucket_name;
       file.data.key = 'staging/'+file.data.tool+'/'+file.data.environment+'.tfstate';
       file.data.encrypt = true;
-      delete(file.data.bucket_name);
-      delete(file.data.tool);
-      delete(file.data.google_creds);
-      delete(file.data.host_account);
-      delete(file.data.environment);
-      delete(file.data.prefix);
+      var remove = [
+        'bucket_name',
+        'tool',
+        'google_creds',
+        'host_account_id',
+        'environment',
+        'prefix',
+        'ip_16bit_prefix',
+        'ssh_key_name',
+        'ssh_public_key_path'
+      ];
+      for(item in file.data) {
+        if (remove.indexOf(item)>=0) {
+          delete(file.data[item]);
+        }
+      }
       return file.data
   }))
   .pipe(data(function(file) {
@@ -65,6 +75,10 @@ gulp.task('environment.backend.tfvars', function() {
 });
 
 
+/*
+ssh_key_name = "dan"
+ssh_public_key_path = "/Users/danjones/.ssh/dan.pub"
+*/
 gulp.task('environment.apply.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
   // Load default settings
@@ -80,7 +94,7 @@ gulp.task('environment.apply.tfvars', function() {
     var promise = awsParamStore.getParameter( '/csw/'+env+'/rds/root', { region: file.data.region })
 
     promise.then(function(parameter) {
-      file.data.root = parameter.Value;
+      file.data.postgres_root_password = parameter.Value;
       return file.data;
     });
 
@@ -94,8 +108,12 @@ gulp.task('environment.apply.tfvars', function() {
       'tool',
       'environment',
       'prefix',
-      'host_account',
-      'bucket_name'
+      'host_account_id',
+      'bucket_name',
+      'postgres_root_password',
+      'ip_16bit_prefix',
+      'ssh_key_name',
+      'ssh_public_key_path'
     ];
 
     for (item in file.data) {
@@ -103,6 +121,8 @@ gulp.task('environment.apply.tfvars', function() {
         delete file.data[item];
       }
     }
+
+
     file.data.prefix = file.data.tool + '-' + file.data.environment;
 
     return file.data;
@@ -126,6 +146,8 @@ gulp.task('environment.apply.tfvars', function() {
         } break;
       }
     }
+
+    content += 'availability_zones = ["'+file.data.region+'a","'+file.data.region+'b"]\n';
 
     console.log(content);
     file.data.content = content;
