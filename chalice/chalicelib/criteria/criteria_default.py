@@ -11,7 +11,6 @@ class CriteriaDefault():
     annotation = ""
 
     ClientClass = GdsAwsClient
-    client = None
 
     title = None
     description = None
@@ -60,8 +59,6 @@ class CriteriaDefault():
         return eval
 
     def get_status(self, eval):
-
-        status = 1  # Not tested
 
         if eval["is_compliant"] or not eval["is_applicable"]:
             status = 2  # Pass
