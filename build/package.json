@@ -14,20 +14,21 @@
     "test": "snyk test"
   },
   "devDependencies": {
-    "snyk": "^1.100.1",
     "aws-param-store": "^2.1.0",
     "aws-sdk": "^2.338.0",
+    "child-process-promise": "^2.2.1",
     "csw-infra": "github:alphagov/csw-infra#script-dev",
     "gulp": "^4.0.0",
     "gulp-data": "^1.3.1",
     "gulp-modify-file": "^1.0.1",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.1",
-    "lodash": "~>4.17.5",
-    "minimatch": "~>3.0.2",
+    "lodash": "^4.17.5",
+    "minimatch": "^3.0.2",
     "prompt-input": "^3.0.0",
     "randomstring": "^1.1.5",
     "require-dir": "^1.1.0",
+    "snyk": "^1.100.1",
     "vinyl": "^2.2.0",
     "yargs": "^12.0.2"
   }

@@ -1,8 +1,10 @@
 const gulp = require('gulp');
-var modifyFile = require('gulp-modify-file');
-var data = require('gulp-data');
-var awsParamStore = require('aws-param-store');
-var Input = require('prompt-input');
+const args = require('yargs').argv;
+const data = require('gulp-data');
+const modifyFile = require('gulp-modify-file');
+const awsParamStore = require('aws-param-store');
+const Input = require('prompt-input');
+const AWS = require('aws-sdk');
 
 gulp.task('environment.settings', function() {
 
@@ -38,6 +40,7 @@ gulp.task('environment.settings', function() {
 
     return promise;
   }))
+  /*
   .pipe(data(function(file) {
     // Ask user for host AWS account ID.
 
@@ -51,6 +54,31 @@ gulp.task('environment.settings', function() {
       console.log(answer);
       // TODO validate answer format
       file.data.host_account_id = answer;
+    });
+
+    return promise;
+  }))
+  */
+  // Read host account ID using STS GetCallerIdentity
+  .pipe(data(function(file) {
+
+    // create random token secret for JWTs.
+    AWS.config.update({region: file.data.region});
+
+    var sts = new AWS.STS({region: file.data.region});
+
+    var request = sts.getCallerIdentity();
+    var promise = request.promise()
+    .then(function(data) {
+      /* process the data */
+      file.data.host_account_id = data.Account;
+      return file.data;
+    },
+    function(error) {
+      /* handle the error */
+      console.log('Failed to get host_account_id from STS GetCallerIdentity');
+      console.log(error);
+      return file.data;
     });
 
     return promise;

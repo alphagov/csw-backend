@@ -1,10 +1,10 @@
 const gulp = require('gulp');
-var modifyFile = require('gulp-modify-file');
-var data = require('gulp-data');
-var Input = require('prompt-input');
-var args = require('yargs').argv;
-var randomstring = require('randomstring');
-var AWS = require('aws-sdk');
+const args = require('yargs').argv;
+const data = require('gulp-data');
+const modifyFile = require('gulp-modify-file');
+const Input = require('prompt-input');
+const randomstring = require('randomstring');
+const AWS = require('aws-sdk');
 
 gulp.task('environment.params', function() {
   var env = (args.env == undefined)?'test':args.env;

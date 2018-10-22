@@ -1,10 +1,10 @@
 const gulp = require('gulp');
-var modifyFile = require('gulp-modify-file');
-var data = require('gulp-data');
-var rename = require('gulp-rename');
-var awsParamStore = require('aws-param-store');
-var Input = require('prompt-input');
-var args = require('yargs').argv;
+const args = require('yargs').argv;
+const data = require('gulp-data');
+const modifyFile = require('gulp-modify-file');
+const rename = require('gulp-rename');
+const awsParamStore = require('aws-param-store');
+const Input = require('prompt-input');
 
 gulp.task('environment.backend.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
@@ -91,14 +91,14 @@ gulp.task('environment.apply.tfvars', function() {
   // Get Google API Console OAuth credentials file from AWS SSM Parameter Store 
   .pipe(data(function(file) {
 
-    var promise = awsParamStore.getParameter( '/csw/'+env+'/rds/root', { region: file.data.region })
+    var during = awsParamStore.getParameter( '/csw/'+env+'/rds/root', { region: file.data.region });
 
-    promise.then(function(parameter) {
+    var after = during.then(function(parameter) {
       file.data.postgres_root_password = parameter.Value;
       return file.data;
     });
 
-    return promise;
+    return after;
   }))
   .pipe(data(function(file) {
 
