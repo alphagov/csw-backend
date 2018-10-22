@@ -28,6 +28,19 @@ The requirements file is not stored in the repository root
 since the requirements need to be packaged by chalice as part 
 of the chalice deploy
 
+## Unit Tests
+
+Now you can run the unit tests.
+
+```
+python -m unittest -v
+```
+
+Run the command above before adding/commiting.
+If tests fail, don't worry, review the reason for the failures.
+It might even be that the test is no longer valid,
+in which case you need to update it or delete it.
+
 ## Create your AWS environment 
 
 Before you can run the chalice code you need to terraform a VPC 
