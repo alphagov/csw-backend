@@ -44,8 +44,7 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
             self.aws_couldtrail_logging.resource_type,
             'AWS::Cloudtrail::Logging'
         )
-        #TODO: remove if annotation again an empty string
-        # self.assertSequenceEqual(self.criteria_default.annotation, '')
+        self.assertSequenceEqual(self.aws_couldtrail_logging.annotation, '')
         self.assertIsInstance(self.aws_couldtrail_logging.title, str)
         self.assertIsInstance(self.aws_couldtrail_logging.description, str)
         self.assertIsInstance(
@@ -90,20 +89,77 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         self.aws_couldtrail_logging.translate(data)
         self.fail('Not implemented yet')
 
-    def test_evaluate(self):
+    def _evaluate_invariant_assertions(self, event, item, whitelist):
         """
+        tests for invariants of all input combos
         """
-        # input params
-        event = None
-        item = None
-        whitelist = None
+        init_resource_type = self.aws_couldtrail_logging.resource_type
         # output value
         output = self.aws_couldtrail_logging.evaluate(event, item, whitelist)
         # tests
-        eval_keys = ['resource_id', 'compliance_type', 'resource_type']
+        self.assertIsInstance(output, dict)
+        eval_keys = [
+            'resource_type', 'resource_id', 'compliance_type',
+            'is_compliant', 'is_applicable', 'status_id',
+        ]
         for key in eval_keys:
             self.assertIn(key, output)
-        self.fail('Not implemented yet')
+        self.assertEqual(
+            self.aws_couldtrail_logging.resource_type, init_resource_type
+        )
+        return output
+
+    def test_evaluate_green(self):
+        """
+        green (status: ok) test
+        """
+        # input params
+        event = {}
+        item = {'status': 'ok'}
+        whitelist = []
+        # first test the invariants and get the evaluate method's output
+        output = self._evaluate_invariant_assertions(event, item, whitelist)
+        # green tests
+        self.assertNotIn('annotation', output)
+        self.assertEqual(self.aws_couldtrail_logging.annotation, '')
+        self.assertTrue(output['is_compliant'])
+        self.assertTrue(output['is_applicable'])
+        self.assertEqual(output['status_id'], 2)
+
+    def _evaluate_failed_status_assertions(self, output):
+        """
+        yellow/red tests
+        """
+        self.assertIn('annotation', output)
+        self.assertIsInstance(self.aws_couldtrail_logging.annotation, str)
+        self.assertGreater(self.aws_couldtrail_logging.annotation, 0)
+        self.assertFalse(output['is_compliant'])
+        self.assertTrue(output['is_applicable'])
+        self.assertEqual(output['status_id'], 3)
+
+    def test_evaluate_yellow(self):
+        """
+        yellow (status: warning) test
+        """
+        # input params
+        event = {}
+        item = {'status': 'warning'}
+        whitelist = []
+        # tests
+        output = self._evaluate_invariant_assertions(event, item, whitelist)
+        self._evaluate_failed_status_assertions(output)
+
+    def test_evaluate_red(self):
+        """
+        red (status: error) test
+        """
+        # input params
+        event = {}
+        item = {'status': 'error'}
+        whitelist = []
+        # first test the invariants and get the evaluate method's output
+        output = self._evaluate_invariant_assertions(event, item, whitelist)
+        self._evaluate_failed_status_assertions(output)
 
 
 if __name__ == '__main__':

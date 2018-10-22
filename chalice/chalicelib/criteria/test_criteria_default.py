@@ -143,7 +143,7 @@ class TestCriteriaDefault(unittest.TestCase):
             'resource_type', 'resource_id', 'compliance_type',
             'is_compliant', 'is_applicable', 'status_id',
         ]
-        for key in built_evaluation.keys():
+        for key in built_evaluation:
             self.assertIn(key, keys)
         # recall the method with the annotation optional param
         annotation = 'optional_string'
@@ -151,7 +151,7 @@ class TestCriteriaDefault(unittest.TestCase):
             resource_id, compliance_type, event, resource_type, annotation
         )
         self.assertIsInstance(built_evaluation, dict)
-        self.assertIn('annotation', built_evaluation.keys())
+        self.assertIn('annotation', built_evaluation)
         # return values tests for type correctness and values when possible
         self.assertEqual(built_evaluation['annotation'], annotation)
         self.assertEqual(built_evaluation['resource_type'], resource_type)
