@@ -126,8 +126,65 @@ class TestCriteriaDefault(unittest.TestCase):
         """
         self.assertEqual(self.criteria_default.get_data('any_input'), [])
     
-    #TODO: test_build_evaluation
-
+    def test_build_evaluation(self):
+        """
+        black box test of the build_evaluation method
+        """
+        # mock input params
+        resource_id = 'any_string'
+        compliance_type = 'COMPLIANT'
+        event = {}
+        resource_type = self.criteria_default.resource_type
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type
+        )
+        self.assertIsInstance(built_evaluation, dict)
+        keys = [
+            'resource_type', 'resource_id', 'compliance_type',
+            'is_compliant', 'is_applicable', 'status_id',
+        ]
+        for key in built_evaluation.keys():
+            self.assertIn(key, keys)
+        # recall the method with the annotation optional param
+        annotation = 'optional_string'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertIsInstance(built_evaluation, dict)
+        self.assertIn('annotation', built_evaluation.keys())
+        # return values tests for type correctness and values when possible
+        self.assertEqual(built_evaluation['annotation'], annotation)
+        self.assertEqual(built_evaluation['resource_type'], resource_type)
+        self.assertEqual(built_evaluation['resource_id'], resource_id)
+        self.assertEqual(built_evaluation['compliance_type'], compliance_type)
+        self.assertTrue(built_evaluation['is_compliant'])
+        self.assertTrue(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
+        # finally the remaining cases of compliance_type
+        compliance_type = 'NON_COMPLIANT'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertFalse(built_evaluation['is_compliant'])
+        self.assertTrue(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
+        compliance_type = 'NOT_APPLICABLE'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertFalse(built_evaluation['is_compliant'])
+        self.assertFalse(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
+    
     def test_get_status(self):
         """
         black box test for the get_status method
