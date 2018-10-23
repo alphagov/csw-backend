@@ -70,6 +70,9 @@ gulp.task('environment.chalice_config', function() {
     file.data.config.stages[env].environment_variables.CSW_HOST = file.data.rds_connection_string.value;
     file.data.config.stages[env].environment_variables.CSW_REGION = file.data.settings.region;
 
+    var role_name = file.data.settings.prefix+"_CstSecurityAgentRole"
+    var role_arn = "arn:aws:iam::"+file.data.settings.host_account_id+":role/"+role_name;
+    file.data.config.stages[env].iam_role_arn = role_arn;
     var subnets = [
       file.data.public_subnet_1_id.value,
       file.data.public_subnet_2_id.value
