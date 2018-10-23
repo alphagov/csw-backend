@@ -6,6 +6,7 @@ import jwt
 import json
 import google_auth_oauthlib.flow
 from chalicelib.aws.gds_secrets_manager_client import GdsSecretsManagerClient
+from chalicelib.aws.gds_ssm_client import GdsSsmClient
 
 
 class AuthHandler:
@@ -16,13 +17,14 @@ class AuthHandler:
         # TODO get this from AWS secret manager and move into a class method in auth
         self.cookie_expiration = datetime.timedelta(days=1)
 
-        if 'CSW_ENV' in os.environ:
-            secrets = GdsSecretsManagerClient(self.app)
-            # secrets = Secrets()
-            self.csw_secrets = json.loads(secrets.get_secret_value(os.environ['CSW_ENV']))
-
-            self.token_secret = self.csw_secrets['token_secret']
-            self.client_config = secrets.parse_escaped_json_secret(self.csw_secrets['google_auth'])
+        # if 'CSW_ENV' in os.environ:
+        #    secrets = GdsSecretsManagerClient(self.app)
+        #    # secrets = Secrets()
+        #    self.csw_secrets = json.loads(secrets.get_secret_value(os.environ['CSW_ENV']))
+        #
+        #    self.token_secret = self.csw_secrets['token_secret']
+        #    self.client_config = secrets.parse_escaped_json_secret(self.csw_secrets['google_auth'])
+        self.get_params()
 
         self.flow = None
         self.token_algorithm = 'HS256'
@@ -37,6 +39,27 @@ class AuthHandler:
         self.cookie = None
         self.logged_in = False
         self.login_data = {}
+
+    def get_params(self): 
+
+        if 'CSW_ENV' in os.environ:
+
+            prefix = os.environ['CSW_ENV']
+            tool,env = prefix.split("-")
+
+            params = {
+                "client_config": f"/{tool}/google/api-credentials",
+                "token_secret": f"/{tool}/{env}/auth/token_secret"
+            }
+            param_list = list(params.values())
+        
+            ssm = GdsSsmClient(self.app)
+            default_session = ssm.get_session()
+
+            parameters = ssm.get_parameters(default_session, param_list, True)
+
+            self.token_secret = ssm.get_parameter_value(parameters, params.token_secret)
+            self.client_config = ssm.get_parameter_value(parameters, params.client_config)
 
     def get_auth_flow(self, url):
 
