@@ -68,6 +68,7 @@ gulp.task('environment.chalice_config', function() {
     file.data.config.stages[env].environment_variables.CSW_ENV = file.data.settings.prefix;
     file.data.config.stages[env].environment_variables.CSW_PASSWORD = file.data.postgres_user_password;
     file.data.config.stages[env].environment_variables.CSW_HOST = file.data.rds_connection_string.value;
+    file.data.config.stages[env].environment_variables.CSW_REGION = file.data.settings.region;
 
     var subnets = [
       file.data.public_subnet_1_id.value,

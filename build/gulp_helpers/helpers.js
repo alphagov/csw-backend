@@ -63,7 +63,7 @@ var helpers = {
 		var promise = awsParamStore.getParameter(parameter, { region: region })
 
     	var getValue = promise.then(function(parameter) {
-      		parameter.Value;
+      		return parameter.Value;
     	});
 
     	return getValue;
@@ -73,7 +73,7 @@ var helpers = {
 
 	    var promise = this.getParameterPromise(parameter, region);
 
-	    promise.then(
+	    var after = promise.then(
 	      function(value) {
             file.data[property] = value;
             return file.data;
@@ -84,7 +84,7 @@ var helpers = {
 	      }
 	    );
 
-	    return promise;
+	    return after;
 	},
 
 	setParameterPromise: function(name, value, region) {
@@ -104,6 +104,23 @@ var helpers = {
     	return promise;
 	},
 
+	setParameterInPipelinePromise: function(name, value, region, file, property) {
+
+		var promise = this.setParameterPromise(name, value, region)
+		.then(
+	  	  function(response) {
+	  	  	file.data[property] = value;
+            return file.data;
+	      },
+	      function(err) {
+	        console.log('FAILURE');
+	        console.log(err);
+	      }
+	    );
+
+	    return promise;
+	},
+
 	promptInputPromise: function(name, prompt, file) {
 
 		var input = new Input({
@@ -119,6 +136,50 @@ var helpers = {
 	    });
 
 	    return promise;
+	},
+
+	getAwsAccountIdPromise: function() {
+
+	    var sts = new AWS.STS();
+
+	    var request = sts.getCallerIdentity();
+	    var promise = request.promise()
+	    .then(
+	    	function(data) {
+	      	  return data.Account;
+	    	},
+		    function(error) {
+		      /* handle the error */
+		      console.log('Failed to get host_account_id from STS GetCallerIdentity');
+		      console.log(error);
+		      return null;
+		    }
+		);
+
+		return promise;
+	},
+
+	removePropertiesInPipeline: function(data, remove) {
+		// remove the listed properties from the data object
+		
+		for(item in data) {
+	        if (remove.indexOf(item)>=0) {
+	          delete(data[item]);
+	        }
+	    }
+	    return data
+	},
+
+	removeExceptPropertiesInPipeline: function(data, expected) {
+		// remove any properties not listed in expected from the data object
+	    
+	    for (item in data) {
+	      if (expected.indexOf(item) < 0) {
+	        delete data[item];
+	      }
+	    }
+
+	    return data
 	}
 
 };

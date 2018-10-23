@@ -35,31 +35,17 @@ gulp.task('environment.settings', function() {
 
     var parameter = '/csw/terraform/states-bucket';
     var property = 'bucket_name';
-    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property)
+    var region = file.data.region;
+    return helpers.getParameterInPipelinePromise(parameter, region, file, property)
   }))
   // Read host account ID using STS GetCallerIdentity
   .pipe(data(function(file) {
-
-    // create random token secret for JWTs.
-    AWS.config.update({region: file.data.region});
-
-    var sts = new AWS.STS({region: file.data.region});
-
-    var request = sts.getCallerIdentity();
-    var promise = request.promise()
-    .then(function(data) {
-      /* process the data */
-      file.data.host_account_id = data.Account;
-      return file.data;
-    },
-    function(error) {
-      /* handle the error */
-      console.log('Failed to get host_account_id from STS GetCallerIdentity');
-      console.log(error);
-      return file.data;
+    
+    return helpers.getAwsAccountIdPromise()
+    .then(function(accountId) {
+      file.data.host_account_id = accountId;
     });
 
-    return promise;
   }))
   .pipe(data(function(file) {
     // Ask user for environment name
@@ -104,12 +90,14 @@ gulp.task('environment.settings', function() {
       'ssh_key_name',
       'ssh_public_key_path'
     ];
-
+    /*
     for (item in file.data) {
       if (expected.indexOf(item) < 0) {
         delete file.data[item];
       }
     }
+    */
+    file.data = helpers.removeExceptPropertiesInPipeline(file.data, expected);
     file.data.prefix = file.data.tool + '-' + file.data.environment;
 
     return file.data;

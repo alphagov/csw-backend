@@ -5,6 +5,7 @@ const modifyFile = require('gulp-modify-file');
 const rename = require('gulp-rename');
 const awsParamStore = require('aws-param-store');
 const Input = require('prompt-input');
+const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
 gulp.task('environment.backend.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
@@ -31,11 +32,15 @@ gulp.task('environment.backend.tfvars', function() {
         'ssh_key_name',
         'ssh_public_key_path'
       ];
+
+      /*
       for(item in file.data) {
         if (remove.indexOf(item)>=0) {
           delete(file.data[item]);
         }
       }
+      */
+      file.data = helpers.removePropertiesInPipeline(file.data, remove);
       return file.data
   }))
   .pipe(data(function(file) {
@@ -116,12 +121,14 @@ gulp.task('environment.apply.tfvars', function() {
       'ssh_public_key_path'
     ];
 
+    /*
     for (item in file.data) {
       if (expected.indexOf(item) < 0) {
         delete file.data[item];
       }
     }
-
+    */
+    file.data = helpers.removeExceptPropertiesInPipeline(file.data, expected);
 
     file.data.prefix = file.data.tool + '-' + file.data.environment;
 
