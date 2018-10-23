@@ -57,8 +57,8 @@ class AuthHandler:
 
             parameters = ssm.get_parameters(param_list, True)
 
-            self.token_secret = ssm.get_parameter_value(parameters, params.token_secret)
-            self.client_config = ssm.get_parameter_value(parameters, params.client_config)
+            self.token_secret = ssm.get_parameter_value(parameters, params["token_secret"])
+            self.client_config = ssm.get_parameter_value(parameters, params["client_config"])
 
     def get_auth_flow(self, url):
 
