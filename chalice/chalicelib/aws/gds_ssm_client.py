@@ -26,7 +26,7 @@ class GdsSsmClient(GdsAwsClient):
         ssm = self.get_default_client('ssm')
         
         response = ssm.get_parameters(
-            Name=parameters,
+            Names=parameters,
             WithDecryption=decrypt
         )
         params = response['Parameters']
