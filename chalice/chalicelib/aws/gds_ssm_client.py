@@ -43,7 +43,7 @@ class GdsSsmClient(GdsAwsClient):
 
         for item in params:
 
-            if item.Name == name: 
-                value = item.value
+            if item["Name"] == name:
+                value = item["Value"]
 
         return value
