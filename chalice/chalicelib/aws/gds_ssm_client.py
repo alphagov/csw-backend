@@ -9,9 +9,9 @@ class GdsSsmClient(GdsAwsClient):
 
     # get-queue-url
     # --queue-name < value >
-    def get_parameter(self, session, parameter, decrypt):
+    def get_parameter(self, parameter, decrypt):
 
-        ssm = self.get_boto3_session_client('ssm', session)
+        ssm = self.get_default_client('ssm')
         
         response = ssm.get_parameter(
             Name=parameter,
@@ -21,9 +21,9 @@ class GdsSsmClient(GdsAwsClient):
 
         return param
 
-    def get_parameters(self, session, parameters, decrypt): 
+    def get_parameters(self, parameters, decrypt):
 
-        ssm = self.get_boto3_session_client('ssm', session)
+        ssm = self.get_default_client('ssm')
         
         response = ssm.get_parameters(
             Name=parameters,

@@ -54,9 +54,8 @@ class AuthHandler:
             param_list = list(params.values())
         
             ssm = GdsSsmClient(self.app)
-            default_session = ssm.get_session()
 
-            parameters = ssm.get_parameters(default_session, param_list, True)
+            parameters = ssm.get_parameters(param_list, True)
 
             self.token_secret = ssm.get_parameter_value(parameters, params.token_secret)
             self.client_config = ssm.get_parameter_value(parameters, params.client_config)
