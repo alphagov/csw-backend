@@ -2,6 +2,7 @@
 # extends GdsAwsClient
 # implements aws sqs endpoint queries
 
+import os
 from chalicelib.aws.gds_aws_client import GdsAwsClient
 
 
@@ -14,8 +15,11 @@ class GdsSqsClient(GdsAwsClient):
         try:
 
             self.app.log.debug("Try getting queue URL for: " + queue_name)
-
-            queue_url = f"https://eu-west-1.queue.amazonaws.com/103495720024/{queue_name}"
+            region = os.environ["CSW_REGION"]
+            default_session = self.get_session()
+            caller = self.get_caller_details(default_session)
+            account = caller.Account
+            queue_url = f"https://{region}.queue.amazonaws.com/{account}/{queue_name}"
 
             self.app.log.debug("Queue URL: " + queue_url)
 
