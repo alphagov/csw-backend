@@ -9,6 +9,9 @@ const exec = require('child-process-promise').exec;
 const awsParamStore = require('aws-param-store');
 const fs = require('fs');
 
+console.log(process.cwd());
+const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
+
 
 gulp.task('environment.chalice_config', function() {
   
@@ -31,22 +34,11 @@ gulp.task('environment.chalice_config', function() {
   var pipeline = gulp.src(default_chalice_config)
   .pipe(data(function(file) {
 
-    var promise = exec('terraform output -json', { cwd: terraform_path+tool_path })
-    .then(
-      function(out) {
-        console.log("SUCCESS");
-        //console.log(out);
-        file.data = JSON.parse(out.stdout);
-        return file.data;
-      }, 
-      function(err) {
-        console.log("FAILURE");
-        //console.log(err);
-        return file.data;
-      }
-    );
+    var task = 'terraform output -json';
+  	var working = terraform_path+tool_path;
 
-    return promise;
+  	return helpers.getJsonDataInPipelinePromise(task, working, file);
+
   }))
   .pipe(data(function(file) {
     // read env settings file into file.data
@@ -56,14 +48,10 @@ gulp.task('environment.chalice_config', function() {
   }))
   .pipe(data(function(file) {
 
-    var during = awsParamStore.getParameter( '/csw/'+env+'/rds/user', { region: file.data.settings.region })
+    var parameter = '/csw/'+env+'/rds/user';
+    var property = 'postgres_user_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.settings.region, file, property);
 
-    var after = during.then(function(parameter) {
-      file.data.postgres_user_password = parameter.Value;
-      return file.data;
-    });
-
-    return after;
   }))
   .pipe(modifyFile(function(content, path, file) {
 
@@ -127,25 +115,9 @@ gulp.task('environment.chalice_deploy', function() {
   // execute the chalice deploy function for stage=env
   .pipe(data(function(file) {
     
-    var during = exec('chalice deploy --stage='+env, { cwd: chalice_path, stdio: 'inherit' });
+    var task = 'chalice deploy --stage='+env;
 
-    var execProcess = during.childProcess;
-    execProcess.stdout.on('data', function (data) {
-      console.log(data.toString());
-    });
-
-    var after = during.then(
-      function(out) {
-        console.log("SUCCESS");
-        return file.data;
-      }, 
-      function(err) {
-        console.log("FAILURE");
-        return file.data;
-      }
-    );
-
-    return after;
+    return helpers.runTaskInPipelinePromise(task, chalice_path, file);
   }));
 
   return pipeline;
@@ -175,25 +147,9 @@ gulp.task('environment.chalice_delete', function() {
   // execute the chalice deploy function for stage=env
   .pipe(data(function(file) {
     
-    var during = exec('chalice delete --stage='+env, { cwd: chalice_path, stdio: 'inherit' });
+    var task = 'chalice delete --stage='+env;
 
-    var execProcess = during.childProcess;
-    execProcess.stdout.on('data', function (data) {
-      console.log(data.toString());
-    });
-
-    var after = during.then(
-      function(out) {
-        console.log("SUCCESS");
-        return file.data;
-      }, 
-      function(err) {
-        console.log("FAILURE");
-        return file.data;
-      }
-    );
-
-    return after;
+    return helpers.runTaskInPipelinePromise(task, chalice_path, file);
   }));
 
   return pipeline;
