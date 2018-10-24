@@ -44,21 +44,22 @@ class AuthHandler:
 
         if 'CSW_ENV' in os.environ:
 
-            prefix = os.environ['CSW_ENV']
-            tool,env = prefix.split("-")
+            env = os.environ['CSW_ENV']
+            self.app.log.debug(f"Get environment params: {env}");
 
             params = {
-                "client_config": f"/{tool}/google/api-credentials",
-                "token_secret": f"/{tool}/{env}/auth/token_secret"
+                "client_config": f"/csw/google/api-credentials",
+                "token_secret": f"/csw/{env}/auth/token_secret"
             }
             param_list = list(params.values())
-        
+
             ssm = GdsSsmClient(self.app)
 
             parameters = ssm.get_parameters(param_list, True)
 
             self.token_secret = ssm.get_parameter_value(parameters, params["token_secret"])
-            self.client_config = ssm.get_parameter_value(parameters, params["client_config"])
+            google_config_param = ssm.get_parameter_value(parameters, params["client_config"])
+            self.client_config = ssm.parse_escaped_json_parameter(google_config_param)
 
     def get_auth_flow(self, url):
 

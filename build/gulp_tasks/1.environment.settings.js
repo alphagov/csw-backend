@@ -23,7 +23,7 @@ gulp.task('environment.settings', function() {
     var promise = awsParamStore.getParameter( '/csw/google/api-credentials', { region: file.data.region })
 
     promise.then(function(parameter) {
-      file.data.google_creds = parameter.Value.replace(/\"/g,"'");
+      file.data.google_creds = parameter.Value.replace(/\"/g,'\"');
       return file.data;
     });
 

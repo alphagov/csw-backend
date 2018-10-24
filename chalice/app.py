@@ -15,7 +15,7 @@ app = Chalice(app_name='cloud-security-watch')
 
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
-app.prefix = os.environ["CSW_ENV"]
+app.prefix = os.environ["CSW_PREFIX"]
 app.utilities = Utilities()
 
 

@@ -11,6 +11,8 @@
         "CSW_PORT": "5432"
       },
       "api_gateway_stage": "app",
+      "manage_iam_role": false,
+      "iam_role_arn": "<exec_role_arn>",
       "lambda_functions": {
         "database_run": {
           "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
