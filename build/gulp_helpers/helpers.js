@@ -29,7 +29,7 @@ var helpers = {
           },
           function(err) {
             console.log("FAILURE");
-            console.log(err);
+            console.log(err.stderr);
             return file.data;
           }
 	    );
@@ -50,7 +50,7 @@ var helpers = {
           },
           function(err) {
             console.log("FAILURE");
-            console.log(err);
+            console.log(err.stderr);
             return file.data;
           }
         );
@@ -80,7 +80,7 @@ var helpers = {
 	      },
 	      function(err) {
 	        console.log('FAILURE');
-	        console.log(err);
+	        console.log(err.stderr);
 	      }
 	    );
 
@@ -114,7 +114,7 @@ var helpers = {
 	      },
 	      function(err) {
 	        console.log('FAILURE');
-	        console.log(err);
+	        console.log(err.stderr);
 	      }
 	    );
 
@@ -151,7 +151,7 @@ var helpers = {
 		    function(error) {
 		      /* handle the error */
 		      console.log('Failed to get host_account_id from STS GetCallerIdentity');
-		      console.log(error);
+		      console.log(error.stderr);
 		      return null;
 		    }
 		);
