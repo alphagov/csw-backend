@@ -33,13 +33,6 @@ gulp.task('environment.backend.tfvars', function() {
         'ssh_public_key_path'
       ];
 
-      /*
-      for(item in file.data) {
-        if (remove.indexOf(item)>=0) {
-          delete(file.data[item]);
-        }
-      }
-      */
       file.data = helpers.removePropertiesInPipeline(file.data, remove);
       return file.data
   }))
@@ -93,17 +86,13 @@ gulp.task('environment.apply.tfvars', function() {
     file.data = defaults;
     return content;
   }))
-  // Get Google API Console OAuth credentials file from AWS SSM Parameter Store 
+  // Get RDS root password from parameter store
   .pipe(data(function(file) {
 
-    var during = awsParamStore.getParameter( '/csw/'+env+'/rds/root', { region: file.data.region });
+    var parameter = '/csw/'+env+'/rds/root';
+    var property = 'postgres_root_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.settings.region, file, property);
 
-    var after = during.then(function(parameter) {
-      file.data.postgres_root_password = parameter.Value;
-      return file.data;
-    });
-
-    return after;
   }))
   .pipe(data(function(file) {
 
@@ -121,13 +110,6 @@ gulp.task('environment.apply.tfvars', function() {
       'ssh_public_key_path'
     ];
 
-    /*
-    for (item in file.data) {
-      if (expected.indexOf(item) < 0) {
-        delete file.data[item];
-      }
-    }
-    */
     file.data = helpers.removeExceptPropertiesInPipeline(file.data, expected);
 
     file.data.prefix = file.data.tool + '-' + file.data.environment;
