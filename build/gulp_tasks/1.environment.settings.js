@@ -9,11 +9,15 @@ const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
 gulp.task('environment.settings', function() {
 
+  var env = (args.env == undefined)?'test':args.env;
+
   // Load default settings
   var pipeline = gulp.src('../environments/example/settings.json')
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
+    file.data.environment = env;
+    file.data.tool = tool;
     return content;
   }))
   .pipe(data(function(file) {
@@ -47,6 +51,7 @@ gulp.task('environment.settings', function() {
     });
 
   }))
+  /* Make this an argument
   .pipe(data(function(file) {
     // Ask user for environment name
 
@@ -54,6 +59,7 @@ gulp.task('environment.settings', function() {
     var prompt = 'Please enter the environment name:';
     return helpers.promptInputPromise(name, prompt, file);
   }))
+  */
   .pipe(data(function(file) {
     // Ask user for an IP prefix
     
