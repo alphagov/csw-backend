@@ -180,6 +180,14 @@ var helpers = {
 	    }
 
 	    return data
+	},
+
+	lambdaInvokePromise: function(function_name, directory, payload, file, output_file) {
+
+        var payload_string = JSON.stringify(payload);
+        var task = "aws lambda invoke --function-name "+function_name+" --payload '" + payload_string + "' "+output_file;
+
+        return this.runTaskInPipelinePromise(task, directory, file);
 	}
 
 };
