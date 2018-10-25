@@ -17,7 +17,7 @@ gulp.task('environment.settings', function() {
     var defaults = JSON.parse(content);
     file.data = defaults;
     file.data.environment = env;
-    file.data.tool = tool;
+    file.data.tool = 'csw';
     return content;
   }))
   .pipe(data(function(file) {
