@@ -1,4 +1,5 @@
 import os
+import psycopg2
 from playhouse.postgres_ext import PostgresqlExtDatabase
 
 
@@ -27,11 +28,11 @@ class DatabaseHandle():
             elif (type == 'debug'):
                 self.app.log.debug(message)
 
-    def get_handle(self):
+    def get_handle(self, renew=False):
 
         try:
 
-            if self.handle is None:
+            if renew or (self.handle is None):
                 db_host = self.get_env_var('CSW_HOST')
                 db_port = self.get_env_var('CSW_PORT')
                 db_user = self.get_env_var('CSW_USER')
@@ -52,18 +53,36 @@ class DatabaseHandle():
 
     def set_credentials(self, user, password):
 
+        # replace database credentials for duration of lambda execution
         os.environ['CSW_USER'] = user
         os.environ['CSW_PASSWORD'] = password
+        # reset handle to force reconnect using new creadentials
+        self.handle = None
 
     def execute_commands(self, commands):
 
-        db = self.get_handle()
+        status = True
         try:
+
+            db_host = self.get_env_var('CSW_HOST')
+            db_port = self.get_env_var('CSW_PORT')
+            db_user = self.get_env_var('CSW_USER')
+            db_password = self.get_env_var('CSW_PASSWORD')
+
+            db = PostgresqlExtDatabase(
+                'postgres',
+                user=db_user,
+                password=db_password,
+                host=db_host,
+                port=db_port
+            )
+
             db.connect()
             for command in commands:
-                db.execute_sql(command)
+                status &= db.execute_sql(command)
 
-        except Exception:
+        except Exception as err:
+            self.app.log.error("Failed to execute commands: " + str(err))
             db.rollback()
             status = False
 

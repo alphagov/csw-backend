@@ -1,3 +1,4 @@
+import os
 from chalicelib.models import DatabaseHandle
 
 
@@ -93,7 +94,6 @@ def execute_database_run(app, event, context):
     try:
 
         dbh = DatabaseHandle(app)
-
         dbh.set_credentials(event['User'], event['Password'])
         status = dbh.execute_commands(event['Commands'])
     except Exception as err:
@@ -117,3 +117,22 @@ def execute_database_list_models(app, event, context):
         tables = []
 
     return tables
+
+def execute_database_create(app, event, context):
+
+    try:
+        from psycopg2 import connect
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+        con = connect(database='postgres', user=event['User'], host=os.environ['CSW_HOST'], password=event['Password'])
+
+        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cur = con.cursor()
+        status = cur.execute('CREATE DATABASE ' + event['Database'])
+        cur.close()
+        con.close()
+    except Exception as err:
+        app.log.error(str(err))
+        status = False
+
+    return status

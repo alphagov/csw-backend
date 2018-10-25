@@ -203,6 +203,11 @@ def database_run(event, context):
 
 
 @app.lambda_function()
+def database_create(event, context):
+    return admin.execute_database_create(app, event, context)
+
+
+@app.lambda_function()
 def database_list_models(event, context):
     return admin.execute_database_list_models(app, event, context)
 
