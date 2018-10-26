@@ -124,6 +124,10 @@ def execute_database_create(app, event, context):
 
     try:
 
+        app.log.debug(os.environ['CSW_HOST'])
+        app.log.debug(event['User'])
+        app.log.debug(event['Database'])
+
         con = connect(
             database='postgres',
             user=event['User'],
