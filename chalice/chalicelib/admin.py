@@ -1,5 +1,5 @@
 import os
-from psycopg2 import connect
+import psycopg2
 #from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from chalicelib.models import DatabaseHandle
 
@@ -129,7 +129,7 @@ def execute_database_create(app, event, context):
     try:
 
         app.log.debug("Attempt database connection")
-        con = connect(
+        con = psycopg2.connect(
             database='postgres',
             user=event['User'],
             host=os.environ['CSW_HOST'],
