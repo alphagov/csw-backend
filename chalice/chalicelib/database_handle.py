@@ -28,11 +28,11 @@ class DatabaseHandle():
             elif (type == 'debug'):
                 self.app.log.debug(message)
 
-    def get_handle(self, renew=False):
+    def get_handle(self):
 
         try:
 
-            if renew or (self.handle is None):
+            if self.handle is None:
                 db_host = self.get_env_var('CSW_HOST')
                 db_port = self.get_env_var('CSW_PORT')
                 db_user = self.get_env_var('CSW_USER')
