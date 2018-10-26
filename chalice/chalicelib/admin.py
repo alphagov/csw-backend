@@ -128,6 +128,7 @@ def execute_database_create(app, event, context):
 
     try:
 
+        app.log.debug("Attempt database connection")
         con = connect(
             database='postgres',
             user=event['User'],
@@ -135,13 +136,19 @@ def execute_database_create(app, event, context):
             password=event['Password']
         )
 
+        app.log.debug("Set autocommit to on")
         #con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         con.autocommit = True
+
+        app.log.debug("Get cursor")
         cur = con.cursor()
 
+        app.log.debug("Execute database create")
         database = event['Database']
         statement = f"CREATE DATABASE {database};"
         status = cur.execute(statement)
+
+        app.log.debug("Close connection")
         cur.close()
         con.close()
     except Exception as err:
