@@ -13,7 +13,7 @@ class AwsCouldtrailLogging(CriteriaDefault):
         """
         """
         return
-    
+
     def translate(self, data):
         """
         """

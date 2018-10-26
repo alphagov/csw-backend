@@ -6,6 +6,7 @@ import importlib
 import unittest
 
 from chalice import Chalice
+from chalicelib.criteria.test_data import EMPTY_SUMMARY
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
@@ -20,44 +21,13 @@ class TestCriteriaDefault(unittest.TestCase):
         initialise the the Chalice app objects once to reuse it in every test
         """
         cls.app = Chalice('test_app')
-        cls.empty_summary = {
-            'all': {
-                'display_stat': 0,
-                'category': 'all',
-                'modifier_class': 'tested'
-            },
-            'applicable': {
-                'display_stat': 0,
-                'category': 'tested',
-                'modifier_class': 'precheck'
-            },
-            'non_compliant': {
-                'display_stat': 0,
-                'category': 'failed',
-                'modifier_class': 'failed'
-            },
-            'compliant': {
-                'display_stat': 0,
-                'category': 'passed',
-                'modifier_class': 'passed'
-            },
-            'not_applicable': {
-                'display_stat': 0,
-                'category': 'ignored',
-                'modifier_class': 'passed'
-            },
-            'regions': {
-                'list': [],
-                'count': 0
-            }
-        }
-        
+
     def setUp(self):
         """
         initialise the class before every test
         """
         self.criteria_default = CriteriaDefault(self.app)
-        
+
     def test_init_success(self):
         """
         test that initialization works
@@ -100,14 +70,14 @@ class TestCriteriaDefault(unittest.TestCase):
         self.assertIsInstance(
             self.criteria_default.client, gds_aws_client_class
         )
-        
+
     def test_get_session(self):
         """
         test the get_session method for success and failure
         """
         self.assertFalse(self.criteria_default.get_session())
         #TODO: find acount/role params to test for success returning a string
-        
+
     def test_describe(self):
         """
         test the describe method for success and failure
@@ -119,13 +89,13 @@ class TestCriteriaDefault(unittest.TestCase):
         ]
         for key in describe:
             self.assertIn(key, keys)
-        
+
     def test_get_data(self):
         """
         test the get_data method for output for any input
         """
         self.assertEqual(self.criteria_default.get_data('any_input'), [])
-    
+
     def test_build_evaluation(self):
         """
         black box test of the build_evaluation method
@@ -184,7 +154,7 @@ class TestCriteriaDefault(unittest.TestCase):
             built_evaluation['status_id'],
             self.criteria_default.get_status(built_evaluation)
         )
-    
+
     def test_get_status(self):
         """
         black box test for the get_status method
@@ -209,17 +179,14 @@ class TestCriteriaDefault(unittest.TestCase):
         self.assertEqual(
             self.criteria_default.get_status(eval_dicts[1]), 3
         )
-        
+
     def test_empty_summary(self):
         """
         test the empty_summary method
         """
         self.assertEqual(
-            self.criteria_default.empty_summary(),
-            self.empty_summary
+            self.criteria_default.empty_summary(), EMPTY_SUMMARY
         )
-        
-    #TODO: test_empty_summary
 
 
 if __name__ == '__main__':

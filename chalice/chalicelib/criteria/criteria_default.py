@@ -35,16 +35,20 @@ class CriteriaDefault():
     def get_data(self, session, **kwargs):
         return []
 
-    def build_evaluation(self, resource_id, compliance_type, event, resource_type, annotation=None):
+    def build_evaluation(
+        self, resource_id, compliance_type, event, resource_type,
+        annotation=None
+    ):
 
-        """Form an evaluation as a dictionary. Usually suited to report on scheduled rules.
+        """Form an evaluation as a dictionary.
+        Usually suited to report on scheduled rules.
         Keyword arguments:
         resource_id -- the unique id of the resource to report
         compliance_type -- either COMPLIANT, NON_COMPLIANT or NOT_APPLICABLE
         event -- the event variable given in the lambda handler
         resource_type -- the CloudFormation resource type (or AWS::::Account)
         to report on the rule (default DEFAULT_RESOURCE_TYPE)
-        annotation -- an annotation to be added to the evaluation (default None)
+        annotation -- an annotation to be added to the evaluation (def = None)
         """
         eval = {}
         if annotation:
@@ -120,7 +124,11 @@ class CriteriaDefault():
 
             compliance = resource["resource_compliance"]
 
-            self.app.log.debug("summarize resource compliance: " + self.app.utilities.to_json(compliance))
+            self.app.log.debug(
+                "summarize resource compliance: {}".format(
+                    self.app.utilities.to_json(compliance)
+                )
+            )
 
             self.app.log.debug('set resource type')
 

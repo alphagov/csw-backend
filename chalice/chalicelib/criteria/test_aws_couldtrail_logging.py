@@ -1,6 +1,7 @@
 import unittest
 
 from chalice import Chalice
+from chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
 from chalicelib.criteria.aws_couldtrail_logging import AwsCouldtrailLogging
 
 
@@ -12,15 +13,15 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        initialise the the Chalice app objects once to reuse it in every test
+        initialise the the Chalice app objects once to reuse it in every test.
         """
         cls.app = Chalice('test_app')
-        
+
     def setUp(self):
         """
         """
         self.aws_couldtrail_logging = AwsCouldtrailLogging(self.app)
-        
+
     def test_init_success(self):
         """
         test that initialization works
@@ -53,7 +54,23 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         self.assertIsInstance(
             self.aws_couldtrail_logging.how_do_i_fix_it, str
         )
-        #TODO: test vars not from the base
+        # subclass specific attributes
+        self.assertIsInstance(self.aws_couldtrail_logging.check_id, str)
+        self.assertGreater(self.aws_couldtrail_logging.check_id, 0)
+        self.assertIsInstance(self.aws_couldtrail_logging.language, str)
+        self.assertGreater(self.aws_couldtrail_logging.language, 0)
+        self.assertIsInstance(self.aws_couldtrail_logging.region, str)
+        self.assertGreater(self.aws_couldtrail_logging.region, 0)
+        self.assertIsInstance(self.aws_couldtrail_logging.title, str)
+        self.assertGreater(self.aws_couldtrail_logging.title, 0)
+        self.assertIsInstance(self.aws_couldtrail_logging.description, str)
+        self.assertGreater(self.aws_couldtrail_logging.description, 0)
+        self.assertIsInstance(
+            self.aws_couldtrail_logging.why_is_it_important, str
+        )
+        self.assertGreater(self.aws_couldtrail_logging.why_is_it_important, 0)
+        self.assertIsInstance(self.aws_couldtrail_logging.how_do_i_fix_it, str)
+        self.assertGreater(self.aws_couldtrail_logging.how_do_i_fix_it, 0)
 
     def test_init_client(self):
         """
@@ -77,17 +94,28 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         session = None
         kwargs = {}  # None
         # output value
-        self.aws_couldtrail_logging.get_data(session, **kwargs)
-        self.fail('Not implemented yet')
-    
+        item = self.aws_couldtrail_logging.get_data(session, **kwargs)
+        # must return a dictionary with the three necessary keys
+        self.assertIsInstance(item, dict)
+        self.assertIsInstance(
+            item['describe_trusted_advisor_check_result']['result']['status'],
+            dict
+        )
+        self.assertIn('describe_trails', item)
+        self.assertIn('get_trail_status', item)
+
     def test_translate(self):
         """
         """
         # input params
         data = None
         # output value
-        self.aws_couldtrail_logging.translate(data)
-        self.fail('Not implemented yet')
+        output = self.aws_couldtrail_logging.translate(data)
+        self.assertIsInstance(output, dict)
+        self.assertIn('resource_id', output)
+        self.assertIsInstance(output['resource_id'], str)
+        self.assertIn('resource_name', output)
+        self.assertIsInstance(output['resource_name'], str)
 
     def _evaluate_invariant_assertions(self, event, item, whitelist):
         """
@@ -115,7 +143,7 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         """
         # input params
         event = {}
-        item = {'status': 'ok'}
+        item = CLOUDTRAIL_LOGGING_ITEMS['green']
         whitelist = []
         # first test the invariants and get the evaluate method's output
         output = self._evaluate_invariant_assertions(event, item, whitelist)
@@ -126,16 +154,29 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         self.assertTrue(output['is_applicable'])
         self.assertEqual(output['status_id'], 2)
 
-    def _evaluate_failed_status_assertions(self, output):
+    def _evaluate_failed_status_assertions(self, item, output):
         """
         yellow/red tests
         """
-        self.assertIn('annotation', output)
-        self.assertIsInstance(self.aws_couldtrail_logging.annotation, str)
-        self.assertGreater(self.aws_couldtrail_logging.annotation, 0)
+        # test the status variables
         self.assertFalse(output['is_compliant'])
         self.assertTrue(output['is_applicable'])
         self.assertEqual(output['status_id'], 3)
+        # test that the instances annotation contains all necessary info
+        self.assertIn('annotation', output)
+        self.assertIsInstance(self.aws_couldtrail_logging.annotation, str)
+        self.assertIn(
+            item['describe_trails']['trailList']['HomeRegion'],
+            self.aws_couldtrail_logging.annotation
+        )
+        self.assertIn(
+            item['describe_trails']['trailList']['Name'],
+            self.aws_couldtrail_logging.annotation
+        )
+        self.assertIn(
+            item['get_trail_status']['LatestDeliveryError'],
+            self.aws_couldtrail_logging.annotation
+        )
 
     def test_evaluate_yellow(self):
         """
@@ -143,11 +184,11 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         """
         # input params
         event = {}
-        item = {'status': 'warning'}
+        item = CLOUDTRAIL_LOGGING_ITEMS['yellow']
         whitelist = []
         # tests
         output = self._evaluate_invariant_assertions(event, item, whitelist)
-        self._evaluate_failed_status_assertions(output)
+        self._evaluate_failed_status_assertions(item, output)
 
     def test_evaluate_red(self):
         """
@@ -155,11 +196,11 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         """
         # input params
         event = {}
-        item = {'status': 'error'}
+        item = CLOUDTRAIL_LOGGING_ITEMS['red']
         whitelist = []
         # first test the invariants and get the evaluate method's output
         output = self._evaluate_invariant_assertions(event, item, whitelist)
-        self._evaluate_failed_status_assertions(output)
+        self._evaluate_failed_status_assertions(item, output)
 
 
 if __name__ == '__main__':
