@@ -122,11 +122,11 @@ def execute_database_list_models(app, event, context):
 
 def execute_database_create(app, event, context):
 
-    try:
+    app.log.debug(os.environ['CSW_HOST'])
+    app.log.debug(event['User'])
+    app.log.debug(event['Database'])
 
-        app.log.debug(os.environ['CSW_HOST'])
-        app.log.debug(event['User'])
-        app.log.debug(event['Database'])
+    try:
 
         con = connect(
             database='postgres',
@@ -140,8 +140,8 @@ def execute_database_create(app, event, context):
         cur = con.cursor()
 
         database = event['Database']
-
-        status = cur.execute(f"CREATE DATABASE {database};")
+        statement = f"CREATE DATABASE {database};"
+        status = cur.execute(statement)
         cur.close()
         con.close()
     except Exception as err:
