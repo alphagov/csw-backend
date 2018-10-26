@@ -1,6 +1,6 @@
 import os
 from psycopg2 import connect
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+#from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from chalicelib.models import DatabaseHandle
 
 
@@ -131,9 +131,12 @@ def execute_database_create(app, event, context):
             password=event['Password']
         )
 
-        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        #con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        con.autocommit = True
         cur = con.cursor()
+
         database = event['Database']
+
         status = cur.execute(f"CREATE DATABASE {database};")
         cur.close()
         con.close()
