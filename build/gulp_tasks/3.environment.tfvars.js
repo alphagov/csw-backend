@@ -73,10 +73,6 @@ gulp.task('environment.backend.tfvars', function() {
 });
 
 
-/*
-ssh_key_name = "dan"
-ssh_public_key_path = "/Users/danjones/.ssh/dan.pub"
-*/
 gulp.task('environment.apply.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
   // Load default settings
@@ -91,7 +87,7 @@ gulp.task('environment.apply.tfvars', function() {
 
     var parameter = '/csw/'+env+'/rds/root';
     var property = 'postgres_root_password';
-    return helpers.getParameterInPipelinePromise(parameter, file.data.settings.region, file, property);
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
 
   }))
   .pipe(data(function(file) {
