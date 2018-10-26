@@ -9,15 +9,35 @@ class AwsCouldtrailLogging(CriteriaDefault):
     """
     """
 
+    def __init__(self, app):
+        """
+        """
+        super(AwsCouldtrailLogging, self).__init__(app)
+        self.active = True
+        self.resource_type = 'AWS::Cloudtrail::Logging'
+        self.check_id = 'vjafUGJ9H0'
+        self.language = 'en'
+        self.region = 'us-east-1'
+        self.annotation = ''
+        self.title = '''
+            Existance and Activation of Cloudtrail Logging across all regions
+        '''
+        self.description = ''
+        self.why_is_it_important = ''
+        self.how_do_i_fix_it = ''
+
     def get_data(self, session, **kwargs):
         """
         """
         return
 
-    def translate(self, data):
+    def translate(self, data={}):
         """
         """
-        return
+        return {
+            "resource_id": "root",
+            "resource_name": "Root Account",
+        }
 
     def evaluate(self, event, item, whitelist=[]):
         """
@@ -28,12 +48,31 @@ class AwsCouldtrailLogging(CriteriaDefault):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/support.html#Support.Client.describe_trusted_advisor_check_result
         """
         event = {}
-        resource_id = None
-        compliance_type = None
-        #TODO: logic to determine resource_id, compliance_type
-        #TODO: also here we will determine the annotation
+        # logic to determine resource_id, compliance_type
+        if item[
+            'describe_trusted_advisor_check_result'
+        ]['result']['status'] == 'ok':
+            compliance_type = 'COMPLIANT'
+        else:
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = '''
+            {status}: The trail {trail_name} in the region {region}
+            failed
+            '''.format(
+                status=item[
+                    'describe_trusted_advisor_check_result'
+                ]['result']['status'],
+                trail_name=item['describe_trails']['trailList'][0]['Name'],
+                region=item['describe_trails']['trailList'][0]['HomeRegion'],
+            )
+        if item[
+            'describe_trusted_advisor_check_result'
+        ]['result']['status'] == 'warning':
+            self.annotation += ' with the message {}'.format(
+                [item['get_trail_status']['LatestDeliveryError'], ]
+            )
         return self.build_evaluation(
-            resource_id,
+            self.translate()['resource_id'],
             compliance_type,
             event,
             self.resource_type,

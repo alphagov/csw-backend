@@ -46,31 +46,23 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
             'AWS::Cloudtrail::Logging'
         )
         self.assertSequenceEqual(self.aws_couldtrail_logging.annotation, '')
-        self.assertIsInstance(self.aws_couldtrail_logging.title, str)
-        self.assertIsInstance(self.aws_couldtrail_logging.description, str)
-        self.assertIsInstance(
-            self.aws_couldtrail_logging.why_is_it_important, str
-        )
-        self.assertIsInstance(
-            self.aws_couldtrail_logging.how_do_i_fix_it, str
-        )
         # subclass specific attributes
         self.assertIsInstance(self.aws_couldtrail_logging.check_id, str)
-        self.assertGreater(self.aws_couldtrail_logging.check_id, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.check_id), 0)
         self.assertIsInstance(self.aws_couldtrail_logging.language, str)
-        self.assertGreater(self.aws_couldtrail_logging.language, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.language), 0)
         self.assertIsInstance(self.aws_couldtrail_logging.region, str)
-        self.assertGreater(self.aws_couldtrail_logging.region, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.region), 0)
         self.assertIsInstance(self.aws_couldtrail_logging.title, str)
-        self.assertGreater(self.aws_couldtrail_logging.title, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.title), 0)
         self.assertIsInstance(self.aws_couldtrail_logging.description, str)
-        self.assertGreater(self.aws_couldtrail_logging.description, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.description), 0)
         self.assertIsInstance(
             self.aws_couldtrail_logging.why_is_it_important, str
         )
-        self.assertGreater(self.aws_couldtrail_logging.why_is_it_important, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.why_is_it_important), 0)
         self.assertIsInstance(self.aws_couldtrail_logging.how_do_i_fix_it, str)
-        self.assertGreater(self.aws_couldtrail_logging.how_do_i_fix_it, 0)
+        self.assertGreater(len(self.aws_couldtrail_logging.how_do_i_fix_it), 0)
 
     def test_init_client(self):
         """
@@ -166,15 +158,11 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         self.assertIn('annotation', output)
         self.assertIsInstance(self.aws_couldtrail_logging.annotation, str)
         self.assertIn(
-            item['describe_trails']['trailList']['HomeRegion'],
+            item['describe_trails']['trailList'][0]['HomeRegion'],
             self.aws_couldtrail_logging.annotation
         )
         self.assertIn(
-            item['describe_trails']['trailList']['Name'],
-            self.aws_couldtrail_logging.annotation
-        )
-        self.assertIn(
-            item['get_trail_status']['LatestDeliveryError'],
+            item['describe_trails']['trailList'][0]['Name'],
             self.aws_couldtrail_logging.annotation
         )
 
@@ -189,6 +177,10 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         # tests
         output = self._evaluate_invariant_assertions(event, item, whitelist)
         self._evaluate_failed_status_assertions(item, output)
+        self.assertIn(
+            item['get_trail_status']['LatestDeliveryError'],
+            self.aws_couldtrail_logging.annotation
+        )
 
     def test_evaluate_red(self):
         """
