@@ -1,4 +1,6 @@
 import os
+from psycopg2 import connect
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from chalicelib.models import DatabaseHandle
 
 
@@ -121,14 +123,18 @@ def execute_database_list_models(app, event, context):
 def execute_database_create(app, event, context):
 
     try:
-        from psycopg2 import connect
-        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-        con = connect(database='postgres', user=event['User'], host=os.environ['CSW_HOST'], password=event['Password'])
+        con = connect(
+            database='postgres',
+            user=event['User'],
+            host=os.environ['CSW_HOST'],
+            password=event['Password']
+        )
 
         con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = con.cursor()
-        status = cur.execute('CREATE DATABASE ' + event['Database'])
+        database = event['Database']
+        status = cur.execute(f"CREATE DATABASE {database};")
         cur.close()
         con.close()
     except Exception as err:
