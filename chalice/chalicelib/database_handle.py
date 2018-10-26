@@ -106,7 +106,7 @@ class DatabaseHandle():
             if db is not None:
                 db.rollback()
             status = False
-            print(str(e))
+            self.app.log.debug(str(e))
 
         db.close()
 
