@@ -189,5 +189,198 @@ class TestCriteriaDefault(unittest.TestCase):
         )
 
 
+class CriteriaSubclassTestCaseMixin(object):
+    """
+    Unit tests for all CriteriaDefault subclasses
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        cls.app = Chalice('test_app')
+
+    def test_init_state(self):
+        """
+        test that all instance variables have the expected initial values
+        """
+        with self.subTest():
+            self.assertTrue(self.subclass.active, msg='active must be True')
+        with self.subTest():
+            self.assertNotEqual(
+                self.subclass.resource_type,
+                'AWS::*::*',
+                msg='declare the correct resource type'
+            )
+        with self.subTest():
+            self.assertSequenceEqual(
+                self.subclass.annotation,
+                '',
+                msg='annotation must be empty after init'
+            )
+        # subclass specific attributes
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.check_id,
+                str,
+                msg='check_id must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.check_id),
+                0,
+                msg='check_id must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.language,
+                str,
+                msg='language must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.language),
+                0,
+                msg='language must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.region,
+                str,
+                msg='region must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.region),
+                0,
+                msg='region must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.title,
+                str,
+                msg='title must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(len(
+                self.subclass.title),
+                0,
+                msg='title must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.description,
+                str,
+                msg='description must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.description),
+                0,
+                msg='description must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.why_is_it_important,
+                str,
+                msg='why_is_it_important must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.why_is_it_important),
+                0,
+                msg='why_is_it_important must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                self.subclass.how_do_i_fix_it,
+                str,
+                msg='how_do_i_fix_it must be a non-empty string'
+            )
+        with self.subTest():
+            self.assertGreater(
+                len(self.subclass.how_do_i_fix_it),
+                0,
+                msg='how_do_i_fix_it must be a non-empty string'
+            )
+
+    def test_translate(self):
+        """
+        get_data method tests
+        """
+        # input params
+        data = None
+        # output value
+        output = self.subclass.translate(data)
+        with self.subTest():
+            self.assertIsInstance(
+                output,
+                dict,
+                msg='the get_data method must return a dictionary'
+            )
+        with self.subTest():
+            self.assertIn(
+                'resource_id', output, msg='''
+                    the get_data method must return
+                    a dictionary with a key named resource_id
+                '''
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                output['resource_id'], str, msg='''
+                    the get_data method must return a dictionary
+                    with a key named resource_id that has a string value
+                '''
+            )
+        with self.subTest():
+            self.assertIn(
+                'resource_name', output, msg='''
+                    the get_data method must return
+                    a dictionary with a key named resource_name
+                '''
+            )
+        with self.subTest():
+            self.assertIsInstance(
+                output['resource_name'], str, msg='''
+                    the get_data method must return a dictionary
+                    with a key named resource_name that has a string value
+                '''
+            )
+
+    def _evaluate_invariant_assertions(self, event, item, whitelist):
+        """
+        tests for invariants of all input combos
+        must be called by all black box tests of the evaluate method
+        it returns the result of evaluate, independent of the tests' results
+        """
+        init_resource_type = self.subclass.resource_type
+        # output value
+        output = self.subclass.evaluate(event, item, whitelist)
+        # tests
+        with self.subTest():
+            self.assertIsInstance(
+                output, dict, msg='evaluate did not return a dictionary'
+            )
+        eval_keys = [
+            'resource_type', 'resource_id', 'compliance_type', 'SUB_TEST', 
+            'is_compliant', 'is_applicable', 'status_id', 
+        ]
+        for key in eval_keys:
+            with self.subTest(key=key):
+                self.assertIn(
+                    key,
+                    output,
+                    msg='%s is not in the returned dictionary\'s keys' % key
+                )
+        with self.subTest():
+            self.assertEqual(
+                self.subclass.resource_type,
+                init_resource_type,
+                msg='evaluate must not change the resource_type'
+            )
+        return output
+
+
 if __name__ == '__main__':
     unittest.main()
