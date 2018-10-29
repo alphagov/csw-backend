@@ -22,9 +22,14 @@ class AwsCouldtrailLogging(CriteriaDefault):
         self.title = '''
             Existance and Activation of Cloudtrail Logging across all regions
         '''
-        self.description = ''
-        self.why_is_it_important = ''
-        self.how_do_i_fix_it = ''
+        self.description = 'A trail has not been created for a region, or logging is turned off for the trail <TrailName>.'
+        self.why_is_it_important = 'With CloudTrail you can log all the activity of your AWS account, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services. Cloudtrail logs are vital to performing security analysis and troubleshooting operational issues.'
+        self.how_do_i_fix_it = '''Ensure that a trail is created with multi-region enabled in order to record events from all AWS regions. Further information can be found at the AWS documentation:
+
+AWS Documentation: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
+AWS CLI: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-create-and-update-a-trail-by-using-the-aws-cli.html
+
+If a trail was already created, ensure that logging is enabled.'''
 
     def get_data(self, session, **kwargs):
         """
