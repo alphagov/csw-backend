@@ -1,6 +1,6 @@
 import os
 import psycopg2
-#from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from chalicelib.models import DatabaseHandle
 
 
@@ -129,6 +129,7 @@ def execute_database_create(app, event, context):
     try:
 
         app.log.debug("Attempt database connection")
+
         con = psycopg2.connect(
             database='postgres',
             user=event['User'],
@@ -137,8 +138,8 @@ def execute_database_create(app, event, context):
         )
 
         app.log.debug("Set autocommit to on")
-        #con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        con.autocommit = True
+        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        # con.autocommit = True
 
         app.log.debug("Get cursor")
         cur = con.cursor()
@@ -151,6 +152,7 @@ def execute_database_create(app, event, context):
         app.log.debug("Close connection")
         cur.close()
         con.close()
+
     except Exception as err:
         app.log.error(str(err))
         status = False
