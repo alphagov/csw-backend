@@ -5,11 +5,12 @@ from chalicelib.criteria.aws_iam_access_key_rotation import (
     AwsIamAccessKeyRotation
 )
 from chalicelib.criteria.test_criteria_default import (
-    CriteriaSubclassTestCaseMixin
+    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
 
+
 class TestAwsIamAccessKeyRotation(
-    CriteriaSubclassTestCaseMixin, unittest.TestCase
+    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 ):
     """
     Unit tests for the CriteriaDefault class
@@ -34,3 +35,6 @@ class TestAwsIamAccessKeyRotation(
         """
         self.assertRaises(TypeError, AwsIamAccessKeyRotation)
 
+
+if __name__ == '__main__':
+    unittest.main()

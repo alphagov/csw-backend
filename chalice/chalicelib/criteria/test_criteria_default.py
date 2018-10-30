@@ -10,7 +10,21 @@ from chalicelib.criteria.test_data import EMPTY_SUMMARY
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
-class TestCriteriaDefault(unittest.TestCase):
+class TestCaseWithAttrAssert(unittest.TestCase):
+    """
+    TestCase subclass implementing a new assertion method for class attributes
+    """
+
+    def assertHasAttr(self, obj, attr, msg=None):
+        """
+        custom assertion method for hasattr built-in function
+        """
+        if msg is None:
+            msg = "'{}' object has no attribute '{}'".format(obj, attr)
+        self.assertTrue(hasattr(obj, attr), msg=msg)
+
+
+class TestCriteriaDefault(TestCaseWithAttrAssert):
     """
     Unit tests for the CriteriaDefault class
     """
@@ -87,7 +101,7 @@ class TestCriteriaDefault(unittest.TestCase):
         test the get_session method for success and failure
         """
         self.assertFalse(self.criteria_default.get_session())
-        #TODO: find acount/role params to test for success returning a string
+        #TODO: find account/role params to test for success returning a string
 
     def test_describe(self):
         """
@@ -147,7 +161,9 @@ class TestCriteriaDefault(unittest.TestCase):
         with self.subTest():
             self.assertEqual(built_evaluation['resource_id'], resource_id)
         with self.subTest():
-            self.assertEqual(built_evaluation['compliance_type'], compliance_type)
+            self.assertEqual(
+                built_evaluation['compliance_type'], compliance_type
+            )
         with self.subTest():
             self.assertTrue(built_evaluation['is_compliant'])
         with self.subTest():
@@ -230,15 +246,6 @@ class CriteriaSubclassTestCaseMixin(object):
     """
     Unit tests for all CriteriaDefault subclasses
     """
-
-    def assertHasAttr(self, obj, attr):
-        """
-        custom assertion method for hasattr built-in function
-        """
-        self.assertTrue(
-            hasattr(obj, attr),
-            msg="'{}' object has no attribute '{}'".format(obj, attr)
-        )
 
     @classmethod
     def setUpClass(cls):
@@ -411,8 +418,8 @@ class CriteriaSubclassTestCaseMixin(object):
                 output, dict, msg='evaluate did not return a dictionary'
             )
         eval_keys = [
-            'resource_type', 'resource_id', 'compliance_type', 'SUB_TEST', 
-            'is_compliant', 'is_applicable', 'status_id', 
+            'resource_type', 'resource_id', 'compliance_type', 'SUB_TEST',
+            'is_compliant', 'is_applicable', 'status_id',
         ]
         for key in eval_keys:
             with self.subTest(key=key):

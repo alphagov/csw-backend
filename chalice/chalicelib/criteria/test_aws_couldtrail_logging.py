@@ -3,9 +3,12 @@ import unittest
 from chalice import Chalice
 from chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
 from chalicelib.criteria.aws_couldtrail_logging import AwsCouldtrailLogging
+from chalicelib.criteria.test_criteria_default import (
+    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+)
 
 
-class TestAwsCouldtrailLogging(unittest.TestCase):
+class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
     """
     Unit tests for the CriteriaDefault class
     """
@@ -60,7 +63,9 @@ class TestAwsCouldtrailLogging(unittest.TestCase):
         self.assertIsInstance(
             self.aws_couldtrail_logging.why_is_it_important, str
         )
-        self.assertGreater(len(self.aws_couldtrail_logging.why_is_it_important), 0)
+        self.assertGreater(
+            len(self.aws_couldtrail_logging.why_is_it_important), 0
+        )
         self.assertIsInstance(self.aws_couldtrail_logging.how_do_i_fix_it, str)
         self.assertGreater(len(self.aws_couldtrail_logging.how_do_i_fix_it), 0)
 
