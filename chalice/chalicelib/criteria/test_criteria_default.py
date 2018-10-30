@@ -254,6 +254,7 @@ class CriteriaSubclassTestCaseMixin(object):
         initialise the the Chalice app objects once to reuse it in every test.
         """
         cls.app = Chalice('test_app')
+        cls.test_data = None  # you must load the appropriate test data
 
     def test_init_state(self):
         """
@@ -436,6 +437,54 @@ class CriteriaSubclassTestCaseMixin(object):
                 msg='evaluate must not change the resource_type'
             )
         return output
+
+    def test_evaluate_green(self):
+        """
+        green (status: ok) test
+        """
+        # input params
+        event = {}
+        item = self.test_data['green']
+        whitelist = []
+        # first test the invariants and get the evaluate method's output
+        output = self._evaluate_invariant_assertions(event, item, whitelist)
+        # green tests
+        with self.subTest():
+            self.assertNotIn(
+                'annotation',
+                output,
+                msg='evaluate must not return an annotation when successful'
+            )
+        with self.subTest():
+            self.assertEqual(
+                self.subclass.annotation,
+                '',
+                msg="the object's annotation must be an blank string"
+            )
+        with self.subTest():
+            self.assertTrue(output['is_compliant'])
+        with self.subTest():
+            self.assertTrue(output['is_applicable'])
+        with self.subTest():
+            self.assertEqual(output['status_id'], 2)
+
+    def _evaluate_failed_status_assertions(self, item, output):
+        """
+        yellow/red tests
+        """
+        # test the status variables
+        with self.subTest():
+            self.assertFalse(output['is_compliant'])
+        with self.subTest():
+            self.assertTrue(output['is_applicable'])
+        with self.subTest():
+            self.assertEqual(output['status_id'], 3)
+        # test that the instances annotation contains all necessary info
+        msg = 'evaluate must have an annotation key with value a string'
+        with self.subTest():
+            self.assertIn('annotation', output, msg=msg)
+        with self.subTest():
+            self.assertIsInstance(self.subclass.annotation, str, msg=msg)
 
 
 if __name__ == '__main__':

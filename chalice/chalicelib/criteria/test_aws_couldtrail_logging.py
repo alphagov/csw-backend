@@ -1,11 +1,11 @@
 import unittest
 
 from chalice import Chalice
-from chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
 from chalicelib.criteria.aws_couldtrail_logging import AwsCouldtrailLogging
 from chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
+from chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
 
 
 class TestAwsCouldtrailLogging(
@@ -14,6 +14,14 @@ class TestAwsCouldtrailLogging(
     """
     Unit tests for the CriteriaDefault class
     """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        super(TestAwsCouldtrailLogging, cls).setUpClass()
+        cls.test_data = CLOUDTRAIL_LOGGING_ITEMS
 
     def setUp(self):
         """
@@ -71,58 +79,16 @@ class TestAwsCouldtrailLogging(
             msg=msg
         )
         self.assertIn('describe_trails', item, msg=msg)
-        self.assertIn('get_trail_status', ite, msg=msgm)
+        self.assertIn('get_trail_status', item, msg=msg)
 
-    def test_evaluate_green(self):
+    def _evaluate_failed_status_additional_assertions(self, item, output):
         """
-        green (status: ok) test
+        additional yellow/red tests
         """
-        # input params
-        event = {}
-        item = CLOUDTRAIL_LOGGING_ITEMS['green']
-        whitelist = []
-        # first test the invariants and get the evaluate method's output
-        output = self._evaluate_invariant_assertions(event, item, whitelist)
-        # green tests
-        with self.subTest():
-            self.assertNotIn(
-                'annotation',
-                output,
-                msg='evaluate must not return an annotation when successful'
-            )
-        with self.subTest():
-            self.assertEqual(
-                self.subclass.annotation,
-                '',
-                msg='the annotation must be an blank string'
-            )
-        with self.subTest():
-            self.assertTrue(output['is_compliant'])
-        with self.subTest():
-            self.assertTrue(output['is_applicable'])
-        with self.subTest():
-            self.assertEqual(output['status_id'], 2)
-
-    def _evaluate_failed_status_assertions(self, item, output):
-        """
-        yellow/red tests
-        """
-        # test the status variables
-        with self.subTest():
-            self.assertFalse(output['is_compliant'])
-        with self.subTest():
-            self.assertTrue(output['is_applicable'])
-        with self.subTest():
-            self.assertEqual(output['status_id'], 3)
-        # test that the instances annotation contains all necessary info
         msg = '''
             evaluate must have an annotation key with value a string
             containing the home region and name of all failed trails
         '''
-        with self.subTest():
-            self.assertIn('annotation', output, msg=msg)
-        with self.subTest():
-            self.assertIsInstance(self.subclass.annotation, str, msg=msg)
         for trail in item['describe_trails']['trailList']:
             with self.subTest(trail=trail):
                 self.assertIn(
@@ -143,16 +109,18 @@ class TestAwsCouldtrailLogging(
         """
         # input params
         event = {}
-        item = CLOUDTRAIL_LOGGING_ITEMS['yellow']
+        item = self.test_data['yellow']
         whitelist = []
         # tests
         output = self._evaluate_invariant_assertions(event, item, whitelist)
         self._evaluate_failed_status_assertions(item, output)
-        self.assertIn(
-            item['get_trail_status']['LatestDeliveryError'],
-            self.subclass.annotation,
-            msg='evaluate must also contain the last delivery error'
-        )
+        self._evaluate_failed_status_additional_assertions(item, output)
+        with self.subTest():
+            self.assertIn(
+                item['get_trail_status']['LatestDeliveryError'],
+                self.subclass.annotation,
+                msg='evaluate must also contain the last delivery error'
+            )
 
     def test_evaluate_red(self):
         """
@@ -160,11 +128,12 @@ class TestAwsCouldtrailLogging(
         """
         # input params
         event = {}
-        item = CLOUDTRAIL_LOGGING_ITEMS['red']
+        item = self.test_data['red']
         whitelist = []
         # first test the invariants and get the evaluate method's output
         output = self._evaluate_invariant_assertions(event, item, whitelist)
         self._evaluate_failed_status_assertions(item, output)
+        self._evaluate_failed_status_additional_assertions(item, output)
 
 
 if __name__ == '__main__':

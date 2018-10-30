@@ -76,7 +76,7 @@ If a trail was already created, ensure that logging is enabled.'''
             self.annotation += '<p>NON COMPLIANT TRAIL LIST:<ul>'
             for trail in item['describe_trails']['trailList']:
                 self.annotation += '''
-                    <ol>The trail {} in the region {} failed</ol>
+                    <ol>The trail {} in the region {} failed.</ol>
                 '''.format(trail['Name'], trail['HomeRegion'])
             self.annotation += '</ul></p>'
         return self.build_evaluation(

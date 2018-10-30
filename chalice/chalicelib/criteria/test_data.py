@@ -887,3 +887,180 @@ CLOUDTRAIL_LOGGING_ITEMS = {
         },
     },
 }
+
+IAM_KEY_ROTATION_ITEMS = {
+    'green': {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'content-length': '689',
+                'content-type': 'application/x-amz-json-1.1',
+                'date': 'Fri, 26 Oct 2018 11:32:27 GMT',
+                'x-amzn-requestid': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8'
+            },
+            'HTTPStatusCode': 200,
+            'RequestId': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8',
+            'RetryAttempts': 0
+        },
+        'result': {
+            'categorySpecificSummary': {
+                'costOptimizing': {
+                    'estimatedMonthlySavings': 0.0,
+                    'estimatedPercentMonthlySavings': 0.0
+                }
+            },
+            'checkId': 'DqdJqYeRm5',
+            'flaggedResources': [
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Green',
+                        'tester',
+                        'Access Key 1',
+                        '2018-10-26T09:50:56.000Z',
+                        '< 90 days'
+                    ],
+                    'resourceId':
+                        'bUdRaf51cqo8zLA1zvADO3kU48Rw6RPYtXllVn4da6k',
+                    'status': 'ok'
+                },
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Green',
+                        'tester',
+                        'Access Key 2',
+                        '2018-10-12T11:47:55.000Z',
+                        '< 90 days'
+                    ],
+                    'resourceId':
+                        'L0kTMFl0_9sppZLOP7wgMSgvywOjeuMBWtorW5HQx_o',
+                    'status': 'ok'
+                }
+            ],
+            'resourcesSummary': {
+                'resourcesFlagged': 0,
+                'resourcesIgnored': 0,
+                'resourcesProcessed': 2,
+                'resourcesSuppressed': 0
+            },
+            'status': 'ok',
+            'timestamp': '2018-10-26T11:31:33Z'
+        }
+    },
+    'yellow': {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'content-length': '689',
+                'content-type': 'application/x-amz-json-1.1',
+                'date': 'Fri, 26 Oct 2018 11:32:27 GMT',
+                'x-amzn-requestid': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8'
+            },
+            'HTTPStatusCode': 200,
+            'RequestId': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8',
+            'RetryAttempts': 0
+        },
+        'result': {
+            'categorySpecificSummary': {
+                'costOptimizing': {
+                    'estimatedMonthlySavings': 0.0,
+                    'estimatedPercentMonthlySavings': 0.0
+                }
+            },
+            'checkId': 'DqdJqYeRm5',
+            'flaggedResources': [
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Green',
+                        'tester',
+                        'Access Key 1',
+                        '2018-10-26T09:50:56.000Z',
+                        '< 90 days'
+                    ],
+                    'resourceId':
+                        'bUdRaf51cqo8zLA1zvADO3kU48Rw6RPYtXllVn4da6k',
+                    'status': 'ok'
+                },
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Yellow',
+                        'tester',
+                        'Access Key 2',
+                        '2018-10-12T11:47:55.000Z',
+                        '> 90 days'
+                    ],
+                    'resourceId':
+                        'L0kTMFl0_9sppZLOP7wgMSgvywOjeuMBWtorW5HQx_o',
+                    'status': 'warning'
+                }
+            ],
+            'resourcesSummary': {
+                'resourcesFlagged': 0,
+                'resourcesIgnored': 0,
+                'resourcesProcessed': 2,
+                'resourcesSuppressed': 0
+            },
+            'status': 'warning',
+            'timestamp': '2018-10-26T11:31:33Z'
+        }
+    },
+    'red': {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'content-length': '689',
+                'content-type': 'application/x-amz-json-1.1',
+                'date': 'Fri, 26 Oct 2018 11:32:27 GMT',
+                'x-amzn-requestid': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8'
+            },
+            'HTTPStatusCode': 200,
+            'RequestId': 'd1d0a2c8-d912-11e8-a086-d93a9fdaa2c8',
+            'RetryAttempts': 0
+        },
+        'result': {
+            'categorySpecificSummary': {
+                'costOptimizing': {
+                    'estimatedMonthlySavings': 0.0,
+                    'estimatedPercentMonthlySavings': 0.0
+                }
+            },
+            'checkId': 'DqdJqYeRm5',
+            'flaggedResources': [
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Green',
+                        'tester',
+                        'Access Key 1',
+                        '2018-10-26T09:50:56.000Z',
+                        '< 90 days'
+                    ],
+                    'resourceId':
+                        'bUdRaf51cqo8zLA1zvADO3kU48Rw6RPYtXllVn4da6k',
+                    'status': 'ok'
+                },
+                {
+                    'isSuppressed': False,
+                    'metadata': [
+                        'Red',
+                        'tester',
+                        'Access Key 2',
+                        '2018-10-12T11:47:55.000Z',
+                        '> 2 years'
+                    ],
+                    'resourceId':
+                        'L0kTMFl0_9sppZLOP7wgMSgvywOjeuMBWtorW5HQx_o',
+                    'status': 'error'
+                }
+            ],
+            'resourcesSummary': {
+                'resourcesFlagged': 0,
+                'resourcesIgnored': 0,
+                'resourcesProcessed': 2,
+                'resourcesSuppressed': 0
+            },
+            'status': 'error',
+            'timestamp': '2018-10-26T11:31:33Z'
+        }
+    },
+}
