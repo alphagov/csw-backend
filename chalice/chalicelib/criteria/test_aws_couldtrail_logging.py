@@ -117,24 +117,25 @@ class TestAwsCouldtrailLogging(
         # test that the instances annotation contains all necessary info
         msg = '''
             evaluate must have an annotation key with value a string
-            containing the home region and name of the failed trails
+            containing the home region and name of all failed trails
         '''
         with self.subTest():
             self.assertIn('annotation', output, msg=msg)
         with self.subTest():
             self.assertIsInstance(self.subclass.annotation, str, msg=msg)
-        with self.subTest():
-            self.assertIn(
-                item['describe_trails']['trailList'][0]['HomeRegion'],
-                self.subclass.annotation,
-                msg=msg
-            )
-        with self.subTest():
-            self.assertIn(
-                item['describe_trails']['trailList'][0]['Name'],
-                self.subclass.annotation,
-                msg=msg
-            )
+        for trail in item['describe_trails']['trailList']:
+            with self.subTest(trail=trail):
+                self.assertIn(
+                    trail['HomeRegion'],
+                    self.subclass.annotation,
+                    msg=msg
+                )
+            with self.subTest(trail=trail):
+                self.assertIn(
+                    trail['Name'],
+                    self.subclass.annotation,
+                    msg=msg
+                )
 
     def test_evaluate_yellow(self):
         """

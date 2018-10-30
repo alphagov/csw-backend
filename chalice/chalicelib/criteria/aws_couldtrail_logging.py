@@ -60,22 +60,25 @@ If a trail was already created, ensure that logging is enabled.'''
             compliance_type = 'COMPLIANT'
         else:
             compliance_type = 'NON_COMPLIANT'
-            self.annotation = '''
-            {status}: The trail {trail_name} in the region {region}
-            failed
-            '''.format(
-                status=item[
-                    'describe_trusted_advisor_check_result'
-                ]['result']['status'],
-                trail_name=item['describe_trails']['trailList'][0]['Name'],
-                region=item['describe_trails']['trailList'][0]['HomeRegion'],
+            self.annotation = '<p>STATUS: {}!</p>'.format(
+                item['describe_trusted_advisor_check_result']['result'][
+                    'status'
+                ]
             )
-        if item[
-            'describe_trusted_advisor_check_result'
-        ]['result']['status'] == 'warning':
-            self.annotation += ' with the message {}'.format(
-                [item['get_trail_status']['LatestDeliveryError'], ]
-            )
+            # optional warning/yellow information
+            if item[
+                'describe_trusted_advisor_check_result'
+            ]['result']['status'] == 'warning':
+                self.annotation += '<p>Last Delivery Error: {}</p>'.format(
+                    item['get_trail_status']['LatestDeliveryError']
+                )
+            # construct trail list
+            self.annotation += '<p>NON COMPLIANT TRAIL LIST:<ul>'
+            for trail in item['describe_trails']['trailList']:
+                self.annotation += '''
+                    <ol>The trail {} in the region {} failed</ol>
+                '''.format(trail['Name'], trail['HomeRegion'])
+            self.annotation += '</ul></p>'
         return self.build_evaluation(
             self.translate()['resource_id'],
             compliance_type,
