@@ -51,15 +51,6 @@ gulp.task('environment.settings', function() {
     });
 
   }))
-  /* Make this an argument
-  .pipe(data(function(file) {
-    // Ask user for environment name
-
-    var name = 'environment';
-    var prompt = 'Please enter the environment name:';
-    return helpers.promptInputPromise(name, prompt, file);
-  }))
-  */
   .pipe(data(function(file) {
     // Ask user for an IP prefix
     
