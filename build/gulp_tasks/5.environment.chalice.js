@@ -18,11 +18,7 @@ gulp.task('environment.chalice_config', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var terraform_path = root_path + '/environments/'+env+'/terraform';
   var settings_file = root_path + '/environments/'+env+'/settings.json';
@@ -37,7 +33,7 @@ gulp.task('environment.chalice_config', function() {
     var task = 'terraform output -json';
   	var working = terraform_path+tool_path;
 
-  	return helpers.getJsonDataInPipelinePromise(task, working, file);
+  	return helpers.getTerraformOutputInPipelinePromise(working, file);
 
   }))
   .pipe(data(function(file) {
@@ -102,11 +98,7 @@ gulp.task('environment.chalice_deploy', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var chalice_path = root_path + '/chalice';
   var settings_file = root_path + '/environments/'+env+'/settings.json';
@@ -134,11 +126,7 @@ gulp.task('environment.chalice_delete', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var chalice_path = root_path + '/chalice';
   var settings_file = root_path + '/environments/'+env+'/settings.json';

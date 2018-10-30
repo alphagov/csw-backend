@@ -15,26 +15,34 @@ const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 gulp.task('environment.database_create', function() {
 
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
+  var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
+  var tool_path = '/csw-infra/tools/'+tool;
 
-  // Load default chalice config file
-
+  // Load settings file
   var pipeline = gulp.src(settings_file)
-  // Read settings into file.data
+  // Parse settings into file.data
   .pipe(modifyFile(function(content, path, file) {
     var settings = JSON.parse(content);
     file.data = settings;
     return content;
   }))
+  // Get terraform output and add to file.data
+  .pipe(data(function(file) {
+
+    var working = terraform_path+tool_path;
+
+  	var promise = helpers.getTerraformOutputInPipelinePromise(working, file);
+
+    return promise;
+  }))
   // Get RDS root password from parameter store
+  // Add to file.data
   .pipe(data(function(file) {
 
     var parameter = '/csw/'+env+'/rds/root';
@@ -42,64 +50,8 @@ gulp.task('environment.database_create', function() {
     return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
 
   }))
-  .pipe(data(function(file) {
-
-    var payload = {
-      "User": "root",
-      "Password": file.data.postgres_root_password,
-      "Database": "csw"
-    };
-
-    var function_name = "csw-"+env+"-database_create";
-    var output_file = environment_path + "/lambda.out"
-    var working = environment_path;
-
-    return helpers.lambdaInvokePromise(function_name, working, payload, file, output_file);
-
-  }))
-  .pipe(data(function(file) {
-
-    var file = environment_path + "/lambda.out"
-    output = JSON.parse(fs.readFileSync(file));
-    console.log(output);
-
-  }));
-
-  return pipeline;
-
-});
-
-gulp.task('environment.database_grant', function() {
-
-  var env = (args.env == undefined)?'test':args.env;
-
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
-
-  var environment_path = root_path + '/environments/'+env;
-  var settings_file = environment_path+'/settings.json';
-
-  // Load default chalice config file
-
-  var pipeline = gulp.src(settings_file)
-  // Read settings into file.data
-  .pipe(modifyFile(function(content, path, file) {
-    var settings = JSON.parse(content);
-    file.data = settings;
-    return content;
-  }))
-  // Get RDS root password from parameter store
-  .pipe(data(function(file) {
-
-    var parameter = '/csw/'+env+'/rds/root';
-    var property = 'postgres_root_password';
-    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
-
-  }))
-  // Get RDS app user password from parameter store
+  // Get RDS user password from parameter store
+  // Add to file.data
   .pipe(data(function(file) {
 
     var parameter = '/csw/'+env+'/rds/user';
@@ -107,31 +59,24 @@ gulp.task('environment.database_grant', function() {
     return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
 
   }))
+  // Pass commands to psql_tunnel.py script
   .pipe(data(function(file) {
 
-    var payload = {
-      "User": "root",
-      "Password": file.data.postgres_root_password,
-      "Commands":[
-        "CREATE USER cloud_sec_watch WITH ENCRYPTED PASSWORD '"+file.data.postgres_user_password+"';",
-        "GRANT ALL PRIVILEGES ON DATABASE csw TO cloud_sec_watch;"
-      ]
-    };
+    path = root_path + "/build/gulp_helpers";
 
-    console.log(payload);
+    command = "CREATE DATABASE " + file.data.tool + ";";
 
-    var function_name = "csw-"+env+"-database_run";
-    var output_file = environment_path + "/lambda.out"
-    var working = environment_path;
+    var promise = helpers.psqlExecuteInPipelinePromise(path, command, file)
+    .then(function(output) {
+        var command = "CREATE USER cloud_sec_watch WITH ENCRYPTED PASSWORD '"+file.data.postgres_user_password+"';";
+        return helpers.psqlExecuteInPipelinePromise(path, command, file)
+    })
+    .then(function(output) {
+        var command = "GRANT ALL PRIVILEGES ON DATABASE csw TO cloud_sec_watch;";
+        return helpers.psqlExecuteInPipelinePromise(path, command, file)
+    });
 
-    return helpers.lambdaInvokePromise(function_name, working, payload, file, output_file);
-
-  }))
-  .pipe(data(function(file) {
-
-    var file = environment_path + "/lambda.out"
-    output = JSON.parse(fs.readFileSync(file));
-    console.log(output);
+    return promise;
 
   }));
 
@@ -143,11 +88,7 @@ gulp.task('environment.database_create_tables', function() {
 
   var env = (args.env == undefined)?'test':args.env;
 
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var settings_file = environment_path+'/settings.json';
@@ -206,11 +147,7 @@ gulp.task('environment.database_populate', function() {
 
   var env = (args.env == undefined)?'test':args.env;
 
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var settings_file = environment_path+'/settings.json';

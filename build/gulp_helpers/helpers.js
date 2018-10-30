@@ -5,6 +5,18 @@ const Input = require('prompt-input');
 
 var helpers = {
 
+    getRootPath: function() {
+
+        var root_path = __dirname;
+
+        root_path.split('/');
+        dirs.pop();
+        dirs.pop();
+        root_path = dirs.join('/');
+
+        return root_path
+    },
+
 	runTaskPromise: function(task, dir) {
 
 		var during = exec(task, { cwd: dir, stdio: 'inherit' });
@@ -37,7 +49,7 @@ var helpers = {
 	    return after;
 	},
 
-	getJsonDataInPipelinePromise: function(task, dir, file) {
+	getJsonDataInPipelinePromise: function(task, dir, file, property) {
 
 	    var during = this.runTaskPromise(task, dir);
 
@@ -45,7 +57,7 @@ var helpers = {
           function(out) {
             console.log("SUCCESS");
             //console.log(out);
-            file.data = JSON.parse(out.stdout);
+            file.data[property] = JSON.parse(out.stdout);
             return file.data;
           },
           function(err) {
@@ -56,6 +68,31 @@ var helpers = {
         );
 
         return after;
+	},
+
+	getTerraformOutputInPipelinePromise: function(dir, file) {
+
+	    var task = 'terraform output -json';
+  	    var working = dir;
+  	    var property = "terraform";
+
+  	    var promise = helpers.getJsonDataInPipelinePromise(task, working, file, property)
+  	    .then(
+  	      function(output) {
+  	        for(param in file.data[property]) {
+  	            file.data[param] = file.data[property][param].value;
+  	        }
+  	        delete file.data[property];
+  	        return file.data;
+  	      },
+  	      function(error) {
+  	        console.log("FAILURE");
+  	        console.log(err.stderr);
+            return file.data;
+  	      }
+  	    );
+
+        return promise;
 	},
 
 	getParameterPromise: function(parameter, region) {
@@ -188,6 +225,33 @@ var helpers = {
         var task = "aws lambda invoke --function-name "+function_name+" --payload '" + payload_string + "' "+output_file;
 
         return this.runTaskInPipelinePromise(task, directory, file);
+	},
+
+	psqlExecuteInPipelinePromise: function(path, command, file) {
+
+	    var tunnel = file.data.bastion_public_ip;
+        // TODO is this right? Should we assume this
+        // or prompt user for the ssh key
+        // or write .ssh/config
+        var key = file.data.ssh_public_key_path.replace(/\.pub$/,'');
+        var host = file.data.rds_connection_string;
+        var username = 'root';
+        var password = file.data.postgres_root_password;
+        var database = 'postgres';
+
+        var task = " python psql_tunnel.py ";
+        task += " --tunnel "+tunnel;
+        task += " --key \""+key+"\"";
+        task += " --host "+host;
+        task += " --user "+username;
+        task += " --password \""+password+"\"";
+        task += " --database postgres";
+        task += " --command \""+command+"\""
+
+        console.log(path + ": " + task);
+
+        return this.runTaskInPipelinePromise(task, path, file);
+
 	}
 
 };
