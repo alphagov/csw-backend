@@ -8,29 +8,24 @@ from chalicelib.criteria.test_criteria_default import (
 )
 
 
-class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
+class TestAwsCouldtrailLogging(
+    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+):
     """
     Unit tests for the CriteriaDefault class
     """
 
-    @classmethod
-    def setUpClass(cls):
-        """
-        initialise the the Chalice app objects once to reuse it in every test.
-        """
-        cls.app = Chalice('test_app')
-
     def setUp(self):
         """
         """
-        self.aws_couldtrail_logging = AwsCouldtrailLogging(self.app)
+        self.subclass = AwsCouldtrailLogging(self.app)
 
     def test_init_success(self):
         """
         test that initialization works
         """
         self.assertIsInstance(
-            self.aws_couldtrail_logging, AwsCouldtrailLogging
+            self.subclass, AwsCouldtrailLogging
         )
 
     def test_init_failure(self):
@@ -38,36 +33,6 @@ class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
         test that not passing Chalice app object raises a type error
         """
         self.assertRaises(TypeError, AwsCouldtrailLogging)
-
-    def test_init_state(self):
-        """
-        test that all instance variables have the expected initial values
-        """
-        self.assertTrue(self.aws_couldtrail_logging.active)
-        self.assertSequenceEqual(
-            self.aws_couldtrail_logging.resource_type,
-            'AWS::Cloudtrail::Logging'
-        )
-        self.assertSequenceEqual(self.aws_couldtrail_logging.annotation, '')
-        # subclass specific attributes
-        self.assertIsInstance(self.aws_couldtrail_logging.check_id, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.check_id), 0)
-        self.assertIsInstance(self.aws_couldtrail_logging.language, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.language), 0)
-        self.assertIsInstance(self.aws_couldtrail_logging.region, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.region), 0)
-        self.assertIsInstance(self.aws_couldtrail_logging.title, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.title), 0)
-        self.assertIsInstance(self.aws_couldtrail_logging.description, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.description), 0)
-        self.assertIsInstance(
-            self.aws_couldtrail_logging.why_is_it_important, str
-        )
-        self.assertGreater(
-            len(self.aws_couldtrail_logging.why_is_it_important), 0
-        )
-        self.assertIsInstance(self.aws_couldtrail_logging.how_do_i_fix_it, str)
-        self.assertGreater(len(self.aws_couldtrail_logging.how_do_i_fix_it), 0)
 
     def test_init_client(self):
         """
@@ -80,7 +45,7 @@ class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
         # )
         # vars initialized with constants on class definition
         # self.assertEqual(
-        #     self.aws_couldtrail_logging.ClientClass, gds_aws_client_class
+        #     self.subclass.ClientClass, gds_aws_client_class
         # )
         self.fail('import or write the appropriate client')
 
@@ -91,48 +56,22 @@ class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
         session = None
         kwargs = {}  # None
         # output value
-        item = self.aws_couldtrail_logging.get_data(session, **kwargs)
+        item = self.subclass.get_data(session, **kwargs)
         # must return a dictionary with the three necessary keys
-        self.assertIsInstance(item, dict)
+        msg = '''
+            the method must return a dictionary with three keys:
+            describe_trusted_advisor_check_result,
+            describe_trails,
+            get_trail_status,
+        '''
+        self.assertIsInstance(item, dict, msg=msg)
         self.assertIsInstance(
             item['describe_trusted_advisor_check_result']['result']['status'],
-            dict
+            dict,
+            msg=msg
         )
-        self.assertIn('describe_trails', item)
-        self.assertIn('get_trail_status', item)
-
-    def test_translate(self):
-        """
-        """
-        # input params
-        data = None
-        # output value
-        output = self.aws_couldtrail_logging.translate(data)
-        self.assertIsInstance(output, dict)
-        self.assertIn('resource_id', output)
-        self.assertIsInstance(output['resource_id'], str)
-        self.assertIn('resource_name', output)
-        self.assertIsInstance(output['resource_name'], str)
-
-    def _evaluate_invariant_assertions(self, event, item, whitelist):
-        """
-        tests for invariants of all input combos
-        """
-        init_resource_type = self.aws_couldtrail_logging.resource_type
-        # output value
-        output = self.aws_couldtrail_logging.evaluate(event, item, whitelist)
-        # tests
-        self.assertIsInstance(output, dict)
-        eval_keys = [
-            'resource_type', 'resource_id', 'compliance_type',
-            'is_compliant', 'is_applicable', 'status_id',
-        ]
-        for key in eval_keys:
-            self.assertIn(key, output)
-        self.assertEqual(
-            self.aws_couldtrail_logging.resource_type, init_resource_type
-        )
-        return output
+        self.assertIn('describe_trails', item, msg=msg)
+        self.assertIn('get_trail_status', ite, msg=msgm)
 
     def test_evaluate_green(self):
         """
@@ -145,31 +84,57 @@ class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
         # first test the invariants and get the evaluate method's output
         output = self._evaluate_invariant_assertions(event, item, whitelist)
         # green tests
-        self.assertNotIn('annotation', output)
-        self.assertEqual(self.aws_couldtrail_logging.annotation, '')
-        self.assertTrue(output['is_compliant'])
-        self.assertTrue(output['is_applicable'])
-        self.assertEqual(output['status_id'], 2)
+        with self.subTest():
+            self.assertNotIn(
+                'annotation',
+                output,
+                msg='evaluate must not return an annotation when successful'
+            )
+        with self.subTest():
+            self.assertEqual(
+                self.subclass.annotation,
+                '',
+                msg='the annotation must be an blank string'
+            )
+        with self.subTest():
+            self.assertTrue(output['is_compliant'])
+        with self.subTest():
+            self.assertTrue(output['is_applicable'])
+        with self.subTest():
+            self.assertEqual(output['status_id'], 2)
 
     def _evaluate_failed_status_assertions(self, item, output):
         """
         yellow/red tests
         """
         # test the status variables
-        self.assertFalse(output['is_compliant'])
-        self.assertTrue(output['is_applicable'])
-        self.assertEqual(output['status_id'], 3)
+        with self.subTest():
+            self.assertFalse(output['is_compliant'])
+        with self.subTest():
+            self.assertTrue(output['is_applicable'])
+        with self.subTest():
+            self.assertEqual(output['status_id'], 3)
         # test that the instances annotation contains all necessary info
-        self.assertIn('annotation', output)
-        self.assertIsInstance(self.aws_couldtrail_logging.annotation, str)
-        self.assertIn(
-            item['describe_trails']['trailList'][0]['HomeRegion'],
-            self.aws_couldtrail_logging.annotation
-        )
-        self.assertIn(
-            item['describe_trails']['trailList'][0]['Name'],
-            self.aws_couldtrail_logging.annotation
-        )
+        msg = '''
+            evaluate must have an annotation key with value a string
+            containing the home region and name of the failed trails
+        '''
+        with self.subTest():
+            self.assertIn('annotation', output, msg=msg)
+        with self.subTest():
+            self.assertIsInstance(self.subclass.annotation, str, msg=msg)
+        with self.subTest():
+            self.assertIn(
+                item['describe_trails']['trailList'][0]['HomeRegion'],
+                self.subclass.annotation,
+                msg=msg
+            )
+        with self.subTest():
+            self.assertIn(
+                item['describe_trails']['trailList'][0]['Name'],
+                self.subclass.annotation,
+                msg=msg
+            )
 
     def test_evaluate_yellow(self):
         """
@@ -184,7 +149,8 @@ class TestAwsCouldtrailLogging(TestCaseWithAttrAssert):
         self._evaluate_failed_status_assertions(item, output)
         self.assertIn(
             item['get_trail_status']['LatestDeliveryError'],
-            self.aws_couldtrail_logging.annotation
+            self.subclass.annotation,
+            msg='evaluate must also contain the last delivery error'
         )
 
     def test_evaluate_red(self):

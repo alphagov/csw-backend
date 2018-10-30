@@ -1,4 +1,5 @@
 """
+TestCaseWithAttrAssert subclass of TestCase with new assertion,
 CriteriaDefault unit tests and Mixin for all its subclasses TestCases
 """
 
@@ -418,7 +419,7 @@ class CriteriaSubclassTestCaseMixin(object):
                 output, dict, msg='evaluate did not return a dictionary'
             )
         eval_keys = [
-            'resource_type', 'resource_id', 'compliance_type', 'SUB_TEST',
+            'resource_type', 'resource_id', 'compliance_type',
             'is_compliant', 'is_applicable', 'status_id',
         ]
         for key in eval_keys:
