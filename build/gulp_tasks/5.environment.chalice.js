@@ -28,16 +28,6 @@ gulp.task('environment.chalice_config', function() {
   // Load default chalice config file
 
   var pipeline = gulp.src(default_chalice_config)
-  /*
-  .pipe(data(function(file) {
-
-    var task = 'terraform output -json';
-  	var working = terraform_path+tool_path;
-
-  	return helpers.getTerraformOutputInPipelinePromise(working, file);
-
-  }))
-  */
   .pipe(data(function(file) {
     // read env settings file into file.data
     file.data = JSON.parse(fs.readFileSync(settings_file));

@@ -32,15 +32,6 @@ gulp.task('environment.database_create', function() {
     file.data = settings;
     return content;
   }))
-  // Get terraform output and add to file.data
-  .pipe(data(function(file) {
-
-    var working = terraform_path+tool_path;
-
-  	var promise = helpers.getTerraformOutputInPipelinePromise(working, file);
-
-    return promise;
-  }))
   // Get RDS root password from parameter store
   // Add to file.data
   .pipe(data(function(file) {
