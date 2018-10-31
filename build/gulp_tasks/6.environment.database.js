@@ -285,9 +285,7 @@ gulp.task('environment.database_populate', function() {
     var output_file = environment_path + "/lambda.out"
     var working = environment_path;
 
-    var promise = helpers.lambdaInvokePromise(function_name, working, payloads, file, output_file));
-
-    return promise;
+    return helpers.lambdaInvokePromise(function_name, working, payloads, file, output_file);
   }));
 
 
