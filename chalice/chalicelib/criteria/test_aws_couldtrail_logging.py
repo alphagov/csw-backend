@@ -135,6 +135,23 @@ class TestAwsCouldtrailLogging(
         self._evaluate_failed_status_assertions(item, output)
         self._evaluate_failed_status_additional_assertions(item, output)
 
+    def test_evaluate_very_red(self):
+        """
+        red again test, but when no trails exist
+        """
+        # input params
+        event = {}
+        item = self.test_data['very_red']
+        whitelist = []
+        # first test the invariants and get the evaluate method's output
+        output = self._evaluate_invariant_assertions(event, item, whitelist)
+        self._evaluate_failed_status_assertions(item, output)
+        self.assertGreater(
+            len(self.subclass.annotation),
+            0,
+            msg='must indicate the absence of any trails'
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

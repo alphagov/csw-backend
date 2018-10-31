@@ -72,13 +72,15 @@ If a trail was already created, ensure that logging is enabled.'''
                 self.annotation += '<p>Last Delivery Error: {}</p>'.format(
                     item['get_trail_status']['LatestDeliveryError']
                 )
-            # construct trail list
-            self.annotation += '<p>NON COMPLIANT TRAIL LIST:<ul>'
-            for trail in item['describe_trails']['trailList']:
-                self.annotation += '''
-                    <ol>The trail {} in the region {} failed.</ol>
-                '''.format(trail['Name'], trail['HomeRegion'])
-            self.annotation += '</ul></p>'
+            if len(item['describe_trails']['trailList']) == 0:
+                self.annotation += '<p>There are no trails!</p>'
+            else:  # construct trail list
+                self.annotation += '<p>NON COMPLIANT TRAIL LIST:<ul>'
+                for trail in item['describe_trails']['trailList']:
+                    self.annotation += '''
+                        <ol>The trail {} in the region {} failed.</ol>
+                    '''.format(trail['Name'], trail['HomeRegion'])
+                self.annotation += '</ul></p>'
         return self.build_evaluation(
             self.translate()['resource_id'],
             compliance_type,
