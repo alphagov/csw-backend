@@ -168,9 +168,17 @@ gulp.task('environment.terraform_destroy', function() {
     file.data = defaults;
     return content;
   }))
+  // Get RDS root password from parameter store
   .pipe(data(function(file) {
 
-    var task = 'terraform destroy -var-file='+terraform_path+'/apply.tfvars -auto-approve';
+    var parameter = '/csw/'+env+'/rds/root';
+    var property = 'postgres_root_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
+
+  }))
+  .pipe(data(function(file) {
+
+    var task = 'terraform destroy -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
   	var working = terraform_path+tool_path;
 
   	return helpers.runTaskInPipelinePromise(task, working, file);
