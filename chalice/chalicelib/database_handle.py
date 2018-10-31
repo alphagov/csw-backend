@@ -126,10 +126,16 @@ class DatabaseHandle():
     def create_item(self, event):
 
         db = self.get_handle()
-        db.connect()
-        model = self.get_model(event['Model'])
-        item = model.create(**event['Params'])
-        db.close()
+        try:
+            db.connect()
+            model = self.get_model(event['Model'])
+            item = model.create(**event['Params'])
+            db.close()
+        except Exception as e:
+            if db is not None:
+                db.rollback()
+            item = None
+            self.app.log.debug(str(e))
 
         return item
 
