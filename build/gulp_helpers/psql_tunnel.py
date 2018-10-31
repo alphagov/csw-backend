@@ -6,6 +6,8 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import argparse
 from sshtunnel import SSHTunnelForwarder
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--tunnel', help='The host IP to tunnel through', action="store", dest="tunnel")
 parser.add_argument('--key', help='The SSH private key path', action="store", dest="ssh_key")
