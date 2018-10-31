@@ -150,3 +150,8 @@ gulp.task('environment.chalice_delete', function() {
   return pipeline;
 
 });
+
+gulp.task('environment.chalice', gulp.series(
+    'environment.chalice_config',
+    'environment.chalice_deploy'
+));
