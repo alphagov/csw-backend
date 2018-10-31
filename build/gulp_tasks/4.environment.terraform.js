@@ -269,7 +269,8 @@ gulp.task('environment.terraform_ssh', function() {
     return file.data;
   }))
   .pipe(data(function(file) {
-    task = "ssh csw-uat.dev -C \"hostname\"";
+    hostname = file.data.prefix+".dev"
+    task = "ssh "+hostname+" -C \"sudo hostname "+hostname+"\"";
     return helpers.runTaskInPipelinePromise(task, environment_path, file);
   }));
 
