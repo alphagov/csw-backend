@@ -193,6 +193,11 @@ def database_create_item(event, context):
 
 
 @app.lambda_function()
+def database_create_items(event, context):
+    return admin.execute_database_create_items(app, event, context)
+
+
+@app.lambda_function()
 def database_get_item(event, context):
     return admin.execute_database_get_item(app, event, context)
 

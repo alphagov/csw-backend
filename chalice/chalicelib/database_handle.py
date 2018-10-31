@@ -139,6 +139,27 @@ class DatabaseHandle():
 
         return item
 
+    def create_items(self, event):
+
+        db = self.get_handle()
+        created = []
+        try:
+            db.connect()
+
+            for item_data in event['Items']:
+
+                model = self.get_model(item_data['Model'])
+                item = model.create(**item_data['Params'])
+                created.append(item)
+
+            db.close()
+        except Exception as e:
+            if db is not None:
+                db.rollback()
+            self.app.log.debug(str(e))
+
+        return created
+
     def get_item(self, event):
 
         db = self.get_handle()

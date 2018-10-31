@@ -73,6 +73,22 @@ def execute_database_create_item(app, event, context):
     return json_data
 
 
+def execute_database_create_items(app, event, context):
+
+    try:
+        dbh = DatabaseHandle(app)
+
+        created = dbh.create_items(event)
+
+        json_data = app.utilities.to_json(created)
+
+    except Exception as err:
+        app.log.error(str(err))
+        json_data = None
+
+    return json_data
+
+
 def execute_database_get_item(app, event, context):
 
     app.log.debug('database_get_item function')
