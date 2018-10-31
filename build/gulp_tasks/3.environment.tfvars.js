@@ -82,14 +82,6 @@ gulp.task('environment.apply.tfvars', function() {
     file.data = defaults;
     return content;
   }))
-  // Get RDS root password from parameter store
-  .pipe(data(function(file) {
-
-    var parameter = '/csw/'+env+'/rds/root';
-    var property = 'postgres_root_password';
-    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
-
-  }))
   .pipe(data(function(file) {
 
     // sanitize any unexpected extra paramters from AWS response
@@ -100,7 +92,6 @@ gulp.task('environment.apply.tfvars', function() {
       'prefix',
       'host_account_id',
       'bucket_name',
-      'postgres_root_password',
       'ip_16bit_prefix',
       'ssh_key_name',
       'ssh_public_key_path'

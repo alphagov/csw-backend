@@ -28,6 +28,7 @@ gulp.task('environment.chalice_config', function() {
   // Load default chalice config file
 
   var pipeline = gulp.src(default_chalice_config)
+  /*
   .pipe(data(function(file) {
 
     var task = 'terraform output -json';
@@ -36,17 +37,18 @@ gulp.task('environment.chalice_config', function() {
   	return helpers.getTerraformOutputInPipelinePromise(working, file);
 
   }))
+  */
   .pipe(data(function(file) {
     // read env settings file into file.data
-    file.data.settings = JSON.parse(fs.readFileSync(settings_file));
-    console.log(file.data.settings);
+    file.data = JSON.parse(fs.readFileSync(settings_file));
+    console.log(file.data);
     return file.data;
   }))
   .pipe(data(function(file) {
 
     var parameter = '/csw/'+env+'/rds/user';
     var property = 'postgres_user_password';
-    return helpers.getParameterInPipelinePromise(parameter, file.data.settings.region, file, property);
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
 
   }))
   .pipe(modifyFile(function(content, path, file) {
@@ -61,14 +63,14 @@ gulp.task('environment.chalice_config', function() {
     renameProperty(file.data.config.stages, '<env>', env);
 
     // set database credentials
-    file.data.config.stages[env].environment_variables.CSW_ENV = file.data.settings.environment;
-    file.data.config.stages[env].environment_variables.CSW_PREFIX = file.data.settings.prefix;
+    file.data.config.stages[env].environment_variables.CSW_ENV = file.data.environment;
+    file.data.config.stages[env].environment_variables.CSW_PREFIX = file.data.prefix;
     file.data.config.stages[env].environment_variables.CSW_PASSWORD = file.data.postgres_user_password;
     file.data.config.stages[env].environment_variables.CSW_HOST = file.data.rds_connection_string.value;
-    file.data.config.stages[env].environment_variables.CSW_REGION = file.data.settings.region;
+    file.data.config.stages[env].environment_variables.CSW_REGION = file.data.region;
 
-    var role_name = file.data.settings.prefix+"_CstSecurityAgentRole"
-    var role_arn = "arn:aws:iam::"+file.data.settings.host_account_id+":role/"+role_name;
+    var role_name = file.data.prefix+"_CstSecurityAgentRole"
+    var role_arn = "arn:aws:iam::"+file.data.host_account_id+":role/"+role_name;
     file.data.config.stages[env].iam_role_arn = role_arn;
     var subnets = [
       file.data.public_subnet_1_id.value,

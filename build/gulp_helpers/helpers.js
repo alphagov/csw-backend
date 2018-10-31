@@ -9,7 +9,7 @@ var helpers = {
 
         var root_path = __dirname;
 
-        root_path.split('/');
+        var dirs = root_path.split('/');
         dirs.pop();
         dirs.pop();
         root_path = dirs.join('/');

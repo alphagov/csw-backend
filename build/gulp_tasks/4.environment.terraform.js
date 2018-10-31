@@ -4,6 +4,7 @@
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');
+const modifyFile = require('gulp-modify-file');
 const exec = require('child-process-promise').exec;
 const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
@@ -49,6 +50,11 @@ gulp.task('environment.terraform_output', function() {
 
   // Load settings file
   var pipeline = gulp.src(settings_file)
+  .pipe(modifyFile(function(content, path, file) {
+    var defaults = JSON.parse(content);
+    file.data = defaults;
+    return content;
+  }))
   // Get terraform output and add to file.data
   .pipe(data(function(file) {
 
@@ -58,9 +64,9 @@ gulp.task('environment.terraform_output', function() {
 
     return promise;
   }))
-  .pipe(modifyFile(file) {
+  .pipe(modifyFile(function(content, path, file)  {
     return JSON.stringify(file.data, null, 4);
-  })
+  }))
   .pipe(gulp.dest(environment_path));
 
   return pipeline;
@@ -73,13 +79,29 @@ gulp.task('environment.terraform_plan', function() {
   
   var root_path = helpers.getRootPath();
 
-  var terraform_path = root_path + '/environments/'+env+'/terraform';
+  var environment_path = root_path + '/environments/'+env;
+  var terraform_path = environment_path+'/terraform';
+  var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
-  // Load default settings
-  var pipeline = gulp.src('./node_modules/csw-infra')
+
+  // Load settings file
+  var pipeline = gulp.src(settings_file)
+  .pipe(modifyFile(function(content, path, file) {
+    var defaults = JSON.parse(content);
+    file.data = defaults;
+    return content;
+  }))
+  // Get RDS root password from parameter store
   .pipe(data(function(file) {
 
-  	var task = 'terraform plan -var-file='+terraform_path+'/apply.tfvars';
+    var parameter = '/csw/'+env+'/rds/root';
+    var property = 'postgres_root_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
+
+  }))
+  .pipe(data(function(file) {
+
+  	var task = 'terraform plan -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\'';
   	var working = terraform_path+tool_path;
 
     return helpers.runTaskInPipelinePromise(task, working, file);
@@ -96,14 +118,29 @@ gulp.task('environment.terraform_apply', function() {
   
   var root_path = helpers.getRootPath();
 
-  var terraform_path = root_path + '/environments/'+env+'/terraform';
+  var environment_path = root_path + '/environments/'+env;
+  var terraform_path = environment_path+'/terraform';
+  var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
-  
-  // Load default settings
-  var pipeline = gulp.src('./node_modules/csw-infra')
+
+  // Load settings file
+  var pipeline = gulp.src(settings_file)
+  .pipe(modifyFile(function(content, path, file) {
+    var defaults = JSON.parse(content);
+    file.data = defaults;
+    return content;
+  }))
+  // Get RDS root password from parameter store
   .pipe(data(function(file) {
 
-  	var task = 'terraform apply -var-file='+terraform_path+'/apply.tfvars -auto-approve';
+    var parameter = '/csw/'+env+'/rds/root';
+    var property = 'postgres_root_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
+
+  }))
+  .pipe(data(function(file) {
+
+  	var task = 'terraform apply -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
   	var working = terraform_path+tool_path;
 
   	return helpers.runTaskInPipelinePromise(task, working, file);
@@ -119,11 +156,18 @@ gulp.task('environment.terraform_destroy', function() {
   
   var root_path = helpers.getRootPath();
 
-  var terraform_path = root_path + '/environments/'+env+'/terraform';
+  var environment_path = root_path + '/environments/'+env;
+  var terraform_path = environment_path+'/terraform';
+  var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
 
-  // Load default settings
-  var pipeline = gulp.src('./node_modules/csw-infra')
+  // Load settings file
+  var pipeline = gulp.src(settings_file)
+  .pipe(modifyFile(function(content, path, file) {
+    var defaults = JSON.parse(content);
+    file.data = defaults;
+    return content;
+  }))
   .pipe(data(function(file) {
 
     var task = 'terraform destroy -var-file='+terraform_path+'/apply.tfvars -auto-approve';
@@ -134,5 +178,9 @@ gulp.task('environment.terraform_destroy', function() {
   return pipeline;
 });
 
-gulp.task('environment.terraform', gulp.series('environment.terraform_init','environment.terraform_apply'));
+gulp.task('environment.terraform', gulp.series(
+    'environment.terraform_init',
+    'environment.terraform_apply',
+    'environment.terraform_output'
+));
 
