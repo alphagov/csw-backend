@@ -21,19 +21,14 @@ gulp.task('environment.backend.tfvars', function() {
       file.data.bucket = "" + file.data.bucket_name;
       file.data.key = 'staging/'+file.data.tool+'/'+file.data.environment+'.tfstate';
       file.data.encrypt = true;
-      var remove = [
-        'bucket_name',
-        'tool',
-        'google_creds',
-        'host_account_id',
-        'environment',
-        'prefix',
-        'ip_16bit_prefix',
-        'ssh_key_name',
-        'ssh_public_key_path'
+      var keep = [
+        'region',
+        'bucket',
+        'key',
+        'encrypt'
       ];
 
-      file.data = helpers.removePropertiesInPipeline(file.data, remove);
+      file.data = helpers.removeExceptPropertiesInPipeline(file.data, keep);
       return file.data
   }))
   .pipe(data(function(file) {
