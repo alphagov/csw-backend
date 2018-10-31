@@ -148,6 +148,8 @@ class DatabaseHandle():
 
             for item_data in event['Items']:
 
+                self.app.log.debug(str(item_data))
+
                 model = self.get_model(item_data['Model'])
                 item = model.create(**item_data['Params'])
                 created.append(item)
@@ -156,7 +158,7 @@ class DatabaseHandle():
         except Exception as e:
             if db is not None:
                 db.rollback()
-            self.app.log.debug(str(e))
+            self.app.log.error(str(e))
 
         return created
 
