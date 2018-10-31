@@ -56,18 +56,18 @@ gulp.task('environment.chalice_config', function() {
     file.data.config.stages[env].environment_variables.CSW_ENV = file.data.environment;
     file.data.config.stages[env].environment_variables.CSW_PREFIX = file.data.prefix;
     file.data.config.stages[env].environment_variables.CSW_PASSWORD = file.data.postgres_user_password;
-    file.data.config.stages[env].environment_variables.CSW_HOST = file.data.rds_connection_string.value;
+    file.data.config.stages[env].environment_variables.CSW_HOST = file.data.rds_connection_string;
     file.data.config.stages[env].environment_variables.CSW_REGION = file.data.region;
 
     var role_name = file.data.prefix+"_CstSecurityAgentRole"
     var role_arn = "arn:aws:iam::"+file.data.host_account_id+":role/"+role_name;
     file.data.config.stages[env].iam_role_arn = role_arn;
     var subnets = [
-      file.data.public_subnet_1_id.value,
-      file.data.public_subnet_2_id.value
+      file.data.public_subnet_1_id,
+      file.data.public_subnet_2_id
     ];
     var security_groups = [
-      file.data.public_security_group_id.value,
+      file.data.public_security_group_id
     ];
 
     for (lambda in file.data.config.stages[env].lambda_functions) {
