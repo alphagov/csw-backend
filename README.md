@@ -133,11 +133,47 @@ the existing environment state file)
 
 It runs `terraform apply` to build your 
 infrastructure and saves the terraform 
-outputs to your `settings.json` file. 
+outputs to your `settings.json` file.
+
+Compiles SASS and copies assets from `govuk-frontend` 
 
 Then it creates a chalice `config.json` and 
 runs `chalice deploy --stage=[env]`
 
 Finally it creates and bootstraps the 
 database, creating the tables and populating 
-the lookup content and checks.     
+the lookup content and checks.   
+
+### Loading an existing environment
+* Creates your settings file and tfvars files
+* Reinitialises terraform from S3 
+* Reads terraform output into the settings file
+* Creates the chalice config  
+```buildoutcfg
+gulp environment.load --env=[env]
+```  
+
+### Deploy an existing environment
+* Compiles SASS and copies assets from `govuk-frontend`
+* Runs terraform apply 
+* Runs chalice deploy 
+```buildoutcfg
+gulp environment.deploy --env=[env]
+```
+Alternatively you can run ..
+```buildoutcfg
+gulp environment.terraform_apply --env=[env]
+```
+.. or .. 
+```buildoutcfg
+gulp environment.chalice_deploy --env=[env]
+```
+.. independently. 
+
+### Delete and existing environment 
+* Runs chalice delete 
+* Runs terraform destroy
+```buildoutcfg
+gulp environment.cleanup --env=[env]
+```
+
