@@ -60,15 +60,6 @@ file names should be
 
 ### Building your environment 
 
-If you're running in a non-default AWS account where 
-access is assumed via a profile you will need to set 
-up aws-vault so you can assume the profile to run 
-these commands. 
-
-If you're running against the AWS account attached 
-to your default credentials and don't use aws-vault 
-you can just run the commands from gulp onwards.
-
 Create shared credentials in parameter store.
 These are the Google API OAuth credentials and the 
 name of the S3 bucket used to store the terraform 
@@ -83,13 +74,26 @@ credentials are used in production.
 
 If you're creating a new environment in an account 
 that is already running an existing environment you 
-can skip this step. 
+can skip this step.
+
+If you're running in a non-default AWS account where 
+access is assumed via a profile you will need to set 
+up aws-vault so you can assume the profile to run 
+these commands. 
+
+If you're running against the AWS account attached 
+to your default credentials and don't use aws-vault 
+you can just run the commands from gulp onwards. 
 
 ```loadparams
 cd /path/to/csw-backend/build
 aws-vault exec [profile] -- gulp parameters.shared
 ```
 
+From here onwards `aws-vault exec [profile]` has been left out 
+but it's assumed that any `gulp` task should be preceded 
+with an appropriate `aws-vault` profile.  
+ 
 NPM install installs;
 * `govuk-frontend` and its dependencies
 * `gulp` and some modules for running buid tasks
