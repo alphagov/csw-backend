@@ -244,18 +244,21 @@ gulp.task('environment.terraform_ssh', function() {
     }
     ssh_key = file.data.ssh_public_key_path.replace(/\.pub$/,'');
 
+    var domain = file.data.tool+'.'+env;
+    var bastion = "bast."+domain;
+    var developer = "dev."+domain;
     // build environment config
     lines.push(env_start);
-    lines.push('Host '+file.data.prefix+'.bst');
+    lines.push('Host '+bastion);
     lines.push('    User ubuntu');
     lines.push('    HostName '+file.data.bastion_public_ip);
     lines.push('    IdentityFile '+ssh_key);
     lines.push('');
-    lines.push('Host '+file.data.prefix+'.dev');
+    lines.push('Host '+developer);
     lines.push('    User ubuntu');
     lines.push('    HostName '+file.data.developer_ip);
     lines.push('    IdentityFile '+ssh_key);
-    lines.push('    ProxyCommand ssh '+file.data.prefix+'.bst nc %h %p');
+    lines.push('    ProxyCommand ssh '+bastion+' nc %h %p');
     lines.push(env_end);
     lines.push('');
 
@@ -269,8 +272,10 @@ gulp.task('environment.terraform_ssh', function() {
     return file.data;
   }))
   .pipe(data(function(file) {
-    hostname = file.data.prefix+".dev"
-    task = "ssh "+hostname+" -C \"sudo hostname "+hostname+"\"";
+    var domain = file.data.tool+'.'+env;
+    var hostname = "dev."+domain;
+    var prompt = hostname.replace(/\./g,'-');
+    task = "ssh "+hostname+" -C \"sudo hostname "+prompt+"\"";
     return helpers.runTaskInPipelinePromise(task, environment_path, file);
   }));
 
