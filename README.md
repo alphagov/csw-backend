@@ -45,7 +45,7 @@ in which case you need to update it or delete it.
 
 ### Prerequisites 
 
-* Create a Google API Console credentials file. 
+* Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
 You will only need to do this in an AWS 
 account where this has not already been set up. 
 * Create an SSH key. The build script uses 

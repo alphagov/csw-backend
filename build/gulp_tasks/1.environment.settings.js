@@ -62,7 +62,7 @@ gulp.task('environment.settings', function() {
     // Ask user for an SSH key name
 
     var name = 'ssh_key_name';
-    var prompt = 'Please enter the name of an existing AWS ssh key:';
+    var prompt = 'Please enter the name of an existing ssh key:';
     return helpers.promptInputPromise(name, prompt, file);
   }))
   .pipe(data(function(file) {
