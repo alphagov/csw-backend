@@ -87,13 +87,7 @@ gulp.task('environment.settings', function() {
       'ssh_key_name',
       'ssh_public_key_path'
     ];
-    /*
-    for (item in file.data) {
-      if (expected.indexOf(item) < 0) {
-        delete file.data[item];
-      }
-    }
-    */
+
     file.data = helpers.removeExceptPropertiesInPipeline(file.data, expected);
     file.data.prefix = file.data.tool + '-' + file.data.environment;
 
