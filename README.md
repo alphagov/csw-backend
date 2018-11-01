@@ -2,7 +2,7 @@
 (csw-backend)
 This repository contains the code for creating an 
 instance of Cloud Security Watch running in an 
-infrastructure created by [csw-infra](https://github.com/alphagov/csw-infra)
+infrastructure created by [alphagov/csw-infra](https://github.com/alphagov/csw-infra)
 
 
 
@@ -95,9 +95,9 @@ but it's assumed that any `gulp` task should be preceded
 with an appropriate `aws-vault` profile.  
  
 NPM install installs;
-* `govuk-frontend` and its dependencies
-* `gulp` and some modules for running buid tasks
-* `alphagov/csw-infra` to terraform the infrastructure
+* [alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) and its dependencies
+* [gulp](https://gulpjs.com/) and some modules for running buid tasks
+* [alphagov/csw-infra](https://github.com/alphagov/csw-infra) to terraform the infrastructure
   
 ```install-dependencies
 npm install
