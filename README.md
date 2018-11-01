@@ -52,11 +52,12 @@ account where this has not already been set up.
 ssh to tunnel to the RDS instance and create 
 the database. It also creates a box which can 
 be used for deploying chalice when working 
-remotely with less bandwidth. Like id_rsa, the
-difference between the private and public key 
-file names should be 
+remotely with less bandwidth. The simplest approach is probably 
+to match the env name. Like id_rsa, the difference between the 
+private and public key file names should be: 
     * private=`/path/to/[keyname]` 
-    * public=`/path/to/[keyname].pub`. 
+    * public=`/path/to/[keyname].pub`
+ 
 
 ### Building your environment 
 
