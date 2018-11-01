@@ -240,40 +240,6 @@ gulp.task('environment.database_populate', function() {
                 "active": false,
                 "is_regional": false
             }
-        },
-        {
-            "Model":"ProductTeam",
-            "Params":{
-                "team_name":"Cyber Security",
-                "active":true
-            }
-        },
-        {
-            "Model":"AccountSubscription",
-            "Params":{
-                "account_id":779799343306,
-                "account_name":"CST Live",
-                "product_team_id":1,
-                "active":true
-            }
-        },
-        {
-            "Model":"AccountSubscription",
-            "Params":{
-                "account_id":103495720024,
-                "account_name":"CST Test",
-                "product_team_id":1,
-                "active":true
-            }
-        },
-        {
-            "Model":"AccountSubscription",
-            "Params":{
-                "account_id":670214072732,
-                "account_name":"CST Build",
-                "product_team_id":1,
-                "active":false
-            }
         }
     ]
   };
@@ -293,3 +259,8 @@ gulp.task('environment.database_populate', function() {
 
 });
 
+gulp.task('environment.database_build', gulp.series(
+    'environment.database_create',
+    'environment.database_create_tables',
+    'environment.database_populate'
+));

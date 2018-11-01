@@ -43,94 +43,101 @@ in which case you need to update it or delete it.
 
 ## Create your AWS environment 
 
-Before you can run the chalice code you need to terraform a VPC 
-for it to run in. 
+### Prerequisites 
 
-https://github.com/alphagov/csw-infra
+* Create a Google API Console credentials file. 
+You will only need to do this in an AWS 
+account where this has not already been set up. 
+* Create an SSH key. The build script uses 
+ssh to tunnel to the RDS instance and create 
+the database. It also creates a box which can 
+be used for deploying chalice when working 
+remotely with less bandwidth. Like id_rsa, the
+difference between the private and public key 
+file names should be 
+    * private=`/path/to/[keyname]` 
+    * public=`/path/to/[keyname].pub`. 
 
-Follow the instructions in the readme to create your env. 
+### Building your environment 
 
-## Create your chalice config.json
+If you're running in a non-default AWS account where 
+access is assumed via a profile you will need to set 
+up aws-vault so you can assume the profile to run 
+these commands. 
 
-For developer environments your env name should be your name in 
-lower case
+If you're running against the AWS account attached 
+to your default credentials and don't use aws-vault 
+you can just run the commands from gulp onwards.
 
-1. `cd environments`
-2. `chalice new-project <your env name>`
-3. `cd <your env name>`
-4. Test the chalice deploy prefix with aws-vault exec if using 
-`chalice deploy` `chalice delete` 
-5. `cd ../chalice`
-6. Link your .chalice config folder into the chalice code 
-`ln -fs ../environments/<your env name>/.chalice .chalice`
-7. Update your .chalice/config.json with the settings 
-from terraform output _(TODO - automate this)_    
-8. Change the stage name to <your env name>
-9. Change the api_gateway_stage to "app"
-10. Run `chalice deploy --stage=<your env name>`
+Create shared credentials in parameter store.
+These are the Google API OAuth credentials and the 
+name of the S3 bucket used to store the terraform 
+states. 
 
-## Bootstrap the database 
+These are created once in each AWS account and 
+reused for multiple environments. The assumption is 
+that the live environment will be the only env 
+deployed to the live account. So credentials are 
+shared by test environments but different 
+credentials are used in production.
 
-```
-aws lambda invoke \
---function-name csw-dan-database_run \ 
---payload \
-'{ \
-  "User":"root", \
-  "Password":"<your root password>", \
-  "Commands":[ \
-    "CREATE DATABASE csw;", \
-    "CREATE USER cloud_sec_watch WITH ENCRYPTED PASSWORD '<your user password>';", \
-    "GRANT ALL PRIVILEGES ON DATABASE csw TO cloud_sec_watch;" \
-  ] \
-}' /tmp/lambda.out
-```
-`TODO - Create 2 users and close down the run privileges`
+If you're creating a new environment in an account 
+that is already running an existing environment you 
+can skip this step. 
 
-Once you've created the run user put the credentials into the 
-environment variables in your .chalice/config.json
-
-## Creating schema tables 
-
-This isn't perfect yet. It's access controlled by who has lambda permission so by assuming you can run the lambda. 
-
-```
-aws lambda invoke \ 
---function-name csw-dan-database_create_tables \ 
---payload \
-'{ \
-   "Tables":[ \
-     "ProductTeam", \
-     "AccountSubscription" \
-   ] \
-}' /tmp/lambda.out
+```loadparams
+cd /path/to/csw-backend/build
+aws-vault exec [profile] -- gulp parameters.shared
 ```
 
-## Inserting test data
-
-```
-aws-vault exec cst-test -- aws lambda invoke \ 
---function-name csw-dan-database_create_item \ 
---payload \ 
-'{ \
-  "Model":"ProductTeam", \
-  "Params":{ \
-    "team_name":"<team name>", \
-    "active":true \
-  } \
-}' /tmp/lambda.out
-
-aws-vault exec cst-test -- aws lambda invoke \
---function-name csw-dan-database_create_item \
---payload \
-'{ \
-  "Model":"AccountSubscription", \
-  "Params":{ \
-    "account_id":<aws account id>, \
-    "account_name":"<aws account name>", \
-    "product_team_id":<reference to above>, \
-    "active":true \
-  } \
-}' /tmp/lambda.out
+NPM install installs;
+* `govuk-frontend` and its dependencies
+* `gulp` and some modules for running buid tasks
+* `alphagov/csw-infra` to terraform the infrastructure
+  
+```install-dependencies
+npm install
 ```
 
+Environments can be test stages or named for 
+individual developers. Names should be short, 
+lower case with no spaces.
+
+``` 
+aws-vault exec [profile] -- gulp environment.build --env=[env name]
+```
+
+The `environment.build` task is made up of several 
+tasks.  
+
+You will first be prompted for some settings:
+* A 16bit mask for your internal IP ranges. 
+We've used:
+    * 10.x for developers
+    * 10.10x for test environments
+* The name of your ssh key and the path to 
+the public key. This will create an ssh key 
+on AWS and upload your public key. 
+      
+It will create a `settings.json` file for your 
+environment in `/path/to/csw-backend/environments/[env]`
+      
+It then generates some random passwords for 
+RDS and uploads them to AWS parameter store. 
+
+Then it creates your terraform tfvars files. 
+
+Then it initialises terraform with S3 (For 
+an existing environment it will retrieve 
+the existing environment state file)
+
+It runs `terraform apply` to build your 
+infrastructure and saves the terraform 
+outputs to your `settings.json` file. 
+
+Then it creates a chalice `config.json` and 
+runs `chalice deploy --stage=[env]`
+
+Finally it creates and bootstraps the 
+database, creating the tables and populating 
+the lookup content and checks.     

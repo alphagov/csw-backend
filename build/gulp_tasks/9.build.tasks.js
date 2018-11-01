@@ -24,7 +24,8 @@ gulp.task('environment.load', gulp.series(
 gulp.task('environment.build', gulp.series(
     'environment.setup',
     'environment.terraform',
-    'environment.chalice'
+    'environment.chalice',
+    'environment.database_build'
 ));
 
 // Re-copy assets
