@@ -112,12 +112,16 @@ Environments can be test stages or named for
 individual developers. Names should be short, 
 lower case with no spaces.
 
+### environment.build 
+
 ```build-env 
 aws-vault exec [profile] -- gulp environment.build --env=[env name]
 ```
 
 The `environment.build` task is made up of several 
-tasks.  
+sub-tasks.  
+
+#### environment.settings
 
 You will first be prompted for some settings:
 * A 16bit mask for your internal IP ranges. 
@@ -130,11 +134,17 @@ on AWS and upload your public key.
       
 It will create a `settings.json` file for your 
 environment in `/path/to/csw-backend/environments/[env]`
+
+#### environment.params
       
 It then generates some random passwords for 
-RDS and uploads them to AWS parameter store. 
+RDS and uploads them to AWS parameter store.
 
-Then it creates your terraform tfvars files. 
+#### environment.tfvars 
+
+Then it creates your terraform tfvars files.
+
+#### environment.terraform 
 
 Then it initialises terraform with S3 (For 
 an existing environment it will retrieve 
@@ -144,10 +154,26 @@ It runs `terraform apply` to build your
 infrastructure and saves the terraform 
 outputs to your `settings.json` file.
 
-Compiles SASS and copies assets from `govuk-frontend` 
+The `environment.terraform` task has sub-tasks 
+which can all be run independently as necessary
+
+#### sass.csw
+
+Compiles SASS 
+
+#### copy.assets
+
+Copies assets from `govuk-frontend` 
+
+#### environment.chalice
 
 Then it creates a chalice `config.json` and 
 runs `chalice deploy --stage=[env]`
+
+The `environment.chalice` task has sub-tasks which 
+can all be run independently as necessary
+
+#### environment.database_build
 
 Finally it creates and bootstraps the 
 database, creating the tables and populating 
