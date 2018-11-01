@@ -48,7 +48,7 @@ in which case you need to update it or delete it.
 * Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
 You will only need to do this in an AWS 
 account where this has not already been set up. 
-* Create an SSH key. The build script uses 
+* Create an [SSH key](https://www.ssh.com/ssh/keygen/). The build script uses 
 ssh to tunnel to the RDS instance and create 
 the database. It also creates a box which can 
 be used for deploying chalice when working 
@@ -85,7 +85,7 @@ If you're running against the AWS account attached
 to your default credentials and don't use aws-vault 
 you can just run the commands from gulp onwards. 
 
-```loadparams
+```load-params
 cd /path/to/csw-backend/build
 aws-vault exec [profile] -- gulp parameters.shared
 ```
@@ -107,7 +107,7 @@ Environments can be test stages or named for
 individual developers. Names should be short, 
 lower case with no spaces.
 
-``` 
+```build-env 
 aws-vault exec [profile] -- gulp environment.build --env=[env name]
 ```
 
@@ -153,7 +153,8 @@ the lookup content and checks.
 * Reinitialises terraform from S3 
 * Reads terraform output into the settings file
 * Creates the chalice config  
-```buildoutcfg
+
+```load-env
 gulp environment.load --env=[env]
 ```  
 
@@ -161,15 +162,18 @@ gulp environment.load --env=[env]
 * Compiles SASS and copies assets from `govuk-frontend`
 * Runs terraform apply 
 * Runs chalice deploy 
-```buildoutcfg
+
+```deploy-env
 gulp environment.deploy --env=[env]
 ```
 Alternatively you can run ..
-```buildoutcfg
+
+```terraform-env
 gulp environment.terraform_apply --env=[env]
 ```
-.. or .. 
-```buildoutcfg
+.. and/or .. 
+
+```chalice-env
 gulp environment.chalice_deploy --env=[env]
 ```
 .. independently. 
@@ -177,7 +181,8 @@ gulp environment.chalice_deploy --env=[env]
 ### Delete and existing environment 
 * Runs chalice delete 
 * Runs terraform destroy
-```buildoutcfg
+
+```destroy-env
 gulp environment.cleanup --env=[env]
 ```
 
