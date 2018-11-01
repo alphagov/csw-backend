@@ -29,7 +29,7 @@ gulp.task('environment.build', gulp.series(
 ));
 
 // Re-copy assets
-// Recompile CSS
+// Re-compile CSS
 // Re-apply terraform
 // Re-deploy chalice
 gulp.task('environment.deploy', gulp.series(
