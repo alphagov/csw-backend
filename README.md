@@ -60,6 +60,12 @@ file names should be
 
 ### Building your environment 
 
+All the build tasks are run from the build directory 
+
+```build-folder
+cd /path/to/csw-backend/build
+```
+
 Create shared credentials in parameter store.
 These are the Google API OAuth credentials and the 
 name of the S3 bucket used to store the terraform 
@@ -86,7 +92,6 @@ to your default credentials and don't use aws-vault
 you can just run the commands from gulp onwards. 
 
 ```load-params
-cd /path/to/csw-backend/build
 aws-vault exec [profile] -- gulp parameters.shared
 ```
 
