@@ -1,4 +1,4 @@
-# Cloud Security Watch - Backend
+# Cloud Security Watch
 (csw-backend)
 This repository contains the code for creating an 
 instance of Cloud Security Watch running in an 
