@@ -58,6 +58,30 @@ private and public key file names should be:
     * private=`/path/to/[keyname]` 
     * public=`/path/to/[keyname].pub`
  
+### AWS vault
+
+If you're running in a non-default AWS account where 
+access is assumed via a profile you will need to set 
+up aws-vault so you can assume the profile to run 
+these commands. 
+
+If you're running against the AWS account attached 
+to your default credentials and don't use aws-vault 
+you can just run the commands from gulp onwards. 
+
+```gulp
+gulp [task]
+```
+
+.. becomes .. 
+
+```aws-vault-gulp
+aws-vault exec [profile] -- gulp [task]
+``` 
+
+From here onwards `aws-vault exec [profile]` has been left out 
+but it's assumed that any `gulp` task should be preceded 
+with an appropriate `aws-vault` profile.   
 
 ### Building your environment 
 
@@ -67,6 +91,17 @@ All the build tasks are run from the build directory
 cd /path/to/csw-backend/build
 ```
 
+NPM install installs;
+* [alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) and its dependencies
+* [gulp](https://gulpjs.com/) and some modules for running buid tasks
+* [alphagov/csw-infra](https://github.com/alphagov/csw-infra) to terraform the infrastructure
+  
+```install-dependencies
+npm install
+```
+
+#### Upload shared parameters
+ 
 Create shared credentials in parameter store.
 These are the Google API OAuth credentials and the 
 name of the S3 bucket used to store the terraform 
@@ -83,30 +118,8 @@ If you're creating a new environment in an account
 that is already running an existing environment you 
 can skip this step.
 
-If you're running in a non-default AWS account where 
-access is assumed via a profile you will need to set 
-up aws-vault so you can assume the profile to run 
-these commands. 
-
-If you're running against the AWS account attached 
-to your default credentials and don't use aws-vault 
-you can just run the commands from gulp onwards. 
-
 ```load-params
-aws-vault exec [profile] -- gulp parameters.shared
-```
-
-From here onwards `aws-vault exec [profile]` has been left out 
-but it's assumed that any `gulp` task should be preceded 
-with an appropriate `aws-vault` profile.  
- 
-NPM install installs;
-* [alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) and its dependencies
-* [gulp](https://gulpjs.com/) and some modules for running buid tasks
-* [alphagov/csw-infra](https://github.com/alphagov/csw-infra) to terraform the infrastructure
-  
-```install-dependencies
-npm install
+gulp parameters.shared
 ```
 
 Environments can be test stages or named for 
