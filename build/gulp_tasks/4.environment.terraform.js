@@ -16,11 +16,7 @@ gulp.task('environment.terraform_init', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = __dirname;
-  var dirs = root_path.split('/');
-  dirs.pop();
-  dirs.pop();
-  root_path = dirs.join('/');
+  var root_path = helpers.getRootPath();
 
   var terraform_path = root_path + '/environments/'+env+'/terraform';
   var tool_path = '/csw-infra/tools/'+tool;
