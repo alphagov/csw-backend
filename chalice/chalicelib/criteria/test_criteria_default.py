@@ -6,6 +6,7 @@ import importlib
 import unittest
 
 from chalice import Chalice
+from chalicelib.criteria.test_data import EMPTY_SUMMARY
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
@@ -20,44 +21,13 @@ class TestCriteriaDefault(unittest.TestCase):
         initialise the the Chalice app objects once to reuse it in every test
         """
         cls.app = Chalice('test_app')
-        cls.empty_summary = {
-            'all': {
-                'display_stat': 0,
-                'category': 'all',
-                'modifier_class': 'tested'
-            },
-            'applicable': {
-                'display_stat': 0,
-                'category': 'tested',
-                'modifier_class': 'precheck'
-            },
-            'non_compliant': {
-                'display_stat': 0,
-                'category': 'failed',
-                'modifier_class': 'failed'
-            },
-            'compliant': {
-                'display_stat': 0,
-                'category': 'passed',
-                'modifier_class': 'passed'
-            },
-            'not_applicable': {
-                'display_stat': 0,
-                'category': 'ignored',
-                'modifier_class': 'passed'
-            },
-            'regions': {
-                'list': [],
-                'count': 0
-            }
-        }
-        
+
     def setUp(self):
         """
         initialise the class before every test
         """
         self.criteria_default = CriteriaDefault(self.app)
-        
+
     def test_init_success(self):
         """
         test that initialization works
@@ -100,14 +70,14 @@ class TestCriteriaDefault(unittest.TestCase):
         self.assertIsInstance(
             self.criteria_default.client, gds_aws_client_class
         )
-        
+
     def test_get_session(self):
         """
         test the get_session method for success and failure
         """
         self.assertFalse(self.criteria_default.get_session())
         #TODO: find acount/role params to test for success returning a string
-        
+
     def test_describe(self):
         """
         test the describe method for success and failure
@@ -119,14 +89,71 @@ class TestCriteriaDefault(unittest.TestCase):
         ]
         for key in describe:
             self.assertIn(key, keys)
-        
+
     def test_get_data(self):
         """
         test the get_data method for output for any input
         """
         self.assertEqual(self.criteria_default.get_data('any_input'), [])
-    
-    #TODO: test_build_evaluation
+
+    def test_build_evaluation(self):
+        """
+        black box test of the build_evaluation method
+        """
+        # mock input params
+        resource_id = 'any_string'
+        compliance_type = 'COMPLIANT'
+        event = {}
+        resource_type = self.criteria_default.resource_type
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type
+        )
+        self.assertIsInstance(built_evaluation, dict)
+        keys = [
+            'resource_type', 'resource_id', 'compliance_type',
+            'is_compliant', 'is_applicable', 'status_id',
+        ]
+        for key in built_evaluation:
+            self.assertIn(key, keys)
+        # recall the method with the annotation optional param
+        annotation = 'optional_string'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertIsInstance(built_evaluation, dict)
+        self.assertIn('annotation', built_evaluation)
+        # return values tests for type correctness and values when possible
+        self.assertEqual(built_evaluation['annotation'], annotation)
+        self.assertEqual(built_evaluation['resource_type'], resource_type)
+        self.assertEqual(built_evaluation['resource_id'], resource_id)
+        self.assertEqual(built_evaluation['compliance_type'], compliance_type)
+        self.assertTrue(built_evaluation['is_compliant'])
+        self.assertTrue(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
+        # finally the remaining cases of compliance_type
+        compliance_type = 'NON_COMPLIANT'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertFalse(built_evaluation['is_compliant'])
+        self.assertTrue(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
+        compliance_type = 'NOT_APPLICABLE'
+        built_evaluation = self.criteria_default.build_evaluation(
+            resource_id, compliance_type, event, resource_type, annotation
+        )
+        self.assertFalse(built_evaluation['is_compliant'])
+        self.assertFalse(built_evaluation['is_applicable'])
+        self.assertEqual(
+            built_evaluation['status_id'],
+            self.criteria_default.get_status(built_evaluation)
+        )
 
     def test_get_status(self):
         """
@@ -152,17 +179,14 @@ class TestCriteriaDefault(unittest.TestCase):
         self.assertEqual(
             self.criteria_default.get_status(eval_dicts[1]), 3
         )
-        
+
     def test_empty_summary(self):
         """
         test the empty_summary method
         """
         self.assertEqual(
-            self.criteria_default.empty_summary(),
-            self.empty_summary
+            self.criteria_default.empty_summary(), EMPTY_SUMMARY
         )
-        
-    #TODO: test_empty_summary
 
 
 if __name__ == '__main__':
