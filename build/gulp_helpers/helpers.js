@@ -2,6 +2,7 @@ const exec = require('child-process-promise').exec;
 const awsParamStore = require('aws-param-store');
 const AWS = require('aws-sdk');
 const Input = require('prompt-input');
+const fs = require('fs');
 
 var helpers = {
 
@@ -194,6 +195,63 @@ var helpers = {
 		);
 
 		return promise;
+	},
+
+	s3UploadPromise: function(file) {
+
+	  var s3 = new AWS.S3({region: file.data.region});
+
+      var params = {
+        Body: file.data.content,
+        Bucket: file.data.bucket_name,
+        Key: file.data.key
+      };
+      var request = s3.putObject(params);
+      var promise = request.promise()
+      .then(
+        function(data) {
+          console.log(data);
+          return file.data;
+        },
+        function(error) {
+          /* handle the error */
+          console.log('Failed to upload to S3');
+          console.log(error.stderr);
+          return file.data;
+        }
+      );
+
+      return promise;
+
+	},
+
+	s3DownloadPromise: function(file) {
+
+      var s3 = new AWS.S3({region: file.data.region});
+
+      var params = {
+        Bucket: file.data.bucket_name,
+        Key: file.data.key,
+        ResponseContentType: 'text/plain'
+      };
+
+      var request = s3.getObject(params);
+      var promise = request.promise()
+      .then(
+        function(data) {
+          console.log(data);
+          file.data.content = data.Body.toString('utf-8');
+          return file.data;
+        },
+        function(error) {
+          /* handle the error */
+          console.log('Failed to upload to S3');
+          console.log(error.stderr);
+          return file.data;
+        }
+      );
+
+      return promise;
 	},
 
 	removePropertiesInPipeline: function(data, remove) {

@@ -5,12 +5,87 @@ const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');
 const modifyFile = require('gulp-modify-file');
+const rename = require('gulp-rename');
 const exec = require('child-process-promise').exec;
 const awsParamStore = require('aws-param-store');
+const AWS = require('aws-sdk');
 const fs = require('fs');
 
 console.log(process.cwd());
 const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
+
+
+gulp.task('environment.chalice_s3_store', function() {
+
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var root_path = helpers.getRootPath();
+
+  var chalice_path = root_path + '/chalice';
+  var settings_file = root_path + '/environments/'+env+'/settings.json';
+  var chalice_config = root_path + '/environments/'+env+'/.chalice';
+
+  var deployed = chalice_config+'/deployed/'+env+'.json';
+
+  var promise = gulp.src(deployed)
+  .pipe(data(function(file) {
+    // read env settings file into file.data
+    file.data = JSON.parse(fs.readFileSync(settings_file));
+    return file.data;
+  }))
+  .pipe(data(function(file) {
+    file.data.key = "staging/csw/chalice/"+env+".json";
+    return file.data
+  }))
+  .pipe(modifyFile(function(content, path, file) {
+    file.data.content = content;
+    return content;
+  }))
+  .pipe(data(function(file) {
+    console.log("Uploading " + file.data.key + " to " + file.data.bucket_name);
+    var promise = helpers.s3UploadPromise(file);
+    return promise;
+  }));
+
+  return promise;
+
+});
+
+gulp.task('environment.chalice_s3_retrieve', function() {
+
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var root_path = helpers.getRootPath();
+
+  var chalice_path = root_path + '/chalice';
+  var settings_file = root_path + '/environments/'+env+'/settings.json';
+  var chalice_config = root_path + '/environments/'+env+'/.chalice';
+
+  var deployed = chalice_config+'/deployed/'+env+'.json';
+
+  var promise = gulp.src(settings_file)
+  .pipe(modifyFile(function(content, path, file) {
+    file.data = JSON.parse(content);
+  }))
+  .pipe(data(function(file) {
+    file.data.key = "staging/csw/chalice/"+env+".json";
+    return file.data
+  }))
+  .pipe(data(function(file) {
+    console.log("Downloading " + file.data.key + " from " + file.data.bucket_name);
+    var promise = helpers.s3DownloadPromise(file);
+    return promise;
+  }))
+  .pipe(modifyFile(function(content, path, file) {
+    return file.data.content;
+  }))
+  .pipe(rename(env+".json"))
+  .pipe(gulp.dest(chalice_config+"/deployed"));
+
+  return promise;
+});
 
 
 gulp.task('environment.chalice_config', function() {
@@ -140,6 +215,7 @@ gulp.task('environment.chalice_delete', function() {
   return pipeline;
 
 });
+
 
 gulp.task('environment.chalice', gulp.series(
     'environment.chalice_config',
