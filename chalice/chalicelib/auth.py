@@ -45,7 +45,7 @@ class AuthHandler:
         if 'CSW_ENV' in os.environ:
 
             env = os.environ['CSW_ENV']
-            self.app.log.debug(f"Get environment params: {env}");
+            self.app.log.debug(f"Get environment params: {env}")
 
             params = {
                 "client_config": f"/csw/google/api-credentials",
