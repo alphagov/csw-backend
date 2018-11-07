@@ -287,6 +287,7 @@ var helpers = {
           /* handle the error */
           console.log('Failed to download from S3');
           console.log(error.stderr);
+          file.data.content = "";
           return file.data;
         }
       );
