@@ -3,6 +3,7 @@ const awsParamStore = require('aws-param-store');
 const AWS = require('aws-sdk');
 const Input = require('prompt-input');
 const fs = require('fs');
+const os = require('os');
 
 var helpers = {
 
@@ -16,6 +17,45 @@ var helpers = {
         root_path = dirs.join('/');
 
         return root_path
+    },
+
+    getConfigLocations: function(env, tool) {
+
+        var root_path = this.getRootPath();
+
+        var config = {
+            env: env,
+            tool: tool,
+            paths: {},
+            files: {}
+        };
+
+        config.paths.home = os.homedir();
+        config.paths.root = root_path;
+        // default files
+        config.files.default_settings = root_path + '/environments/example/settings.json';
+        config.files.default_chalice_config = root_path + '/environments/example/.chalice/config.json';
+
+        // terraform root folder
+        config.paths.environment = root_path + '/environments/'+env;
+        config.files.environment_settings = root_path + '/environments/'+env+'/settings.json';
+        // terraform root folder
+        config.paths.terraform = root_path + '/environments/'+env+'/terraform';
+        config.paths.terraform_tool = config.paths.terraform+'/csw-infra/tools/'+tool;
+        config.files.terraform_apply = config.paths.terraform+'/apply.tfvars';
+        config.files.terraform_backend = config.paths.terraform+'/backend.tfvars';
+        // chalice config path
+        config.paths.chalice_environment = root_path + '/environments/'+env+'/.chalice';
+        config.paths.chalice_code = root_path + '/chalice';
+        config.paths.chalice_deployed = config.paths.chalice_environment+'/deployed';
+        config.files.chalice_config = config.paths.chalice_environment+'/config.json';
+        config.files.chalice_deployed = config.paths.chalice_deployed+'/'+env+'.json';
+
+        // S3 states
+        config.files.s3_tfstate = "staging/"+tool+"/"+env+".tfstate";
+        config.files.s3_chalice_state = "staging/csw/chalice/"+tool+"/"+env+".json";
+
+        return config;
     },
 
 	runTaskPromise: function(task, dir) {
@@ -245,8 +285,34 @@ var helpers = {
         },
         function(error) {
           /* handle the error */
-          console.log('Failed to upload to S3');
+          console.log('Failed to download from S3');
           console.log(error.stderr);
+          return file.data;
+        }
+      );
+
+      return promise;
+	},
+
+	s3DeletePromise: function(file) {
+
+      var s3 = new AWS.S3({region: file.data.region});
+
+      var params = {
+        Bucket: file.data.bucket_name,
+        Key: file.data.key
+      };
+
+      var request = s3.deleteObject(params);
+      var promise = request.promise()
+      .then(
+        function(data) {
+          return file.data;
+        },
+        function(error) {
+          /* handle the error */
+          console.log('Failed to delete from S3');
+          console.log(error);
           return file.data;
         }
       );

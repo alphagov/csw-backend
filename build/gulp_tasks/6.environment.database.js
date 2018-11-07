@@ -17,15 +17,10 @@ gulp.task('environment.database_create', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = helpers.getRootPath();
-
-  var environment_path = root_path + '/environments/'+env;
-  var terraform_path = environment_path+'/terraform';
-  var settings_file = environment_path+'/settings.json';
-  var tool_path = '/csw-infra/tools/'+tool;
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.settings)
   // Parse settings into file.data
   .pipe(modifyFile(function(content, path, file) {
     var settings = JSON.parse(content);
@@ -53,7 +48,7 @@ gulp.task('environment.database_create', function() {
   // Pass commands to psql_tunnel.py script
   .pipe(data(function(file) {
 
-    path = root_path + "/build/gulp_helpers";
+    path = config.paths.root + "/build/gulp_helpers";
 
     command = "CREATE DATABASE " + file.data.tool + ";";
 
@@ -78,15 +73,13 @@ gulp.task('environment.database_create', function() {
 gulp.task('environment.database_create_tables', function() {
 
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = helpers.getRootPath();
-
-  var environment_path = root_path + '/environments/'+env;
-  var settings_file = environment_path+'/settings.json';
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load default chalice config file
 
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.settings)
   // Read settings into file.data
   .pipe(modifyFile(function(content, path, file) {
     var settings = JSON.parse(content);
@@ -114,15 +107,15 @@ gulp.task('environment.database_create_tables', function() {
     };
 
     var function_name = "csw-"+env+"-database_create_tables";
-    var output_file = environment_path + "/lambda.out"
-    var working = environment_path;
+    var output_file = config.paths.environment + "/lambda.out"
+    var working = config.paths.environment;
 
     return helpers.lambdaInvokePromise(function_name, working, payload, file, output_file);
 
   }))
   .pipe(data(function(file) {
 
-    var file = environment_path + "/lambda.out"
+    var file = config.paths.environment + "/lambda.out"
     output = JSON.parse(fs.readFileSync(file));
     console.log(output);
 
@@ -137,11 +130,9 @@ gulp.task('environment.database_create_tables', function() {
 gulp.task('environment.database_populate', function() {
 
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = helpers.getRootPath();
-
-  var environment_path = root_path + '/environments/'+env;
-  var settings_file = environment_path+'/settings.json';
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load default chalice config file
   var payloads = {
@@ -244,12 +235,12 @@ gulp.task('environment.database_populate', function() {
     ]
   };
 
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.settings)
   .pipe(data(function(file) {
     var i;
     var function_name = "csw-"+env+"-database_create_items";
-    var output_file = environment_path + "/lambda.out"
-    var working = environment_path;
+    var output_file = config.paths.environment + "/lambda.out"
+    var working = config.paths.environment;
 
     return helpers.lambdaInvokePromise(function_name, working, payloads, file, output_file);
   }));

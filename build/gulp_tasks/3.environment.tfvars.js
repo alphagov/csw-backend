@@ -9,17 +9,23 @@ const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
 gulp.task('environment.backend.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+
   // Load default settings
-  var pipeline = gulp.src('../environments/'+env+'/settings.json')
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
+    file.data.config = config
     return content;
   }))
   .pipe(data(function(file) {
       // sanitize
       file.data.bucket = "" + file.data.bucket_name;
-      file.data.key = 'staging/'+file.data.tool+'/'+file.data.environment+'.tfstate';
+      //file.data.key = 'staging/'+file.data.tool+'/'+file.data.environment+'.tfstate';
+      file.data.key = config.files.s3_tfstate;
       file.data.encrypt = true;
       var keep = [
         'region',
@@ -70,8 +76,11 @@ gulp.task('environment.backend.tfvars', function() {
 
 gulp.task('environment.apply.tfvars', function() {
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
   // Load default settings
-  var pipeline = gulp.src('../environments/'+env+'/settings.json')
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;

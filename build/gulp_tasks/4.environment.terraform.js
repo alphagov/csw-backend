@@ -16,17 +16,17 @@ gulp.task('environment.terraform_init', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = helpers.getRootPath();
+  var config = helpers.getConfigLocations(env, tool);
+  console.log(config);
 
-  var terraform_path = root_path + '/environments/'+env+'/terraform';
-  var tool_path = '/csw-infra/tools/'+tool;
   // Load default settings
   var pipeline = gulp.src('./node_modules/csw-infra')
-  .pipe(gulp.symlink(terraform_path))
+  .pipe(gulp.symlink(config.paths.terraform))
   .pipe(data(function(file) {
 
-    var task = 'terraform init -backend-config='+terraform_path+'/backend.tfvars -reconfigure';
-    var working = terraform_path+tool_path;
+    var task = 'terraform init -backend-config='+config.paths.terraform+'/backend.tfvars -reconfigure';
+    //var working = terraform_path+tool_path;
+    var working = config.paths.terraform_tool;
 
     return helpers.runTaskInPipelinePromise(task, working, file);
 
@@ -39,16 +39,19 @@ gulp.task('environment.terraform_output', function() {
   
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
-  
+
+  /*
   var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
+  */
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
@@ -57,7 +60,8 @@ gulp.task('environment.terraform_output', function() {
   // Get terraform output and add to file.data
   .pipe(data(function(file) {
 
-    var working = terraform_path+tool_path;
+    //var working = terraform_path+tool_path;
+    var working = config.paths.terraform_tool;
 
   	var promise = helpers.getTerraformOutputInPipelinePromise(working, file);
 
@@ -66,7 +70,7 @@ gulp.task('environment.terraform_output', function() {
   .pipe(modifyFile(function(content, path, file)  {
     return JSON.stringify(file.data, null, 4);
   }))
-  .pipe(gulp.dest(environment_path));
+  .pipe(gulp.dest(config.paths.environment));
 
   return pipeline;
 });
@@ -75,16 +79,19 @@ gulp.task('environment.terraform_plan', function() {
   
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
-  
+
+  /*
   var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
+  */
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
@@ -100,8 +107,9 @@ gulp.task('environment.terraform_plan', function() {
   }))
   .pipe(data(function(file) {
 
-  	var task = 'terraform plan -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\'';
-  	var working = terraform_path+tool_path;
+  	var task = 'terraform plan -var-file='+config.paths.terraform+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\'';
+  	//var working = terraform_path+tool_path;
+  	var working = config.paths.terraform_tool;
 
     return helpers.runTaskInPipelinePromise(task, working, file);
 
@@ -114,16 +122,19 @@ gulp.task('environment.terraform_apply', function() {
   
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
-  
+
+  /*
   var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
+  */
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
@@ -139,8 +150,9 @@ gulp.task('environment.terraform_apply', function() {
   }))
   .pipe(data(function(file) {
 
-  	var task = 'terraform apply -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
-  	var working = terraform_path+tool_path;
+  	var task = 'terraform apply -var-file='+config.paths.terraform+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
+  	//var working = terraform_path+tool_path;
+  	var working = config.paths.terraform_tool;
 
   	return helpers.runTaskInPipelinePromise(task, working, file);
 
@@ -152,16 +164,19 @@ gulp.task('environment.terraform_destroy', function() {
   
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
-  
+
+  /*
   var root_path = helpers.getRootPath();
 
   var environment_path = root_path + '/environments/'+env;
   var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
+  */
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(settings_file)
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
@@ -177,8 +192,9 @@ gulp.task('environment.terraform_destroy', function() {
   }))
   .pipe(data(function(file) {
 
-    var task = 'terraform destroy -var-file='+terraform_path+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
-  	var working = terraform_path+tool_path;
+    var task = 'terraform destroy -var-file='+config.paths.terraform+'/apply.tfvars -var \'postgres_root_password='+file.data.postgres_root_password+'\' -auto-approve';
+  	//var working = terraform_path+tool_path;
+  	var working = config.paths.terraform_tool;
 
   	return helpers.runTaskInPipelinePromise(task, working, file);
   }));
@@ -190,7 +206,7 @@ gulp.task('environment.terraform_ssh', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var home = os.homedir();
+  /*
   console.log(home);
 
   var root_path = helpers.getRootPath();
@@ -199,12 +215,14 @@ gulp.task('environment.terraform_ssh', function() {
   var terraform_path = environment_path+'/terraform';
   var settings_file = environment_path+'/settings.json';
   var tool_path = '/csw-infra/tools/'+tool;
+  */
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(home+'/.ssh/config')
+  var pipeline = gulp.src(config.paths.home+'/.ssh/config')
   .pipe(data(function(file) {
     // make .ssh/config writable
-    fs.chmodSync(home+'/.ssh/config', 0600);
+    fs.chmodSync(config.paths.home+'/.ssh/config', 0600);
     // read env settings file into file.data
     file.data = JSON.parse(fs.readFileSync(settings_file));
     return file.data;
@@ -261,10 +279,10 @@ gulp.task('environment.terraform_ssh', function() {
     console.log(lines);
     return lines.join('\n');
   }))
-  .pipe(gulp.dest(home+'/.ssh'))
+  .pipe(gulp.dest(config.paths.home+'/.ssh'))
   .pipe(data(function(file) {
     // reset file permissions
-    fs.chmodSync(home+'/.ssh/config', 0400);
+    fs.chmodSync(config.paths.home+'/.ssh/config', 0400);
     return file.data;
   }))
   .pipe(data(function(file) {
@@ -272,7 +290,7 @@ gulp.task('environment.terraform_ssh', function() {
     var hostname = "dev."+domain;
     var prompt = hostname.replace(/\./g,'-');
     task = "ssh "+hostname+" -C \"sudo hostname "+prompt+"\"";
-    return helpers.runTaskInPipelinePromise(task, environment_path, file);
+    return helpers.runTaskInPipelinePromise(task, config.paths.environment, file);
   }));
 
   return pipeline;

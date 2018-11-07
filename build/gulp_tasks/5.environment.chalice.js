@@ -1,6 +1,3 @@
-/**
-  Define a .chalice/config.json config file from the terraform outputs and environment settings
-*/
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');
@@ -14,24 +11,19 @@ const fs = require('fs');
 console.log(process.cwd());
 const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
-
-gulp.task('environment.chalice_s3_store', function() {
+// Store Chalice state file in S3 state bucket alongside Terraform tfstate.
+// (after chalice deploy)
+gulp.task('environment.chalice_s3_store_state', function() {
 
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = helpers.getRootPath();
+  var config = helpers.getConfigLocations(env, tool);
 
-  var chalice_path = root_path + '/chalice';
-  var settings_file = root_path + '/environments/'+env+'/settings.json';
-  var chalice_config = root_path + '/environments/'+env+'/.chalice';
-
-  var deployed = chalice_config+'/deployed/'+env+'.json';
-
-  var promise = gulp.src(deployed)
+  var promise = gulp.src(config.files.chalice_deployed)
   .pipe(data(function(file) {
     // read env settings file into file.data
-    file.data = JSON.parse(fs.readFileSync(settings_file));
+    file.data = JSON.parse(fs.readFileSync(config.files.environment_settings));
     return file.data;
   }))
   .pipe(data(function(file) {
@@ -52,20 +44,17 @@ gulp.task('environment.chalice_s3_store', function() {
 
 });
 
-gulp.task('environment.chalice_s3_retrieve', function() {
+
+// Retrieve Chalice state file from S3 and apply to chalice config folder
+// (before chalice deploy)
+gulp.task('environment.chalice_s3_retrieve_state', function() {
 
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var root_path = helpers.getRootPath();
+  var config = helpers.getConfigLocations(env, tool);
 
-  var chalice_path = root_path + '/chalice';
-  var settings_file = root_path + '/environments/'+env+'/settings.json';
-  var chalice_config = root_path + '/environments/'+env+'/.chalice';
-
-  var deployed = chalice_config+'/deployed/'+env+'.json';
-
-  var promise = gulp.src(settings_file)
+  var promise = gulp.src(config.files.environment_settings)
   .pipe(modifyFile(function(content, path, file) {
     file.data = JSON.parse(content);
   }))
@@ -82,30 +71,108 @@ gulp.task('environment.chalice_s3_retrieve', function() {
     return file.data.content;
   }))
   .pipe(rename(env+".json"))
-  .pipe(gulp.dest(chalice_config+"/deployed"));
+  .pipe(gulp.dest(config.paths.chalice_deployed));
 
   return promise;
 });
 
+// Remove Chalice state file from S3 bucket
+// (after chalice delete)
+gulp.task('environment.chalice_s3_delete_state', function() {
 
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+
+  var promise = gulp.src(config.files.environment_settings)
+  .pipe(modifyFile(function(content, path, file) {
+    file.data = JSON.parse(content);
+  }))
+  .pipe(data(function(file) {
+    file.data.key = "staging/csw/chalice/"+env+".json";
+    return file.data
+  }))
+  .pipe(data(function(file) {
+    console.log("Deleting " + file.data.key + " from " + file.data.bucket_name);
+    var promise = helpers.s3DeletePromise(file);
+    return promise;
+  }));
+
+  return promise;
+});
+
+// TODO move the backup archived state file to S3
+// Make a copy of the chalice state file in a folder named after the api gateway id.
+// (after chalice deploy)
+// Makes it easier to recover if something goes wrong and the chalice state file
+// gets overwritten without being deleted first.
+gulp.task('environment.chalice_archive_state', function() {
+
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+
+  var promise = gulp.src(config.files.chalice_deployed)
+  .pipe(modifyFile(function(content, path, file) {
+    file.data = JSON.parse(content);
+    return content;
+  }))
+  .pipe(data(function(file) {
+    var i, item;
+    for (i in file.data.resources) {
+        item = file.data.resources[i];
+        if (item.name == "rest_api") {
+            console.log(item);
+            file.data.api_id = item.rest_api_id;
+        }
+    }
+
+  }))
+  .pipe(gulp.dest(function(file) {
+    return config.paths.chalice_deployed + "/" + file.data.api_id;
+  }));
+
+  return promise;
+
+});
+
+// TODO move the backup archived state file to S3
+// If chalice deploy / delete gets out of sync you can retrieve
+// and delete the old state from the archived state file
+gulp.task('environment.chalice_recover_state', function() {
+
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+  var state = (args.state == undefined)?'?':args.state;
+
+  var config = helpers.getConfigLocations(env, tool);
+  var archive_state = config.paths.chalice_deployed+"/"+state+"/"+env+".json";
+
+  var promise = gulp.src(archive_state)
+  .pipe(gulp.dest(config.paths.chalice_deployed));
+
+  return promise;
+
+});
+
+// Generate chalice config file
+// This task should only be run after environment.terraform_output
+// which populates the terraform state variables into settings.json
 gulp.task('environment.chalice_config', function() {
   
   var env = (args.env == undefined)?'test':args.env;
-  var tool = (args.tool == undefined)?'csw':args.tool; 
-  
-  var root_path = helpers.getRootPath();
+  var tool = (args.tool == undefined)?'csw':args.tool;
 
-  var terraform_path = root_path + '/environments/'+env+'/terraform';
-  var settings_file = root_path + '/environments/'+env+'/settings.json';
-  var default_chalice_config = root_path + '/environments/example/.chalice/config.json';
-  var target_chalice_path = root_path + '/environments/'+env+'/.chalice';
-  var tool_path = '/csw-infra/tools/'+tool;
+  var config = helpers.getConfigLocations(env, tool);
+
   // Load default chalice config file
 
-  var pipeline = gulp.src(default_chalice_config)
+  var pipeline = gulp.src(config.files.default_chalice_config)
   .pipe(data(function(file) {
     // read env settings file into file.data
-    file.data = JSON.parse(fs.readFileSync(settings_file));
+    file.data = JSON.parse(fs.readFileSync(config.files.environment_settings));
     console.log(file.data);
     return file.data;
   }))
@@ -154,70 +221,76 @@ gulp.task('environment.chalice_config', function() {
     file.data.content = JSON.stringify(file.data.config, null, 4);
     return file.data.content;
   }))
-  .pipe(gulp.dest(target_chalice_path));
+  .pipe(gulp.dest(config.paths.chalice_environment));
 
   return pipeline;
 });
 
-
+// Wrapper gulp task for chalice deploy command
 gulp.task('environment.chalice_deploy', function() {
   
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
-  
-  var root_path = helpers.getRootPath();
 
-  var chalice_path = root_path + '/chalice';
-  var settings_file = root_path + '/environments/'+env+'/settings.json';
-  var chalice_config = root_path + '/environments/'+env+'/.chalice';
-  var tool_path = '/csw-infra/tools/'+tool;
+  var config = helpers.getConfigLocations(env, tool);
 
-
-  var pipeline = gulp.src(chalice_config)
+  var pipeline = gulp.src(config.paths.chalice_environment)
   // symlink .chalice folder into csw-backend/chalice folder
-  .pipe(gulp.symlink(chalice_path))
+  .pipe(gulp.symlink(config.paths.chalice_code))
   // execute the chalice deploy function for stage=env
   .pipe(data(function(file) {
-    
+
     var task = 'chalice deploy --stage='+env;
 
-    return helpers.runTaskInPipelinePromise(task, chalice_path, file);
+    return helpers.runTaskInPipelinePromise(task, config.paths.chalice_code, file);
   }));
 
   return pipeline;
 
 });
 
-
+// Wrapper gulp task for chalice delete command
 gulp.task('environment.chalice_delete', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool; 
   
-  var root_path = helpers.getRootPath();
+  var config = helpers.getConfigLocations(env, tool);
 
-  var chalice_path = root_path + '/chalice';
-  var settings_file = root_path + '/environments/'+env+'/settings.json';
-  var chalice_config = root_path + '/environments/'+env+'/.chalice';
-  var tool_path = '/csw-infra/tools/'+tool;
-
-
-  var pipeline = gulp.src(chalice_config)
+  var pipeline = gulp.src(config.paths.chalice_environment)
   // symlink .chalice folder into csw-backend/chalice folder
-  .pipe(gulp.symlink(chalice_path))
+  .pipe(gulp.symlink(function() {
+    console.log(config.paths.chalice_code);
+    return config.paths.chalice_code;
+  }))
   // execute the chalice deploy function for stage=env
   .pipe(data(function(file) {
     
     var task = 'chalice delete --stage='+env;
 
-    return helpers.runTaskInPipelinePromise(task, chalice_path, file);
+    return helpers.runTaskInPipelinePromise(task, config.paths.chalice_code, file);
   }));
 
   return pipeline;
 
 });
 
-
-gulp.task('environment.chalice', gulp.series(
+// Perform full chalice initialisation and deploy
+// including loading and saving state to S3.
+gulp.task('environment.chalice_s3_deploy', gulp.series(
     'environment.chalice_config',
-    'environment.chalice_deploy'
+    'environment.chalice_s3_retrieve_state',
+    'environment.chalice_deploy',
+    'environment.chalice_archive_state',
+    'environment.chalice_s3_store_state'
 ));
+
+// Perform full chalice initialisation and delete
+// including loading and saving state to S3.
+gulp.task('environment.chalice_s3_delete', gulp.series(
+    'environment.chalice_config',
+    'environment.chalice_s3_retrieve_state',
+    'environment.chalice_delete',
+    'environment.chalice_s3_delete_state'
+));
+
+

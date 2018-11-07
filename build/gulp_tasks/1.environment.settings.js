@@ -10,9 +10,12 @@ const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 gulp.task('environment.settings', function() {
 
   var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
 
   // Load default settings
-  var pipeline = gulp.src('../environments/example/settings.json')
+  var pipeline = gulp.src(config.files.default_settings)
   .pipe(modifyFile(function(content, path, file) {
     var defaults = JSON.parse(content);
     file.data = defaults;
@@ -97,7 +100,6 @@ gulp.task('environment.settings', function() {
   .pipe(modifyFile(function(content, path, file){
     return JSON.stringify(file.data, null, 4);
   }))
-  //.pipe(rename("settings.json"))
   .pipe(gulp.dest(function(file) {
     return "../environments/"+file.data.environment;
   }))

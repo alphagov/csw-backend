@@ -24,7 +24,7 @@ gulp.task('environment.load', gulp.series(
 gulp.task('environment.build', gulp.series(
     'environment.setup',
     'environment.terraform',
-    'environment.chalice',
+    'environment.chalice_s3_deploy',
     'environment.database_build'
 ));
 
@@ -36,12 +36,13 @@ gulp.task('environment.deploy', gulp.series(
     'copy.assets',
     'sass.csw',
     'environment.terraform',
-    'environment.chalice'
+    'environment.chalice_s3_deploy'
 ));
 
 // Delete chalice and destroy terraformed environment in AWS
+// Chalice.destroy wrappers the methods to sync the statefile with S3
 // Leaves settings in tact
 gulp.task('environment.cleanup', gulp.series(
-    'environment.chalice_delete',
+    'environment.chalice_s3_delete',
     'environment.terraform_destroy'
 ));
