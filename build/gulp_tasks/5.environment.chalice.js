@@ -67,6 +67,19 @@ gulp.task('environment.chalice_s3_retrieve_state', function() {
     var promise = helpers.s3DownloadPromise(file);
     return promise;
   }))
+  .pipe(data(function(file) {
+    // if the S3 key doesn't exist (a new environment being deployed for the first time)
+    // the s3DownloadPromise will return file.data.content as an empty string
+    // in this case we need to create an empty chalice state file that
+    if (!file.data.content || file.data.content == "") {
+        file.data.content = JSON.stringify({
+            "resources": [],
+            "schema_version": "2.0",
+            "backend": "api"
+        }, null, 4);
+    }
+    return file.data;
+  }))
   .pipe(modifyFile(function(content, path, file) {
     return file.data.content;
   }))
@@ -290,7 +303,7 @@ gulp.task('environment.chalice_s3_delete', gulp.series(
     'environment.chalice_config',
     'environment.chalice_s3_retrieve_state',
     'environment.chalice_delete',
-    'environment.chalice_s3_delete_state'
+    'environment.chalice_s3_store_state'
 ));
 
 
