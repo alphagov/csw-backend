@@ -39,8 +39,8 @@ class CriteriaDefault():
         self, resource_id, compliance_type, event, resource_type,
         annotation=None
     ):
-
-        """Form an evaluation as a dictionary.
+        """
+        Form an evaluation as a dictionary.
         Usually suited to report on scheduled rules.
         Keyword arguments:
         resource_id -- the unique id of the resource to report
