@@ -1,6 +1,7 @@
 import os
 #import psycopg2
 from playhouse.postgres_ext import PostgresqlExtDatabase
+from aws.gds_ssm_client import GdsSsmClient
 
 
 class DatabaseHandle():
@@ -10,6 +11,7 @@ class DatabaseHandle():
 
     def __init__(self, app=None):
         self.app = app
+        self.get_credential_params()
 
     def get_env_var(self, var_name):
 
@@ -36,7 +38,8 @@ class DatabaseHandle():
                 db_host = self.get_env_var('CSW_HOST')
                 db_port = self.get_env_var('CSW_PORT')
                 db_user = self.get_env_var('CSW_USER')
-                db_password = self.get_env_var('CSW_PASSWORD')
+                # db_password = self.get_env_var('CSW_PASSWORD')
+                db_password = self.rds_user_password
 
                 self.handle = PostgresqlExtDatabase(
                     'csw',
@@ -59,6 +62,24 @@ class DatabaseHandle():
         # reset handle to force reconnect using new creadentials
         self.handle = None
 
+    def get_credential_params(self):
+
+        if 'CSW_ENV' in os.environ:
+
+            env = os.environ['CSW_ENV']
+            self.app.log.debug(f"Get environment params: {env}")
+
+            params = {
+                "rds_user_password": f"/csw/{env}/rds/user"
+            }
+            param_list = list(params.values())
+
+            ssm = GdsSsmClient(self.app)
+
+            parameters = ssm.get_parameters(param_list, True)
+
+            self.rds_user_password = ssm.get_parameter_value(parameters, params["rds_user_password"])
+
     def execute_commands(self, commands):
 
         status = True
@@ -67,7 +88,8 @@ class DatabaseHandle():
             db_host = self.get_env_var('CSW_HOST')
             db_port = self.get_env_var('CSW_PORT')
             db_user = self.get_env_var('CSW_USER')
-            db_password = self.get_env_var('CSW_PASSWORD')
+            # db_password = self.get_env_var('CSW_PASSWORD')
+            db_password = self.rds_user_password
 
             db = PostgresqlExtDatabase(
                 'postgres',
