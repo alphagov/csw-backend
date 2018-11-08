@@ -224,7 +224,7 @@ gulp.task('environment.terraform_ssh', function() {
     // make .ssh/config writable
     fs.chmodSync(config.paths.home+'/.ssh/config', 0600);
     // read env settings file into file.data
-    file.data = JSON.parse(fs.readFileSync(settings_file));
+    file.data = JSON.parse(fs.readFileSync(config.files.environment_settings));
     return file.data;
   }))
   .pipe(modifyFile(function(content, path, file) {
@@ -289,8 +289,14 @@ gulp.task('environment.terraform_ssh', function() {
     var domain = file.data.tool+'.'+env;
     var hostname = "dev."+domain;
     var prompt = hostname.replace(/\./g,'-');
-    task = "ssh "+hostname+" -C \"sudo hostname "+prompt+"\"";
+    var task = "ssh "+hostname+" -C \"sudo hostname "+prompt+"\"";
     return helpers.runTaskInPipelinePromise(task, config.paths.environment, file);
+  }))
+  .pipe(data(function(file) {
+    var domain = file.data.tool+'.'+env;
+    var hostname = "dev."+domain;
+    var task = "ssh "+hostname+" < build/gulp_helpers/devbox_bootstrap.sh";
+    return helpers.runTaskInPipelinePromise(task, config.paths.root, file);
   }));
 
   return pipeline;

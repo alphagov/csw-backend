@@ -28,6 +28,14 @@ gulp.task('environment.build', gulp.series(
     'environment.database_build'
 ));
 
+// Build a new environment's infrastructure from scratch
+// No chalice deploy
+// No database bootstrapping
+gulp.task('environment.infrastructure', gulp.series(
+    'environment.setup',
+    'environment.terraform'
+));
+
 // Re-copy assets
 // Re-compile CSS
 // Re-apply terraform
@@ -44,5 +52,6 @@ gulp.task('environment.deploy', gulp.series(
 // Leaves settings in tact
 gulp.task('environment.cleanup', gulp.series(
     'environment.chalice_s3_delete',
+    'environment.terraform_init',
     'environment.terraform_destroy'
 ));
