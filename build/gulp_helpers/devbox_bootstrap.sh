@@ -93,28 +93,12 @@ fi
 
 # Install AWS cli
 
-awscli_installed = `aws --version | grep "aws-cli\s+\d+.\d+.\d+" | wc -l`
+aws_cli_installed = `aws --version | grep "aws-cli\s+\d+.\d+.\d+" | wc -l`
 
-if [ $awscli_installed = 0 ]; then
+if [ $aws_cli_installed = 0 ]; then
     pip install awscli
 fi
 
-
-npm_installed = `npm --version | grep "\d+.\d+.\d+" | wc -l`
-
-if [ $npm_installed = 0 ]; then
-
-    sudo apt install -y npm
-
-    sudo ln -s /usr/bin/nodejs /usr/bin/node
-fi
-
-gulpcli_installed = `gulp --version | grep "CLI version \d+.\d+.\d+" | wc -l`
-
-if [ $gulpcli_installed = 0 ]; then
-
-    sudo npm install -g gulp-cli
-fi
 
 # Set AWS defaults
 
@@ -123,6 +107,33 @@ if [ ! -e "/home/ubuntu/.aws/config" ]; then
     echo "[default]\nregion = eu-west-1" > /home/ubuntu/.aws/config
 fi
 
+
+# Install npm update to n stable and install npm-reinstall globally
+
+npm_installed = `npm --version | grep "\d+.\d+.\d+" | wc -l`
+
+if [ $npm_installed = 0 ]; then
+
+    sudo apt install -y npm
+
+    sudo ln -s /usr/bin/nodejs /usr/bin/node
+
+    sudo npm install -g n
+
+    sudo n stable
+
+    sudo npm install -g npm-reinstall
+fi
+
+
+# Install the gulp-cli globally
+
+gulp_cli_installed = `gulp --version | grep "CLI version \d+.\d+.\d+" | wc -l`
+
+if [ $gulp_cli_installed = 0 ]; then
+
+    sudo npm install -g gulp-cli
+fi
 
 # Install the csw-backend codebase
 
