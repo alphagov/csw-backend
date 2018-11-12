@@ -93,12 +93,28 @@ fi
 
 # Install AWS cli
 
-awscli_installed = `aws --version | grep "aws-cli/\d+.\d+.\d+" | wc -l`
+awscli_installed = `aws --version | grep "aws-cli\s+\d+.\d+.\d+" | wc -l`
 
 if [ $awscli_installed = 0 ]; then
     pip install awscli
 fi
 
+
+npm_installed = `npm --version | grep "\d+.\d+.\d+" | wc -l`
+
+if [ $npm_installed = 0 ]; then
+
+    sudo apt install -y npm
+
+    sudo ln -s /usr/bin/nodejs /usr/bin/node
+fi
+
+gulpcli_installed = `gulp --version | grep "CLI version \d+.\d+.\d+" | wc -l`
+
+if [ $gulpcli_installed = 0 ]; then
+
+    sudo npm install -g gulp-cli
+fi
 
 # Set AWS defaults
 
