@@ -233,6 +233,8 @@ gulp.task('environment.chalice_config', function() {
     var security_groups = [
       file.data.public_security_group_id
     ];
+    file.data.config.stages[env].subnet_ids = subnets;
+    file.data.config.stages[env].security_group_ids = security_groups;
 
     for (lambda in file.data.config.stages[env].lambda_functions) {
       console.log(lambda);
