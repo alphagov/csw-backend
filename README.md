@@ -68,6 +68,16 @@ private and public key file names should be:
     
 #### Install gulp-cli globally 
 `sudo npm install -g gulp-cli`
+
+Gulp is a task runner used to run various build tasks.
+
+#### Install npm-reinstall globally
+`sudo npm install -g npm-reinstall`
+
+Does a complete reinstall of npm dependencies not via 
+the cache. Important for picking up github code changes 
+if you're installing a branch rather than a tagged 
+release and want the current commit on that branch.
  
 ### AWS vault
 
