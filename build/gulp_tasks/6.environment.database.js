@@ -22,7 +22,7 @@ gulp.task('environment.database_create', function() {
   var config = helpers.getConfigLocations(env, tool);
 
   // Load settings file
-  var pipeline = gulp.src(config.files.settings)
+  var pipeline = gulp.src(config.files.environment_settings)
   // Parse settings into file.data
   .pipe(modifyFile(function(content, path, file) {
     var settings = JSON.parse(content);
@@ -81,7 +81,7 @@ gulp.task('environment.database_create_tables', function() {
 
   // Load default chalice config file
 
-  var pipeline = gulp.src(config.files.settings)
+  var pipeline = gulp.src(config.files.environment_settings)
   // Read settings into file.data
   .pipe(modifyFile(function(content, path, file) {
     var settings = JSON.parse(content);
@@ -237,7 +237,7 @@ gulp.task('environment.database_populate', function() {
     ]
   };
 
-  var pipeline = gulp.src(config.files.settings)
+  var pipeline = gulp.src(config.files.environment_settings)
   .pipe(data(function(file) {
     var i;
     var function_name = "csw-"+env+"-database_create_items";
