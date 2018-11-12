@@ -1,3 +1,12 @@
+/**
+    Creates chalice config from settings.json (updated with terraform outputs)
+
+    Runs chalice deploy/delete
+
+    The wrapper chalice_s3_store_state and chalice_s3_retrieve_state tasks
+    mimic the backend config behaviour of terraform to allow the same chalice
+    instance to be redeployed from different places.
+ */
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');

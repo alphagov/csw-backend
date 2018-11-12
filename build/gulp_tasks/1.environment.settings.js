@@ -1,3 +1,8 @@
+/**
+    Create a settings JSON file for the new environment
+    This file forms the basis of the terraform tfvars files
+    and the chalice config.
+ */
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');

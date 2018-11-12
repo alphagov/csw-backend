@@ -1,5 +1,7 @@
 /**
-  Create database, user, define schema and populate.
+  Create database, user, define schema and populate with default data.
+
+  This doesn't create any product teams or account subscriptions
 */
 const gulp = require('gulp');
 const args = require('yargs').argv;

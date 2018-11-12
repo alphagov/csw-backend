@@ -1,3 +1,7 @@
+/**
+    This script creates a set of parameters shared across all deployed instances within an AWS account
+    This means that all test and dev environments can share credentials but the live account has its own
+ */
 const gulp = require('gulp');
 const data = require('gulp-data');
 const modifyFile = require('gulp-modify-file');

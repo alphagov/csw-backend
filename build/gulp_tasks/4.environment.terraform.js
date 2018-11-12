@@ -1,6 +1,15 @@
 /**
-  Run terraform init, plan, apply and destroy from the var files defined. 
-*/
+  Run terraform init, plan, apply and destroy from the var files defined.
+
+  Init will reconfigure against the S3 backend so needs to be run
+  when switching environments
+
+  The database root password is not saved to the tfvar files but is
+  passed in as a command line parameter to terraform
+
+  Terraform output content is stored in settings.json to be passed
+  into the chalice config
+ */
 const os = require('os');
 const fs = require('fs');
 const gulp = require('gulp');

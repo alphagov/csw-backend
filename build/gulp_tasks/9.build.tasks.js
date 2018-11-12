@@ -1,3 +1,6 @@
+/**
+    Wrapper tasks to group common build and deploy functions.
+ */
 const gulp = require('gulp');
 
 // Create the settings and parameters for a new environment

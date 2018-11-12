@@ -1,3 +1,6 @@
+/**
+    This script creates the input variable files for terraform
+ */
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');

@@ -1,3 +1,7 @@
+/**
+    Copy the relevant parts of the govuk-frontend codebase into the deployed
+    chalicelib directory
+ */
 var gulp = require('gulp');
 
 gulp.task('copy.assets_files', function() {

@@ -1,3 +1,8 @@
+/**
+    Compile the default govuk-frontend SASS and
+    any extensions added by CSW and save
+    compiled CSS to deployed chalicelib folder
+ */
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 

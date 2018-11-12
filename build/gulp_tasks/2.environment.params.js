@@ -1,3 +1,7 @@
+/**
+    These tasks generate random secret data and upload to AWS SSM ParameterStore
+    as encrypted parameters.
+ */
 const gulp = require('gulp');
 const args = require('yargs').argv;
 const data = require('gulp-data');
