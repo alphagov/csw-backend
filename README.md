@@ -6,7 +6,9 @@ infrastructure created by [alphagov/csw-infra](https://github.com/alphagov/csw-i
 
 
 
-## Create your virtual env 
+## Create your virtual env
+
+**TODO - switch to venv** 
 
 If you're running Python 2.7 or 3.7 you will need to install 3.6.5
  
@@ -45,18 +47,27 @@ in which case you need to update it or delete it.
 
 ### Prerequisites 
 
-* Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
+#### Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
 You will only need to do this in an AWS 
 account where this has not already been set up. 
-* Create an [SSH key](https://www.ssh.com/ssh/keygen/). The build script uses 
-ssh to tunnel to the RDS instance and create 
+
+####Create an [SSH key](https://www.ssh.com/ssh/keygen/). 
+The build script uses ssh to tunnel to the RDS instance and create 
 the database. It also creates a box which can 
 be used for deploying chalice when working 
-remotely with less bandwidth. The simplest approach is probably 
-to match the env name. Like id_rsa, the difference between the 
+remotely with less bandwidth. 
+
+The simplest approach is probably to match the env name.
+The key will be uploaded to AWS so matching the env name 
+avoids conflict and makes it easy to find.  
+
+Like id_rsa, the difference between the 
 private and public key file names should be: 
     * private=`/path/to/[keyname]` 
     * public=`/path/to/[keyname].pub`
+    
+#### Install gulp-cli globally 
+`sudo npm install -g gulp-cli`
  
 ### AWS vault
 
@@ -135,6 +146,14 @@ aws-vault exec [profile] -- gulp environment.build --env=[env name]
 The `environment.build` task is made up of several 
 sub-tasks.  
 
+Especially when building test or developer accounts you 
+may run into AWS Service Limits. In most cases these 
+will be triggered in the `terraform apply` task. 
+
+If terraform fails the output from the script should 
+show the limit which needs increasing and this can be 
+done through an AWS support request. 
+
 #### environment.settings
 
 You will first be prompted for some settings:
@@ -144,10 +163,21 @@ We've used:
     * 10.10x for test environments
 * The name of your ssh key and the path to 
 the public key. This will create an ssh key 
-on AWS and upload your public key. 
+on AWS and upload your public key.
+
+If you've followed the process above the ssh key name 
+should match your env name. It asks for the path to the 
+**public** part of the key **`/path/to/[keyname].pub`**
+
+**If you put your private key path in this setting you 
+will need to generate a new ssh key and start again**  
       
 It will create a `settings.json` file for your 
 environment in `/path/to/csw-backend/environments/[env]`
+
+Make sure you have a `.ssh/config` file in your home 
+directory. If it's not there just use `touch` to create 
+an empty file. 
 
 #### environment.params
       
