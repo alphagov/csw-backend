@@ -289,13 +289,14 @@ gulp.task('environment.terraform_ssh', function() {
     var domain = file.data.tool+'.'+env;
     var hostname = "dev."+domain;
     var prompt = hostname.replace(/\./g,'-');
-    var task = "ssh "+hostname+" -C \"sudo hostname "+prompt+"\"";
-    return helpers.runTaskInPipelinePromise(task, config.paths.environment, file);
+    var task = "scp build/gulp_helpers/devbox_bootstrap.sh "+hostname+":~ubuntu";
+    return helpers.runTaskInPipelinePromise(task, config.paths.root, file);
   }))
   .pipe(data(function(file) {
     var domain = file.data.tool+'.'+env;
     var hostname = "dev."+domain;
-    var task = "ssh "+hostname+" < build/gulp_helpers/devbox_bootstrap.sh";
+    var prompt = hostname.replace(/\./g,'-');
+    var task = "ssh "+hostname+" -C \"bash ~ubuntu/devbox_bootstrap.sh "+prompt+"\"";
     return helpers.runTaskInPipelinePromise(task, config.paths.root, file);
   }));
 
