@@ -194,11 +194,11 @@ gulp.task('environment.database_populate', function() {
         {
             "Model":"Criterion",
             "Params":{
-                "criterion_name":"Security Groups - SSH ingress open for flagged ports",
+                "criterion_name":"Security Groups - Ingress open for flagged ports",
                 "criteria_provider_id":2,
                 "invoke_class_name":"chalicelib.criteria.aws_ec2_security_group_ingress_open.AwsEc2SecurityGroupIngressOpen",
                 "invoke_class_get_data_method": "describe_security_groups",
-                "title": "Security Groups - SSH ingress open for flagged ports",
+                "title": "Security Groups - Ingress open for flagged ports",
                 "description": "Unrestricted inbound connections should not be allowed for certain ports",
                 "why_is_it_important": "By opening ports like FTP or common database connection ports to the world you dramatically increase the risk to your service",
                 "how_do_i_fix_it": "Change unrestricted CIDR to an internal IP range or a whitelist of specific IP addresses"
