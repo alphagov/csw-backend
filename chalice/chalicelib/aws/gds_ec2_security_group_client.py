@@ -115,7 +115,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
         return is_private
 
-    def parent_cidr_contains_chlid_cidr(self, parent, child):
+    def parent_cidr_contains_child_cidr(self, parent, child):
 
         return IPNetwork(child) in IPNetwork(parent)
 

@@ -15,7 +15,7 @@ app = Chalice(app_name='cloud-security-watch')
 
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
-app.prefix = os.environ["CSW_ENV"]
+app.prefix = os.environ["CSW_PREFIX"]
 app.utilities = Utilities()
 
 
@@ -193,6 +193,11 @@ def database_create_item(event, context):
 
 
 @app.lambda_function()
+def database_create_items(event, context):
+    return admin.execute_database_create_items(app, event, context)
+
+
+@app.lambda_function()
 def database_get_item(event, context):
     return admin.execute_database_get_item(app, event, context)
 
@@ -200,6 +205,11 @@ def database_get_item(event, context):
 @app.lambda_function()
 def database_run(event, context):
     return admin.execute_database_run(app, event, context)
+
+
+@app.lambda_function()
+def database_create(event, context):
+    return admin.execute_database_create(app, event, context)
 
 
 @app.lambda_function()

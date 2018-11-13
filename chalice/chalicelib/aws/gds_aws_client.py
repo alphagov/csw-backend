@@ -183,16 +183,19 @@ class GdsAwsClient:
         return role_assumed
 
     # get the role and account id assumed by the current session credentials
-    def get_caller_details(self, session):
+    def get_caller_details(self, session=None):
 
         caller_details = None
         try:
-            sts = boto3.client(
-                'sts',
-                aws_access_key_id=session['AccessKeyId'],
-                aws_secret_access_key=session['SecretAccessKey'],
-                aws_session_token=session['SessionToken']
-            )
+            if session is None:
+                sts = boto3.client('sts')
+            else:
+                sts = boto3.client(
+                    'sts',
+                    aws_access_key_id=session['AccessKeyId'],
+                    aws_secret_access_key=session['SecretAccessKey'],
+                    aws_session_token=session['SessionToken']
+                )
 
             caller_details = sts.get_caller_identity()
         except Exception as err:
@@ -220,6 +223,7 @@ class GdsAwsClient:
                     valid = False
 
             if not valid:
+
                 assumed = self.assume_role(account, role)
                 if not assumed:
                     raise Exception("Assume role failed")

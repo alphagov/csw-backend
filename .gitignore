@@ -119,3 +119,6 @@ build/node_modules
 
 # chalice package compiles
 build/packages
+
+# csw-infra terraform dependency symlink
+build/csw-infra

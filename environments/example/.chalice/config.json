@@ -2,7 +2,7 @@
   "version": "2.0",
   "app_name": "csw",
   "stages": {
-    "dan": {
+    "<env>": {
       "environment_variables": {
         "CSW_ENV": "<your prefix eg csw-dan>",
         "CSW_USER": "cloud_sec_watch",
@@ -11,24 +11,10 @@
         "CSW_PORT": "5432"
       },
       "api_gateway_stage": "app",
-      "lambda_functions": {
-        "database_run": {
-          "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
-          "security_group_ids": ["<terraform output public_security_group_id>"]
-        },
-        "database_create_tables": {
-          "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
-          "security_group_ids": ["<terraform output public_security_group_id>"]
-        },
-        "database_create_item": {
-          "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
-          "security_group_ids": ["<terraform output public_security_group_id>"]
-        },
-        "database_get_item": {
-          "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
-          "security_group_ids": ["<terraform output public_security_group_id>"]
-        }
-      }
+      "manage_iam_role": false,
+      "iam_role_arn": "<exec_role_arn>",
+      "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
+      "security_group_ids": ["<terraform output public_security_group_id>"]
     }
   }
 }
