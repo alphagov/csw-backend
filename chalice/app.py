@@ -90,6 +90,7 @@ def load_route_services():
         ]
 
     except Exception as err:
+        app.log.error('you fucked up')
         app.log.error(str(err))
 
 
@@ -130,4 +131,4 @@ app.log.setLevel(logging.DEBUG)
 app.prefix = os.environ["CSW_PREFIX"]
 app.utilities = Utilities()
 # load decorated function-based views from another chalicelib file
-app.load_views(['views', ])
+app.load_views(['routes', 'views', ])

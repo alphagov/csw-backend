@@ -11,64 +11,7 @@ from app import app, load_route_services, read_asset
 from chalicelib import audit
 from chalicelib import admin
 from chalicelib import demos
-from chalicelib import route
 from chalicelib.template_handler import TemplateHandler
-
-
-@app.route('/')
-def index():
-
-    load_route_services()
-
-    response = app.templates.render_authorized_route_template('/', app.current_request)
-
-    return Response(**response)
-
-
-@app.route('/logout')
-def logout():
-
-    load_route_services()
-
-    response = app.templates.render_authorized_route_template('/logout', app.current_request)
-
-    return Response(**response)
-
-
-@app.route('/team')
-def team_list():
-    load_route_services()
-
-    response = route.route_team_list(app)
-
-    return Response(**response)
-
-
-@app.route('/team/{id}/dashboard')
-def team_dashboard(id):
-    load_route_services()
-
-    response = route.route_team_dashboard(app, int(id))
-
-    return Response(**response)
-
-
-@app.route('/resource/{id}')
-def resource_details(id):
-    load_route_services()
-
-    response = route.route_resource_details(app, int(id))
-
-    return Response(**response)
-
-
-@app.route('/overview')
-def overview():
-    load_route_services()
-
-    response = route.route_overview_dashboard(app)
-
-    return Response(**response)
 
 
 @app.route('/audit')
