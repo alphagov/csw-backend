@@ -14,24 +14,6 @@ from chalicelib import demos
 from chalicelib.template_handler import TemplateHandler
 
 
-@app.route('/audit')
-def audit_list():
-
-    load_route_services()
-
-    response = app.templates.render_authorized_route_template('/audit', app.current_request)
-
-    return Response(**response)
-
-
-@app.route('/audit/{id}')
-def audit_report(id):
-    load_route_services()
-    response = app.templates.render_authorized_route_template('/audit/{id}', app.current_request)
-
-    return Response(**response)
-
-
 # demo routes with static data
 @app.route('/demo')
 def demo_index():

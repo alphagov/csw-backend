@@ -3,7 +3,7 @@ from datetime import datetime
 from botocore.exceptions import ClientError
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
-from chalicelib.models import DatabaseHandle
+from chalicelib.database_handle import DatabaseHandle
 from chalicelib.criteria.aws_ec2_security_group_ingress_open import AwsEc2SecurityGroupIngressOpen
 from chalicelib.criteria.aws_ec2_security_group_ingress_ssh import AwsEc2SecurityGroupIngressSsh
 from chalicelib.criteria.aws_iam_validate_inspector_policy import AwsIamValidateInspectorPolicy

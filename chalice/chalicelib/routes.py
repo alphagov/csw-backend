@@ -1,34 +1,30 @@
 from chalice import Response
 
 from app import app, load_route_services
-from chalicelib.database_handle import DatabaseHandle
 from chalicelib.collator import Collator
+from chalicelib.database_handle import DatabaseHandle
+from chalicelib import models
 
 
 @app.route('/')
 def index():
     load_route_services()
+    app.log.debug('INDEX CONTEXT = ' + str(app.lambda_context))
     return Response(**app.templates.render_authorized_route_template('/', app.current_request))
 
 
 @app.route('/overview')
 def overview_dashboard():
-    app.log.debug("WTF?!")
     load_route_services()
     try:
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
         db.connect()
-        collator = Collator(app, dbh)
-        product_team = dbh.get_model("ProductTeam")
-        account_subscription = dbh.get_model("AccountSubscription")
-        criterion = dbh.get_model("Criterion")
-        teams = (product_team.select().where(product_team.active == True))
-        accounts = (account_subscription.select().where(account_subscription.active == True))
-        for account in accounts:
-            app.log.debug(account.account_name)
-        active_criteria = (criterion.select().where(criterion.active == True))
-        criteria_stats = collator.get_criteria_stats(active_criteria, accounts, teams)
+        criteria_stats = Collator(app, dbh).get_criteria_stats(
+            models.Criterion.select().where(models.Criterion.active == True),
+            models.AccountSubscription.select().where(models.AccountSubscription.active == True),
+            models.ProductTeam.select().where(models.ProductTeam.active == True)
+        )
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_route_template(
             '/overview',
@@ -50,14 +46,14 @@ def team_list():
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
         db.connect()
-        product_team = dbh.get_model("ProductTeam")
-        team_list = []
-        for team in product_team.select().where(product_team.active == True):
-            team_list.append(team.serialize())
         response = app.templates.render_authorized_route_template(
             '/team',
             app.current_request,
-            {'teams': team_list}
+            {
+                'teams': [
+                    team.serialize() for team in models.ProductTeam.select().where(models.ProductTeam.active == True)
+                ]
+            }
         )
     except Exception as err:
         app.log.error("Route: team error: " + str(err))
@@ -76,18 +72,18 @@ def team_dashboard(id):
         db = dbh.get_handle()
         db.connect()
         collator = Collator(app, dbh)
-        product_team = dbh.get_model("ProductTeam")
-        team = product_team.get_by_id(team_id)
+        team = models.ProductTeam.get_by_id(team_id)
         app.log.debug(f"Get team dashboard for team: {team.team_name}  ({ team_id })")
-        accounts = dbh.get_model("AccountSubscription").select().join(product_team).where(product_team.id == team_id)
+        accounts = models.AccountSubscription.select().join(models.ProductTeam).where(models.ProductTeam.id == team_id)
         for account in accounts:
             app.log.debug(account.account_name)
         team_stats = collator.get_team_stats(accounts)
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
-        criterion = dbh.get_model("Criterion")
-        active_criteria = (criterion.select().where(criterion.active == True))
-        criteria_stats = collator.get_criteria_stats(active_criteria, accounts, [team])
-        failed_resources = collator.get_team_failed_resources(team.id)
+        criteria_stats = collator.get_criteria_stats(
+            models.Criterion.select().where(models.Criterion.active == True),
+            accounts,
+            [team]
+        )
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_route_template(
             '/team/{id}/dashboard',
@@ -96,7 +92,7 @@ def team_dashboard(id):
                 "team": team.serialize(),
                 "team_summary": team_stats,
                 "criteria_summary": criteria_stats,
-                "failed_resources": failed_resources
+                "failed_resources": collator.get_team_failed_resources(team.id)
             }
         )
     except Exception as err:
@@ -107,7 +103,7 @@ def team_dashboard(id):
     return Response(**response)
 
 
-@app.route('/resource/{id}')  # TODO: test!
+@app.route('/resource/{id}')
 def resource_details(id):
     id = int(id)
     load_route_services()
@@ -116,26 +112,23 @@ def resource_details(id):
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
         db.connect()
-        audit_resource = dbh.get_model("AuditResource")
-        resource = audit_resource.get_by_id(id)
-        audit = dbh.get_model("AccountAudit").get_by_id(resource.account_audit_id)
-        account = dbh.get_model("AccountSubscription").get_by_id(audit.account_subscription_id)
-        team = dbh.get_model("ProductTeam").get_by_id(account.product_team_id)
-        criterion = dbh.get_model("Criterion").get_by_id(resource.criterion_id)
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
         compliance = (
-            dbh.get_model("ResourceCompliance").select().join(audit_resource).where(audit_resource.id == resource.id)
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
         ).get()
-        status = dbh.get_model("Status").get_by_id(compliance.status_id)
         response = app.templates.render_authorized_route_template(
             '/resource/{id}',
             app.current_request,
             {
-                "team": team.serialize(),
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
                 "account": account.serialize(),
                 "resource": resource.serialize(),
-                "criterion": criterion.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
                 "compliance": compliance.serialize(),
-                "status": status.serialize()
+                "status": models.Status.get_by_id(compliance.status_id).serialize()
             }
         )
     except Exception as err:
@@ -152,3 +145,16 @@ def resource_details(id):
 def logout():
     load_route_services()
     return Response(**app.templates.render_authorized_route_template('/logout', app.current_request))
+
+
+@app.route('/audit')
+def audit_list():
+    load_route_services()
+    # TODO: Base template needs anchor to this route
+    return Response(**app.templates.render_authorized_route_template('/audit', app.current_request))
+
+
+@app.route('/audit/{id}')
+def audit_report(id):
+    load_route_services()
+    return Response(**app.templates.render_authorized_route_template('/audit/{id}', app.current_request))

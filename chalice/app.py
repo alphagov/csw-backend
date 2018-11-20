@@ -28,12 +28,33 @@ class CloudSecurityWatch(Chalice):
         Executes every time the Chalice object is called,
         e.g. a route is dispatched and I guess a lambda triggered.
         Overloaded to log its params and response as a proof of concept.
-        Used only 'chalice local' to check if there are any side-effects.
         """
-        # add code here to execute before each response
-        response = super(CloudSecurityWatch, self).__call__(event, context)
-        # add code here to execute after each response
-        return response
+        self.log.debug('EVENT = ' + str(event))
+        # TODO: Verify that all this must occure every time a route decorated function is called.
+        # if load_route_services:
+        #     self.log.debug('Loading route services')
+        #     try:
+        #         self.auth = AuthHandler(self)
+        #         self.log.debug("Loaded auth")
+        #         self.templates = TemplateHandler(self)
+        #         self.log.debug("Loaded templates")
+        #         self.api.binary_types = [
+        #             "application/octet-stream",
+        #             "image/webp",
+        #             "image/apng",
+        #             "image/png",
+        #             "image/svg",
+        #             "image/jpeg",
+        #             "image/x-icon",
+        #             "image/vnd.microsoft.icon",
+        #             "application/x-font-woff",
+        #             "font/woff",
+        #             "font/woff2",
+        #             "font/eot"
+        #         ]
+        #     except Exception as err:
+        #         self.log.error('LOAD ROUTE SERVICES: ' + str(err))
+        return super(CloudSecurityWatch, self).__call__(event, context)
 
     def route(self, path, **kwargs):
         """
@@ -55,9 +76,6 @@ class CloudSecurityWatch(Chalice):
         """
         for view in views_list:
             importlib.import_module('chalicelib.' + view)
-        # from chalicelib import (
-        #     views,
-        # )
 
 
 # TODO: Use the overloaded __call__ or route for this
@@ -90,7 +108,6 @@ def load_route_services():
         ]
 
     except Exception as err:
-        app.log.error('you fucked up')
         app.log.error(str(err))
 
 

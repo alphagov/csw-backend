@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from chalicelib.models import DatabaseHandle
+from chalicelib.database_handle import DatabaseHandle
 
 
 # native lambda admin function to be invoked
