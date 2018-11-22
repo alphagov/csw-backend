@@ -37,6 +37,8 @@ If we do build other tools which we do want to be cloud
 agnostic we may not be able to re-use components as 
 readily. 
 
+We have additionally made the decision to code in Python.
+
  
 
 
