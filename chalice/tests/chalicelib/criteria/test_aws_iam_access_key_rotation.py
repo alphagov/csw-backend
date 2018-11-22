@@ -1,13 +1,12 @@
 import unittest
 
-from chalice import Chalice
 from chalicelib.criteria.aws_iam_access_key_rotation import (
     AwsIamAccessKeyRotation
 )
-from chalicelib.criteria.test_criteria_default import (
+from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
-from chalicelib.criteria.test_data import IAM_KEY_ROTATION_ITEMS
+from tests.chalicelib.criteria.test_data import IAM_KEY_ROTATION_ITEMS
 
 
 class TestAwsIamAccessKeyRotation(
@@ -48,7 +47,7 @@ class TestAwsIamAccessKeyRotation(
         """
         test that all instance variables have the expected initial values
         """
-        #TODO: dynamically importing dependancies from the file tested
+        # TODO: dynamically importing dependancies from the file tested
         self.fail('import or write the appropriate client')
 
     def test_get_data(self):

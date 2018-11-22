@@ -35,7 +35,7 @@ of the chalice deploy
 Now you can run the unit tests.
 
 ```
-python -m unittest -v
+python -m unittest discover -v
 ```
 
 Run the command above before adding/commiting.
