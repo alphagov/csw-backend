@@ -19,8 +19,11 @@ framework which has a multi-stage deploy process to
 automate provisioning Lambda and Api Gateway but written 
 in Python. 
 
-Both languages have frameworks for accessing the AWS API 
-the SDK for JavasSript and Boto3 for Python.  
+Both languages have frameworks for accessing the AWS API: 
+* The [SDK](https://docs.aws.amazon.com/sdk-for-javascript) 
+for JavasSript and 
+* [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) 
+for Python.  
 
 ## Decision
 
