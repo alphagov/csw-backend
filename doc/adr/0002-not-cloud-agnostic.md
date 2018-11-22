@@ -1,4 +1,4 @@
-# 1. Not cloud agnostic
+# 2. Not cloud agnostic
 
 Date: 2017-11-22
 
