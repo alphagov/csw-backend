@@ -1,4 +1,4 @@
-# 6. Serverless framework - Chalice
+# 5. Serverless framework - Chalice
 
 Date: 2017-11-22
 
