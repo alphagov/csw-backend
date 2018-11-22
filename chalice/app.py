@@ -29,31 +29,6 @@ class CloudSecurityWatch(Chalice):
         e.g. a route is dispatched and I guess a lambda triggered.
         Overloaded to log its params and response as a proof of concept.
         """
-        self.log.debug('EVENT = ' + str(event))
-        # TODO: Verify that all this must occure every time a route decorated function is called.
-        # if load_route_services:
-        #     self.log.debug('Loading route services')
-        #     try:
-        #         self.auth = AuthHandler(self)
-        #         self.log.debug("Loaded auth")
-        #         self.templates = TemplateHandler(self)
-        #         self.log.debug("Loaded templates")
-        #         self.api.binary_types = [
-        #             "application/octet-stream",
-        #             "image/webp",
-        #             "image/apng",
-        #             "image/png",
-        #             "image/svg",
-        #             "image/jpeg",
-        #             "image/x-icon",
-        #             "image/vnd.microsoft.icon",
-        #             "application/x-font-woff",
-        #             "font/woff",
-        #             "font/woff2",
-        #             "font/eot"
-        #         ]
-        #     except Exception as err:
-        #         self.log.error('LOAD ROUTE SERVICES: ' + str(err))
         return super(CloudSecurityWatch, self).__call__(event, context)
 
     def route(self, path, **kwargs):
@@ -63,10 +38,7 @@ class CloudSecurityWatch(Chalice):
         !!! ALWAYS !!! pop non-chalice keyword arguments before the super,
         otherwise a nasty exception will be raised (chalice/app.py line 617).
         """
-        # add code here to execute before the route is dict is updated
-        view_func = super(CloudSecurityWatch, self).route(path, **kwargs)
-        # add code here to execute after the route is dict is updated
-        return view_func
+        return super(CloudSecurityWatch, self).route(path, **kwargs)
 
     def load_views(self, views_list):  # TODO: include/exclude modules/views
         """

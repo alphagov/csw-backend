@@ -166,17 +166,6 @@ class BaseModel(peewee.Model):
         data = shortcuts.model_to_dict(self)
         return data
 
-    # TODO: take out? not used in csw-backend/infra!?
-    # def parse_stored_json(self, data):
-    #     for field in data:
-    #         if data[field][:1] in ['{', '[']:
-    #             try:
-    #                 parsed = json.loads(data[field])
-    #                 data[field] = parsed
-    #             except ValueError:
-    #                 pass
-    #     return data
-
     class Meta:
         database = DatabaseHandle().get_handle()
         schema = "public"

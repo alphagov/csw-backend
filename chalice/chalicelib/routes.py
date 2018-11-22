@@ -1,8 +1,6 @@
 from chalice import Response
 
 from app import app, load_route_services
-from chalicelib.collator import Collator
-from chalicelib.database_handle import DatabaseHandle
 from chalicelib import models
 
 
@@ -17,13 +15,8 @@ def index():
 def overview_dashboard():
     load_route_services()
     try:
-        dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
-        db.connect()
-        criteria_stats = Collator(app, dbh).get_criteria_stats(
+        criteria_stats = models.ProductTeam.get_criteria_stats(
             models.Criterion.select().where(models.Criterion.active == True),
-            models.AccountSubscription.select().where(models.AccountSubscription.active == True),
-            models.ProductTeam.select().where(models.ProductTeam.active == True)
         )
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_route_template(
@@ -43,9 +36,6 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
-        dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
-        db.connect()
         response = app.templates.render_authorized_route_template(
             '/team',
             app.current_request,
@@ -68,31 +58,17 @@ def team_dashboard(id):
     team_id = int(id)
     load_route_services()
     try:
-        dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
-        db.connect()
-        collator = Collator(app, dbh)
         team = models.ProductTeam.get_by_id(team_id)
-        app.log.debug(f"Get team dashboard for team: {team.team_name}  ({ team_id })")
-        accounts = models.AccountSubscription.select().join(models.ProductTeam).where(models.ProductTeam.id == team_id)
-        for account in accounts:
-            app.log.debug(account.account_name)
-        team_stats = collator.get_team_stats(accounts)
-        app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
-        criteria_stats = collator.get_criteria_stats(
-            models.Criterion.select().where(models.Criterion.active == True),
-            accounts,
-            [team]
-        )
+        criteria_stats = models.ProductTeam.get_criteria_stats([team])
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_route_template(
             '/team/{id}/dashboard',
             app.current_request,
             {
                 "team": team.serialize(),
-                "team_summary": team_stats,
+                "team_summary": team.get_team_stats(),
                 "criteria_summary": criteria_stats,
-                "failed_resources": collator.get_team_failed_resources(team.id)
+                "failed_resources": team.get_team_failed_resources()
             }
         )
     except Exception as err:
@@ -107,11 +83,7 @@ def team_dashboard(id):
 def resource_details(id):
     id = int(id)
     load_route_services()
-    db = None
     try:
-        dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
-        db.connect()
         resource = models.AuditResource.get_by_id(id)
         account = models.AccountSubscription.get_by_id(
             models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
@@ -132,8 +104,6 @@ def resource_details(id):
             }
         )
     except Exception as err:
-        if db is not None:
-            db.rollback()
         app.log.error("Route: overview error: " + str(err))
         response = {
             "body": str(err)
