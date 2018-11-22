@@ -120,4 +120,11 @@ app.log.setLevel(logging.DEBUG)
 app.prefix = os.environ["CSW_PREFIX"]
 app.utilities = Utilities()
 # load decorated function-based views from another chalicelib file
-app.load_views(['routes', 'views', ])
+# TODO: Replace load_views with a django-like dispatcher...
+# TODO: ... with the additional functionality fo binding periodic and triggered lambdas.
+app.load_views(
+    [
+        'routes', 'demos',  # route lambdas (aka HTTP responses, views)
+        'admin', 'audit',  # periodic and triggered lambdas
+    ]
+)

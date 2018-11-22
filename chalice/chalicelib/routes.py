@@ -1,6 +1,8 @@
-from chalice import Response
+import json
 
-from app import app, load_route_services
+from chalice import Response, BadRequestError
+
+from app import app, load_route_services, read_asset
 from chalicelib import models
 
 
@@ -128,3 +130,51 @@ def audit_list():
 def audit_report(id):
     load_route_services()
     return Response(**app.templates.render_authorized_route_template('/audit/{id}', app.current_request))
+
+
+# ASSET RENDERERS
+# TODO This doesn't work for binary file types
+
+@app.route('/assets')
+def asset_render_qs():
+    load_route_services()
+    app.log.debug('asset_render function called by /assets?proxy route')
+    try:
+        req = app.current_request
+        app.log.debug(str(req.uri_params))
+        app.log.debug(json.dumps(app.current_request))
+        if 'proxy' in req.uri_params:
+            proxy = req.uri_params['proxy']
+        mime_type = app.utilities.get_mime_type(proxy)
+        data = read_asset(proxy)
+        return Response(
+            body=data,
+            status_code=200,
+            headers={"Content-Type": mime_type}
+        )
+    except Exception as e:
+        app.log.debug(str(e))
+        raise BadRequestError(str(e))
+
+
+@app.route('/assets/{proxy+}')
+def asset_render():
+    load_route_services()
+    app.log.debug('asset_render function called by /assets/{proxy+} route')
+    try:
+        req = app.current_request
+        app.log.debug(str(req.uri_params))
+        if 'proxy' in req.uri_params:
+            proxy = req.uri_params['proxy']
+        else:
+            proxy = req.uri_params['proxy+']
+        mime_type = app.utilities.get_mime_type(proxy)
+        data = read_asset(proxy)
+        return Response(
+            body=data,
+            status_code=200,
+            headers={"Content-Type": mime_type}
+        )
+    except Exception as e:
+        app.log.debug(str(e))
+        raise BadRequestError(str(e))
