@@ -48,6 +48,16 @@ By providing the role and policy definition in a Terraform
 module we can also ensure that it requires little work by 
 client account holders. 
 
+The advantage of the IAM mechanism is that since we're 
+querying the configuration of the user account directly 
+via the API it is very easy to tell whether our service 
+has been tampered with - the only thing that can change 
+is the definition of our policy which we can check. 
+
+In the config service model there are more moving parts 
+within the client account which could be switched off,
+altered or intercepted. 
+
 ## Decision
 
 Create a terraform module which creates an IAM role and 
