@@ -28,8 +28,8 @@ option for this tool because of the following:
 * No ability to natively control ingress
 * No ability to control egress
 
-Some of these issues are being addressed by the PaaS so 
-we may revisit this decision in future.
+__Some of these issues are being addressed by the PaaS so 
+we may revisit this decision in future.__
 
 ## Consequences
 
