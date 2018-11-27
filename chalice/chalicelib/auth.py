@@ -113,7 +113,7 @@ class AuthHandler:
         protocol = 'https'
         if 'X-Forwarded-Proto' in request.headers:
             protocol = request.headers['X-Forwarded-Proto']
-        return protocol + "://" + request.headers['Host'] + "/app/"
+        return protocol + "://" + request.headers['Host'] + "/app"
 
     def get_user_token(self, request):
         """
