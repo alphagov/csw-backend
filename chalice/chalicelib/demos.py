@@ -1,5 +1,5 @@
 from datetime import datetime
-import json
+import os
 from chalicelib.database_handle import DatabaseHandle
 
 
@@ -21,7 +21,10 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
         )
         ec2 = Client(app)
 
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ["CSW_ENV"]
+        role = f"csw-{env}_CstSecurityInspectorRole"
+
+        session = ec2.get_session(account='103495720024', role=role)
 
         region = 'eu-west-1'
 
@@ -76,7 +79,10 @@ def execute_test_ports_ingress_open(app, load_route_services):
         )
         ec2 = Client(app)
 
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ["CSW_ENV"]
+        role = f"csw-{env}_CstSecurityInspectorRole"
+
+        session = ec2.get_session(account='103495720024', role=role)
 
         params = {
             "region": 'eu-west-1'
@@ -122,10 +128,10 @@ def execute_test_root_mfa(app, load_route_services):
         )
         support = Client(app)
 
-        session = support.get_session(
-            account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
-        )
+        env = os.environ["CSW_ENV"]
+        role = f"csw-{env}_CstSecurityInspectorRole"
+
+        session = support.get_session(account='103495720024', role=role)
 
         data = support.get_data(session)
 
@@ -182,10 +188,10 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
         )
         iam = Client(app)
 
-        session = iam.get_session(
-            account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
-        )
+        env = os.environ["CSW_ENV"]
+        role = f"csw-{env}_CstSecurityInspectorRole"
+
+        session = iam.get_session(account='103495720024', role=role)
 
         data = iam.get_data(session)
 
