@@ -4,22 +4,39 @@ from chalicelib.collator import Collator
 
 def route_index(app):
 
-    template = 'logged_in.html'
+    try:
+        template = 'logged_in.html'
 
-    return app.templates.render_authorized_template(
-        template,
-        app.current_request
-    )
+        response = app.templates.render_authorized_template(
+            template,
+            app.current_request
+        )
+
+    except Exception as err:
+        app.log.error("Route: index error: " + str(err))
+        response = {
+            "body": str(err)
+        }
+
+    return response
 
 
 def route_logout(app):
+    try:
+        template = 'logged_out.html'
 
-    template = "logged_out.html"
+        response = app.templates.render_authorized_template(
+            template,
+            app.current_request
+        )
 
-    return app.templates.render_authorized_template(
-        template,
-        app.current_request
-    )
+    except Exception as err:
+        app.log.error("Route: logout error: " + str(err))
+        response = {
+            "body": str(err)
+        }
+
+    return response
 
 
 def route_team_list(app):
