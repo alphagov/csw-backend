@@ -109,13 +109,17 @@ class TemplateHandler:
             }
         ]
 
-    def render_authorized_template(self, template_file, req, data={}):
+    def render_authorized_template(self, template_file, req, data=None):
 
         headers = {
             "Content-Type": "text/html"
         }
 
         try:
+
+            # If no template data has been passed initialise an empty dict
+            if data is None:
+                data = {}
 
             status_code = 200
 
@@ -144,13 +148,13 @@ class TemplateHandler:
 
             asset_path = f"{root_path}/assets"
 
-            # if there is a user then show the requested route
-            # TODO add permission control
             if template_file == 'logged_out.html':
 
                 logged_in = False
                 headers["Set-Cookie"] = self.auth.generate_logout_header_val()
 
+            # if there is a user then show the requested route
+            # TODO add permission control
             if logged_in:
 
                 login_data = self.auth.get_login_data()
@@ -169,8 +173,8 @@ class TemplateHandler:
                 template_file = 'logged_out.html'
 
                 login_url, _ = self.auth_flow.authorization_url(
-                    prompt="select_account",
-                    hd="digital.cabinet-office.gov.uk"
+                    prompt="Select Account",
+                    hd=self.auth.email_domain
                 )
 
                 data["login_url"] = login_url
