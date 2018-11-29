@@ -39,6 +39,40 @@ class BaseModel(Model):
         schema = "public"
 
 
+class User(BaseModel):
+    """
+    Google OAuth is used to authenticate users to a specified email domain
+    We want to further limit the use of this tool to specific users within
+    that domain.
+    Only people in this table (and marked active) should be allowed to login.
+    """
+    email = CharField()
+    name = CharField()
+    active = BooleanField()
+
+    class Meta:
+        table_name = "user"
+
+dbh.add_model("User", User)
+
+
+class UserSession(BaseModel):
+    """
+    UserSession records login sessions against users so we can track things
+    like how often and for how long the tool is being used
+    """
+    date_opened = DateTimeField(default=datetime.now)
+    date_accessed = DateTimeField(default=datetime.now)
+    date_closed = DateTimeField()
+
+    user_id = ForeignKeyField(User, backref='sessions')
+
+    class Meta:
+        table_name = "user_session"
+
+dbh.add_model("UserSession", UserSession)
+
+
 # Create a product team reference table to link AWS
 # accounts to the teams who they belong to
 class ProductTeam(BaseModel):
