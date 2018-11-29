@@ -111,15 +111,15 @@ class TemplateHandler:
 
     def render_authorized_template(self, template_file, req, data={}):
 
+        headers = {
+            "Content-Type": "text/html"
+        }
+
         try:
 
             status_code = 200
 
-            route = self.get_route_path(req)
-
-            headers = {
-                "Content-Type": "text/html"
-            }
+            route = self.get_request_path()
 
             auth = self.get_auth_handler()
 
