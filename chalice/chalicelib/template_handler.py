@@ -87,7 +87,7 @@ class TemplateHandler:
     def get_menu_active_class_modifier(self, route, test):
         return ('--active' if route == test else '')
 
-    def get_menu(self, app, root_path=""):
+    def get_menu(self, root_path=""):
 
         route = self.get_request_path()
 
