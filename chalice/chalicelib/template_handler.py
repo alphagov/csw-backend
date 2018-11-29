@@ -146,7 +146,7 @@ class TemplateHandler:
 
             # if there is a user then show the requested route
             # TODO add permission control
-            if template_file == 'logout.html':
+            if template_file == 'logged_out.html':
 
                 logged_in = False
                 headers["Set-Cookie"] = self.auth.generate_logout_header_val()
