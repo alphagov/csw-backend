@@ -173,7 +173,7 @@ class TemplateHandler:
                 template_file = 'logged_out.html'
 
                 login_url, _ = self.auth_flow.authorization_url(
-                    prompt="Select Account",
+                    prompt="select_account",
                     hd=self.auth.email_domain
                 )
 
