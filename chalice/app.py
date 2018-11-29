@@ -24,6 +24,7 @@ def load_route_services():
     app.log.debug('Loading route services')
 
     try:
+
         app.auth = AuthHandler(app)
 
         app.log.debug("Loaded auth")
@@ -56,7 +57,7 @@ def index():
 
     load_route_services()
 
-    response = app.templates.render_authorized_route_template('/', app.current_request)
+    response = route.route_index(app)
 
     return Response(**response)
 
@@ -66,7 +67,7 @@ def logout():
 
     load_route_services()
 
-    response = app.templates.render_authorized_route_template('/logout', app.current_request)
+    response = route.route_logout(app)
 
     return Response(**response)
 

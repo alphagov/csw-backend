@@ -1,6 +1,27 @@
 from chalicelib.database_handle import DatabaseHandle
 from chalicelib.collator import Collator
 
+
+def route_index(app):
+
+    template = 'logged_in.html'
+
+    return app.templates.render_authorized_template(
+        template,
+        app.current_request
+    )
+
+
+def route_logout(app):
+
+    template = "logged_out.html"
+
+    return app.templates.render_authorized_template(
+        template,
+        app.current_request
+    )
+
+
 def route_team_list(app):
     try:
         dbh = DatabaseHandle(app)
@@ -19,8 +40,10 @@ def route_team_list(app):
             "teams": team_list
         }
 
-        response = app.templates.render_authorized_route_template(
-            '/team',
+        template = "teams.html"
+
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -64,6 +87,8 @@ def route_team_dashboard(app, team_id):
 
         failed_resources = collator.get_team_failed_resources(team.id)
 
+        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+
         template_data = {
             "team": team.serialize(),
             "team_summary": team_stats,
@@ -71,10 +96,10 @@ def route_team_dashboard(app, team_id):
             "failed_resources": failed_resources
         }
 
-        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+        template = "team_dashboard.html"
 
-        response = app.templates.render_authorized_route_template(
-            '/team/{id}/dashboard',
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -112,14 +137,16 @@ def route_overview_dashboard(app):
         active_criteria = (Criterion.select().where(Criterion.active == True))
         criteria_stats = collator.get_criteria_stats(active_criteria, accounts, teams)
 
+        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+
         template_data = {
             "criteria_summary": criteria_stats
         }
 
-        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+        template = "overview.html"
 
-        response = app.templates.render_authorized_route_template(
-            '/overview',
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -129,8 +156,6 @@ def route_overview_dashboard(app):
         response = {
             "body": str(err)
         }
-
-    # response = app.templates.render_authorized_route_template('/team/{id}/dashboard', app.current_request)
 
     return response
 
@@ -173,8 +198,10 @@ def route_resource_details(app, id):
             "status": status.serialize()
         }
 
-        response = app.templates.render_authorized_route_template(
-            '/resource/{id}',
+        template = "resource_details.html"
+
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -188,7 +215,5 @@ def route_resource_details(app, id):
         response = {
             "body": str(err)
         }
-
-    # response = app.templates.render_authorized_route_template('/team/{id}/dashboard', app.current_request)
 
     return response

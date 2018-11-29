@@ -3,6 +3,23 @@ import os
 from chalicelib.database_handle import DatabaseHandle
 
 
+
+def get_route_template(route):
+
+    routes = {
+        "/test/ports_ingress_ssh": "test_evaluation.html",
+        "/test/root_mfa": "test_evaluation.html",
+        "/test/validate_iam_policy": "test_evaluation.html"
+    }
+
+    template = None
+
+    if route in routes:
+        template = routes[route]
+
+    return template
+
+
 def execute_test_ports_ingress_ssh(app, load_route_services):
 
     try:
@@ -56,8 +73,10 @@ def execute_test_ports_ingress_ssh(app, load_route_services):
             "tested": True
         }
 
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        template = "test_evaluation.html"
+
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -105,8 +124,10 @@ def execute_test_ports_ingress_open(app, load_route_services):
         template_data["criteria"][0]["compliance_summary"] = summary
         template_data["criteria"][0]["tested"] = True
 
-        response = app.templates.render_authorized_route_template(
-            '/audit/{id}',
+        template = "test_evaluation.html"
+
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -165,8 +186,10 @@ def execute_test_root_mfa(app, load_route_services):
             "tested": True
         }
 
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        template = "test_evaluation.html"
+
+        response = app.templates.render_authorized_template(
+            template,
             app.current_request,
             template_data
         )
@@ -223,8 +246,10 @@ def execute_test_iam_validate_inspector_policy(app, load_route_services):
             "tested": True
         }
 
+        template = "test_evaluation.html"
+
         response = app.templates.render_authorized_route_template(
-            '/test/validate_iam_policy',
+            template,
             app.current_request,
             template_data
         )

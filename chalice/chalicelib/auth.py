@@ -98,10 +98,10 @@ class AuthHandler:
 
         return self.flow
 
-    def get_request_url(self, request):
+    def get_base_url(self, request):
         """
         Returns the base URL from the current request
-        At present /app/ is appended to the URL
+        At present /app is appended to the URL
         When we implement CloudFront the /app/ should no longer be necessary
 
         :param dict request: The request object received by API Gateway
@@ -275,7 +275,7 @@ class AuthHandler:
                 # Then check for OAuth response code in QS
                 if "code" in req.query_params:
 
-                    url = self.get_request_url(req)
+                    url = self.get_base_url(req)
                     code = req.query_params["code"]
 
                     self.user = self.get_user_from_code(url, code)
