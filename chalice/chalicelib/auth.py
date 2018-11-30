@@ -357,8 +357,9 @@ class AuthHandler:
                     self.user = self.get_user_from_code(url, code)
 
                     # Copy auth result into login_data
-                    # self.login_data['authenticated'] = self.user['authenticated']
                     self.login_data.update(self.user)
+                    # Explicitly set authenticated property although this should
+                    self.login_data['authenticated'] = self.user['authenticated']
 
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
