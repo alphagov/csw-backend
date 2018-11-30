@@ -228,7 +228,6 @@ class AuthHandler:
                 self.db.rollback()
 
         except Exception as error:
-            db_user = None
             user_registered = False
             self.app.log.debug("User not registered: " + str(error))
 
