@@ -156,8 +156,8 @@ class TemplateHandler:
             # TODO add permission control
             login_data = self.auth.get_login_data()
 
+            # Successfully authenticated and permissioned user
             if logged_in:
-                # Successfully authenticated and permissioned user
 
                 data.update(login_data)
 
@@ -169,18 +169,16 @@ class TemplateHandler:
                 data["logout_url"] = f"{root_path}/logout"
                 data["menu"] = self.get_menu(root_path)
 
-
-            elif not login_data['is_registered']:
-                # Check for successful auth but non-registered user
+            # Check for successful auth but non-registered user
+            elif (('is_registered' not in login_data)
+                  or (not login_data['is_registered'])):
 
                 template_file = 'request_access.html'
 
                 status_code = 403
 
-
+            # Back to logged out
             else:
-                # Back to logged out
-
                 template_file = 'logged_out.html'
 
                 login_url = self.auth.get_auth_url(self.base_url + route)
