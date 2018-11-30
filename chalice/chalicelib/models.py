@@ -76,7 +76,7 @@ class UserSession(BaseModel):
     """
     date_opened = DateTimeField(default=datetime.now)
     date_accessed = DateTimeField(default=datetime.now)
-    date_closed = DateTimeField()
+    date_closed = DateTimeField(null=True)
 
     user_id = ForeignKeyField(User, backref='sessions')
 
