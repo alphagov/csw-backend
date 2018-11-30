@@ -357,7 +357,7 @@ class AuthHandler:
                     self.user = self.get_user_from_code(url, code)
 
                     # Explicitly set authenticated property
-                    self.login_data['authenticated'] = self.user['authenticated']
+                    self.login_data['authenticated'] = bool(self.user is not None)
                     # Copy auth result into login_data
                     self.login_data.update(self.user)
 
