@@ -48,11 +48,12 @@
       <p class="govuk-body-s"><a class="login" href="{{ login_url }}">Login</a></p>
       {% else %}
       <p class="govuk-body-s">
+        <span>Logged in as: {{ name }}</span>
         {% if picture %}
         <!-- TODO turn CSS styles into class -->
-        <img style="display:inline;width:1em;height:1em" src="{{ picture }}"/>
+        <img style="display:inline;width:2em;height:2em" src="{{ picture }}"/>
         {% endif %}
-        Logged in as: {{ name }} <a class="logout" href="{{ logout_url }}">Logout</a>
+        <a class="logout" href="{{ logout_url }}">Logout</a>
       </p>
       {% endif %}
     </div>
