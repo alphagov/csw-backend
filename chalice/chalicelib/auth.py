@@ -42,7 +42,9 @@ class AuthHandler:
 
         # Initialise parameters for OAuth scopes and
         # JWT encryption
-        self.flow = None
+        self.base_url = self.get_base_url(app.current_request)
+        self.flow = self.get_auth_flow(self.base_url)
+
         self.token_algorithm = 'HS256'
 
         self.scopes = [
@@ -358,13 +360,12 @@ class AuthHandler:
 
                     # Explicitly set authenticated property
                     self.login_data['authenticated'] = bool(self.user is not None)
-                    # Copy auth result into login_data
-                    self.login_data.update(self.user)
 
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
                     if self.login_data['authenticated']:
-
+                        # Copy auth result into login_data
+                        self.login_data.update(self.user)
                         # Check that the user has an active account in CSW
                         self.login_data['is_registered'] = self.is_valid_user(self.user)
 
