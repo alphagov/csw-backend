@@ -58,6 +58,7 @@ class AuthHandler:
         self.cookie = None
         self.logged_in = False
         self.login_data = {
+            'authenticated': False,
             'is_registered': False
         }
 
@@ -327,6 +328,7 @@ class AuthHandler:
 
         self.logged_in = False
         self.login_data = {
+            'authenticated': False,
             'is_registered': False
         }
 
