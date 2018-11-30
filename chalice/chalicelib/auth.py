@@ -42,8 +42,7 @@ class AuthHandler:
 
         # Initialise parameters for OAuth scopes and
         # JWT encryption
-        self.base_url = self.get_base_url(app.current_request)
-        self.flow = self.get_auth_flow(self.base_url)
+        self.flow = None
 
         self.token_algorithm = 'HS256'
 
