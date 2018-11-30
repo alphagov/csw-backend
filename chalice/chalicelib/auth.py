@@ -111,6 +111,12 @@ class AuthHandler:
 
         return self.flow
 
+    def initialise_flow(self, req):
+
+        self.base_url = self.get_base_url(req)
+
+        self.get_auth_flow(self.base_url)
+
     def get_auth_url(self, url):
 
         auth_flow = self.get_auth_flow(url)
