@@ -133,7 +133,6 @@ class TemplateHandler:
 
             if self.is_real():
 
-                self.auth_flow = auth.get_auth_flow(self.base_url + route)
                 root_path = "/app"
 
                 logged_in = self.auth.try_login(req)
@@ -155,9 +154,11 @@ class TemplateHandler:
 
             # if there is a user then show the requested route
             # TODO add permission control
-            if logged_in:
+            login_data = self.auth.get_login_data()
 
-                login_data = self.auth.get_login_data()
+            if logged_in:
+                # Successfully authenticated and permissioned user
+
                 data.update(login_data)
 
                 self.app.log.debug('template data: '+str(data))
@@ -168,14 +169,21 @@ class TemplateHandler:
                 data["logout_url"] = f"{root_path}/logout"
                 data["menu"] = self.get_menu(root_path)
 
+
+            elif not login_data['is_registered']:
+                # Check for successful auth but non-registered user
+
+                template_file = 'request_access.html'
+
+                status_code = 403
+
+
             else:
+                # Back to logged out
 
                 template_file = 'logged_out.html'
 
-                login_url, _ = self.auth_flow.authorization_url(
-                    prompt="select_account",
-                    hd=self.auth.email_domain
-                )
+                login_url = self.auth.get_auth_url(self.base_url + route)
 
                 data["login_url"] = login_url
 
