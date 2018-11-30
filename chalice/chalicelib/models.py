@@ -117,7 +117,9 @@ class UserSession(BaseModel):
 
         now = datetime.now()
 
-        session.update(date_accessed = now)
+        #session.update(date_accessed = now)
+        session.date_accessed = now
+        session.save()
 
         return session
 
@@ -132,7 +134,10 @@ class UserSession(BaseModel):
 
         now = datetime.now()
 
-        session.update(date_accessed=now, date_closed=now)
+        # session.update(date_accessed=now, date_closed=now)
+        session.date_accessed = now
+        session.date_closed = now
+        session.save()
 
         return session
 
