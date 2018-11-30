@@ -47,7 +47,13 @@
       {% if not email %}
       <p class="govuk-body-s"><a class="login" href="{{ login_url }}">Login</a></p>
       {% else %}
-      <p class="govuk-body-s">Logged in as: {{ name }} <a class="logout" href="{{ logout_url }}">Logout</a></p>
+      <p class="govuk-body-s">
+        {% if picture %}
+        <!-- TODO turn CSS styles into class -->
+        <img style="display:inline;width:1em;height:1em" src="{{ picture }}"/>
+        {% endif %}
+        Logged in as: {{ name }} <a class="logout" href="{{ logout_url }}">Logout</a>
+      </p>
       {% endif %}
     </div>
   </div>
