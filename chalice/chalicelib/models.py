@@ -54,7 +54,8 @@ class User(BaseModel):
     class Meta:
         table_name = "user"
 
-    def find_active_by_email(self, email):
+    @classmethod
+    def find_active_by_email(cls, email):
         """
         Look for a user record with active true and matching the email address
 
@@ -62,7 +63,7 @@ class User(BaseModel):
         :param email:
         :return self instance:
         """
-        user = self.get(email=email, active=True)
+        user = cls.get(email=email, active=True)
 
         return user
 
@@ -84,7 +85,8 @@ class UserSession(BaseModel):
         table_name = "user_session"
 
 
-    def start(self, user):
+    @classmethod
+    def start(cls, user):
         """
         Create a new session for the current user
 
@@ -95,7 +97,7 @@ class UserSession(BaseModel):
 
         now = datetime.now()
 
-        session = self.create(
+        session = cls.create(
             user_id = user,
             date_opened = now,
             date_accessed = now,
@@ -104,14 +106,15 @@ class UserSession(BaseModel):
 
         return session
 
-    def update(self, user):
+    @classmethod
+    def update(cls, user):
         """
         Update the date_accessed field with the current time
 
         :param user:
         :return:
         """
-        session = self.get(user_id=user, date_closed=None)
+        session = cls.get(user_id=user, date_closed=None)
 
         now = datetime.now()
 
@@ -119,13 +122,14 @@ class UserSession(BaseModel):
 
         return session
 
-    def close(self, user):
+    @classmethod
+    def close(cls, user):
         """
         Update the current session date_closed with the current time
         :param user:
         :return:
         """
-        session = self.get(user_id=user, date_closed=None)
+        session = cls.get(user_id=user, date_closed=None)
 
         now = datetime.now()
 
