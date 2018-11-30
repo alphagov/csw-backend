@@ -326,7 +326,9 @@ class AuthHandler:
         # Or by a response code QS variable from a Google OAuth request
 
         self.logged_in = False
-        self.login_data = {}
+        self.login_data = {
+            'is_registered': False
+        }
 
         try:
 
@@ -338,6 +340,7 @@ class AuthHandler:
 
                 self.token = self.get_user_token(req)
                 self.logged_in = True
+                self.login_data['is_registered'] = True
 
             else:
 
