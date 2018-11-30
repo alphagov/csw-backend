@@ -197,7 +197,7 @@ class AuthHandler:
                 # Update UserSession accessed date
                 try:
                     db_user = User.find_active_by_email(user['email'])
-                    UserSession.update(db_user)
+                    UserSession.accessed(db_user)
                 except Exception as error:
                     self.app.log.error("Failed to update session: "+str(error))
 

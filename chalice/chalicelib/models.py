@@ -107,7 +107,7 @@ class UserSession(BaseModel):
         return session
 
     @classmethod
-    def update(cls, user):
+    def accessed(cls, user):
         """
         Update the date_accessed field with the current time
 
