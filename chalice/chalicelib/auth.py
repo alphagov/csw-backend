@@ -212,7 +212,7 @@ class AuthHandler:
 
         domain_pattern = "\@" + self.email_domain.replace(".", "\\.") + "$"
 
-        domain_valid = re.search(domain_pattern, user['email'])
+        domain_valid = bool(re.search(domain_pattern, user['email']))
 
         # Check against User table for active user record
         try:
