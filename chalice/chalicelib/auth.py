@@ -116,7 +116,7 @@ class AuthHandler:
 
         login_url, _ = auth_flow.authorization_url(
             prompt="select_account",
-            hd=self.auth.email_domain
+            hd=self.email_domain
         )
 
         return login_url
