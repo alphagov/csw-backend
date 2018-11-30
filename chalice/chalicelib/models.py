@@ -47,12 +47,24 @@ class User(BaseModel):
     that domain.
     Only people in this table (and marked active) should be allowed to login.
     """
-    email = CharField()
+    email = CharField(unique=True)
     name = CharField()
     active = BooleanField()
 
     class Meta:
         table_name = "user"
+
+    def find_active_by_email(self, email):
+        """
+        Look for a user record with active true and matching the email address
+
+        Raises DoesNotExist
+        :param email:
+        :return self instance:
+        """
+        user = self.get(email=email, active=True)
+
+        return user
 
 dbh.add_model("User", User)
 
@@ -70,6 +82,57 @@ class UserSession(BaseModel):
 
     class Meta:
         table_name = "user_session"
+
+
+    def start(self, user):
+        """
+        Create a new session for the current user
+
+        Raises Exception(Not sure which one)
+        :param user:
+        :return:
+        """
+
+        now = datetime.now()
+
+        session = self.create(
+            user_id = user,
+            date_opened = now,
+            date_accessed = now,
+            date_closed = None
+        )
+
+        return session
+
+    def update(self, user):
+        """
+        Update the date_accessed field with the current time
+
+        :param user:
+        :return:
+        """
+        session = self.get(user_id=user, date_closed=None)
+
+        now = datetime.now()
+
+        session.update(date_accessed = now)
+
+        return session
+
+    def close(self, user):
+        """
+        Update the current session date_closed with the current time
+        :param user:
+        :return:
+        """
+        session = self.get(user_id=user, date_closed=None)
+
+        now = datetime.now()
+
+        session.update(date_accessed=now, date_closed=now)
+
+        return session
+
 
 dbh.add_model("UserSession", UserSession)
 

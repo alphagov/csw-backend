@@ -5,6 +5,8 @@ from http import cookies
 import jwt
 import google_auth_oauthlib.flow
 from chalicelib.aws.gds_ssm_client import GdsSsmClient
+from chalicelib.database_handle import DatabaseHandle
+from chalicelib.models import User, UserSession
 
 class AuthHandler:
     """
@@ -24,6 +26,13 @@ class AuthHandler:
 
         # app lets you use shared log method
         self.app = app
+        self.dbh = DatabaseHandle(app)
+
+        self.db = self.dbh.get_handle()
+        try:
+            self.db.connect()
+        except Exception as error:
+            self.app.log.error("Failed to connect to database: "+str(error))
 
         # Set time to expiry for session cookie
         self.cookie_expiration = datetime.timedelta(days=1)
@@ -159,6 +168,7 @@ class AuthHandler:
         if (user_jwt is not None):
             try:
                 user = jwt.decode(user_jwt.encode(), self.token_secret, algorithms=[self.token_algorithm])
+
             except Exception as error:
                 self.app.log.error("Failed to decode session token: " + str(error))
 
@@ -167,14 +177,13 @@ class AuthHandler:
     def has_valid_user(self, req):
         """
         Read and decode the session JWT.
+        The JWT corresponds to an active UserSession record
+        The date_accessed field of this record should be updated
+        each time the this method is called.
 
         :param dict req: The request object
         :return dict: The details of the user encoded in the JWT
         """
-
-        # TODO: There should be a list of valid sessions stored somewhere and
-        # TODO: the session ID should be checked against that.  For now it just makes sure
-        # TODO: there is a session cookie at all set by this domain.  Not very secure.
 
         user = None
 
@@ -185,7 +194,50 @@ class AuthHandler:
             if user_jwt is not None:
                 user = self.read_jwt(user_jwt)
 
+                # Update UserSession accessed date
+                try:
+                    db_user = User.find_active_by_email(user['email'])
+                    UserSession.update(db_user)
+                except Exception as error:
+                    self.app.log.error("Failed to update session: "+str(error))
+
         return user
+
+    def is_valid_user(self, user):
+        """
+
+        :param user:
+        :return:
+        """
+
+        domain_pattern = "\@" + self.email_domain.replace(".", "\\.") + "$"
+
+        domain_valid = re.search(domain_pattern, user['email'])
+
+        # Check against User table for active user record
+        try:
+            db_user = User.find_active_by_email(user['email'])
+            user_registered = True
+
+        except Exception as error:
+            db_user = None
+            user_registered = False
+            self.app.log.debug("User not registered: " + str(error))
+
+        # Create UserSession record
+        if user_registered:
+
+            try:
+                session = UserSession.start(db_user)
+            except:
+                session = None
+                self.app.log.debug("User not registered: " + str(error))
+                self.db.rollback()
+
+
+        valid = domain_valid & user_registered
+
+        return valid
 
     def generate_cookie_header_val(self, token):
         """
@@ -207,6 +259,13 @@ class AuthHandler:
         """
 
         expiration = datetime.datetime.now()
+
+        # Update closed date on database UserSession
+        try:
+            db_user = User.find_active_by_email(self.user['email'])
+            UserSession.close(db_user)
+        except Exception as error:
+            self.db.rollback()
 
         return self.create_set_cookie_header("session", None, expiration)
 
@@ -283,9 +342,7 @@ class AuthHandler:
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
 
-                    domain_pattern = "\@" + self.email_domain.replace(".","\\.") + "$"
-
-                    if re.search(domain_pattern, self.user['email']):
+                    if self.is_valid_user(self.user):
 
                         self.user_jwt = self.get_jwt(self.user)
 
