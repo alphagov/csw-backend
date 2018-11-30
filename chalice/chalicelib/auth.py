@@ -57,7 +57,9 @@ class AuthHandler:
         # Assume logged in status is false until tested
         self.cookie = None
         self.logged_in = False
-        self.login_data = {}
+        self.login_data = {
+            'is_registered': False
+        }
 
     def get_params(self):
         """
