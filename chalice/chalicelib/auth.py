@@ -355,12 +355,16 @@ class AuthHandler:
 
                     self.user = self.get_user_from_code(url, code)
 
-                    self.login_data['authenticated'] = (self.user is not None)
+                    self.login_data['authenticated'] = bool(self.user is not None)
 
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
-                    self.login_data['is_registered'] = self.is_valid_user(self.user)
+                    if self.login_data['authenticated']:
 
+                        # Check that the user has an active account in CSW
+                        self.login_data['is_registered'] = self.is_valid_user(self.user)
+
+                    # If both authenticated and registered then log them in.
                     if self.login_data['is_registered']:
 
                         self.user_jwt = self.get_jwt(self.user)
@@ -372,11 +376,13 @@ class AuthHandler:
                         self.logged_in = True
 
             if self.logged_in:
+
                 self.login_data.update(self.user)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
 
         except Exception as err:
+
             self.app.log.debug(str(err))
             self.login_data["cookie"] = None
             self.login_data["message"] = "Login failed"
@@ -385,4 +391,7 @@ class AuthHandler:
         return self.logged_in
 
     def get_login_data(self):
+
+        self.app.log.debug(str(self.login_data))
+
         return self.login_data
