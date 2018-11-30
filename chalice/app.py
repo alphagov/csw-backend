@@ -26,6 +26,8 @@ def load_route_services():
     try:
 
         app.auth = AuthHandler(app)
+        app.base_url = app.auth.get_base_url(app.current_request)
+        app.flow = app.auth.get_auth_flow(app.base_url)
 
         app.log.debug("Loaded auth")
 
