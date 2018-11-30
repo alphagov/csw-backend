@@ -344,6 +344,7 @@ class AuthHandler:
                 self.logged_in = True
                 self.login_data['authenticated'] = True
                 self.login_data['is_registered'] = True
+                self.login_data.update(self.user)
 
             else:
 
