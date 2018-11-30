@@ -170,8 +170,7 @@ class TemplateHandler:
                 data["menu"] = self.get_menu(root_path)
 
             # Check for successful auth but non-registered user
-            elif (('is_registered' not in login_data)
-                  or (not login_data['is_registered'])):
+            elif login_data['authenticated'] and not login_data['is_registered']:
 
                 template_file = 'request_access.html'
 

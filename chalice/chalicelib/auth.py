@@ -340,6 +340,7 @@ class AuthHandler:
 
                 self.token = self.get_user_token(req)
                 self.logged_in = True
+                self.login_data['authenticated'] = True
                 self.login_data['is_registered'] = True
 
             else:
@@ -351,6 +352,8 @@ class AuthHandler:
                     code = req.query_params["code"]
 
                     self.user = self.get_user_from_code(url, code)
+
+                    self.login_data['authenticated'] = (self.user is not None)
 
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
