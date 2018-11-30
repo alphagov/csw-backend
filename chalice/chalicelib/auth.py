@@ -219,21 +219,18 @@ class AuthHandler:
             db_user = User.find_active_by_email(user['email'])
             user_registered = True
 
-        except Exception as error:
-            db_user = None
-            user_registered = False
-            self.app.log.debug("User not registered: " + str(error))
-
-        # Create UserSession record
-        if user_registered:
-
+            # Create UserSession record
             try:
                 session = UserSession.start(db_user)
-            except:
+            except Exception as error:
                 session = None
                 self.app.log.debug("User not registered: " + str(error))
                 self.db.rollback()
 
+        except Exception as error:
+            db_user = None
+            user_registered = False
+            self.app.log.debug("User not registered: " + str(error))
 
         valid = domain_valid & user_registered
 
@@ -265,6 +262,7 @@ class AuthHandler:
             db_user = User.find_active_by_email(self.user['email'])
             UserSession.close(db_user)
         except Exception as error:
+            self.app.log.error("Failed to close session: "+str(error))
             self.db.rollback()
 
         return self.create_set_cookie_header("session", None, expiration)
