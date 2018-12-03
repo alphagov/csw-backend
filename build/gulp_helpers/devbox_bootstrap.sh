@@ -15,7 +15,7 @@ fi
 # Patch server - do this every time
 
 sudo apt update
-sudo apt upgrade -y
+# sudo apt upgrade -y
 
 
 # Install pyenv
