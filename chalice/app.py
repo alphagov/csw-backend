@@ -12,7 +12,6 @@ import os
 from chalice import Chalice
 
 from chalicelib.auth import AuthHandler
-from chalicelib.database_handle import DatabaseHandle
 from chalicelib.template_handler import TemplateHandler
 from chalicelib.utilities import Utilities
 
@@ -41,14 +40,25 @@ class CloudSecurityWatch(Chalice):
         """
         return super(CloudSecurityWatch, self).route(path, **kwargs)
 
+    def lambda_function(self, name=None):
+        """
+        Same as route above but for the generic lambdas.
+        """
+        return super(CloudSecurityWatch, self).lambda_function(name)
+
     def load_views(self, views_list):  # TODO: include/exclude modules/views
         """
         load (import) all views
         this looks a cyclical import,
         but it is the way all Flask-clones can be structured
         """
-        for view in views_list:
-            importlib.import_module('chalicelib.' + view)
+        this = importlib.import_module('app')  # obtain a reference to this module (app.py)
+        for view in views_list:  # iterate over all the filenames passed with this function call
+            module = importlib.import_module('chalicelib.' + view)  # keep a reference to each module we iterate
+            for obj in dir(module):  # iterate the names of every definition inside the itarated module
+                obj_ref = getattr(module, obj)  # store a reference to the itarated names
+                if callable(obj_ref):  # and finally if it the definition is a function...
+                    setattr(this, obj, obj_ref)  # make that function an attribute of the app module too
 
 
 # TODO: Use the overloaded __call__ or route for this
@@ -129,92 +139,3 @@ app.load_views(
         'admin', 'audit',  # periodic and triggered lambdas
     ]
 )
-
-
-###
-# admin.py lambdas moved here, because they are not loaded properly from a separate file
-###
-
-
-@app.lambda_function()
-def database_create_tables(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        table_list = []
-        message = ""
-        for table_name in event['Tables']:
-            model = dbh.get_model(table_name)
-            table_list.append(model)
-        created = dbh.create_tables(table_list)
-    except Exception as err:
-        app.log.error(str(err))
-        created = False
-        message = str(err)
-    if created:
-        response = ", ".join(event['Tables'])
-    else:
-        response = f"Table create failed: {message}"
-    return response
-
-
-@app.lambda_function()
-def database_create_item(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        item = dbh.create_item(event)
-        data = item.serialize()
-        json_data = app.utilities.to_json(data)
-    except Exception as err:
-        app.log.error(str(err))
-        json_data = None
-    return json_data
-
-
-@app.lambda_function()
-def database_create_items(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        created = dbh.create_items(event)
-        json_data = app.utilities.to_json(created)
-    except Exception as err:
-        app.log.error(str(err))
-        json_data = None
-    return json_data
-
-
-@app.lambda_function()
-def database_get_item(event, context):
-    app.log.debug('database_get_item function')
-    try:
-        dbh = DatabaseHandle(app)
-        item = dbh.get_item(event)
-        data = item.serialize()
-        json_data = app.utilities.to_json(data)
-    except Exception as err:
-        app.log.error(str(err))
-        json_data = None
-    return json_data
-
-
-@app.lambda_function()
-def database_run(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        dbh.set_credentials(event['User'], event['Password'])
-        status = dbh.execute_commands(event['Commands'])
-    except Exception as err:
-        app.log.error(str(err))
-        status = False
-    return status
-
-
-@app.lambda_function()
-def database_list_models(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        models = dbh.get_models()
-        tables = models.keys()
-    except Exception as err:
-        app.log.error(str(err))
-        tables = []
-    return tables
