@@ -174,7 +174,7 @@ class BaseModel(peewee.Model):
         try:
             item = super().save(force_insert, only)
         except Exception as error:
-            item = None
+            item = 0
             self._meta.database.app.log.error("Save failed: "+str(error))
             self._meta.database.rollback()
         return item
