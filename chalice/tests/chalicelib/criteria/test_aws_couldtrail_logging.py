@@ -1,11 +1,10 @@
 import unittest
 
-from chalice import Chalice
 from chalicelib.criteria.aws_couldtrail_logging import AwsCouldtrailLogging
-from chalicelib.criteria.test_criteria_default import (
+from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
-from chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
+from tests.chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING_ITEMS
 
 
 class TestAwsCouldtrailLogging(

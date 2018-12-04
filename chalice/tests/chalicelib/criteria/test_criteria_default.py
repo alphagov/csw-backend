@@ -7,7 +7,7 @@ import importlib
 import unittest
 
 from chalice import Chalice
-from chalicelib.criteria.test_data import EMPTY_SUMMARY
+from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
@@ -102,7 +102,7 @@ class TestCriteriaDefault(TestCaseWithAttrAssert):
         test the get_session method for success and failure
         """
         self.assertFalse(self.criteria_default.get_session())
-        #TODO: find account/role params to test for success returning a string
+        # TODO: find account/role params to test for success returning a string
 
     def test_describe(self):
         """

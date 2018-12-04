@@ -122,3 +122,6 @@ build/packages
 
 # csw-infra terraform dependency symlink
 build/csw-infra
+
+#VSCode
+.vscode/
