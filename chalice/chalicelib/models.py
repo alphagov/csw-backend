@@ -146,6 +146,112 @@ class UserSession(BaseModel):
 dbh.add_model("UserSession", UserSession)
 
 
+class User(BaseModel):
+    """
+    Google OAuth is used to authenticate users to a specified email domain
+    We want to further limit the use of this tool to specific users within
+    that domain.
+    Only people in this table (and marked active) should be allowed to login.
+    """
+    email = CharField(unique=True)
+    name = CharField()
+    active = BooleanField()
+
+    class Meta:
+        table_name = "user"
+
+    @classmethod
+    def find_active_by_email(cls, email):
+        """
+        Look for a user record with active true and matching the email address
+
+        Raises DoesNotExist
+        :param email:
+        :return self instance:
+        """
+        user = cls.get(email=email, active=True)
+
+        return user
+
+dbh.add_model("User", User)
+
+
+class UserSession(BaseModel):
+    """
+    UserSession records login sessions against users so we can track things
+    like how often and for how long the tool is being used
+    """
+    date_opened = DateTimeField(default=datetime.now)
+    date_accessed = DateTimeField(default=datetime.now)
+    date_closed = DateTimeField(null=True)
+
+    user_id = ForeignKeyField(User, backref='sessions')
+
+    class Meta:
+        table_name = "user_session"
+
+
+    @classmethod
+    def start(cls, user):
+        """
+        Create a new session for the current user
+
+        Raises Exception(Not sure which one)
+        :param user:
+        :return:
+        """
+
+        now = datetime.now()
+
+        session = cls.create(
+            user_id = user,
+            date_opened = now,
+            date_accessed = now,
+            date_closed = None
+        )
+
+        return session
+
+    @classmethod
+    def accessed(cls, user):
+        """
+        Update the date_accessed field with the current time
+
+        :param user:
+        :return:
+        """
+        session = cls.get(user_id=user, date_closed=None)
+
+        now = datetime.now()
+
+        #session.update(date_accessed = now)
+        session.date_accessed = now
+        session.save()
+
+        return session
+
+    @classmethod
+    def close(cls, user):
+        """
+        Update the current session date_closed with the current time
+        :param user:
+        :return:
+        """
+        session = cls.get(user_id=user, date_closed=None)
+
+        now = datetime.now()
+
+        # session.update(date_accessed=now, date_closed=now)
+        session.date_accessed = now
+        session.date_closed = now
+        session.save()
+
+        return session
+
+
+dbh.add_model("UserSession", UserSession)
+
+
 # Create a product team reference table to link AWS
 # accounts to the teams who they belong to
 class ProductTeam(database_handle.BaseModel):
