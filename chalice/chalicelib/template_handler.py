@@ -180,15 +180,15 @@ class TemplateHandler:
             else:
                 template_file = 'logged_out.html'
 
-                login_url = self.auth.get_auth_url(self.base_url + route)
-
-                data["login_url"] = login_url
-
                 # Redirect to homepage to login
                 if route != "/":
                     status_code = 302
                     headers["Location"] = self.base_url
 
+            # Always populate login link in template data
+            login_url = self.auth.get_auth_url(self.base_url + route)
+
+            data["login_url"] = login_url
             data["asset_path"] = asset_path
             data["base_path"] = root_path
 
