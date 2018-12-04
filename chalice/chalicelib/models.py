@@ -59,7 +59,7 @@ class UserSession(database_handle.BaseModel):
         :return:
         """
 
-        now = datetime.now()
+        now = datetime.datetime.now()
 
         session = cls.create(
             user_id = user,
@@ -80,7 +80,7 @@ class UserSession(database_handle.BaseModel):
         """
         session = cls.get(user_id=user, date_closed=None)
 
-        now = datetime.now()
+        now = datetime.datetime.now()
 
         #session.update(date_accessed = now)
         session.date_accessed = now
@@ -97,7 +97,7 @@ class UserSession(database_handle.BaseModel):
         """
         session = cls.get(user_id=user, date_closed=None)
 
-        now = datetime.now()
+        now = datetime.datetime.now()
 
         # session.update(date_accessed=now, date_closed=now)
         session.date_accessed = now
