@@ -5,6 +5,7 @@ and demo routes with static data
 """
 
 from datetime import datetime
+import os
 
 from chalice import Response
 
@@ -146,7 +147,8 @@ def test_ports_ingress_ssh():
             "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
         )
         ec2 = client(app)
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ['CSW_ENV']
+        session = ec2.get_session(account='103495720024', role=f'csw-{env}_CstSecurityInspectorRole')
         region = 'eu-west-1'
         groups = ec2.get_data(session, **{"region": region})
         for group in groups:
@@ -185,7 +187,8 @@ def test_ports_ingress_open():
             "chalicelib.criteria.aws_ec2_security_group_ingress_open.AwsEc2SecurityGroupIngressOpen"
         )
         ec2 = client(app)
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ['CSW_ENV']
+        session = ec2.get_session(account='103495720024', role=f'csw-{env}_CstSecurityInspectorRole')
         params = {
             "region": 'eu-west-1'
         }
@@ -219,9 +222,10 @@ def test_root_mfa():
             "chalicelib.criteria.aws_support_root_mfa.AwsSupportRootMfa"
         )
         support = client(app)
+        env = os.environ['CSW_ENV']
         session = support.get_session(
             account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
+            role=f'csw-{env}_CstSecurityInspectorRole'
         )
         data = support.get_data(session)
         criterion = {
@@ -265,9 +269,10 @@ def validate_iam_policy():
             "chalicelib.criteria.aws_iam_validate_inspector_policy.AwsIamValidateInspectorPolicy"
         )
         iam = client(app)
+        env = os.environ['CSW_ENV']
         session = iam.get_session(
             account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
+            role=f'csw-{env}_CstSecurityInspectorRole'
         )
         data = iam.get_data(session)
         criterion = {
