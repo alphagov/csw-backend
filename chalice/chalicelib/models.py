@@ -84,8 +84,25 @@ class ProductTeam(database_handle.BaseModel):
             "accounts": account_audits
         }
 
+    def get_active_accounts(self):
+        """
+        Get the active accounts linked ot the ProductTeam instance
+        :return arr AccountSubscription:
+        """
+        accounts = (AccountSubscription
+                    .select()
+                    .join(ProductTeam)
+                    .where(ProductTeam.id == self.id,
+                           ProductTeam.active == True))
+        return accounts
+
     @classmethod
     def get_criteria_stats(cls, teams):
+        """
+        Collates stats for active criteria across all accounts for a list of teams
+        :param teams arr ProductTeam:
+        :return dict:
+        """
         # TODO: instead of passing the teams as an array, write the method to operate on the team queryset or [self]
         # routes.team_dashboard
         criteria_stats = []
@@ -101,7 +118,7 @@ class ProductTeam(database_handle.BaseModel):
                     "ignored": 0
                 }
                 app.log.debug("Got default criteria stats")
-                for account in AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team.id):
+                for account in ProductTeam.get_team_active_accounts(team):
                     app.log.debug("Get latest account stats for account: " + str(account.id))
                     account_stats = {
                         "resources": 0,

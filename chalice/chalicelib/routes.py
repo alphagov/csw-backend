@@ -18,7 +18,7 @@ def overview_dashboard():
     load_route_services()
     try:
         criteria_stats = models.ProductTeam.get_criteria_stats(
-            models.Criterion.select().where(models.Criterion.active == True),
+            models.ProductTeam.select().where(models.ProductTeam.active == True)
         )
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_route_template(
