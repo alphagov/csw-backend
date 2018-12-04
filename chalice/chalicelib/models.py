@@ -39,8 +39,8 @@ class UserSession(database_handle.BaseModel):
     UserSession records login sessions against users so we can track things
     like how often and for how long the tool is being used
     """
-    date_opened = peewee.DateTimeField(default=datetime.now)
-    date_accessed = peewee.DateTimeField(default=datetime.now)
+    date_opened = peewee.DateTimeField(default=datetime.datetime.now)
+    date_accessed = peewee.DateTimeField(default=datetime.datetime.now)
     date_closed = peewee.DateTimeField(null=True)
 
     user_id = peewee.ForeignKeyField(User, backref='sessions')
