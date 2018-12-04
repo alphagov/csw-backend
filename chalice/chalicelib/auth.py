@@ -5,8 +5,7 @@ from http import cookies
 import jwt
 import google_auth_oauthlib.flow
 from chalicelib.aws.gds_ssm_client import GdsSsmClient
-from chalicelib.database_handle import DatabaseHandle
-from chalicelib.models import User, UserSession
+from chalicelib import models
 
 class AuthHandler:
     """
@@ -26,14 +25,6 @@ class AuthHandler:
 
         # app lets you use shared log method
         self.app = app
-        self.dbh = DatabaseHandle(app)
-
-        self.db = self.dbh.get_handle()
-        try:
-            self.db.connect()
-        except Exception as error:
-            self.app.log.error("Failed to connect to database: "+str(error))
-
         # Set time to expiry for session cookie
         self.cookie_expiration = datetime.timedelta(days=1)
 
@@ -217,8 +208,8 @@ class AuthHandler:
 
                 # Update UserSession accessed date
                 try:
-                    db_user = User.find_active_by_email(user['email'])
-                    UserSession.accessed(db_user)
+                    db_user = models.User.find_active_by_email(user['email'])
+                    models.UserSession.accessed(db_user)
                 except Exception as error:
                     self.app.log.error("Failed to update session: "+str(error))
 
@@ -237,12 +228,12 @@ class AuthHandler:
 
         # Check against User table for active user record
         try:
-            db_user = User.find_active_by_email(user['email'])
+            db_user = models.User.find_active_by_email(user['email'])
             user_registered = True
 
             # Create UserSession record
             try:
-                session = UserSession.start(db_user)
+                session = models.UserSession.start(db_user)
             except Exception as error:
                 session = None
                 self.app.log.debug("User not registered: " + str(error))
@@ -279,8 +270,8 @@ class AuthHandler:
 
         # Update closed date on database UserSession
         try:
-            db_user = User.find_active_by_email(self.user['email'])
-            UserSession.close(db_user)
+            db_user = models.User.find_active_by_email(self.user['email'])
+            models.UserSession.close(db_user)
         except Exception as error:
             self.app.log.error("Failed to close session: "+str(error))
             self.db.rollback()
