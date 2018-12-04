@@ -237,7 +237,6 @@ class AuthHandler:
             except Exception as error:
                 session = None
                 self.app.log.debug("User not registered: " + str(error))
-                self.db.rollback()
 
         except Exception as error:
             user_registered = False
@@ -274,7 +273,6 @@ class AuthHandler:
             models.UserSession.close(db_user)
         except Exception as error:
             self.app.log.error("Failed to close session: "+str(error))
-            self.db.rollback()
 
         return self.create_set_cookie_header("session", None, expiration)
 
