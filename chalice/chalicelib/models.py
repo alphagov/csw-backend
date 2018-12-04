@@ -118,7 +118,7 @@ class ProductTeam(database_handle.BaseModel):
                     "ignored": 0
                 }
                 app.log.debug("Got default criteria stats")
-                for account in ProductTeam.get_team_active_accounts(team):
+                for account in ProductTeam.get_active_accounts(team):
                     app.log.debug("Get latest account stats for account: " + str(account.id))
                     account_stats = {
                         "resources": 0,
