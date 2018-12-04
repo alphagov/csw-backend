@@ -27,33 +27,16 @@ class TemplateHandler:
 
         self.logged_in = False
         self.login_data = {}
-        self.route_templates = {
-            "/": "logged_in.html",
-            "/logout": "logged_out.html",
-            "/audit": "audit_list.html",
-            "/audit/{id}": "audit.html",
-            "/overview": "overview.html",
-            "/team": "teams.html",
-            "/team/{id}/dashboard": "team_dashboard.html",
-            "/resource/{id}": "resource_details.html",
-            "/test/ports_ingress_ssh": "test_evaluation.html",
-            "/test/root_mfa": "test_evaluation.html",
-            "/test/validate_iam_policy": "test_evaluation.html"
-        }
-
-    def get_route_template_file(self, route):
-        if route in self.route_templates:
-            template_file = self.route_templates[route]
-        else:
-            template_file = 'logged_in.html'
-
-        return template_file
 
     def render_template(self, file, params):
 
         template = self.get_template(file)
         body = template.render(**params)
         return body
+
+    def get_request_path(self):
+
+        return self.app.current_request.context['resourcePath']
 
     def get_template(self, file):
 
@@ -99,12 +82,14 @@ class TemplateHandler:
         self.env.filters['timestamp'] = format_datetime
 
     def is_real(self):
-        return ((self.request_url.find('localhost') == -1) and (self.request_url.find('127.0.0.1') == -1))
+        return ((self.base_url.find('localhost') == -1) and (self.base_url.find('127.0.0.1') == -1))
 
     def get_menu_active_class_modifier(self, route, test):
         return ('--active' if route == test else '')
 
-    def get_menu(app, root_path="", route="/"):
+    def get_menu(self, root_path=""):
+
+        route = self.get_request_path()
 
         return [
             {
@@ -124,24 +109,30 @@ class TemplateHandler:
             }
         ]
 
-    def render_authorized_route_template(self, route, req, data={}):
+    def render_authorized_template(self, template_file, req, data=None):
+
+        headers = {
+            "Content-Type": "text/html"
+        }
 
         try:
+
+            # If no template data has been passed initialise an empty dict
+            if data is None:
+                data = {}
+
             status_code = 200
 
-            headers = {
-                "Content-Type": "text/html"
-            }
+            route = self.get_request_path()
 
             auth = self.get_auth_handler()
 
-            self.request_url = auth.get_request_url(req)
+            self.base_url = auth.get_base_url(req)
 
-            self.app.log.debug('Request URL: ' + self.request_url)
+            self.app.log.debug('Base URL: ' + self.base_url)
 
             if self.is_real():
 
-                self.auth_flow = auth.get_auth_flow(self.request_url + route)
                 root_path = "/app"
 
                 logged_in = self.auth.try_login(req)
@@ -155,18 +146,19 @@ class TemplateHandler:
                 self.app.log.debug('Is localhost')
 
             asset_path = f"{root_path}/assets"
-            # if there is a user then show the requested route
-            # TODO add permission control
-            if route == '/logout':
+
+            if template_file == 'logged_out.html':
 
                 logged_in = False
                 headers["Set-Cookie"] = self.auth.generate_logout_header_val()
 
+            # if there is a user then show the requested route
+            # TODO add permission control
+            login_data = self.auth.get_login_data()
+
+            # Successfully authenticated and permissioned user
             if logged_in:
 
-                template_file = self.get_route_template_file(route)
-
-                login_data = self.auth.get_login_data()
                 data.update(login_data)
 
                 self.app.log.debug('template data: '+str(data))
@@ -175,24 +167,28 @@ class TemplateHandler:
                     headers["Set-Cookie"] = self.auth.cookie
 
                 data["logout_url"] = f"{root_path}/logout"
-                data["menu"] = self.get_menu(root_path, route)
+                data["menu"] = self.get_menu(root_path)
 
+            # Check for successful auth but non-registered user
+            elif login_data['authenticated'] and not login_data['is_registered']:
+
+                template_file = 'request_access.html'
+
+                status_code = 403
+
+            # Back to logged out
             else:
-
                 template_file = 'logged_out.html'
-
-                login_url, _ = self.auth_flow.authorization_url(
-                    prompt="select_account",
-                    hd="digital.cabinet-office.gov.uk"
-                )
-
-                data["login_url"] = login_url
 
                 # Redirect to homepage to login
                 if route != "/":
                     status_code = 302
-                    headers["Location"] = self.request_url
+                    headers["Location"] = self.base_url
 
+            # Always populate login link in template data
+            login_url = self.auth.get_auth_url(self.base_url + route)
+
+            data["login_url"] = login_url
             data["asset_path"] = asset_path
             data["base_path"] = root_path
 

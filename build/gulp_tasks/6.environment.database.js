@@ -92,6 +92,8 @@ gulp.task('environment.database_create_tables', function() {
 
     var payload = {
         "Tables":[
+            "User",
+            "UserSession",
             "ProductTeam",
             "AccountSubscription",
             "AccountAudit",

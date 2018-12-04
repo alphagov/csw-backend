@@ -5,6 +5,7 @@ and demo routes with static data
 """
 
 from datetime import datetime
+import os
 
 from chalice import Response
 
@@ -99,8 +100,8 @@ AUDIT = {
 def demo_index():
     app.dummy_data = AUDIT
     load_route_services()
-    response = app.templates.render_authorized_route_template(
-        '/',
+    response = app.templates.render_authorized_template(
+        'logged_in.html',
         app.current_request,
         {
             "name": "[User Name]"
@@ -113,8 +114,8 @@ def demo_index():
 def demo_audit_list():
     app.dummy_data = AUDIT
     load_route_services()
-    response = app.templates.render_authorized_route_template(
-        '/audit',
+    response = app.templates.render_authorized_template(
+        'audit_list.html',
         app.current_request,
         app.dummy_data
     )
@@ -126,8 +127,8 @@ def demo_audit_report(id):
     app.dummy_data = AUDIT
     load_route_services()
     app.templates = TemplateHandler(app)
-    response = app.templates.render_authorized_route_template(
-        '/audit/{id}',
+    response = app.templates.render_authorized_template(
+        'audit.html',
         app.current_request,
         app.dummy_data["audits"][0]
     )
@@ -146,7 +147,8 @@ def test_ports_ingress_ssh():
             "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
         )
         ec2 = client(app)
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ['CSW_ENV']
+        session = ec2.get_session(account='103495720024', role=f'csw-{env}_CstSecurityInspectorRole')
         region = 'eu-west-1'
         groups = ec2.get_data(session, **{"region": region})
         for group in groups:
@@ -164,8 +166,8 @@ def test_ports_ingress_ssh():
             "compliance_results": groups,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -185,7 +187,8 @@ def test_ports_ingress_open():
             "chalicelib.criteria.aws_ec2_security_group_ingress_open.AwsEc2SecurityGroupIngressOpen"
         )
         ec2 = client(app)
-        session = ec2.get_session(account='103495720024', role='csw-dan_CstSecurityInspectorRole')
+        env = os.environ['CSW_ENV']
+        session = ec2.get_session(account='103495720024', role=f'csw-{env}_CstSecurityInspectorRole')
         params = {
             "region": 'eu-west-1'
         }
@@ -199,8 +202,8 @@ def test_ports_ingress_open():
         template_data["criteria"][0]["compliance_results"] = groups
         template_data["criteria"][0]["compliance_summary"] = summary
         template_data["criteria"][0]["tested"] = True
-        response = app.templates.render_authorized_route_template(
-            '/audit/{id}',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -219,9 +222,10 @@ def test_root_mfa():
             "chalicelib.criteria.aws_support_root_mfa.AwsSupportRootMfa"
         )
         support = client(app)
+        env = os.environ['CSW_ENV']
         session = support.get_session(
             account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
+            role=f'csw-{env}_CstSecurityInspectorRole'
         )
         data = support.get_data(session)
         criterion = {
@@ -245,8 +249,8 @@ def test_root_mfa():
             "compliance_results": data,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -265,9 +269,10 @@ def validate_iam_policy():
             "chalicelib.criteria.aws_iam_validate_inspector_policy.AwsIamValidateInspectorPolicy"
         )
         iam = client(app)
+        env = os.environ['CSW_ENV']
         session = iam.get_session(
             account='103495720024',
-            role='csw-dan_CstSecurityInspectorRole'
+            role=f'csw-{env}_CstSecurityInspectorRole'
         )
         data = iam.get_data(session)
         criterion = {
@@ -290,8 +295,8 @@ def validate_iam_policy():
             "compliance_results": data,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/validate_iam_policy',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )

@@ -11,4 +11,17 @@
 
 .csw-login-status {
     float: right;
+
+}
+
+.csw-login-status--text {
+    line-height: 2em;
+}
+
+.csw-login-status--avatar {
+    display:inline;
+    width:2em;
+    height:2em;
+    border-radius:1em;
+    vertical-align:middle;
 }

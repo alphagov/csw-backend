@@ -11,8 +11,6 @@ import os
 
 from chalice import Chalice
 
-from chalicelib.auth import AuthHandler
-from chalicelib.template_handler import TemplateHandler
 from chalicelib.utilities import Utilities
 
 
@@ -63,11 +61,15 @@ class CloudSecurityWatch(Chalice):
 
 # TODO: Use the overloaded __call__ or route for this
 def load_route_services():
+    # This can't be imported until after app is declared
+    from chalicelib.auth import AuthHandler
+    from chalicelib.template_handler import TemplateHandler
 
     app.log.debug('Loading route services')
 
     try:
         app.auth = AuthHandler(app)
+        app.auth.initialise_flow(app.current_request)
 
         app.log.debug("Loaded auth")
 
@@ -126,6 +128,7 @@ def read_asset(proxy):
 
 # Instantiate and initialise the Chalice child object
 app = CloudSecurityWatch(app_name='cloud-security-watch')
+
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
 app.prefix = os.environ["CSW_PREFIX"]
