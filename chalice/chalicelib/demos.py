@@ -100,8 +100,8 @@ AUDIT = {
 def demo_index():
     app.dummy_data = AUDIT
     load_route_services()
-    response = app.templates.render_authorized_route_template(
-        '/',
+    response = app.templates.render_authorized_template(
+        'logged_in.html',
         app.current_request,
         {
             "name": "[User Name]"
@@ -114,8 +114,8 @@ def demo_index():
 def demo_audit_list():
     app.dummy_data = AUDIT
     load_route_services()
-    response = app.templates.render_authorized_route_template(
-        '/audit',
+    response = app.templates.render_authorized_template(
+        'audit_list.html',
         app.current_request,
         app.dummy_data
     )
@@ -127,8 +127,8 @@ def demo_audit_report(id):
     app.dummy_data = AUDIT
     load_route_services()
     app.templates = TemplateHandler(app)
-    response = app.templates.render_authorized_route_template(
-        '/audit/{id}',
+    response = app.templates.render_authorized_template(
+        'audit.html',
         app.current_request,
         app.dummy_data["audits"][0]
     )
@@ -166,8 +166,8 @@ def test_ports_ingress_ssh():
             "compliance_results": groups,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -202,8 +202,8 @@ def test_ports_ingress_open():
         template_data["criteria"][0]["compliance_results"] = groups
         template_data["criteria"][0]["compliance_summary"] = summary
         template_data["criteria"][0]["tested"] = True
-        response = app.templates.render_authorized_route_template(
-            '/audit/{id}',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -249,8 +249,8 @@ def test_root_mfa():
             "compliance_results": data,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/ports_ingress_ssh',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )
@@ -295,8 +295,8 @@ def validate_iam_policy():
             "compliance_results": data,
             "tested": True
         }
-        response = app.templates.render_authorized_route_template(
-            '/test/validate_iam_policy',
+        response = app.templates.render_authorized_template(
+            'test_evaluation.html',
             app.current_request,
             template_data
         )

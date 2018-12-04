@@ -10,7 +10,7 @@ from chalicelib import models
 def index():
     load_route_services()
     app.log.debug('INDEX CONTEXT = ' + str(app.lambda_context))
-    return Response(**app.templates.render_authorized_route_template('/', app.current_request))
+    return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
 
 
 @app.route('/overview')
@@ -21,8 +21,8 @@ def overview_dashboard():
             models.ProductTeam.select().where(models.ProductTeam.active == True)
         )
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
-        response = app.templates.render_authorized_route_template(
-            '/overview',
+        response = app.templates.render_authorized_template(
+            'overview.html',
             app.current_request,
             {"criteria_summary": criteria_stats}
         )
@@ -38,8 +38,8 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
-        response = app.templates.render_authorized_route_template(
-            '/team',
+        response = app.templates.render_authorized_template(
+            'teams.html',
             app.current_request,
             {
                 'teams': [
@@ -63,8 +63,8 @@ def team_dashboard(id):
         team = models.ProductTeam.get_by_id(team_id)
         criteria_stats = models.ProductTeam.get_criteria_stats([team])
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
-        response = app.templates.render_authorized_route_template(
-            '/team/{id}/dashboard',
+        response = app.templates.render_authorized_template(
+            'team_dashboard.html',
             app.current_request,
             {
                 "team": team.serialize(),
@@ -93,8 +93,8 @@ def resource_details(id):
         compliance = (
             models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
         ).get()
-        response = app.templates.render_authorized_route_template(
-            '/resource/{id}',
+        response = app.templates.render_authorized_template(
+            'resource_details.html',
             app.current_request,
             {
                 "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
@@ -116,20 +116,20 @@ def resource_details(id):
 @app.route('/logout')
 def logout():
     load_route_services()
-    return Response(**app.templates.render_authorized_route_template('/logout', app.current_request))
+    return Response(**app.templates.render_authorized_template('logged_out.html', app.current_request))
 
 
 @app.route('/audit')
 def audit_list():
     load_route_services()
     # TODO: Base template needs anchor to this route
-    return Response(**app.templates.render_authorized_route_template('/audit', app.current_request))
+    return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
 
 
 @app.route('/audit/{id}')
 def audit_report(id):
     load_route_services()
-    return Response(**app.templates.render_authorized_route_template('/audit/{id}', app.current_request))
+    return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
 
 
 # ASSET RENDERERS
