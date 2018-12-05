@@ -60,7 +60,7 @@ gulp.task('parameters.shared.terraform_states_bucket', function() {
     var property = 'bucket_name';
 
     var region = file.data.region;
-    return helpers.setParameterInPipelinePromise(name, file.data.api_credentials, region, file, property);
+    return helpers.setParameterInPipelinePromise(name, file.data.bucket_name, region, file, property);
 
   }));
 
