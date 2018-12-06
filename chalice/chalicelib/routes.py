@@ -28,9 +28,7 @@ def overview_dashboard():
         )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
-        response = {
-            "body": str(err)
-        }
+        response = app.templates.default_server_error()
     return Response(**response)
 
 
@@ -49,9 +47,7 @@ def team_list():
         )
     except Exception as err:
         app.log.error("Route: team error: " + str(err))
-        response = {
-            "body": str(err)
-        }
+        response = app.templates.default_server_error()
     return Response(**response)
 
 
@@ -61,6 +57,7 @@ def team_dashboard(id):
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
+        app.log.debug("Team: " + app.utilities.to_json(team))
         criteria_stats = models.ProductTeam.get_criteria_stats([team])
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
         response = app.templates.render_authorized_template(
@@ -75,9 +72,7 @@ def team_dashboard(id):
         )
     except Exception as err:
         app.log.error("Route: team/x/dashboard error: " + str(err))
-        response = {
-            "body": str(err)
-        }
+        response = app.templates.default_server_error()
     return Response(**response)
 
 
@@ -107,9 +102,7 @@ def resource_details(id):
         )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
-        response = {
-            "body": str(err)
-        }
+        response = app.templates.default_server_error()
     return Response(**response)
 
 

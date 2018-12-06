@@ -127,24 +127,25 @@ class ProductTeam(database_handle.BaseModel):
         for account in accounts:
             if account.active:
                 latest = account.get_latest_audit()
-                failed_resources = latest.get_audit_failed_resources()
-                if len(failed_resources) > 0:
-                    resource_data = {
-                        "account": account.serialize(),
-                        "audit": latest.serialize(),
-                        "resources": []
-                    }
-                    for compliance in failed_resources:
-                        audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
-                        criterion = Criterion.get_by_id(audit_resource.criterion_id)
-                        status = Status.get_by_id(compliance.status_id)
-                        resource_data["resources"].append({
-                            "compliance": compliance.serialize(),
-                            "resource": audit_resource.serialize(),
-                            "criterion": criterion.serialize(),
-                            "status": status.serialize()
-                        })
-                    team_failed_resources.append(resource_data)
+                if latest is not None:
+                    failed_resources = latest.get_audit_failed_resources()
+                    if len(failed_resources) > 0:
+                        resource_data = {
+                            "account": account.serialize(),
+                            "audit": latest.serialize(),
+                            "resources": []
+                        }
+                        for compliance in failed_resources:
+                            audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                            criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                            status = Status.get_by_id(compliance.status_id)
+                            resource_data["resources"].append({
+                                "compliance": compliance.serialize(),
+                                "resource": audit_resource.serialize(),
+                                "criterion": criterion.serialize(),
+                                "status": status.serialize()
+                            })
+                        team_failed_resources.append(resource_data)
         app.log.debug(app.utilities.to_json(team_failed_resources))
         return team_failed_resources
 
@@ -152,6 +153,7 @@ class ProductTeam(database_handle.BaseModel):
         team_id = self.id
         app.log.debug(f"Get team dashboard for team: {self.team_name}  ({ team_id })")
         team_accounts = AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id)
+        unaudited_accounts = []
         for account in team_accounts:
             app.log.debug(account.account_name)
         team_stats = {
@@ -178,11 +180,15 @@ class ProductTeam(database_handle.BaseModel):
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
                 else:
-                    app.log.error("Latest audit not found for account: " + account.id)
+                    app.log.error("Latest audit not found for account: " + str(account.id))
+                    unaudited_accounts.append({
+                        "account": account.serialize()
+                    })
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
         return {
             "team": team_stats,
-            "accounts": account_audits
+            "accounts": account_audits,
+            "unaudited_accounts": unaudited_accounts
         }
 
     def get_active_accounts(self):
@@ -283,7 +289,7 @@ class AccountSubscription(database_handle.BaseModel):
                 AccountLatestAudit.account_subscription_id == account_id
             ).get()
             app.log.debug("Found latest audit: " + app.utilities.to_json(latest.serialize()))
-        except AccountLatestAudit.DoesNotExist as err:
+        except peewee.DoesNotExist as err:
             latest = None
             app.log.debug("Failed to get latest audit: " + str(err))
         except Exception as err:

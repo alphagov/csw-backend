@@ -32,6 +32,16 @@
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--issues">{{ item.issues_found }}</strong></td>
                 </tr>
                 {% endfor %}
+                {% for account_audit in team_summary.unaudited_accounts %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
+                    <td class="govuk-table__cell">None</td>
+                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell"/>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

@@ -125,9 +125,7 @@ class TemplateHandler:
 
             route = self.get_request_path()
 
-            auth = self.get_auth_handler()
-
-            self.base_url = auth.get_base_url(req)
+            self.base_url = self.auth.get_base_url(req)
 
             self.app.log.debug('Base URL: ' + self.base_url)
 
@@ -201,7 +199,41 @@ class TemplateHandler:
             response_body = "Error text: {0}".format(err)
 
         return {
+            "headers": headers,
             "body": response_body,
-            "status_code": status_code,
-            "headers": headers
+            "status_code": status_code
+        }
+
+    def get_root_path(self):
+        if self.is_real():
+            root_path = "/app"
+        else:
+            root_path = ""
+            self.app.log.debug('Is localhost')
+
+        return root_path
+
+    def default_server_error(self, req, status_code=200, message="Something went wrong."):
+        try:
+            self.base_url = self.auth.get_base_url(req)
+
+            self.app.log.debug('Base URL: ' + self.base_url)
+
+            template_file = "server_error.html"
+            headers = {
+                "Content-Type": "text/html"
+            }
+            root_path = self.get_root_path()
+            data = {
+                "message": message,
+                "base_path": root_path,
+                "asset_path": f"{root_path}/assets"
+            }
+            response_body = self.render_template(template_file, data)
+        except Exception as error:
+            response_body = str(error)
+        return {
+            "headers": headers,
+            "body": response_body,
+            "status_code": status_code
         }
