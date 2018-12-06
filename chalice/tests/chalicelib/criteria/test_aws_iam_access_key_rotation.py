@@ -1,7 +1,7 @@
 import unittest
 
 from chalicelib.criteria.aws_iam_access_key_rotation import (
-    AwsIamAccessKeyRotation
+    AwsIamAccessKeyRotationYellow, AwsIamAccessKeyRotationRed
 )
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
@@ -9,9 +9,7 @@ from tests.chalicelib.criteria.test_criteria_default import (
 from tests.chalicelib.criteria.test_data import IAM_KEY_ROTATION_ITEMS
 
 
-class TestAwsIamAccessKeyRotation(
-    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
-):
+class TestAwsIamAccessKeyRotationMixin(CriteriaSubclassTestCaseMixin):
     """
     Unit tests for the CriteriaDefault class
     """
@@ -21,27 +19,7 @@ class TestAwsIamAccessKeyRotation(
         """
         initialise the the Chalice app objects once to reuse it in every test.
         """
-        super(TestAwsIamAccessKeyRotation, cls).setUpClass()
         cls.test_data = IAM_KEY_ROTATION_ITEMS
-
-    def setUp(self):
-        """
-        """
-        self.subclass = AwsIamAccessKeyRotation(self.app)
-
-    def test_init_success(self):
-        """
-        test that initialization works
-        """
-        self.assertIsInstance(
-            self.subclass, AwsIamAccessKeyRotation
-        )
-
-    def test_init_failure(self):
-        """
-        test that not passing Chalice app object raises a type error
-        """
-        self.assertRaises(TypeError, AwsIamAccessKeyRotation)
 
     def test_init_client(self):
         """
@@ -130,6 +108,74 @@ class TestAwsIamAccessKeyRotation(
                                 msg_stubs[i]
                             )
                         )
+
+
+class TestAwsIamAccessKeyRotationYellow(
+    TestAwsIamAccessKeyRotationMixin, TestCaseWithAttrAssert
+):
+    """
+    Unit tests for the Yellow subclass
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        super(TestAwsIamAccessKeyRotationYellow, cls).setUpClass()
+
+    def setUp(self):
+        """
+        """
+        self.subclass = AwsIamAccessKeyRotationYellow(self.app)
+
+    def test_init_success(self):
+        """
+        test that initialization works
+        """
+        self.assertIsInstance(
+            self.subclass, AwsIamAccessKeyRotationYellow
+        )
+
+    def test_init_failure(self):
+        """
+        test that not passing Chalice app object raises a type error
+        """
+        self.assertRaises(TypeError, AwsIamAccessKeyRotationYellow)
+
+
+class TestAwsIamAccessKeyRotationRed(
+    TestAwsIamAccessKeyRotationMixin, TestCaseWithAttrAssert
+):
+    """
+    Unit tests for the Red subclass
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        super(TestAwsIamAccessKeyRotationRed, cls).setUpClass()
+
+    def setUp(self):
+        """
+        """
+        self.subclass = AwsIamAccessKeyRotationRed(self.app)
+
+    def test_init_success(self):
+        """
+        test that initialization works
+        """
+        self.assertIsInstance(
+            self.subclass, AwsIamAccessKeyRotationRed
+        )
+
+    def test_init_failure(self):
+        """
+        test that not passing Chalice app object raises a type error
+        """
+        self.assertRaises(TypeError, AwsIamAccessKeyRotationRed)
 
 
 if __name__ == '__main__':
