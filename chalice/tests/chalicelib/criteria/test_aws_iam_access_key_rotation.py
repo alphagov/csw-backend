@@ -159,5 +159,73 @@ class TestAwsIamAccessKeyRotationRed(
         self.assertRaises(TypeError, AwsIamAccessKeyRotationRed)
 
 
+class TestAwsIamAccessKeyRotationYellow(
+    TestAwsIamAccessKeyRotationMixin, TestCaseWithAttrAssert
+):
+    """
+    Unit tests for the Yellow subclass
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        super(TestAwsIamAccessKeyRotationYellow, cls).setUpClass()
+
+    def setUp(self):
+        """
+        """
+        self.subclass = AwsIamAccessKeyRotationYellow(self.app)
+
+    def test_init_success(self):
+        """
+        test that initialization works
+        """
+        self.assertIsInstance(
+            self.subclass, AwsIamAccessKeyRotationYellow
+        )
+
+    def test_init_failure(self):
+        """
+        test that not passing Chalice app object raises a type error
+        """
+        self.assertRaises(TypeError, AwsIamAccessKeyRotationYellow)
+
+
+class TestAwsIamAccessKeyRotationRed(
+    TestAwsIamAccessKeyRotationMixin, TestCaseWithAttrAssert
+):
+    """
+    Unit tests for the Red subclass
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        initialise the the Chalice app objects once to reuse it in every test.
+        """
+        super(TestAwsIamAccessKeyRotationRed, cls).setUpClass()
+
+    def setUp(self):
+        """
+        """
+        self.subclass = AwsIamAccessKeyRotationRed(self.app)
+
+    def test_init_success(self):
+        """
+        test that initialization works
+        """
+        self.assertIsInstance(
+            self.subclass, AwsIamAccessKeyRotationRed
+        )
+
+    def test_init_failure(self):
+        """
+        test that not passing Chalice app object raises a type error
+        """
+        self.assertRaises(TypeError, AwsIamAccessKeyRotationRed)
+
+
 if __name__ == '__main__':
     unittest.main()
