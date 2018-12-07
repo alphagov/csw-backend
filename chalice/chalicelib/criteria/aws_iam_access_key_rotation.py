@@ -3,6 +3,7 @@ implements aws::iam::access_key_rotation
 checkId: DqdJqYeRm5
 The access key is active and has been rotated in the past 90 days (yellow/warning) or 2 years (red/error).
 """
+import json
 
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_support_client import GdsSupportClient
@@ -14,7 +15,6 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
     """
 
     def __init__(self, app):
-        super(AwsIamAccessKeyRotationBase, self).__init__(app)
         # attributes to overwrite in subclasses
         self.status_string = ''
         self.status_interval = ''
@@ -45,6 +45,7 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
             '4) Validate that your applications are still working as expected. '
             '5) Delete the inactive access key.'
         )
+        super(AwsIamAccessKeyRotationBase, self).__init__(app)
 
     def get_data(self, session, **kwargs):
         output = self.client.describe_trusted_advisor_check_result(
@@ -52,7 +53,7 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
             checkId=self.check_id,
             language=self.language
         )
-        self.app.log.debug(self.app.utilities.to_json(output))
+        self.app.log.debug(json.dumps(output))
         # Return as a list of 1 item for consistency with other checks
         return output['flaggedResources']
 
@@ -87,7 +88,7 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
         )
 
 
-class AwsIamAccessKeyRotationYellow(CriteriaDefault):
+class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
@@ -98,7 +99,7 @@ class AwsIamAccessKeyRotationYellow(CriteriaDefault):
         self.status_interval = '90 days'
 
 
-class AwsIamAccessKeyRotationRed(CriteriaDefault):
+class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
