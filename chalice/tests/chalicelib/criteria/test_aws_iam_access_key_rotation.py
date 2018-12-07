@@ -19,95 +19,33 @@ class TestAwsIamAccessKeyRotationMixin(CriteriaSubclassTestCaseMixin):
         """
         initialise the the Chalice app objects once to reuse it in every test.
         """
+        super(TestAwsIamAccessKeyRotationMixin, cls).setUpClass()
         cls.test_data = IAM_KEY_ROTATION_ITEMS
 
     def test_init_client(self):
         """
-        test that all instance variables have the expected initial values
+        test that the client support the correct API method
         """
         # TODO: dynamically importing dependancies from the file tested
-        self.fail('import or write the appropriate client')
+        self.assertIn('describe_trusted_advisor_check_result', dir(self.subclass.client))
 
     def test_get_data(self):
         """
         """
-        # input params
-        session = None
-        kwargs = {}  # None
+        # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
+        self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: self.test_data['green']['result']
         # output value
-        item = self.subclass.get_data(session, **kwargs)
+        item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
         # must return a dictionary with the three necessary keys
-        msg = "the method must return a dictionary with ['result']['status']"
-        self.assertIsInstance(item, dict, msg=msg)
-        self.assertIsInstance(
-            item['result']['status'],
-            dict,
-            msg=msg
-        )
-
-    def test_evaluate_yellow(self):
-        """
-        yellow (status: warning) test
-        """
-        # input params
-        event = {}
-        item = self.test_data['yellow']
-        whitelist = []
-        # tests
-        output = self._evaluate_invariant_assertions(event, item, whitelist)
-        self._evaluate_failed_status_assertions(item, output)
-        # extract the metadata of flaggedResources
-        metadata = [
-            flagged['metadata']
-            for flagged in item['result']['flaggedResources']
-            if flagged['status'] == 'warning'
-        ]
+        msg = "the method must return a list of dictionaries"
         with self.subTest():
-            self.assertGreater(len(metadata), 0, msg='no warnings captured')
-        msg_stubs = [None, 'name', 'key', None, 'reason']
-        for record in metadata:
-            for i, key in enumerate(record):
-                if i in [1, 2, 4]:  # check only for name, key and reason
-                    with self.subTest(key=key):
-                        self.assertIn(
-                            key,
-                            self.subclass.annotation,
-                            msg='{} is missing from the annotation'.format(
-                                msg_stubs[i]
-                            )
-                        )
-
-    def test_evaluate_red(self):
-        """
-        red (status: error) test
-        """
-        # input params
-        event = {}
-        item = self.test_data['red']
-        whitelist = []
-        # first test the invariants and get the evaluate method's output
-        output = self._evaluate_invariant_assertions(event, item, whitelist)
-        self._evaluate_failed_status_assertions(item, output)
-        # extract the metadata of flaggedResources
-        metadata = [
-            flagged['metadata']
-            for flagged in item['result']['flaggedResources']
-            if flagged['status'] == 'error'
-        ]
-        with self.subTest():
-            self.assertGreater(len(metadata), 0, msg='no errors captured')
-        msg_stubs = [None, 'name', 'key', None, 'reason']
-        for record in metadata:
-            for i, key in enumerate(record):
-                if i in [1, 2, 4]:  # check only for name, key and reason
-                    with self.subTest(key=key):
-                        self.assertIn(
-                            key,
-                            self.subclass.annotation,
-                            msg='{} is missing from the annotation'.format(
-                                msg_stubs[i]
-                            )
-                        )
+            self.assertIsInstance(item, list, msg=msg)
+        # with self.subTest():
+        #     self.assertIsInstance(
+        #         item['result']['status'],
+        #         dict,
+        #         msg=msg
+        #     )
 
 
 class TestAwsIamAccessKeyRotationYellow(
@@ -142,6 +80,48 @@ class TestAwsIamAccessKeyRotationYellow(
         test that not passing Chalice app object raises a type error
         """
         self.assertRaises(TypeError, AwsIamAccessKeyRotationYellow)
+
+    def test_evaluate_green(self):
+        """
+        green (status: ok) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['green']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_yellow(self):
+        """
+        yellow (status: warning) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['yellow']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            if item['status'] == 'warning':
+                self._evaluate_failed_status_assertions(item, output)
+            else:
+                self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_red(self):
+        """
+        red (status: error) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['red']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            if item['status'] == 'error':
+                self._evaluate_failed_status_assertions(item, output)
+            else:
+                self._evaluate_passed_status_assertions(item, output)
 
 
 class TestAwsIamAccessKeyRotationRed(
