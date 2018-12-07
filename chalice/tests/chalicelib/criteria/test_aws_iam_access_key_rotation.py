@@ -192,6 +192,48 @@ class TestAwsIamAccessKeyRotationYellow(
         """
         self.assertRaises(TypeError, AwsIamAccessKeyRotationYellow)
 
+    def test_evaluate_green(self):
+        """
+        green (status: ok) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['green']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_yellow(self):
+        """
+        yellow (status: warning) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['yellow']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            if item['status'] == 'warning':
+                self._evaluate_failed_status_assertions(item, output)
+            else:
+                self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_red(self):
+        """
+        red (status: error) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in self.test_data['red']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            if item['status'] == 'error':
+                self._evaluate_failed_status_assertions(item, output)
+            else:
+                self._evaluate_passed_status_assertions(item, output)
+
 
 class TestAwsIamAccessKeyRotationRed(
     TestAwsIamAccessKeyRotationMixin, TestCaseWithAttrAssert
