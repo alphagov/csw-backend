@@ -142,63 +142,69 @@ def account_evaluate_criteria(event):
             client = ClientClass(app)
             account_id = audit.account_subscription_id.account_id
             session = client.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
-            method = criterion.invoke_class_get_data_method
-            app.log.debug("get data method: " + method)
-            params = {}
-            for param in criterion.criterion_params:
-                params[param.param_name] = param.param_value
-            app.log.debug("params: " + app.utilities.to_json(params))
-            requests = []
-            if criterion.is_regional:
-                ec2 = GdsEc2Client(app)
-                regions = ec2.describe_regions()
-                for region in regions:
-                    region_params = params.copy()
-                    region_params["region"] = region["RegionName"]
-                    app.log.debug("Create request from region: " + region_params["region"])
-                    requests.append(region_params)
-            else:
-                requests.append(params)
-            summary = None
-            for params in requests:
-                try:
-                    data = client.get_data(session, **params)
-                except ClientError as boto3_error:
-                    app.log.error(str(boto3_error))
-                    data = None
-                if data is not None:
-                    app.log.debug("api response: " + app.utilities.to_json(data))
-                    for item_raw in data:
-                        compliance = client.evaluate({}, item_raw)
-                        app.log.debug(app.utilities.to_json(compliance))
-                        item = {
-                            "account_audit_id": audit.id,
-                            "criterion_id": criterion.id,
-                            "resource_data": app.utilities.to_json(item_raw),
-                            "date_evaluated": datetime.now()
-                        }
-                        item_standard = client.translate(item_raw)
-                        item.update(item_standard)
-                        item_raw.update(item_standard)
-                        if "region" in params:
-                            item["region"] = params["region"]
-                            item_raw["region"] = params["region"]
-                        app.log.debug(app.utilities.to_json(item))
-                        audit_resource = models.AuditResource.create(**item)
-                        compliance["audit_resource_id"] = audit_resource
-                        item_raw["resource_compliance"] = compliance
-                        resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
-                    summary = client.summarize(data, summary)
-            app.log.debug(app.utilities.to_json(summary))
-            audit_criterion.resources = summary['all']['display_stat']
-            audit_criterion.tested = summary['applicable']['display_stat']
-            audit_criterion.passed = summary['compliant']['display_stat']
-            audit_criterion.failed = summary['non_compliant']['display_stat']
-            audit_criterion.ignored = summary['not_applicable']['display_stat']
-            audit_criterion.regions = summary['regions']['count']
-            audit_criterion.save()
+            if session is not None:
+                params = {}
+                for param in criterion.criterion_params:
+                    params[param.param_name] = param.param_value
+                app.log.debug("params: " + app.utilities.to_json(params))
+                requests = []
+                if criterion.is_regional:
+                    ec2 = GdsEc2Client(app)
+                    regions = ec2.describe_regions()
+                    for region in regions:
+                        region_params = params.copy()
+                        region_params["region"] = region["RegionName"]
+                        app.log.debug("Create request from region: " + region_params["region"])
+                        requests.append(region_params)
+                else:
+                    requests.append(params)
+                summary = None
+                for params in requests:
+                    try:
+                        data = client.get_data(session, **params)
+                    except ClientError as boto3_error:
+                        app.log.error(str(boto3_error))
+                        data = None
+                    if data is not None:
+                        app.log.debug("api response: " + app.utilities.to_json(data))
+                        for item_raw in data:
+                            compliance = client.evaluate({}, item_raw)
+                            app.log.debug(app.utilities.to_json(compliance))
+                            item = {
+                                "account_audit_id": audit.id,
+                                "criterion_id": criterion.id,
+                                "resource_data": app.utilities.to_json(item_raw),
+                                "date_evaluated": datetime.now()
+                            }
+                            item_standard = client.translate(item_raw)
+                            item.update(item_standard)
+                            item_raw.update(item_standard)
+                            if "region" in params:
+                                item["region"] = params["region"]
+                                item_raw["region"] = params["region"]
+                            app.log.debug(app.utilities.to_json(item))
+                            audit_resource = models.AuditResource.create(**item)
+                            compliance["audit_resource_id"] = audit_resource
+                            item_raw["resource_compliance"] = compliance
+                            resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
+                        summary = client.summarize(data, summary)
+                app.log.debug(app.utilities.to_json(summary))
+                audit_criterion.resources = summary['all']['display_stat']
+                audit_criterion.tested = summary['applicable']['display_stat']
+                audit_criterion.passed = summary['compliant']['display_stat']
+                audit_criterion.failed = summary['non_compliant']['display_stat']
+                audit_criterion.ignored = summary['not_applicable']['display_stat']
+                audit_criterion.regions = summary['regions']['count']
+                audit_criterion.save()
+                # Only update the processed stat if the assume was successful
+                audit.criteria_processed += 1
+
             audit.date_updated = datetime.now()
-            message_body = app.utilities.to_json(audit_criterion.serialize())
+            message_data = audit_criterion.serialize()
+            # It may be worth adding a field to the model
+            # to record where a check failed because of a failed assume role
+            # message_data['assume_failed'] = (session is None)
+            message_body = app.utilities.to_json(message_data)
             message_id = sqs.send_message(
                 queue_url,
                 message_body
@@ -218,7 +224,6 @@ def audit_evaluated_metric(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
-            audit.criteria_processed += 1
             if (audit_criteria_data['failed'] > 0):
                 audit.criteria_failed += 1
                 audit.issues_found += audit_criteria_data['failed']
