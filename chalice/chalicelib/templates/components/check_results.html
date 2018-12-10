@@ -22,7 +22,7 @@
                     {% if item.failed %}
                         <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
                     {% else %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--passed">{{ item.failed }}</strong></td>
+                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--nonefailed">{{ item.failed }}</strong></td>
                     {% endif %}
 
                 </tr>
@@ -36,7 +36,7 @@
                     {% if item.failed %}
                         <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
                     {% else %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--passed">{{ item.failed }}</strong></td>
+                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--nonefailed">{{ item.failed }}</strong></td>
                     {% endif %}
                 </tr>
                 {% endfor %}

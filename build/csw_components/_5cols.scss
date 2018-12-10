@@ -153,6 +153,12 @@
 
 }
 
+.govuk-tag__fixed-width--nonefailed {
+    @extend .govuk-tag__fixed-width;
+    background-color: govuk-colour("grey-1");
+
+}
+
 .govuk-tag__fixed-width--issues {
     @extend .govuk-tag__fixed-width;
     background-color: govuk-colour("purple");
