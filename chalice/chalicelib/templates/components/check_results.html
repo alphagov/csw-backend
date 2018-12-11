@@ -19,11 +19,7 @@
                     <th class="govuk-table__header">{{ team_summary.product_team.team_name }}</th>
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--all">{{ item.resources }}</strong></td>
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--passed">{{ item.passed + item.ignored }}</strong></td>
-                    {% if item.failed %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
-                    {% else %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--nonefailed">{{ item.failed }}</strong></td>
-                    {% endif %}
+                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="{{'govuk-tag__fixed-width--failed' if (item.failed > 0) else 'govuk-tag__fixed-width--not-applicable'}}">{{ item.failed }}</strong></td>
 
                 </tr>
                 {% endfor %}
@@ -33,11 +29,7 @@
                     <td class="govuk-table__cell">{{ account_summary.account_subscription.account_name }}</td>
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--all">{{ item.resources }}</strong></td>
                     <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--passed">{{ item.passed + item.ignored }}</strong></td>
-                    {% if item.failed %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--failed">{{ item.failed }}</strong></td>
-                    {% else %}
-                        <td class="govuk-table__cell--tag-fixed-centred"><strong class="govuk-tag__fixed-width--nonefailed">{{ item.failed }}</strong></td>
-                    {% endif %}
+                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="{{'govuk-tag__fixed-width--failed' if (item.failed > 0) else 'govuk-tag__fixed-width--not-applicable'}}">{{ item.failed }}</strong></td>
                 </tr>
                 {% endfor %}
             </tbody>
