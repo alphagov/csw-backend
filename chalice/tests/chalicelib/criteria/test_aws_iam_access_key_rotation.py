@@ -33,7 +33,8 @@ class TestAwsIamAccessKeyRotationMixin(CriteriaSubclassTestCaseMixin):
         """
         """
         # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-        self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: self.test_data['green']['result']
+        self.subclass.client.describe_trusted_advisor_check_result = \
+            lambda session, checkId, language: self.test_data['green']['result']
         # output value
         item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
         # must return a dictionary with the three necessary keys
