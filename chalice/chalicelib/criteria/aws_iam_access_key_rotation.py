@@ -13,13 +13,14 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
+    active = False
 
     def __init__(self, app):
         # attributes to overwrite in subclasses
         self.status_string = ''
         self.status_interval = ''
         # attributes common in both subclasses
-        self.active = True
+        self.active = False
         self.resource_type = 'AWS::iam::access_key_rotation'
         self.ClientClass = GdsSupportClient
         self.check_id = 'DqdJqYeRm5'
@@ -92,6 +93,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
+    active = True
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationYellow, self).__init__(app)
@@ -103,6 +105,7 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
+    active = True
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationRed, self).__init__(app)
