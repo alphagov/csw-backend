@@ -20,7 +20,6 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
         self.status_string = ''
         self.status_interval = ''
         # attributes common in both subclasses
-        self.active = False
         self.resource_type = 'AWS::iam::access_key_rotation'
         self.ClientClass = GdsSupportClient
         self.check_id = 'DqdJqYeRm5'
