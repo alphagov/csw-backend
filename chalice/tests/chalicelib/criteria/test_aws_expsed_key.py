@@ -1,41 +1,21 @@
-from chalicelib.criteria.aws_exposed_key import AwsIamExposedAccessKey
+from chalicelib.criteria.aws_exposed_key import AwsIamPotentiallyExposedAccessKey, AwsIamSuspectedExposedAccessKey
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
 from tests.chalicelib.criteria.test_data import IAM_KEY_EXPOSED_ITEMS
 
 
-class TestAwsIamExposedAccessKey(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
+class TestAwsIamExposedAccessKeyMixin(CriteriaSubclassTestCaseMixin):
     """
-    Unit tests for the CriteriaDefault class
+    Mixin class for the two key test case classes below
     """
 
     @classmethod
     def setUpClass(cls):
         """
         """
-        super(TestAwsIamExposedAccessKey, cls).setUpClass()
+        super(TestAwsIamExposedAccessKeyMixin, cls).setUpClass()
         cls.test_data = IAM_KEY_EXPOSED_ITEMS
-
-    def setUp(self):
-        """
-        """
-        super(TestAwsIamExposedAccessKey, self).setUpClass()
-        self.subclass = AwsIamExposedAccessKey(self.app)
-
-    def test_init_success(self):
-        """
-        test that initialization works
-        """
-        self.assertIsInstance(
-            self.subclass, AwsIamExposedAccessKey
-        )
-
-    def test_init_failure(self):
-        """
-        test that not passing Chalice app object raises a type error
-        """
-        self.assertRaises(TypeError, AwsIamExposedAccessKey)
 
     def test_init_client(self):
         """
@@ -57,6 +37,15 @@ class TestAwsIamExposedAccessKey(CriteriaSubclassTestCaseMixin, TestCaseWithAttr
         with self.subTest():
             self.assertIsInstance(item, list, msg=msg)
 
+
+class TestAwsIamSuspectedExposedAccessKey(TestAwsIamExposedAccessKeyMixin, TestCaseWithAttrAssert):
+
+    def setUp(self):
+        """
+        """
+        super(TestAwsIamSuspectedExposedAccessKey, self).setUpClass()
+        self.subclass = AwsIamSuspectedExposedAccessKey(self.app)
+
     def test_evaluate_green(self):
         """
         green (status: ok) test
@@ -65,6 +54,66 @@ class TestAwsIamExposedAccessKey(CriteriaSubclassTestCaseMixin, TestCaseWithAttr
         event = {}
         whitelist = []
         for item in IAM_KEY_EXPOSED_ITEMS['green']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_yellow_to_green(self):
+        """
+        green (status: ok) test, even though the key is potentially leaked
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in IAM_KEY_EXPOSED_ITEMS['red']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_red(self):
+        """
+        yellow (status: error) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in IAM_KEY_EXPOSED_ITEMS['yellow']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            if item['status'] == 'error':
+                self._evaluate_failed_status_assertions(item, output)
+            else:
+                self._evaluate_passed_status_assertions(item, output)
+
+
+class TestAwsIamPotentiallyExposedAccessKey(TestAwsIamExposedAccessKeyMixin, TestCaseWithAttrAssert):
+
+    def setUp(self):
+        """
+        """
+        super(TestAwsIamPotentiallyExposedAccessKey, self).setUpClass()
+        self.subclass = AwsIamPotentiallyExposedAccessKey(self.app)
+
+    def test_evaluate_green(self):
+        """
+        green (status: ok) test
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in IAM_KEY_EXPOSED_ITEMS['green']['result']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_yellow_to_green(self):
+        """
+        green (status: ok) test, even though the key is suspected
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in IAM_KEY_EXPOSED_ITEMS['yellow']['result']['flaggedResources']:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)

@@ -5,6 +5,7 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
+import pkgutil
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -154,6 +155,47 @@ class DatabaseHandle():
         db.close()
 
         return item
+
+    # TODO: After switch to alembic as part of the migration template
+    # def push_active_criteria(self, event):
+    #     """
+    #     Parses all the submodules of the criteria submodule for Criteria subclasses with the class attr active == True
+    #     and populates the database with their class attr.
+    #     """
+    #     db = self.get_handle()
+    #     created = []
+    #     try:
+    #         db.connect()
+
+    #         path_components = ['chalicelib', 'criteria', ]
+    #         for m in pkgutil.walk_packages(path=[os.path.join(path_components)]):
+    #             module = importlib.import_module('.'.join(path_components + m.name)
+    #             for member in dir(module):
+    #                 candidate = getattr(module, member)
+    #                 if inspect.isclass(candidate) and getattr(candidate, 'active', False):
+    #                     self.create_item({
+    #                         'Model': 'Criterion',
+    #                         'Params': {
+    #                             # 'criterion_name':'IAM inspector policy is up-to-date',
+    #                             # 'criteria_provider_id':3,
+    #                             'invoke_class_name': '.'.join(path_components + m.name + [candidate.__name__],
+    #                             # 'invoke_class_get_data_method': candidate.,
+    #                             'title': candidate.title,
+    #                             'description': candidate.description,
+    #                             'why_is_it_important': candidate.why_is_it_important,
+    #                             'how_do_i_fix_it': candidate.how_do_i_fix_it,
+    #                             'active': candidate.active,
+    #                             # 'is_regional': false
+    #                         },
+    #                     })
+
+    #         db.close()
+    #     except Exception as e:
+    #         if db is not None:
+    #             db.rollback()
+    #         self.app.log.error(str(e))
+    #     return created
+
 
 
 class BaseModel(peewee.Model):
