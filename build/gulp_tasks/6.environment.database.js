@@ -235,6 +235,58 @@ gulp.task('environment.database_populate', function() {
                 "active": false,
                 "is_regional": false
             }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"IAM Access Key Rotation > 90 days",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_iam_access_key_rotation.AwsIamAccessKeyRotationYellow",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "IAM Access Key Rotation Yellow",
+                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 90 days",
+                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account.",
+                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. To rotate access keys, it is recommended to follow these steps: 1) Create a second access key in addition to the one in use. 2) Update all your applications to use the new access key and validate that the applications are working. 3) Change the state of the previous access key to inactive. 4) Validate that your applications are still working as expected. 5) Delete the inactive access key."
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"IAM Access Key Rotation > 2 years",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_iam_access_key_rotation.AwsIamAccessKeyRotationRed",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "IAM Access Key Rotation Red",
+                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 2 years",
+                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account.",
+                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. To rotate access keys, it is recommended to follow these steps: 1) Create a second access key in addition to the one in use. 2) Update all your applications to use the new access key and validate that the applications are working. 3) Change the state of the previous access key to inactive. 4) Validate that your applications are still working as expected. 5) Delete the inactive access key."
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Potentially Exposed Key",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_exposed_key.AwsIamPotentiallyExposedAccessKey",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Potentially Exposed Access Keys",
+                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.",
+                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.",
+                "how_do_i_fix_it": "Delete the affected access key, and generate a new one for the user or application. Please follow the below recommendations accordingly: - DELETE THE KEY (for IAM users): Navigate to your IAM Users list in the AWS Management Console, here: https://console.aws.amazon.com/iam/home#users . Please select the IAM user identified above. Click on the \"User Actions\" drop-down menu and then click \"Manage Access Keys\" to show that users active Access Keys. - ROTATE THE KEY (for applications) If your application uses the access key, you need to replace the exposed key with a new one. To do this, first create a second key (at that point both keys will be active) and modify your application to use the new key. Then disable (but do not delete) the first key. If there are any problems with your application, you can make the first key active again. When your application is fully functional with the first key inactive, please delete the first key. We strongly encourage you to immediately review your AWS account for any unauthorized AWS usage, suspect running instances, or inappropriate IAM users and policies. To review any unauthorized access, please inspect CloudTrail logs to see what was done with the access key while it was leaked and also Investigate how the access key was leaked, and take steps to prevent it from happening again."
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Suspected Exposed Key",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_exposed_key.AwsIamSuspectedExposedAccessKey",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Suspected Exposed Access Keys",
+                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.",
+                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.",
+                "how_do_i_fix_it": "Alert not actionable."
+            }
         }
     ]
   };
