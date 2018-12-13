@@ -240,6 +240,10 @@ class ProductTeam(database_handle.BaseModel):
                         latest = account.get_latest_audit()
                         if latest is not None:
                             account_stats = latest.get_stats()
+                            account_data.append({
+                                "account_subscription": account.serialize(),
+                                "stats": account_stats
+                            })
                             for stat in team_stats:
                                 team_stats[stat] += account_stats[stat]
 
