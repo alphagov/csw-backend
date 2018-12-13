@@ -106,6 +106,70 @@ def resource_details(id):
     return Response(**response)
 
 
+@app.route('/team/{id}/status')
+def team_status(id):
+    id = int(id)
+    load_route_services()
+    try:
+        return Response(
+            body="team_status",
+            status_code=200,
+            headers={"Content-Type": "text/html"}
+        )
+    except Exception as err:
+        app.log.error("Route: overview error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/team/{id}/issues')
+def team_status(id):
+    id = int(id)
+    load_route_services()
+    try:
+        return Response(
+            body="team_issues",
+            status_code=200,
+            headers={"Content-Type": "text/html"}
+        )
+    except Exception as err:
+        app.log.error("Route: overview error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/account/{id}/status')
+def account_status(id):
+    id = int(id)
+    load_route_services()
+    try:
+        return Response(
+            body="account_status",
+            status_code=200,
+            headers={"Content-Type": "text/html"}
+        )
+    except Exception as err:
+        app.log.error("Route: overview error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/account/{id}/issues')
+def account_failed(id):
+    id = int(id)
+    load_route_services()
+    try:
+        return Response(
+            body="account_issues",
+            status_code=200,
+            headers={"Content-Type": "text/html"}
+        )
+    except Exception as err:
+        app.log.error("Route: overview error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/logout')
 def logout():
     load_route_services()
