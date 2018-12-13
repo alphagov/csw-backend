@@ -232,6 +232,6 @@ class GdsAwsClient:
 
         except Exception as exception:
             self.app.log.error(str(exception))
-            session = False
+            session = None
 
         return session

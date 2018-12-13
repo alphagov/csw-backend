@@ -190,7 +190,7 @@ gulp.task('environment.database_populate', function() {
                 "title": "Security Groups - SSH ingress enabled from unknown IPs",
                 "description": "If SSH is enabled into a VPC it should be limited to known IPs",
                 "why_is_it_important": "If someone has access to either one of our WiFis or our VPN then there is more chance they should have access",
-                "how_do_i_fix_it": "In almost all cases, SSH ingress should be limited to the <a target=\"gds-wiki\" href=\"https://sites.google.com/a/digital.cabinet-office.gov.uk/gds-internal-it/news/aviationhouse-sourceipaddresses\">GDS public IPs</a>. There may be exceptions where we are working closely in partnership with another organisation."
+                "how_do_i_fix_it": "In almost all cases, SSH ingress should be limited to the <a target=\"gds-wiki\" href=\"https://sites.google.com/a/digital.cabinet-office.gov.uk/gds-internal-it/news/whitechapel-sourceipaddresses\">GDS public IPs</a>. There may be exceptions where we are working closely in partnership with another organisation."
             }
         },
         {

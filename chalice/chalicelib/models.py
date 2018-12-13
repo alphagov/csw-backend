@@ -127,24 +127,25 @@ class ProductTeam(database_handle.BaseModel):
         for account in accounts:
             if account.active:
                 latest = account.get_latest_audit()
-                failed_resources = latest.get_audit_failed_resources()
-                if len(failed_resources) > 0:
-                    resource_data = {
-                        "account": account.serialize(),
-                        "audit": latest.serialize(),
-                        "resources": []
-                    }
-                    for compliance in failed_resources:
-                        audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
-                        criterion = Criterion.get_by_id(audit_resource.criterion_id)
-                        status = Status.get_by_id(compliance.status_id)
-                        resource_data["resources"].append({
-                            "compliance": compliance.serialize(),
-                            "resource": audit_resource.serialize(),
-                            "criterion": criterion.serialize(),
-                            "status": status.serialize()
-                        })
-                    team_failed_resources.append(resource_data)
+                if latest is not None:
+                    failed_resources = latest.get_audit_failed_resources()
+                    if len(failed_resources) > 0:
+                        resource_data = {
+                            "account": account.serialize(),
+                            "audit": latest.serialize(),
+                            "resources": []
+                        }
+                        for compliance in failed_resources:
+                            audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                            criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                            status = Status.get_by_id(compliance.status_id)
+                            resource_data["resources"].append({
+                                "compliance": compliance.serialize(),
+                                "resource": audit_resource.serialize(),
+                                "criterion": criterion.serialize(),
+                                "status": status.serialize()
+                            })
+                        team_failed_resources.append(resource_data)
         app.log.debug(app.utilities.to_json(team_failed_resources))
         return team_failed_resources
 
@@ -152,6 +153,7 @@ class ProductTeam(database_handle.BaseModel):
         team_id = self.id
         app.log.debug(f"Get team dashboard for team: {self.team_name}  ({ team_id })")
         team_accounts = AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id)
+        unaudited_accounts = []
         for account in team_accounts:
             app.log.debug(account.account_name)
         team_stats = {
@@ -178,11 +180,15 @@ class ProductTeam(database_handle.BaseModel):
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
                 else:
-                    app.log.error("Latest audit not found for account: " + account.id)
+                    app.log.error("Latest audit not found for account: " + str(account.id))
+                    unaudited_accounts.append({
+                        "account": account.serialize()
+                    })
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
         return {
             "team": team_stats,
-            "accounts": account_audits
+            "accounts": account_audits,
+            "unaudited_accounts": unaudited_accounts
         }
 
     def get_active_accounts(self):
@@ -230,26 +236,29 @@ class ProductTeam(database_handle.BaseModel):
                     }
                     app.log.debug('Team ID: ' + str(account.product_team_id.id))
                     if account.active and account.product_team_id.id == team.id:
+
                         latest = account.get_latest_audit()
-                        audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
-                        for audit_criterion in audit_criteria:
-                            app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
-                            if audit_criterion.criterion_id.id == criterion.id:
-                                audit_criterion_stats = {
-                                    "resources": audit_criterion.resources,
-                                    "tested": audit_criterion.tested,
-                                    "passed": audit_criterion.passed,
-                                    "failed": audit_criterion.failed,
-                                    "ignored": audit_criterion.ignored
-                                }
-                                for stat in account_stats:
-                                    account_stats[stat] += audit_criterion_stats[stat]
-                        account_data.append({
-                            "account_subscription": account.serialize(),
-                            "stats": account_stats
-                        })
-                        for stat in team_stats:
-                            team_stats[stat] += account_stats[stat]
+                        if latest is not None:
+                            audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
+                            for audit_criterion in audit_criteria:
+                                app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
+                                if audit_criterion.criterion_id.id == criterion.id:
+                                    audit_criterion_stats = {
+                                        "resources": audit_criterion.resources,
+                                        "tested": audit_criterion.tested,
+                                        "passed": audit_criterion.passed,
+                                        "failed": audit_criterion.failed,
+                                        "ignored": audit_criterion.ignored
+                                    }
+                                    for stat in account_stats:
+                                        account_stats[stat] += audit_criterion_stats[stat]
+                            account_data.append({
+                                "account_subscription": account.serialize(),
+                                "stats": account_stats
+                            })
+                            for stat in team_stats:
+                                team_stats[stat] += account_stats[stat]
+
                 team_data.append({
                     "product_team": team.serialize(),
                     "stats": team_stats
@@ -280,7 +289,7 @@ class AccountSubscription(database_handle.BaseModel):
                 AccountLatestAudit.account_subscription_id == account_id
             ).get()
             app.log.debug("Found latest audit: " + app.utilities.to_json(latest.serialize()))
-        except AccountLatestAudit.DoesNotExist as err:
+        except peewee.DoesNotExist as err:
             latest = None
             app.log.debug("Failed to get latest audit: " + str(err))
         except Exception as err:
