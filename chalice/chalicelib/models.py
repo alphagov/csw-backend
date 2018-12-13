@@ -227,45 +227,45 @@ class ProductTeam(database_handle.BaseModel):
                 app.log.debug("Got default criteria stats")
                 for account in ProductTeam.get_active_accounts(team):
                     app.log.debug("Get latest account stats for account: " + str(account.id))
-                    # account_stats = {
-                    #     "resources": 0,
-                    #     "tested": 0,
-                    #     "passed": 0,
-                    #     "failed": 0,
-                    #     "ignored": 0
-                    # }
+                    account_stats = {
+                        "resources": 0,
+                        "tested": 0,
+                        "passed": 0,
+                        "failed": 0,
+                        "ignored": 0
+                    }
                     app.log.debug('Team ID: ' + str(account.product_team_id.id))
                     if account.active and account.product_team_id.id == team.id:
 
                         latest = account.get_latest_audit()
                         if latest is not None:
-                            account_stats = latest.get_stats()
+                            # account_stats = latest.get_stats()
+                            # account_data.append({
+                            #     "account_subscription": account.serialize(),
+                            #     "stats": account_stats
+                            # })
+                            # for stat in team_stats:
+                            #     team_stats[stat] += account_stats[stat]
+
+                            audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
+                            for audit_criterion in audit_criteria:
+                                app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
+                                if audit_criterion.criterion_id.id == criterion.id:
+                                    audit_criterion_stats = {
+                                        "resources": audit_criterion.resources,
+                                        "tested": audit_criterion.tested,
+                                        "passed": audit_criterion.passed,
+                                        "failed": audit_criterion.failed,
+                                        "ignored": audit_criterion.ignored
+                                    }
+                                    for stat in account_stats:
+                                        account_stats[stat] += audit_criterion_stats[stat]
                             account_data.append({
                                 "account_subscription": account.serialize(),
                                 "stats": account_stats
                             })
                             for stat in team_stats:
                                 team_stats[stat] += account_stats[stat]
-
-                        #     audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
-                        #     for audit_criterion in audit_criteria:
-                        #         app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
-                        #         if audit_criterion.criterion_id.id == criterion.id:
-                        #             audit_criterion_stats = {
-                        #                 "resources": audit_criterion.resources,
-                        #                 "tested": audit_criterion.tested,
-                        #                 "passed": audit_criterion.passed,
-                        #                 "failed": audit_criterion.failed,
-                        #                 "ignored": audit_criterion.ignored
-                        #             }
-                        #             for stat in account_stats:
-                        #                 account_stats[stat] += audit_criterion_stats[stat]
-                        #     account_data.append({
-                        #         "account_subscription": account.serialize(),
-                        #         "stats": account_stats
-                        #     })
-                        #     for stat in team_stats:
-                        #         team_stats[stat] += account_stats[stat]
 
                 team_data.append({
                     "product_team": team.serialize(),
