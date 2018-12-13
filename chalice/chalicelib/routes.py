@@ -108,13 +108,20 @@ def resource_details(id):
 
 @app.route('/team/{id}/status')
 def team_status(id):
-    id = int(id)
+    team_id = int(id)
     load_route_services()
     try:
-        return Response(
-            body="team_status",
-            status_code=200,
-            headers={"Content-Type": "text/html"}
+        team = models.ProductTeam.get_by_id(team_id)
+        app.log.debug("Team: " + app.utilities.to_json(team))
+        criteria_stats = models.ProductTeam.get_criteria_stats([team])
+        data = app.utilities.to_json(criteria_stats)
+        app.log.debug("Criteria stats: " + data)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": data
+            }
         )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
@@ -123,14 +130,20 @@ def team_status(id):
 
 
 @app.route('/team/{id}/issues')
-def team_status(id):
-    id = int(id)
+def team_issues(id):
+    team_id = int(id)
     load_route_services()
     try:
-        return Response(
-            body="team_issues",
-            status_code=200,
-            headers={"Content-Type": "text/html"}
+        team = models.ProductTeam.get_by_id(team_id)
+        app.log.debug("Team: " + app.utilities.to_json(team))
+        team_issues = team.get_team_failed_resources()
+        data = app.utilities.to_json(team_issues)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": data
+            }
         )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
@@ -140,14 +153,23 @@ def team_status(id):
 
 @app.route('/account/{id}/status')
 def account_status(id):
-    id = int(id)
+    account_id = int(id)
     load_route_services()
     try:
-        return Response(
-            body="account_status",
-            status_code=200,
-            headers={"Content-Type": "text/html"}
-        )
+        account = models.AccountSubscription.get_by_id(account_id)
+        latest = account.get_latest_audit()
+        if latest is not None:
+            account_stats = latest.get_stats()
+            data = app.utilities.to_json(account_stats)
+            response = app.templates.render_authorized_template(
+                'debug.html',
+                app.current_request,
+                {
+                    "json": data
+                }
+            )
+        else:
+            raise Exception(f"No latest audit for account: {account_id}")
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
@@ -155,15 +177,24 @@ def account_status(id):
 
 
 @app.route('/account/{id}/issues')
-def account_failed(id):
-    id = int(id)
+def account_issues(id):
+    account_id = int(id)
     load_route_services()
     try:
-        return Response(
-            body="account_issues",
-            status_code=200,
-            headers={"Content-Type": "text/html"}
-        )
+        account = models.AccountSubscription.get_by_id(account_id)
+        latest = account.get_latest_audit()
+        if latest is not None:
+            account_issues = latest.get_audit_failed_resources()
+            data = app.utilities.to_json(account_issues)
+            response = app.templates.render_authorized_template(
+                'debug.html',
+                app.current_request,
+                {
+                    "json": data
+                }
+            )
+        else:
+            raise Exception(f"No latest audit for account: {account_id}")
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
