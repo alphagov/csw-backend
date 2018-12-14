@@ -6,8 +6,12 @@ from datetime import datetime
 
 class Utilities():
 
-    def to_json(self, data):
-        return json.dumps(data, default=self.to_json_type_convert)
+    def to_json(self, data, pretty=False):
+        if pretty:
+            json_data = json.dumps(data, default=self.to_json_type_convert, indent=4, separators=(',', ': '))
+        else:
+            json_data = json.dumps(data, default=self.to_json_type_convert)
+        return json_data
 
     def to_json_type_convert(self, item):
         if isinstance(item, datetime):

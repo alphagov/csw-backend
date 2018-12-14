@@ -114,7 +114,7 @@ def team_status(id):
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
         criteria_stats = models.ProductTeam.get_criteria_stats([team])
-        data = app.utilities.to_json(criteria_stats)
+        data = app.utilities.to_json(criteria_stats, True)
         app.log.debug("Criteria stats: " + data)
         response = app.templates.render_authorized_template(
             'debug.html',
@@ -137,7 +137,7 @@ def team_issues(id):
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_issues = team.get_team_failed_resources()
-        data = app.utilities.to_json(team_issues)
+        data = app.utilities.to_json(team_issues, True)
         response = app.templates.render_authorized_template(
             'debug.html',
             app.current_request,
@@ -171,7 +171,7 @@ def account_status(id):
                 },
                 "stats": audit_stats
             }
-            data = app.utilities.to_json(template_data)
+            data = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
                 'debug.html',
                 app.current_request,
@@ -201,7 +201,7 @@ def account_issues(id):
                 "audit": latest.serialize(),
                 "issues": account_issues
             }
-            data = app.utilities.to_json(template_data)
+            data = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
                 'debug.html',
                 app.current_request,
