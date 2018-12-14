@@ -3,7 +3,7 @@
     {% for crumb in breadcrumbs %}
     <li class="govuk-breadcrumbs__list-item">
       {% if crumb.link %}
-      <a class="govuk-breadcrumbs__link" href="{{ crumb.link }}">{{ crumb.title }}</a>
+      <a class="govuk-breadcrumbs__link" href="{{ base_path + crumb.link }}">{{ crumb.title }}</a>
       {% else %}
       {{ crumb.title }}
       {% endif %}
