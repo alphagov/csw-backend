@@ -71,7 +71,7 @@ def team_dashboard(id):
             }
         )
     except Exception as err:
-        app.log.error("Route: team/x/dashboard error: " + str(err))
+        app.log.error("Route: team dashboard error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -101,7 +101,7 @@ def resource_details(id):
             }
         )
     except Exception as err:
-        app.log.error("Route: overview error: " + str(err))
+        app.log.error("Route: resource error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -124,7 +124,7 @@ def team_status(id):
             }
         )
     except Exception as err:
-        app.log.error("Route: overview error: " + str(err))
+        app.log.error("Route: team status error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -146,7 +146,7 @@ def team_issues(id):
             }
         )
     except Exception as err:
-        app.log.error("Route: overview error: " + str(err))
+        app.log.error("Route: team issues error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -182,7 +182,7 @@ def account_status(id):
         else:
             raise Exception(f"No latest audit for account: {account_id}")
     except Exception as err:
-        app.log.error("Route: overview error: " + str(err))
+        app.log.error("Route: account status error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -214,7 +214,7 @@ def account_issues(id):
         else:
             raise Exception(f"No latest audit for account: {account_id}")
     except Exception as err:
-        app.log.error("Route: overview error: " + str(err))
+        app.log.error("Route: account issues error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
