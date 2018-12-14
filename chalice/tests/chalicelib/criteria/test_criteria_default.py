@@ -412,7 +412,7 @@ class CriteriaSubclassTestCaseMixin(object):
         it returns the result of evaluate, independent of the tests' results
         """
         init_resource_type = self.subclass.resource_type
-        # output value
+        # output values
         output = self.subclass.evaluate(event, item, whitelist)
         # tests
         with self.subTest():
@@ -438,16 +438,10 @@ class CriteriaSubclassTestCaseMixin(object):
             )
         return output
 
-    def test_evaluate_green(self):
+    def _evaluate_passed_status_assertions(self, item, output):
         """
         green (status: ok) test
         """
-        # input params
-        event = {}
-        item = self.test_data['green']
-        whitelist = []
-        # first test the invariants and get the evaluate method's output
-        output = self._evaluate_invariant_assertions(event, item, whitelist)
         # green tests
         with self.subTest():
             self.assertNotIn(
