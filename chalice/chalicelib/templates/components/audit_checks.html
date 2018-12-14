@@ -7,7 +7,6 @@
                     <th class="govuk-table__header">Check</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -22,9 +21,8 @@
                         </strong>
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        {{ item.failed }}
+                        {{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}
                     </td>
-                    <td class="govuk-table__cell--tag-fixed-centred">...</td>
                 </tr>
                 {% endfor %}
             </tbody>
