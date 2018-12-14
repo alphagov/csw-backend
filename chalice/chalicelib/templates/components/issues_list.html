@@ -4,7 +4,7 @@
         {% for issue in issues %}
         <table class="govuk-table">
             <caption class="govuk-table__caption">
-                Resource {{ issue.resource.resource_name }})
+                Resource: {{ issue.resource.resource_name }})
             </caption>
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
@@ -24,8 +24,8 @@
                     <td class="govuk-table__cell">{{ issue.compliance.annotation | safe }}</td>
                 </tr>
                 <tr class="govuk-table__row">
-                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
-                    <td class="govuk-table__cell--tag-fixed-centred">
+                    <th class="govuk-table__header">Actions</th>
+                    <td class="govuk-table__cell">
                         <a href="{{ base_path }}/resource/{{ issue.resource.id }}">Details</a>
                     </td>
                 </tr>
