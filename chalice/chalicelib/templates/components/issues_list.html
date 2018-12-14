@@ -10,10 +10,10 @@
                     </caption>
                     <tbody class="govuk-table__body">
                         <tr class="govuk-table__row">
-                            <th class="govuk-table__header">Resource ID</th>
+                            <th class="govuk-table__header">ID</th>
                             <td class="govuk-table__cell">
                                 {% if issue.resource.resource_name != issue.resource.resource_id %}
-                                ({{ issue.resource.resource_id }})
+                                {{ issue.resource.resource_id }}
                                 {% endif %}
                             </td>
                         </tr>
