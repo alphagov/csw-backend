@@ -2,11 +2,9 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    {% include componets/breadcrumbs.html %}
+    {% include "components/breadcrumbs.html" %}
 
-    <h1 class="govuk-heading-l">{{ account.name }} Status
-      <span class="govuk-caption-l">({{ audit.date_completed | datetime }})</span>
-    </h1>
+    {% include "components/audit_header.html" %}
 
     {% include "components/audit_status.html" %}
 

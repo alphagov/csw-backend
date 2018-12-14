@@ -4,10 +4,9 @@
   <main class="govuk-main-wrapper " id="main-content" role="main">
     {% include componets/breadcrumbs.html %}
 
-    <h1 class="govuk-heading-l">{{ account.name }} Issues
-      <span class="govuk-caption-l">({{ audit.date_completed | datetime }})</span>
-    </h1>
+    {% include "components/audit_header.html" %}
 
+    {%- set failed_resources = issues -%}
     {% include "components/failed_resources.html" %}
 
   </main>
