@@ -161,7 +161,6 @@ def account_status(id):
         if latest is not None:
             audit_stats = latest.get_stats()
             template_data = {
-                "account": account.serialize(),
                 "audit": latest.serialize(),
                 "status": {
                     "Checks Passed": latest.criteria_passed,
@@ -197,7 +196,6 @@ def account_issues(id):
         if latest is not None:
             account_issues = latest.get_audit_failed_resources()
             template_data = {
-                "account": account.serialize(),
                 "audit": latest.serialize(),
                 "issues": models.ResourceCompliance.serialize_list(account_issues)
             }
