@@ -159,10 +159,17 @@ def account_status(id):
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
         if latest is not None:
-            account_stats = latest.get_stats()
+            audit_stats = latest.get_stats()
             template_data = {
                 "account": account.serialize(),
-                "stats": account_stats
+                "audit": latest.serialize(),
+                "status": {
+                    "Checks Passed": latest.criteria_passed,
+                    "Checks Failed": latest.criteria_failed,
+                    "Resources Passed": (audit_stats.audit.passed + audit_stats.audit.ignored),
+                    "Resources Failed": audit_stats.audit.failed
+                },
+                "stats": audit_stats
             }
             data = app.utilities.to_json(template_data)
             response = app.templates.render_authorized_template(
@@ -191,7 +198,8 @@ def account_issues(id):
             account_issues = latest.get_audit_failed_resources()
             template_data = {
                 "account": account.serialize(),
-                "stats": account_issues
+                "audit": latest.serialize(),
+                "issues": account_issues
             }
             data = app.utilities.to_json(template_data)
             response = app.templates.render_authorized_template(
