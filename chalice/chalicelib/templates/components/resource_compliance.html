@@ -1,23 +1,52 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
+    <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-s">Resource identifier</h2>
-        <p class="govuk-body">
-            {{ resource.resource_name }} ({{ resource.resource_id }})
-            <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
-        </p>
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Name</th>
+                    <td class="govuk-table__cell">
+                        {{ resource.resource_name }}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">ID</th>
+                    <td class="govuk-table__cell">
+                        {{ resource.resource_id }}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Region</th>
+                    <td class="govuk-table__cell">
+                        {{ resource.region }}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Status</th>
+                    <td class="govuk-table__cell">
+                        <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="govuk-grid-column-full">
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-s">Reason flagged</h2>
         <p class="govuk-body">{{ compliance.annotation|safe }}</p>
         <p class="govuk-body">{{ criterion.description|safe }}</p>
     </div>
+</div>
+<div class="govuk-grid-two-thirds">
     <div class="govuk-grid-column-one-half">
         <h2 class="govuk-heading-s">Why is it important?</h2>
         <p class="govuk-body">{{ criterion.why_is_it_important|safe }}</p>
     </div>
+</div>
+<div class="govuk-grid-two-thirds">
     <div class="govuk-grid-column-one-half">
         <h2 class="govuk-heading-s">How do I fix it?</h2>
         <p class="govuk-body">{{ criterion.how_do_i_fix_it|safe }}</p>
     </div>
-
 </div>
