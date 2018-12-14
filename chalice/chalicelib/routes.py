@@ -196,6 +196,12 @@ def account_issues(id):
         if latest is not None:
             account_issues = latest.get_audit_failed_resources()
             template_data = {
+                "breadcrumbs": [
+                    {
+                        "title": "Home",
+                        "link": "/"
+                    }
+                ],
                 "audit": latest.serialize(),
                 "issues": models.ResourceCompliance.serialize_list(account_issues)
             }
