@@ -231,3 +231,9 @@ class BaseModel(peewee.Model):
             cls._meta.database.rollback()
         return item
 
+    @classmethod
+    def serialize_list(cls, items):
+        return [
+            item.serialize() for item in items
+        ]
+
