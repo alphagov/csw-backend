@@ -5,10 +5,13 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <table class="govuk-table">
-                    <caption class="govuk-table__caption">
-                        Resource: {{ issue.resource.resource_name }}
-                    </caption>
                     <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <th class="govuk-table__header">Resource</th>
+                            <td class="govuk-table__cell">
+                                {{ issue.resource.resource_name }}
+                            </td>
+                        </tr>
                         <tr class="govuk-table__row">
                             <th class="govuk-table__header">ID</th>
                             <td class="govuk-table__cell">
