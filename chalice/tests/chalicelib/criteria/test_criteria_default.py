@@ -438,6 +438,30 @@ class CriteriaSubclassTestCaseMixin(object):
             )
         return output
 
+    def _evaluate_inapplicable_status_assertions(self, item, output):
+        """
+        green (status: ok) test
+        """
+        # ignored tests
+        with self.subTest():
+            self.assertNotIn(
+                'annotation',
+                output,
+                msg='evaluate must not return an annotation when not applicable'
+            )
+        with self.subTest():
+            self.assertEqual(
+                self.subclass.annotation,
+                '',
+                msg="the object's annotation must be an blank string"
+            )
+        with self.subTest():
+            self.assertFalse(output['is_compliant'])
+        with self.subTest():
+            self.assertFalse(output['is_applicable'])
+        with self.subTest():
+            self.assertEqual(output['status_id'], 2)
+
     def _evaluate_passed_status_assertions(self, item, output):
         """
         green (status: ok) test
