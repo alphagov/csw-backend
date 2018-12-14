@@ -165,19 +165,23 @@ def account_status(id):
                 "status": {
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
-                        "category": "Checks Passed"
+                        "category": "Checks Passed",
+                        "modifier_class": "passed"
                     },
                     "checks_failed": {
                         "display_stat": latest.criteria_failed,
-                        "category": "Checks Failed"
+                        "category": "Checks Failed",
+                        "modifier_class": "passed" if latest.criteria_failed == 0 else "failed"
                     },
                     "resources_passed": {
                         "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
-                        "category": "Resources Passed"
+                        "category": "Resources Passed",
+                        "modifier_class": "passed"
                     },
                     "resources_failed": {
                         "display_stat": audit_stats["audit"]["failed"],
-                        "category": "Resources Failed"
+                        "category": "Resources Failed",
+                        "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
                     }
                 },
                 "stats": audit_stats
