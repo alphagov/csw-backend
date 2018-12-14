@@ -382,6 +382,7 @@ class AccountAudit(database_handle.BaseModel):
                 app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
                 if criterion is not None:
                     audit_criterion_stats = {
+                        "criterion": criterion.serialize(),
                         "resources": audit_criterion.resources,
                         "tested": audit_criterion.tested,
                         "passed": audit_criterion.passed,
