@@ -179,7 +179,7 @@ def account_status(id):
             #     }
             # )
             response = app.templates.render_authorized_template(
-                'account_status.html',
+                'audit_status.html',
                 app.current_request,
                 template_data
             )
