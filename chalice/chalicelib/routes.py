@@ -163,8 +163,8 @@ def account_status(id):
             template_data = {
                 "audit": latest.serialize(),
                 "status": {
-                    "Checks Passed": latest["criteria_passed"],
-                    "Checks Failed": latest["criteria_failed"],
+                    "Checks Passed": latest.criteria_passed,
+                    "Checks Failed": latest.criteria_failed,
                     "Resources Passed": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
                     "Resources Failed": audit_stats["audit"]["failed"]
                 },
@@ -193,7 +193,7 @@ def account_issues(id):
     try:
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
-        team = account["product_team_id"]
+        team = account.product_team_id
         if latest is not None:
             issues_list = latest.get_issues_list()
             template_data = {
