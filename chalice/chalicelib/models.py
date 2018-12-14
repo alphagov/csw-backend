@@ -357,6 +357,7 @@ class AccountAudit(database_handle.BaseModel):
             "failed": 0,
             "ignored": 0
         }
+        criteria_stats = []
         try:
             audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == self.id)
             for audit_criterion in audit_criteria:
@@ -370,11 +371,17 @@ class AccountAudit(database_handle.BaseModel):
                         "failed": audit_criterion.failed,
                         "ignored": audit_criterion.ignored
                     }
+                    criteria_stats.append(audit_criterion_stats)
                     for stat in audit_stats:
                         audit_stats[stat] += audit_criterion_stats[stat]
         except Exception as err:
             app.log.debug("Catch generic exception from get_stats: " + str(err))
-        return audit_stats
+
+        stats = {
+            "audit": audit_stats,
+            "criteria": criteria_stats
+        }
+        return stats
 
 
 class AccountLatestAudit(database_handle.BaseModel):
