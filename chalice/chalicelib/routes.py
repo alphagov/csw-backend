@@ -193,6 +193,7 @@ def account_issues(id):
     try:
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
+        team = account["product_team_id"]
         if latest is not None:
             issues_list = latest.get_issues_list()
             template_data = {
@@ -200,6 +201,10 @@ def account_issues(id):
                     {
                         "title": "Home",
                         "link": "/"
+                    },
+                    {
+                        "title": team.team_name,
+                        "link": f"/team/{team.id}/status"
                     }
                 ],
                 "audit": latest.serialize(),
