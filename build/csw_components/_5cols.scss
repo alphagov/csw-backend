@@ -63,7 +63,7 @@
 
 .five-columns__column-content--passed {
     @extend .five-columns__column-content;
-    background-color: lighten(govuk-colour("green"), 60%);
+    background-color: lighten(govuk-colour("green"), 70%);
     border-color: govuk-colour("green");
 
     .five-columns__headline-stat {
@@ -76,7 +76,7 @@
 
 .five-columns__column-content--failed {
     @extend .five-columns__column-content;
-    background-color: lighten(govuk-colour("red"), 60%);
+    background-color: lighten(govuk-colour("red"), 70%);
     border-color: govuk-colour("red");
 
     .five-columns__headline-stat {
