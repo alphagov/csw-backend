@@ -162,6 +162,7 @@ def account_status(id):
             audit_stats = latest.get_stats()
             template_data = {
                 "audit": latest.serialize(),
+                "account": account.serialize(),
                 "status": {
                     "Checks Passed": latest.criteria_passed,
                     "Checks Failed": latest.criteria_failed,
@@ -205,14 +206,6 @@ def account_issues(id):
                 "audit": latest.serialize(),
                 "issues": issues_list
             }
-            # data = app.utilities.to_json(template_data, True)
-            # response = app.templates.render_authorized_template(
-            #     'debug.html',
-            #     app.current_request,
-            #     {
-            #         "json": data
-            #     }
-            # )
             response = app.templates.render_authorized_template(
                 'audit_issues.html',
                 app.current_request,
