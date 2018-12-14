@@ -199,13 +199,18 @@ def account_issues(id):
                 "audit": latest.serialize(),
                 "issues": models.ResourceCompliance.serialize_list(account_issues)
             }
-            data = app.utilities.to_json(template_data, True)
+            # data = app.utilities.to_json(template_data, True)
+            # response = app.templates.render_authorized_template(
+            #     'debug.html',
+            #     app.current_request,
+            #     {
+            #         "json": data
+            #     }
+            # )
             response = app.templates.render_authorized_template(
-                'debug.html',
+                'audit_issues.html',
                 app.current_request,
-                {
-                    "json": data
-                }
+                template_data
             )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
