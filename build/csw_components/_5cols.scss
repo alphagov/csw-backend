@@ -36,12 +36,15 @@
     text-align: center;
 
     .five-columns__headline-stat {
+        @extend .govuk-body-s;
         font-size: 4em;
         font-weight: lighter;
         margin-bottom: 0;
     }
     .five-columns__caption {
-
+        @extend .govuk-body-s;
+        color: govuk-colour("white");
+        font-weight: bold
     }
 }
 
@@ -61,9 +64,11 @@
     background-color: lighten(govuk-colour("green"), 60%);
     border-color: govuk-colour("green");
 
-    .five-columns__headline-stat,
-    .five-columns__caption {
+    .five-columns__headline-stat {
         color: govuk-colour("green");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("green");
     }
 }
 
@@ -72,9 +77,11 @@
     background-color: lighten(govuk-colour("red"), 60%);
     border-color: govuk-colour("red");
 
-    .five-columns__headline-stat,
-    .five-columns__caption {
+    .five-columns__headline-stat {
         color: govuk-colour("red");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("red");
     }
 }
 
@@ -83,9 +90,11 @@
     background-color: lighten(govuk-colour("purple"), 60%);
     border-color: govuk-colour("purple");
 
-    .five-columns__headline-stat,
-    .five-columns__caption {
+    .five-columns__headline-stat {
         color: govuk-colour("purple");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("purple");
     }
 }
 
@@ -94,9 +103,11 @@
     background-color: lighten(govuk-colour("yellow"), 60%);
     border-color: govuk-colour("yellow");
 
-    .five-columns__headline-stat,
-    .five-columns__caption {
+    .five-columns__headline-stat {
         color: govuk-colour("yellow");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("yellow");
     }
 }
 
@@ -105,8 +116,10 @@
     background-color: lighten(govuk-colour("blue"), 60%);
     border-color: govuk-colour("blue");
 
-    .five-columns__headline-stat,
-    .five-columns__caption {
+    .five-columns__headline-stat {
         color: govuk-colour("blue");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("blue");
     }
 }
