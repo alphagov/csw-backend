@@ -186,19 +186,19 @@ def account_status(id):
                 },
                 "audit_stats": audit_stats
             }
-            # data = app.utilities.to_json(template_data, True)
-            # response = app.templates.render_authorized_template(
-            #     'debug.html',
-            #     app.current_request,
-            #     {
-            #         "json": data
-            #     }
-            # )
+            data = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
-                'audit_status.html',
+                'debug.html',
                 app.current_request,
-                template_data
+                {
+                    "json": data
+                }
             )
+            # response = app.templates.render_authorized_template(
+            #     'audit_status.html',
+            #     app.current_request,
+            #     template_data
+            # )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
     except Exception as err:
