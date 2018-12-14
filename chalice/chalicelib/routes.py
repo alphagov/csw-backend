@@ -195,13 +195,11 @@ def account_issues(id):
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
         if latest is not None:
-            account_issues = models.BaseModel.serialize_list(
-                latest.get_audit_failed_resources()
-            )
+            account_issues = latest.get_audit_failed_resources()
             template_data = {
                 "account": account.serialize(),
                 "audit": latest.serialize(),
-                "issues": account_issues
+                "issues": models.ResourceCompliance.serialize_list(account_issues)
             }
             data = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
