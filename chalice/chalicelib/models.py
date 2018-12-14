@@ -382,16 +382,21 @@ class AccountAudit(database_handle.BaseModel):
                 app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
                 if criterion is not None:
                     audit_criterion_stats = {
-                        "criterion": criterion.serialize(),
                         "resources": audit_criterion.resources,
                         "tested": audit_criterion.tested,
                         "passed": audit_criterion.passed,
                         "failed": audit_criterion.failed,
                         "ignored": audit_criterion.ignored
                     }
-                    criteria_stats.append(audit_criterion_stats)
+
+                    # Add to stats totals for audit
                     for stat in audit_stats:
                         audit_stats[stat] += audit_criterion_stats[stat]
+
+                    # Add the criterion to the criterion stats before appending to response array
+                    audit_criterion_stats["criterion"] = criterion.serialize()
+                    criteria_stats.append(audit_criterion_stats)
+
         except Exception as err:
             app.log.debug("Catch generic exception from get_stats: " + str(err))
 
