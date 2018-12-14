@@ -163,10 +163,22 @@ def account_status(id):
             template_data = {
                 "audit": latest.serialize(),
                 "status": {
-                    "Checks Passed": latest.criteria_passed,
-                    "Checks Failed": latest.criteria_failed,
-                    "Resources Passed": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
-                    "Resources Failed": audit_stats["audit"]["failed"]
+                    "checks_passed": {
+                        "display_stat": latest.criteria_passed,
+                        "category": "Checks Passed"
+                    },
+                    "checks_failed": {
+                        "display_stat": latest.criteria_failed,
+                        "category": "Checks Failed"
+                    },
+                    "resources_passed": {
+                        "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
+                        "category": "Resources Passed"
+                    },
+                    "resources_failed": {
+                        "display_stat": audit_stats["audit"]["failed"],
+                        "category": "Resources Failed"
+                    }
                 },
                 "stats": audit_stats
             }
