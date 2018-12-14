@@ -160,7 +160,11 @@ def account_status(id):
         latest = account.get_latest_audit()
         if latest is not None:
             account_stats = latest.get_stats()
-            data = app.utilities.to_json(account_stats)
+            template_data = {
+                "account": account.serialize(),
+                "stats": account_stats
+            }
+            data = app.utilities.to_json(template_data)
             response = app.templates.render_authorized_template(
                 'debug.html',
                 app.current_request,
@@ -185,7 +189,11 @@ def account_issues(id):
         latest = account.get_latest_audit()
         if latest is not None:
             account_issues = latest.get_audit_failed_resources()
-            data = app.utilities.to_json(account_issues)
+            template_data = {
+                "account": account.serialize(),
+                "stats": account_issues
+            }
+            data = app.utilities.to_json(template_data)
             response = app.templates.render_authorized_template(
                 'debug.html',
                 app.current_request,
