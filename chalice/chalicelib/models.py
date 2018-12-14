@@ -387,7 +387,7 @@ class AccountAudit(database_handle.BaseModel):
                     for stat in audit_stats:
                         audit_stats[stat] += audit_criterion_stats[stat]
 
-                    # Add the criterion to the criterion stats before appending to response array
+                    # Append criteria stats with current check results
                     criteria_stats.append(audit_criterion_stats)
 
         except Exception as err:

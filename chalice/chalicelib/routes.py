@@ -186,7 +186,7 @@ def account_status(id):
                 },
                 "audit_stats": audit_stats
             }
-            data = app.utilities.to_json(template_data, True)
+            # data = app.utilities.to_json(template_data, True)
             # response = app.templates.render_authorized_template(
             #     'debug.html',
             #     app.current_request,
