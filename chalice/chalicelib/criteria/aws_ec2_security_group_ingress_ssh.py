@@ -82,6 +82,8 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
         compliant = True
 
+        annotations = []
+
         for ip_range in rule['IpRanges']:
 
             cidr = ip_range["CidrIp"]
@@ -94,8 +96,11 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
             compliant &= cidr_is_valid
 
             if not cidr_is_valid:
-                self.annotation += f"The IP range {cidr} is not valid. "
+                annotations.append(f"The IP range {cidr} is not valid. ")
                 self.app.log.debug(f"The IP range {cidr} is not valid. ")
+
+            if len(annotations) > 0:
+                self.annotation = '<br/>'.join(annotations)
 
         return compliant
 
