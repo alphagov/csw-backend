@@ -163,12 +163,12 @@ def account_status(id):
             template_data = {
                 "audit": latest.serialize(),
                 "account": account.serialize(),
-                "status": {
-                    "Checks Passed": latest.criteria_passed,
-                    "Checks Failed": latest.criteria_failed,
-                    "Resources Passed": (audit_stats.audit.passed + audit_stats.audit.ignored),
-                    "Resources Failed": audit_stats.audit.failed
-                },
+                # "status": {
+                #     "Checks Passed": latest.criteria_passed,
+                #     "Checks Failed": latest.criteria_failed,
+                #     "Resources Passed": (audit_stats.audit.passed + audit_stats.audit.ignored),
+                #     "Resources Failed": audit_stats.audit.failed
+                # },
                 "stats": audit_stats
             }
             data = app.utilities.to_json(template_data, True)
