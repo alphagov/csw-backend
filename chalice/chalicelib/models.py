@@ -348,6 +348,23 @@ class AccountAudit(database_handle.BaseModel):
             self.app.log.error("Failed to get audit failed resources: " + str(err))
             return []
 
+    def get_issues_list(self):
+        account_issues = self.get_audit_failed_resources()
+        issues_list = []
+        if len(account_issues) > 0:
+            for compliance in account_issues:
+                audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                status = Status.get_by_id(compliance.status_id)
+                issues_list.append({
+                    "compliance": compliance.serialize(),
+                    "resource": audit_resource.serialize(),
+                    "criterion": criterion.serialize(),
+                    "status": status.serialize()
+                })
+
+        return issues_list
+
     def get_stats(self):
 
         audit_stats = {

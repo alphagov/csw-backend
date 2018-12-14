@@ -194,7 +194,7 @@ def account_issues(id):
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
         if latest is not None:
-            account_issues = latest.get_audit_failed_resources()
+            issues_list = latest.get_issues_list()
             template_data = {
                 "breadcrumbs": [
                     {
@@ -203,7 +203,7 @@ def account_issues(id):
                     }
                 ],
                 "audit": latest.serialize(),
-                "issues": models.ResourceCompliance.serialize_list(account_issues)
+                "issues": issues_list
             }
             # data = app.utilities.to_json(template_data, True)
             # response = app.templates.render_authorized_template(
