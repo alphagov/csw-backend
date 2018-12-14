@@ -21,14 +21,11 @@
                         {{ resource.region }}
                     </td>
                 </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Status</th>
-                    <td class="govuk-table__cell">
-                        <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
-                    </td>
-                </tr>
             </tbody>
         </table>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
     </div>
 </div>
 <div class="govuk-grid-row">
