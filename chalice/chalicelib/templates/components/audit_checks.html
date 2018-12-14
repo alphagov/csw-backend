@@ -11,15 +11,26 @@
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
-                {% for item in stats.criteria %}
+                {% for item in audit_stats.criteria %}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ item.criterion.criterion_name }}</td>
-                    <td class="govuk-table__cell--tag-fixed-centred"><strong class="{{ 'govuk-tag__fixed-width--fail' if (item.failed > 0) else 'govuk-tag__fixed-width--pass' }}">{{ "Fail" if item.failed > 0 else "Pass" }}</strong></td>
-                    <td class="govuk-table__cell--tag-fixed-centred">{{ item.failed }}</td>
+                    <td class="govuk-table__cell">
+                        {{ item.criterion.criterion_name }}
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <strong class="{{ 'govuk-tag__fixed-width--fail' if (item.failed > 0) else 'govuk-tag__fixed-width--pass' }}">
+                            {{ "Fail" if item.failed > 0 else "Pass" }}
+                        </strong>
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        {{ item.failed }}
+                    </td>
                     <td class="govuk-table__cell--tag-fixed-centred">...</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% for item in stats.criteria %}
+            {{ item | json }}
+        {% endfor %}
     </div>
 </div>

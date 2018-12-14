@@ -184,7 +184,7 @@ def account_status(id):
                         "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
                     }
                 },
-                "stats": audit_stats
+                "audit_stats": audit_stats
             }
             # data = app.utilities.to_json(template_data, True)
             # response = app.templates.render_authorized_template(
