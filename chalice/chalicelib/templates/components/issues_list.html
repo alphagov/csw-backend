@@ -1,36 +1,36 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <h2 class="govuk-heading-m">Issues</h2>
+        {% for issue in issues %}
         <table class="govuk-table">
-            <thead class="govuk-table__head">
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Resource</th>
-                    <th class="govuk-table__header">Check</th>
-                    <th class="govuk-table__header">Reason</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
-                </tr>
-            </thead>
+            <caption class="govuk-table__caption">
+                Resource {{ issue.resource.resource_name }})
+            </caption>
             <tbody class="govuk-table__body">
-                {% for issue in issues %}
                 <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Resource ID</th>
                     <td class="govuk-table__cell">
-                        {{ issue.resource.resource_name }}
                         {% if issue.resource.resource_name != issue.resource.resource_id %}
                         ({{ issue.resource.resource_id }})
                         {% endif %}
                     </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Check</th>
                     <td class="govuk-table__cell">{{ issue.criterion.criterion_name }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Reason</th>
                     <td class="govuk-table__cell">{{ issue.compliance.annotation | safe }}</td>
-                    <td class="govuk-table__cell--tag-fixed-centred">
-                        <strong class="govuk-tag__fixed-width--failed">{{ issue.status.status_name }}</strong>
-                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         <a href="{{ base_path }}/resource/{{ issue.resource.id }}">Details</a>
                     </td>
                 </tr>
-                {% endfor %}
             </tbody>
         </table>
+        {% endfor %}
     </div>
 </div>
