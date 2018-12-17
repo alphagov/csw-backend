@@ -21,7 +21,11 @@
                         </strong>
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        {{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}
+                        {%- if item.failed > 0 -%}
+                        0 issues
+                        {%- else -%}
+                        <a href="/check/{item.id}/issues">{{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}</a>
+                        {%- endif -%}
                     </td>
                 </tr>
                 {% endfor %}
