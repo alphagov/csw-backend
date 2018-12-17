@@ -1,0 +1,26 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Product Teams</h1>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Name</th>
+                    <th class="govuk-table__header">Details</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for team_stats in summaries.teams %}
+                {%- team = team_stats.team -%}
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">{{ team.team_name }}</th>
+                    <td class="govuk-table__cell">
+                        <a href="{{base_path}}/team/{{ team.id }}/status" role="button" class="csw-team-list__cta-button">
+                            View status
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

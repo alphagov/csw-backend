@@ -53,13 +53,13 @@ class User(database_handle.BaseModel):
         team_summaries = []
         for team in teams:
             team_stats = team.get_team_stats()
-            team_data = {
-                "team": team.serialize(),
-                "summary": team_stats
-            }
+            # team_data = {
+            #     "team": team.serialize(),
+            #     "summary": team_stats
+            # }
             for stat in overview_stats:
                 overview_stats[stat] += team_stats["team"][stat]
-            team_summaries.append(team_data)
+            team_summaries.append(team_stats)
 
         if len(team_summaries) > 0:
             overview_stats["teams"] = team_summaries
