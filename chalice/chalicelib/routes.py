@@ -158,9 +158,20 @@ def account_status(id):
     try:
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
+        team = account.product_team_id
         if latest is not None:
             audit_stats = latest.get_stats()
             template_data = {
+                "breadcrumbs": [
+                    {
+                        "title": "Home",
+                        "link": "/"
+                    },
+                    {
+                        "title": team.team_name,
+                        "link": f"/team/{team.id}/status"
+                    }
+                ],
                 "audit": latest.serialize(),
                 "status": {
                     "checks_passed": {
