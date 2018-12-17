@@ -127,36 +127,6 @@ def team_dashboard(id):
     return Response(**response)
 
 
-@app.route('/resource/{id}')
-def resource_details(id):
-    id = int(id)
-    load_route_services()
-    try:
-        resource = models.AuditResource.get_by_id(id)
-        account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
-        )
-        compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
-        ).get()
-        response = app.templates.render_authorized_template(
-            'resource_details.html',
-            app.current_request,
-            {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
-                "account": account.serialize(),
-                "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
-                "compliance": compliance.serialize(),
-                "status": models.Status.get_by_id(compliance.status_id).serialize()
-            }
-        )
-    except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
-        response = app.templates.default_server_error()
-    return Response(**response)
-
-
 @app.route('/team/{id}/status')
 def team_status(id):
     team_id = int(id)
@@ -230,13 +200,22 @@ def team_issues(id):
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_issues = team.get_team_failed_resources()
-        data = app.utilities.to_json(team_issues, True)
+        template_data = {
+            "team": team.serialize(),
+            "issues": team_issues
+        }
+        # data = app.utilities.to_json(template_data, True)
+        # response = app.templates.render_authorized_template(
+        #     'debug.html',
+        #     app.current_request,
+        #     {
+        #         "json": data
+        #     }
+        # )
         response = app.templates.render_authorized_template(
-            'debug.html',
+            'team_issues.html',
             app.current_request,
-            {
-                "json": data
-            }
+            template_data
         )
     except Exception as err:
         app.log.error("Route: team issues error: " + str(err))
@@ -396,6 +375,37 @@ def check_issues(id):
         app.log.error("Route: account issues error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
+
+
+@app.route('/resource/{id}')
+def resource_details(id):
+    id = int(id)
+    load_route_services()
+    try:
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
+        compliance = (
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+        ).get()
+        response = app.templates.render_authorized_template(
+            'resource_details.html',
+            app.current_request,
+            {
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "account": account.serialize(),
+                "resource": resource.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "compliance": compliance.serialize(),
+                "status": models.Status.get_by_id(compliance.status_id).serialize()
+            }
+        )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
 
 @app.route('/logout')
 def logout():
