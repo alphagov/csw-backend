@@ -251,18 +251,25 @@ def check_issues(id):
         check_id = int(id)
         audit_check = models.AuditCriterion.get_by_id(check_id)
         issues_list = audit_check.get_issues_list()
+        audit = audit_check.account_audit_id
+        account = audit.account_subscription_id
+        team = audit.product_team_id
 
         template_data = {
-            # "breadcrumbs": [
-            #     {
-            #         "title": "Home",
-            #         "link": "/"
-            #     },
-            #     {
-            #         "title": team.team_name,
-            #         "link": f"/team/{team.id}/status"
-            #     }
-            # ],
+            "breadcrumbs": [
+                {
+                    "title": "Home",
+                    "link": "/"
+                },
+                {
+                    "title": team.team_name,
+                    "link": f"/team/{team.id}/status"
+                },
+                {
+                    "title": account.account_name,
+                    "link": f"/account/{account.id}/status"
+                }
+            ],
             "audit_check": audit_check.serialize(),
             "issues": issues_list
         }
