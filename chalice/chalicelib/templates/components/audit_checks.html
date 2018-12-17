@@ -22,7 +22,7 @@
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.failed > 0 -%}
-                        <a href="/check/{{item.id}}/issues">{{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}</a>
+                        <a href="{{base_path}}/check/{{item.id}}/issues">{{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}</a>
                         {%- else -%}
                         0 issues
                         {%- endif -%}
