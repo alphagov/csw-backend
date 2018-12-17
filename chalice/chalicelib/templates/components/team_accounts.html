@@ -21,8 +21,8 @@
                         </strong>
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        {%- if item.failed > 0 -%}
-                        <a href="{{base_path}}/account/{{item.id}}/issues">{{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}</a>
+                        {%- if item.issues_found > 0 -%}
+                        <a href="{{base_path}}/account/{{item.id}}/issues">{{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}</a>
                         {%- else -%}
                         0 issues
                         {%- endif -%}
