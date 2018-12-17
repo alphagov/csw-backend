@@ -36,14 +36,18 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
+        teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
+        team_list = models.ProductTeam.serialize_list(teams)
+        template_data = {
+            # 'teams': [
+            #     team.serialize() for team in models.ProductTeam.select().where(models.ProductTeam.active == True)
+            # ]
+            "teams": team_list
+        }
         response = app.templates.render_authorized_template(
             'teams.html',
             app.current_request,
-            {
-                'teams': [
-                    team.serialize() for team in models.ProductTeam.select().where(models.ProductTeam.active == True)
-                ]
-            }
+            template_data
         )
     except Exception as err:
         app.log.error("Route: team error: " + str(err))
