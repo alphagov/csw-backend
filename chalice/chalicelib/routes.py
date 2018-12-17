@@ -113,33 +113,36 @@ def team_status(id):
     try:
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
-        #criteria_stats = models.ProductTeam.get_criteria_stats([team])
         team_stats = team.get_team_stats()
         template_data = {
-            # "status": {
-            #     "accounts_passed": {
-            #         "display_stat": latest.criteria_passed,
-            #         "category": "Accounts Passed",
-            #         "modifier_class": "passed"
-            #     },
-            #     "accounts_failed": {
-            #         "display_stat": latest.criteria_failed,
-            #         "category": "Accounts Failed",
-            #         "modifier_class": "passed" if latest.criteria_failed == 0 else "failed"
-            #     },
-            #     "resources_passed": {
-            #         "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
-            #         "category": "Resources Passed",
-            #         "modifier_class": "passed"
-            #     },
-            #     "resources_failed": {
-            #         "display_stat": audit_stats["audit"]["failed"],
-            #         "category": "Resources Failed",
-            #         "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
-            #     }
-            # },
+            "status": {
+                "accounts_passed": {
+                    "display_stat": team_stats["team"]["accounts_passed"],
+                    "category": "Accounts Passed",
+                    "modifier_class": "passed" if team_stats["team"]["accounts_passed"] > 0 else "failed"
+                },
+                "accounts_failed": {
+                    "display_stat": team_stats["team"]["accounts_failed"],
+                    "category": "Accounts Failed",
+                    "modifier_class": "passed" if team_stats["team"]["accounts_failed"] == 0 else "failed"
+                },
+                "accounts_unadited": {
+                    "display_stat": team_stats["team"]["accounts_unaudited"],
+                    "category": "Accounts Unaudited",
+                    "modifier_class": "passed" if team_stats["team"]["accounts_unaudited"] == 0 else "failed"
+                },
+                "accounts_inactive": {
+                    "display_stat": team_stats["team"]["accounts_inactive"],
+                    "category": "Accounts Inactive",
+                    "modifier_class": "passed" if team_stats["team"]["accounts_inactive"] == 0 else "failed"
+                },
+                "issues_found": {
+                    "display_stat": team_stats["team"]["issues_found"],
+                    "category": "Issues Found",
+                    "modifier_class": "passed" if team_stats["team"]["issues_found"] == 0 else "failed"
+                }
+            },
             "team": team.serialize(),
-            #"criteria_stats": criteria_stats
             "stats": team_stats
         }
         data = app.utilities.to_json(template_data, True)
@@ -206,7 +209,7 @@ def account_status(id):
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
                         "category": "Checks Passed",
-                        "modifier_class": "passed"
+                        "modifier_class": "passed" if latest.criteria_failed > 0 else "failed"
                     },
                     "checks_failed": {
                         "display_stat": latest.criteria_failed,
@@ -216,7 +219,7 @@ def account_status(id):
                     "resources_passed": {
                         "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
                         "category": "Resources Passed",
-                        "modifier_class": "passed"
+                        "modifier_class": "passed" if (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]) > 0 else "failed"
                     },
                     "resources_failed": {
                         "display_stat": audit_stats["audit"]["failed"],
