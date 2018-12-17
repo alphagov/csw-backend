@@ -515,6 +515,36 @@ class AuditCriterion(database_handle.BaseModel):
     class Meta:
         table_name = "audit_criterion"
 
+    def get_failed_resources(self):
+        account_audit_id = self.account_audit_id
+        audit_criterion_id = self.id
+        try:
+            return ResourceCompliance.select().join(AuditResource).where(
+                AuditCriterion.id == audit_criterion_id,
+                AuditResource.account_audit_id == account_audit_id,
+                ResourceCompliance.status_id == 3
+            )
+        except Exception as err:
+            self.app.log.error("Failed to get audit failed resources: " + str(err))
+            return []
+
+    def get_issues_list(self):
+        account_issues = self.get_failed_resources()
+        issues_list = []
+        if len(account_issues) > 0:
+            for compliance in account_issues:
+                audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                status = Status.get_by_id(compliance.status_id)
+                issues_list.append({
+                    "compliance": compliance.serialize(),
+                    "resource": audit_resource.serialize(),
+                    "criterion": criterion.serialize(),
+                    "status": status.serialize()
+                })
+
+        return issues_list
+
 
 # This is where we store the results of quering the API
 # This should include "green" status checks as well as

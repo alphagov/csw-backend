@@ -244,6 +244,46 @@ def account_issues(id):
     return Response(**response)
 
 
+@app.route('/check/{id}/issues')
+def check_issues(id):
+    try:
+        check_id = int(id)
+        audit_check = models.AuditCriterion.get_by_id(check_id)
+        issues_list = audit_check.get_issues_list()
+
+        template_data = {
+            # "breadcrumbs": [
+            #     {
+            #         "title": "Home",
+            #         "link": "/"
+            #     },
+            #     {
+            #         "title": team.team_name,
+            #         "link": f"/team/{team.id}/status"
+            #     }
+            # ],
+            "audit_check": audit_check,
+            "issues": issues_list
+        }
+        data = app.utilities.to_json(template_data, True)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": data
+            }
+        )
+        # response = app.templates.render_authorized_template(
+        #     'audit_issues.html',
+        #     app.current_request,
+        #     template_data
+        # )
+
+    except Exception as err:
+        app.log.error("Route: account issues error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
 @app.route('/logout')
 def logout():
     load_route_services()
