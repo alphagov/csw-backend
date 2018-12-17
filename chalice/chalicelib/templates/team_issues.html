@@ -4,9 +4,15 @@
   <main class="govuk-main-wrapper " id="main-content" role="main">
     {% include "components/breadcrumbs.html" %}
 
-    <h1 class="govuk-heading-l">
-      {{ team.team_name }} Status
-    </h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+                {{ team.team_name }} Status
+            </h1>
+
+            <p>Issues are grouped by AWS account below.</p>
+        </div>
+    </div>
 
     {% for account_list in account_issues %}
 
