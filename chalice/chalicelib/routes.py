@@ -22,60 +22,60 @@ def overview_dashboard():
         # )
         # app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
 
+        # Create empty template_data in case user is not authenticated
+        template_data = {}
         authed = app.auth.try_login(app.current_request)
-        user = None
-        team_data = None
         if authed:
             user_data = app.auth.get_login_data()
             user = models.User.find_active_by_email(user_data['email'])
             overview_data = user.get_overview_data()
 
-        template_data = {
-            # "criteria_summary": criteria_stats,
-            "status": {
-                "accounts_passed": {
-                    "display_stat": overview_data["accounts_passed"],
-                    "category": "Accounts Passed",
-                    "modifier_class": "passed" if overview_data["accounts_passed"] > 0 else "failed"
+            template_data = {
+                # "criteria_summary": criteria_stats,
+                "status": {
+                    "accounts_passed": {
+                        "display_stat": overview_data["accounts_passed"],
+                        "category": "Accounts Passed",
+                        "modifier_class": "passed" if overview_data["accounts_passed"] > 0 else "failed"
+                    },
+                    "accounts_failed": {
+                        "display_stat": overview_data["accounts_failed"],
+                        "category": "Accounts Failed",
+                        "modifier_class": "passed" if overview_data["accounts_failed"] == 0 else "failed"
+                    },
+                    "accounts_unadited": {
+                        "display_stat": overview_data["accounts_unaudited"],
+                        "category": "Accounts Unaudited",
+                        "modifier_class": "passed" if overview_data["accounts_unaudited"] == 0 else "failed"
+                    },
+                    "accounts_inactive": {
+                        "display_stat": overview_data["accounts_inactive"],
+                        "category": "Accounts Inactive",
+                        "modifier_class": "passed" if overview_data["accounts_inactive"] == 0 else "failed"
+                    },
+                    "issues_found": {
+                        "display_stat": overview_data["issues_found"],
+                        "category": "Issues Found",
+                        "modifier_class": "passed" if overview_data["issues_found"] == 0 else "failed"
+                    }
                 },
-                "accounts_failed": {
-                    "display_stat": overview_data["accounts_failed"],
-                    "category": "Accounts Failed",
-                    "modifier_class": "passed" if overview_data["accounts_failed"] == 0 else "failed"
-                },
-                "accounts_unadited": {
-                    "display_stat": overview_data["accounts_unaudited"],
-                    "category": "Accounts Unaudited",
-                    "modifier_class": "passed" if overview_data["accounts_unaudited"] == 0 else "failed"
-                },
-                "accounts_inactive": {
-                    "display_stat": overview_data["accounts_inactive"],
-                    "category": "Accounts Inactive",
-                    "modifier_class": "passed" if overview_data["accounts_inactive"] == 0 else "failed"
-                },
-                "issues_found": {
-                    "display_stat": overview_data["issues_found"],
-                    "category": "Issues Found",
-                    "modifier_class": "passed" if overview_data["issues_found"] == 0 else "failed"
-                }
-            },
-            "user": user.serialize(),
-            "summaries": overview_data
-        }
-        data = app.utilities.to_json(template_data, True)
-        app.log.debug("Criteria stats: " + data)
-        response = app.templates.render_authorized_template(
-            'debug.html',
-            app.current_request,
-            {
-                "json": data
+                "summaries": overview_data
             }
-        )
+
+        # data = app.utilities.to_json(template_data, True)
+        # app.log.debug("Criteria stats: " + data)
         # response = app.templates.render_authorized_template(
-        #     'overview.html',
+        #     'debug.html',
         #     app.current_request,
-        #     template_data
+        #     {
+        #         "json": data
+        #     }
         # )
+        response = app.templates.render_authorized_template(
+            'overview.html',
+            app.current_request,
+            template_data
+        )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
