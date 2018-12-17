@@ -34,29 +34,29 @@ def overview_dashboard():
                 # "criteria_summary": criteria_stats,
                 "status": {
                     "accounts_passed": {
-                        "display_stat": overview_data["accounts_passed"],
+                        "display_stat": overview_data["all"]["accounts_passed"],
                         "category": "Accounts Passed",
-                        "modifier_class": "passed" if overview_data["accounts_passed"] > 0 else "failed"
+                        "modifier_class": "passed" if overview_data["all"]["accounts_passed"] > 0 else "failed"
                     },
                     "accounts_failed": {
-                        "display_stat": overview_data["accounts_failed"],
+                        "display_stat": overview_data["all"]["accounts_failed"],
                         "category": "Accounts Failed",
-                        "modifier_class": "passed" if overview_data["accounts_failed"] == 0 else "failed"
+                        "modifier_class": "passed" if overview_data["all"]["accounts_failed"] == 0 else "failed"
                     },
                     "accounts_unadited": {
-                        "display_stat": overview_data["accounts_unaudited"],
+                        "display_stat": overview_data["all"]["accounts_unaudited"],
                         "category": "Accounts Unaudited",
-                        "modifier_class": "passed" if overview_data["accounts_unaudited"] == 0 else "failed"
+                        "modifier_class": "passed" if overview_data["all"]["accounts_unaudited"] == 0 else "failed"
                     },
                     "accounts_inactive": {
-                        "display_stat": overview_data["accounts_inactive"],
+                        "display_stat": overview_data["all"]["accounts_inactive"],
                         "category": "Accounts Inactive",
-                        "modifier_class": "passed" if overview_data["accounts_inactive"] == 0 else "failed"
+                        "modifier_class": "passed" if overview_data["all"]["accounts_inactive"] == 0 else "failed"
                     },
                     "issues_found": {
-                        "display_stat": overview_data["issues_found"],
+                        "display_stat": overview_data["all"]["issues_found"],
                         "category": "Issues Found",
-                        "modifier_class": "passed" if overview_data["issues_found"] == 0 else "failed"
+                        "modifier_class": "passed" if overview_data["all"]["issues_found"] == 0 else "failed"
                     }
                 },
                 "summaries": overview_data
@@ -174,29 +174,29 @@ def team_status(id):
             ],
             "status": {
                 "accounts_passed": {
-                    "display_stat": team_stats["team"]["accounts_passed"],
+                    "display_stat": team_stats["all"]["accounts_passed"],
                     "category": "Accounts Passed",
-                    "modifier_class": "passed" if team_stats["team"]["accounts_passed"] > 0 else "failed"
+                    "modifier_class": "passed" if team_stats["all"]["accounts_passed"] > 0 else "failed"
                 },
                 "accounts_failed": {
-                    "display_stat": team_stats["team"]["accounts_failed"],
+                    "display_stat": team_stats["all"]["accounts_failed"],
                     "category": "Accounts Failed",
-                    "modifier_class": "passed" if team_stats["team"]["accounts_failed"] == 0 else "failed"
+                    "modifier_class": "passed" if team_stats["all"]["accounts_failed"] == 0 else "failed"
                 },
                 "accounts_unadited": {
-                    "display_stat": team_stats["team"]["accounts_unaudited"],
+                    "display_stat": team_stats["all"]["accounts_unaudited"],
                     "category": "Accounts Unaudited",
-                    "modifier_class": "passed" if team_stats["team"]["accounts_unaudited"] == 0 else "failed"
+                    "modifier_class": "passed" if team_stats["all"]["accounts_unaudited"] == 0 else "failed"
                 },
                 "accounts_inactive": {
-                    "display_stat": team_stats["team"]["accounts_inactive"],
+                    "display_stat": team_stats["all"]["accounts_inactive"],
                     "category": "Accounts Inactive",
-                    "modifier_class": "passed" if team_stats["team"]["accounts_inactive"] == 0 else "failed"
+                    "modifier_class": "passed" if team_stats["all"]["accounts_inactive"] == 0 else "failed"
                 },
                 "issues_found": {
-                    "display_stat": team_stats["team"]["issues_found"],
+                    "display_stat": team_stats["all"]["issues_found"],
                     "category": "Issues Found",
-                    "modifier_class": "passed" if team_stats["team"]["issues_found"] == 0 else "failed"
+                    "modifier_class": "passed" if team_stats["all"]["issues_found"] == 0 else "failed"
                 }
             },
             "team": team.serialize(),

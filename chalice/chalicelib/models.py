@@ -53,17 +53,19 @@ class User(database_handle.BaseModel):
         team_summaries = []
         for team in teams:
             team_stats = team.get_team_stats()
-            # team_data = {
-            #     "team": team.serialize(),
-            #     "summary": team_stats
-            # }
+            team_data = {
+                "team": team.serialize(),
+                "summary": team_stats
+            }
             for stat in overview_stats:
                 overview_stats[stat] += team_stats["team"][stat]
-            team_summaries.append(team_stats)
+            team_summaries.append(team_data)
 
-        if len(team_summaries) > 0:
-            overview_stats["teams"] = team_summaries
-        return overview_stats
+        overview_data = {
+            "all": overview_stats,
+            "teams": team_summaries
+        }
+        return overview_data
 
 
 class UserSession(database_handle.BaseModel):
@@ -238,7 +240,7 @@ class ProductTeam(database_handle.BaseModel):
         # add account stats to team stats dictionary
         team_stats.update(account_stats)
         return {
-            "team": team_stats,
+            "all": team_stats,
             "accounts": account_audits,
             "unaudited_accounts": unaudited_accounts
         }
