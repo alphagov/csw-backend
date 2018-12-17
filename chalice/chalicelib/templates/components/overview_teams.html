@@ -10,11 +10,10 @@
             </thead>
             <tbody class="govuk-table__body">
                 {% for team_stats in summaries.teams %}
-                {%- set team = team_stats.team -%}
                 <tr class="govuk-table__row">
-                    <th class="govuk-table__header">{{ team.team_name }}</th>
+                    <th class="govuk-table__header">{{ team_stats.team.team_name }}</th>
                     <td class="govuk-table__cell">
-                        <a href="{{base_path}}/team/{{ team.id }}/status" role="button" class="csw-team-list__cta-button">
+                        <a href="{{base_path}}/team/{{ team_stats.team.id }}/status" role="button" class="csw-team-list__cta-button">
                             View status
                         </a>
                     </td>
