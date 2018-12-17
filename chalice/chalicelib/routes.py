@@ -202,7 +202,7 @@ def team_issues(id):
         team_issues = team.get_team_failed_resources()
         template_data = {
             "team": team.serialize(),
-            "issues": team_issues
+            "account_issues": team_issues
         }
         # data = app.utilities.to_json(template_data, True)
         # response = app.templates.render_authorized_template(
