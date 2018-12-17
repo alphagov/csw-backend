@@ -253,7 +253,7 @@ def check_issues(id):
         issues_list = audit_check.get_issues_list()
         audit = audit_check.account_audit_id
         account = audit.account_subscription_id
-        team = audit.product_team_id
+        team = account.product_team_id
 
         template_data = {
             "breadcrumbs": [
