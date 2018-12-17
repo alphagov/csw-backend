@@ -43,7 +43,7 @@ class User(database_handle.BaseModel):
         teams = ProductTeam.select().where(ProductTeam.active == True)
 
         overview_stats = None
-        team_stats = []
+        team_summaries = []
         for team in teams:
             team_stats = team.get_team_stats()
             team_data = {
@@ -55,10 +55,10 @@ class User(database_handle.BaseModel):
             else:
                 for stat in overview_stats:
                     overview_stats[stat] += team_stats["team"][stat]
-            team_stats.append(team_data)
+            team_summaries.append(team_data)
 
-        if len(team_stats) > 0:
-            overview_stats["teams"] = team_stats
+        if len(team_summaries) > 0:
+            overview_stats["teams"] = team_summaries
         return overview_stats
 
 
