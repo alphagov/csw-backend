@@ -54,7 +54,7 @@ class User(database_handle.BaseModel):
         for team in teams:
             team_stats = team.get_team_stats()
             team_data = {
-                "team": team,
+                "team": team.serialize(),
                 "summary": team_stats
             }
             for stat in overview_stats:

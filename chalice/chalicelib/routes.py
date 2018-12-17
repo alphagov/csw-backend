@@ -28,12 +28,39 @@ def overview_dashboard():
         if authed:
             user_data = app.auth.get_login_data()
             user = models.User.find_active_by_email(user_data['email'])
-            team_data = user.get_overview_data()
+            overview_data = user.get_overview_data()
 
         template_data = {
             # "criteria_summary": criteria_stats,
-            "user": user,
-            "teams": team_data
+            "status": {
+                "accounts_passed": {
+                    "display_stat": overview_data["accounts_passed"],
+                    "category": "Accounts Passed",
+                    "modifier_class": "passed" if overview_data["accounts_passed"] > 0 else "failed"
+                },
+                "accounts_failed": {
+                    "display_stat": overview_data["accounts_failed"],
+                    "category": "Accounts Failed",
+                    "modifier_class": "passed" if overview_data["accounts_failed"] == 0 else "failed"
+                },
+                "accounts_unadited": {
+                    "display_stat": overview_data["accounts_unaudited"],
+                    "category": "Accounts Unaudited",
+                    "modifier_class": "passed" if overview_data["accounts_unaudited"] == 0 else "failed"
+                },
+                "accounts_inactive": {
+                    "display_stat": overview_data["accounts_inactive"],
+                    "category": "Accounts Inactive",
+                    "modifier_class": "passed" if overview_data["accounts_inactive"] == 0 else "failed"
+                },
+                "issues_found": {
+                    "display_stat": overview_data["issues_found"],
+                    "category": "Issues Found",
+                    "modifier_class": "passed" if overview_data["issues_found"] == 0 else "failed"
+                }
+            },
+            "user": user.serialize(),
+            "summaries": overview_data
         }
         data = app.utilities.to_json(template_data, True)
         app.log.debug("Criteria stats: " + data)
