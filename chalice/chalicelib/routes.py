@@ -263,7 +263,7 @@ def check_issues(id):
             #         "link": f"/team/{team.id}/status"
             #     }
             # ],
-            "audit_check": audit_check,
+            "audit_check": audit_check.serialize(),
             "issues": issues_list
         }
         data = app.utilities.to_json(template_data, True)
