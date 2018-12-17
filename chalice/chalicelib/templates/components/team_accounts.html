@@ -7,7 +7,7 @@
                     <th class="govuk-table__header">Date Audited</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Details</th>
+                    <th class="govuk-table__header">Details</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -30,7 +30,7 @@
                         0 issues
                         {%- endif -%}
                     </td>
-                    <td class="govuk-table__cell--tag-fixed-centred">
+                    <td class="govuk-table__cell">
                         <a href="{{base_path}}/account/{{account_audit.account.id}}/status" role="button" class="csw-team-list__cta-button">
                             View status
                         </a>
