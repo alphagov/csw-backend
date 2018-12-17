@@ -156,6 +156,13 @@ class ProductTeam(database_handle.BaseModel):
         unaudited_accounts = []
         for account in team_accounts:
             app.log.debug(account.account_name)
+        account_stats = {
+            "accounts_audited": 0,
+            "accounts_unaudited": 0,
+            "accounts_passed": 0,
+            "accounts_failed": 0,
+            "accounts_inactive": 0
+        }
         team_stats = {
             "active_criteria": 0,
             "criteria_processed": 0,
@@ -173,19 +180,31 @@ class ProductTeam(database_handle.BaseModel):
                     latest_data = latest.serialize()
                     app.log.debug("Latest audit: " + app.utilities.to_json(latest_data))
                     account_data = account.serialize()
-                    account_audits.append({
+                    account_passed = (latest.criteria_failed == 0)
+                    account_status = {
                         "account": account_data,
                         "stats": latest_data,
-                        "passed": (latest.criteria_failed == 0)
-                    })
+                        "passed": account_passed
+                    }
+                    account_audits.append(account_status)
+                    account_stats["accounts_audited"] += 1
+                    if account_passed:
+                        account_stats["accounts_passed"] += 1
+                    else:
+                        account_stats["accounts_failed"] += 1
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
                 else:
                     app.log.error("Latest audit not found for account: " + str(account.id))
+                    account_stats["accounts_unaudited"] += 1
                     unaudited_accounts.append({
                         "account": account.serialize()
                     })
+            else:
+                account_stats["accounts_inactive"] += 1
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
+        # add account stats to team stats dictionary
+        team_stats.update(account_stats)
         return {
             "team": team_stats,
             "accounts": account_audits,
