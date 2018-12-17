@@ -175,7 +175,8 @@ class ProductTeam(database_handle.BaseModel):
                     account_data = account.serialize()
                     account_audits.append({
                         "account": account_data,
-                        "stats": latest_data
+                        "stats": latest_data,
+                        "passed": (latest.criteria_failed == 0)
                     })
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
