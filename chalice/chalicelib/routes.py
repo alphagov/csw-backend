@@ -180,15 +180,6 @@ def team_status(id):
             "team": team.serialize(),
             "team_summary": team_stats
         }
-        # data = app.utilities.to_json(template_data, True)
-        # app.log.debug("Criteria stats: " + data)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
         response = app.templates.render_authorized_template(
             'team_status.html',
             app.current_request,
@@ -209,17 +200,15 @@ def team_issues(id):
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_issues = team.get_team_failed_resources()
         template_data = {
+            "breadcrumbs": [
+                {
+                    "title": "Teams",
+                    "link": f"/team"
+                }
+            ],
             "team": team.serialize(),
             "account_issues": team_issues
         }
-        # data = app.utilities.to_json(template_data, True)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
         response = app.templates.render_authorized_template(
             'team_issues.html',
             app.current_request,
@@ -277,14 +266,6 @@ def account_status(id):
                 },
                 "audit_stats": audit_stats
             }
-            # data = app.utilities.to_json(template_data, True)
-            # response = app.templates.render_authorized_template(
-            #     'debug.html',
-            #     app.current_request,
-            #     {
-            #         "json": data
-            #     }
-            # )
             response = app.templates.render_authorized_template(
                 'audit_status.html',
                 app.current_request,
@@ -365,14 +346,6 @@ def check_issues(id):
             "audit_check": audit_check.serialize(),
             "issues": issues_list
         }
-        # data = app.utilities.to_json(template_data, True)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
         response = app.templates.render_authorized_template(
             'check_issues.html',
             app.current_request,
@@ -480,3 +453,13 @@ def asset_render():
     except Exception as e:
         app.log.debug(str(e))
         raise BadRequestError(str(e))
+
+# # TO OVERRIDE a route template with the debug template to view the json template data
+# data = app.utilities.to_json(template_data, True)
+# response = app.templates.render_authorized_template(
+#     'debug.html',
+#     app.current_request,
+#     {
+#         "json": data
+#     }
+# )
