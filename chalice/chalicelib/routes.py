@@ -55,7 +55,7 @@ def overview_dashboard():
                     },
                     "issues_found": {
                         "display_stat": overview_data["all"]["issues_found"],
-                        "category": "Issues Found",
+                        "category": "All Issues",
                         "modifier_class": "passed" if overview_data["all"]["issues_found"] == 0 else "failed"
                     }
                 },
@@ -173,7 +173,7 @@ def team_status(id):
                 },
                 "issues_found": {
                     "display_stat": team_stats["all"]["issues_found"],
-                    "category": "Issues Found",
+                    "category": "Team Issues",
                     "modifier_class": "passed" if team_stats["all"]["issues_found"] == 0 else "failed"
                 }
             },
