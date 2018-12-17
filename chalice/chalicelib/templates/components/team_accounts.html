@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
-                {% for account_audit in team_summary.accounts %}
+                {% for account_audit in stats.accounts %}
                 {%- set item = account_audit.stats -%}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
