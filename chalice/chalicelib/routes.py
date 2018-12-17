@@ -62,20 +62,20 @@ def overview_dashboard():
                 "summaries": overview_data
             }
 
-        # data = app.utilities.to_json(template_data, True)
-        # app.log.debug("Criteria stats: " + data)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
+        data = app.utilities.to_json(template_data, True)
+        app.log.debug("Criteria stats: " + data)
         response = app.templates.render_authorized_template(
-            'overview.html',
+            'debug.html',
             app.current_request,
-            template_data
+            {
+                "json": data
+            }
         )
+        # response = app.templates.render_authorized_template(
+        #     'overview.html',
+        #     app.current_request,
+        #     template_data
+        # )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
