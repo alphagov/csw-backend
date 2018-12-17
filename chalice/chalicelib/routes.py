@@ -273,19 +273,19 @@ def check_issues(id):
             "audit_check": audit_check.serialize(),
             "issues": issues_list
         }
-        data = app.utilities.to_json(template_data, True)
-        response = app.templates.render_authorized_template(
-            'debug.html',
-            app.current_request,
-            {
-                "json": data
-            }
-        )
+        # data = app.utilities.to_json(template_data, True)
         # response = app.templates.render_authorized_template(
-        #     'audit_issues.html',
+        #     'debug.html',
         #     app.current_request,
-        #     template_data
+        #     {
+        #         "json": data
+        #     }
         # )
+        response = app.templates.render_authorized_template(
+            'check_issues.html',
+            app.current_request,
+            template_data
+        )
 
     except Exception as err:
         app.log.error("Route: account issues error: " + str(err))
