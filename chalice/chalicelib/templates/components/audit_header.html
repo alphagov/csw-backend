@@ -1,9 +1,9 @@
 <h1 class="govuk-heading-l">{{ audit.account_subscription_id.account_name }}
     <span class="govuk-caption-l">
         {% if audit.date_completed %}
-        Completed: {{ audit.date_completed | datetime }}
+        Audit completed: {{ audit.date_completed | datetime }}
         {% else %}
-        Incomplete: {{ audit.date_updated | datetime }}
+        Audit incomplete: {{ audit.date_updated | datetime }}
         {% endif %}
     </span>
 </h1>
