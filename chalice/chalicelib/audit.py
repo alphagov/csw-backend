@@ -195,11 +195,12 @@ def account_evaluate_criteria(event):
                 audit_criterion.failed = summary['non_compliant']['display_stat']
                 audit_criterion.ignored = summary['not_applicable']['display_stat']
                 audit_criterion.regions = summary['regions']['count']
+                audit_criterion.save()
                 # Only update the processed stat if the assume was successful
                 audit.criteria_processed += 1
-                audit_criterion.save()
 
             audit.date_updated = datetime.now()
+            audit.save()
             message_data = audit_criterion.serialize()
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role
