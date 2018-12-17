@@ -219,7 +219,7 @@ def account_status(id):
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
                         "category": "Checks Passed",
-                        "modifier_class": "passed" if latest.criteria_failed > 0 else "failed"
+                        "modifier_class": "passed" if latest.criteria_passed > 0 else "failed"
                     },
                     "checks_failed": {
                         "display_stat": latest.criteria_failed,
