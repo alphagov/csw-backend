@@ -18,11 +18,11 @@
     display: inline-block;
 
     &:first-child .five-columns__column-content {
-        margin-left: 1em;
+        margin-left: 0;
     }
 
     &:last-child .five-columns__column-content {
-        margin-right: 1em;
+        margin-right: 0;
     }
 }
 
