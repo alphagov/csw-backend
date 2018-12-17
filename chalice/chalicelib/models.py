@@ -517,12 +517,17 @@ class AuditCriterion(database_handle.BaseModel):
 
     def get_failed_resources(self):
         account_audit_id = self.account_audit_id
-        audit_criterion_id = self.id
+
         try:
-            return ResourceCompliance.select().join(AuditResource).where(
-                AuditCriterion.id == audit_criterion_id,
-                AuditResource.account_audit_id == account_audit_id,
-                ResourceCompliance.status_id == 3
+            criterion = self.criterion_id
+
+            return (ResourceCompliance.select()
+                .join(AuditResource)
+                .where(
+                    AuditResource.criterion_id == criterion.id,
+                    AuditResource.account_audit_id == account_audit_id,
+                    ResourceCompliance.status_id == 3
+                )
             )
         except Exception as err:
             self.app.log.error("Failed to get audit failed resources: " + str(err))
