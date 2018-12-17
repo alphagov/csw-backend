@@ -58,7 +58,7 @@ class User(database_handle.BaseModel):
                 "summary": team_stats
             }
             for stat in overview_stats:
-                overview_stats[stat] += team_stats["team"][stat]
+                overview_stats[stat] += team_stats["all"][stat]
             team_summaries.append(team_data)
 
         overview_data = {
