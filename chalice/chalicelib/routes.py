@@ -87,7 +87,15 @@ def team_list():
     load_route_services()
     try:
         teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
-        team_list = models.ProductTeam.serialize_list(teams)
+        team_list = []
+        for team in teams:
+            team_stats = team.get_team_stats()
+            team_data = {
+                "team": team.serialize(),
+                "summary": team_stats
+            }
+            team_list.append(team_data)
+
         template_data = {
             "teams": team_list
         }
