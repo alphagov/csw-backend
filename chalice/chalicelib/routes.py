@@ -247,6 +247,7 @@ def account_issues(id):
 @app.route('/check/{id}/issues')
 def check_issues(id):
     try:
+        load_route_services()
         check_id = int(id)
         audit_check = models.AuditCriterion.get_by_id(check_id)
         issues_list = audit_check.get_issues_list()
