@@ -7,7 +7,7 @@
                     <th class="govuk-table__header">Date Audited</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Details</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -31,7 +31,9 @@
                         {%- endif -%}
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status">Status</a>
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status" role="button" class="csw-team-list__cta-button">
+                            View status
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
