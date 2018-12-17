@@ -7,6 +7,7 @@
                     <th class="govuk-table__header">Date Audited</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Actions</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -22,10 +23,17 @@
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.issues_found > 0 -%}
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/issues">{{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}</a>
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/issues">
+                            {{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}
+                        </a>
                         {%- else -%}
                         0 issues
                         {%- endif -%}
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
+                            Account Status
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -33,6 +41,7 @@
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
                     <td class="govuk-table__cell">None</td>
+                    <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>
                 </tr>
