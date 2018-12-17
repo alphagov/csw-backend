@@ -146,19 +146,19 @@ def team_status(id):
             "stats": team_stats
         }
         data = app.utilities.to_json(template_data, True)
-        # app.log.debug("Criteria stats: " + data)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
+        app.log.debug("Criteria stats: " + data)
         response = app.templates.render_authorized_template(
-            'team_status.html',
+            'debug.html',
             app.current_request,
-            template_data
+            {
+                "json": data
+            }
         )
+        # response = app.templates.render_authorized_template(
+        #     'team_status.html',
+        #     app.current_request,
+        #     template_data
+        # )
     except Exception as err:
         app.log.error("Route: team status error: " + str(err))
         response = app.templates.default_server_error()
