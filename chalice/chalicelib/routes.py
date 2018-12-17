@@ -143,7 +143,7 @@ def team_status(id):
                 }
             },
             "team": team.serialize(),
-            "stats": team_stats
+            "team_summary": team_stats
         }
         # data = app.utilities.to_json(template_data, True)
         # app.log.debug("Criteria stats: " + data)
