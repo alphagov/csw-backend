@@ -42,7 +42,14 @@ class User(database_handle.BaseModel):
         # TODO replace this with a select based on user access team roles
         teams = ProductTeam.select().where(ProductTeam.active == True)
 
-        overview_stats = None
+        overview_stats = {
+            "accounts_audited": 0,
+            "accounts_unaudited": 0,
+            "accounts_passed": 0,
+            "accounts_failed": 0,
+            "accounts_inactive": 0,
+            "issues_found": 0
+        }
         team_summaries = []
         for team in teams:
             team_stats = team.get_team_stats()
@@ -50,11 +57,8 @@ class User(database_handle.BaseModel):
                 "team": team,
                 "summary": team_stats
             }
-            if overview_stats is None:
-                overview_stats = {}.update(team_stats["team"])
-            else:
-                for stat in overview_stats:
-                    overview_stats[stat] += team_stats["team"][stat]
+            for stat in overview_stats:
+                overview_stats[stat] += team_stats["team"][stat]
             team_summaries.append(team_data)
 
         if len(team_summaries) > 0:
