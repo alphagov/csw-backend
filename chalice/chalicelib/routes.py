@@ -115,6 +115,12 @@ def team_status(id):
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_stats = team.get_team_stats()
         template_data = {
+            "breadcrumbs": [
+                {
+                    "title": "Teams",
+                    "link": f"/team"
+                }
+            ],
             "status": {
                 "accounts_passed": {
                     "display_stat": team_stats["team"]["accounts_passed"],
@@ -200,6 +206,10 @@ def account_status(id):
             template_data = {
                 "breadcrumbs": [
                     {
+                        "title": "Teams",
+                        "link": f"/team"
+                    },
+                    {
                         "title": team.team_name,
                         "link": f"/team/{team.id}/status"
                     }
@@ -263,6 +273,11 @@ def account_issues(id):
             template_data = {
                 "breadcrumbs": [
                     {
+                        "title": "Teams",
+                        "link": f"/team"
+                    },
+
+                    {
                         "title": team.team_name,
                         "link": f"/team/{team.id}/status"
                     }
@@ -296,6 +311,10 @@ def check_issues(id):
 
         template_data = {
             "breadcrumbs": [
+                {
+                    "title": "Teams",
+                    "link": f"/team"
+                },
                 {
                     "title": team.team_name,
                     "link": f"/team/{team.id}/status"
