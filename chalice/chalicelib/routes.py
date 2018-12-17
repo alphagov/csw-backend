@@ -17,15 +17,23 @@ def index():
 def overview_dashboard():
     load_route_services()
     try:
-        criteria_stats = models.ProductTeam.get_criteria_stats(
-            models.ProductTeam.select().where(models.ProductTeam.active == True)
-        )
-        user = app.auth.has_valid_user(app.current_request)
+        # criteria_stats = models.ProductTeam.get_criteria_stats(
+        #     models.ProductTeam.select().where(models.ProductTeam.active == True)
+        # )
+        # app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
 
-        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+        authed = app.auth.try_login(app.current_request)
+        user = None
+        team_data = None
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+            team_data = user.get_overview_data()
+
         template_data = {
-            "criteria_summary": criteria_stats,
-            "user": user
+            # "criteria_summary": criteria_stats,
+            "user": user,
+            "teams": team_data
         }
         data = app.utilities.to_json(template_data, True)
         app.log.debug("Criteria stats: " + data)
