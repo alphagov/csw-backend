@@ -33,6 +33,34 @@ class User(database_handle.BaseModel):
 
         return user
 
+    def get_overview_data(self):
+        """
+        Retrieve overview data about the status of all accounts monitored by CSW
+        accessible by the current user
+        :return:
+        """
+        # TODO replace this with a select based on user access team roles
+        teams = ProductTeam.select().where(ProductTeam.active == True)
+
+        overview_stats = None
+        team_stats = []
+        for team in teams:
+            team_stats = team.get_team_stats()
+            team_data = {
+                "team": team,
+                "summary": team_stats
+            }
+            if overview_stats is None:
+                overview_stats = {}.update(team_stats["team"])
+            else:
+                for stat in overview_stats:
+                    overview_stats[stat] += team_stats["team"][stat]
+            team_stats.append(team_data)
+
+        if len(team_stats) > 0:
+            overview_stats["teams"] = team_stats
+        return overview_stats
+
 
 class UserSession(database_handle.BaseModel):
     """

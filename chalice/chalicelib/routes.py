@@ -20,12 +20,27 @@ def overview_dashboard():
         criteria_stats = models.ProductTeam.get_criteria_stats(
             models.ProductTeam.select().where(models.ProductTeam.active == True)
         )
+        user = app.auth.has_valid_user(app.current_request)
+
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+        template_data = {
+            "criteria_summary": criteria_stats,
+            "user": user
+        }
+        data = app.utilities.to_json(template_data, True)
+        app.log.debug("Criteria stats: " + data)
         response = app.templates.render_authorized_template(
-            'overview.html',
+            'debug.html',
             app.current_request,
-            {"criteria_summary": criteria_stats}
+            {
+                "json": data
+            }
         )
+        # response = app.templates.render_authorized_template(
+        #     'overview.html',
+        #     app.current_request,
+        #     template_data
+        # )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
@@ -39,9 +54,6 @@ def team_list():
         teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
         team_list = models.ProductTeam.serialize_list(teams)
         template_data = {
-            # 'teams': [
-            #     team.serialize() for team in models.ProductTeam.select().where(models.ProductTeam.active == True)
-            # ]
             "teams": team_list
         }
         response = app.templates.render_authorized_template(
