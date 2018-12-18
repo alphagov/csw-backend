@@ -45,15 +45,15 @@
   <div class="govuk-width-container">
     <div class="csw-login-status govuk-!-margin-top-2">
       {% if not email %}
-      <p class="govuk-body-s csw-login-status--text"><a class="login" href="{{ login_url }}">Login</a></p>
+      <p class="govuk-body-s csw-login-status--text"><a class="login" href="{{ login_url }}">Sign in</a></p>
       {% else %}
       <p class="govuk-body-s csw-login-status--text">
-        <span>Logged in as: {{ name }}</span>
+        <span>Signed in as: {{ name }}</span>
         {% if picture %}
         <!-- TODO turn CSS styles into class -->
         <img class="csw-login-status--avatar" src="{{ picture }}"/>
         {% endif %}
-        <a class="logout" href="{{ logout_url }}">Logout</a>
+        <a class="logout" href="{{ logout_url }}">Sign out</a>
       </p>
       {% endif %}
     </div>
