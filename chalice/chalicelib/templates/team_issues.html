@@ -19,7 +19,7 @@
 
     {% for account_list in account_issues %}
 
-      <h2 class="govuk-heading-m">{{ account_list.account.account_name }}</h2>
+      <span class="govuk-caption-m">{{ account_list.account.account_name }}</span>
 
       {%- set issues = account_list.resources -%}
       {% include "components/issues_list.html" %}
