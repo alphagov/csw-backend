@@ -295,6 +295,66 @@ gulp.task('environment.database_populate', function() {
                 "active": true,
                 "is_regional": false
             }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"No listener that uses a secure protocol (HTTPS or SSL).",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityNoListener",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "ELB Listener Security: No listener that uses a secure protocol (HTTPS or SSL).",
+                "description": "A load balancer does not have any listeners that use a secure protocol (HTTPS, SSL, etc)",
+                "why_is_it_important": "If the listeners do not use a secure protocol, the requests between your clients and the load balancer are unencrypted and less secure.",
+                "how_do_i_fix_it": "Either add an HTTPS listener with an up-to-date security policy to the ELB, or edit an existing one to use HTTPS. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "active": true,
+                "is_regional": true
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"ELB Listener uses an outadated predefined SSL security policy.",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityPredefinedOutdated",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "ELB Listener uses an outadated predefined SSL security policy.",
+                "description": "The security policy on one of the listeners to a load balancer is outdated.",
+                "why_is_it_important": "The security policy of a listener defines the ciphers and protocols it uses when communicating with the ELB. Policies get updated when protocols are found to be not as secure as once thought, so an outdated security policy may be leave the connection between a listener and an ELB vulnerable.",
+                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "active": true,
+                "is_regional": true
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"An ELB listener uses a cipher or protocol that is not recommended.",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityProtocolDiscouraged",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "An ELB listener uses a cipher or protocol that is not recommended.",
+                "description": "A load balancer uses a cipher or protocol that is not recommended.",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It's important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
+                "how_do_i_fix_it": "Change the security policy on the listener to one that is recommended. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "active": true,
+                "is_regional": true
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"An ELB Listener uses an insecure cipher or protocol.",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityInsecureProtocol",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "ELB Listener Security: Outdated predefined SSL security policy.",
+                "description": "An ELB Listener uses an insecure cipher or protocol.",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It's important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
+                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "active": true,
+                "is_regional": true
+            }
         }
     ]
   };
