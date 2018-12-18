@@ -112,6 +112,30 @@ def database_get_item(event, context):
 
 
 @app.lambda_function()
+def database_get_all_items(event, context):
+    app.log.debug('database_get_all_items function')
+    try:
+        data = []
+        n = 0
+        dbh = DatabaseHandle(app)
+        db = dbh.get_handle()
+        db.connect()
+        model = dbh.get_model(event['Model'])
+        for item in model.select():
+            serialised_record = item.serialize()
+            data.append(serialised_record)
+            n += 1
+            app.log.debug(str(serialised_record))
+        app.log.debug(f'database_get_all_items fetched {n} records')
+        db.close()
+        json_data = app.utilities.to_json(data)
+    except Exception as err:
+        app.log.error(str(err))
+        json_data = None
+    return json_data
+
+
+@app.lambda_function()
 def database_run(event, context):
     try:
         dbh = DatabaseHandle(app)

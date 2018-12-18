@@ -335,7 +335,7 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "An ELB listener uses a cipher or protocol that is not recommended.",
                 "description": "A load balancer uses a cipher or protocol that is not recommended.",
-                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It's important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
                 "how_do_i_fix_it": "Change the security policy on the listener to one that is recommended. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
                 "active": true,
                 "is_regional": true
@@ -350,7 +350,7 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "ELB Listener Security: Outdated predefined SSL security policy.",
                 "description": "An ELB Listener uses an insecure cipher or protocol.",
-                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It's important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
                 "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
                 "active": true,
                 "is_regional": true
