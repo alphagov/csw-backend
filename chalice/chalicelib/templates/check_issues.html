@@ -7,9 +7,9 @@
     {%- set audit = audit_check.account_audit_id -%}
     {% include "components/audit_header.html" %}
 
-    <h2 class="govuk-heading-m">
-      {{ audit_check.criterion_id.criterion_name }}
-    </h2>
+    <p>
+        Check: {{ audit_check.criterion_id.criterion_name }}
+    </p>
 
     {% include "components/issues_list.html" %}
 
