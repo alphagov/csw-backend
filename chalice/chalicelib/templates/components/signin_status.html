@@ -4,7 +4,7 @@
   <p class="govuk-body-s csw-login-status--text"><a class="login" href="{{ login_url }}">Sign in</a></p>
   {% else %}
   <p class="govuk-body-s csw-login-status--text">
-    <span>Signed in as: {{ name }}</span>
+    <span class="csw-login-status--message">Signed in as: {{ name }}</span>
     {% if picture %}
     <!-- TODO turn CSS styles into class -->
     <img class="csw-login-status--avatar" src="{{ picture }}"/>
