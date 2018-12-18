@@ -21,9 +21,6 @@
       <a href="{{ base_path }}" class="govuk-header__link govuk-header__link--service-name">
         Cloud Security Watch
       </a>
-      {% block login %}
-      {% include "components/signin_status.html" %}
-      {% endblock %}
 
       <button role="button" class ="govuk-header__menu-button js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
       <nav>
@@ -35,6 +32,11 @@
             </a>
           </li>
           {% endfor %}
+          {% block login %}
+          <li class="govuk-header__navigation-item govuk-header__navigation-item{{ item.active }}">
+            {% include "components/signin_status.html" %}
+          </li>
+          {% endblock %}
         </ul>
       </nav>
     </div>
