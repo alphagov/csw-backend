@@ -1,12 +1,14 @@
 {% if not email %}
-<p class="govuk-body-s csw-login-status--text"><a class="login" href="{{ login_url }}">Sign in</a></p>
+<span>
+  <a class="govuk-header__link govuk-header__link--signin" href="{{ login_url }}">Sign in</a>
+</span>
 {% else %}
-<p class="govuk-body-s csw-login-status--text">
+<span>
   <span class="csw-login-status--message">Signed in as: {{ name }}</span>
   {% if picture %}
   <!-- TODO turn CSS styles into class -->
   <img class="csw-login-status--avatar" src="{{ picture }}"/>
   {% endif %}
-  <a class="logout" href="{{ logout_url }}">Sign out</a>
-</p>
+  <a class="govuk-header__link govuk-header__link--signout" href="{{ logout_url }}">Sign out</a>
+</span>
 {% endif %}
