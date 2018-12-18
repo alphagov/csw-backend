@@ -26,14 +26,14 @@
       <nav>
         <ul id="navigation" class="govuk-header__navigation " aria-label="Top Level Navigation">
           {% for item in menu %}
-          <li class="govuk-header__navigation-item govuk-header__navigation-item{{ item.active }}">
+          <li class="govuk-header__navigation-item {{ 'govuk-header__navigation-item--active' if item.active }}">
             <a class="govuk-header__link" href="{{ item.link }}">
               {{ item.name }}
             </a>
           </li>
           {% endfor %}
           {% block login %}
-          <li class="govuk-header__navigation-item govuk-header__navigation-item">
+          <li class="govuk-header__navigation-item govuk-header__navigation-item--signin">
             {% include "components/signin_status.html" %}
           </li>
           {% endblock %}
