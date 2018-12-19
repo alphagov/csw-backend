@@ -1,7 +1,6 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">Product Teams</h1>
-        <p>The following teams have been setup to have their AWS accounts monitored.</p>
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
@@ -12,7 +11,7 @@
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
-                {% for team_stats in teams %}
+                {% for team_stats in summaries.teams %}
                 {%- set team = team_stats.team -%}
                 {%- set team_data = team_stats.summary.all -%}
                 <tr class="govuk-table__row">

@@ -1,0 +1,31 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/breadcrumbs.html" %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">
+              <span class="govuk-caption-l">
+              {{ team.team_name }}
+              </span>
+              Team status
+            </h1>
+
+            <p>Issues are grouped by AWS account below.</p>
+        </div>
+    </div>
+
+    {% for account_list in account_issues %}
+
+      <span class="govuk-caption-m">{{ account_list.account.account_name }}</span>
+
+      {%- set issues = account_list.resources -%}
+      {% include "components/issues_list.html" %}
+
+    {% endfor %}
+
+  </main>
+</div>
+{% endblock %}

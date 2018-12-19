@@ -2,9 +2,13 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/intro.html" %}
+
     <h1 class="govuk-heading-l">Access</h1>
-    
-    <p class="govuk-body-s">You are not logged in. You must <a href="{{ login_url }}">login</a> to continue</p>
+    <p class="govuk-body-s">Sign in with your Google account</p>
+    <a href="{{ login_url }}" role="button" class="govuk-button">Sign in</a>
+
+    {% include "components/request_access.html" %}
   </main>
 </div>	
 {% endblock %}

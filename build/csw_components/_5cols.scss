@@ -7,7 +7,7 @@
     border-style: solid;
     */
 
-    margin: 0 -1em 1em -1em;
+    margin: 0 0 1em 0;
 }
 
 .five-columns__column {
@@ -18,30 +18,35 @@
     display: inline-block;
 
     &:first-child .five-columns__column-content {
-        margin-left: 1em;
+        margin-left: 0;
     }
 
     &:last-child .five-columns__column-content {
-        margin-right: 1em;
+        margin-right: 0;
     }
 }
 
 .five-columns__column-content {
     margin: 0.5em;
-    padding: 0.5em;
     /*background-color: #999;*/
-    border-bottom: 2px solid #000;
+    border: 1px solid #000;
     font-weight: bold;
 
     text-align: center;
 
-    .headline-stat {
+    .five-columns__headline-stat {
+        @extend .govuk-body-s;
         font-size: 4em;
         font-weight: lighter;
+        padding: 0.1em;
         margin-bottom: 0;
     }
-    .caption {
-
+    .five-columns__caption {
+        @extend .govuk-body-s;
+        color: govuk-colour("white");
+        padding: 0.5em;
+        margin-bottom: 0;
+        font-weight: bold
     }
 }
 
@@ -50,20 +55,22 @@
     background-color: govuk-colour("grey-3");
     border-color: govuk-colour("black");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat,
+    .five-columns__caption {
         color: govuk-colour("black");
     }
 }
 
 .five-columns__column-content--passed {
     @extend .five-columns__column-content;
-    background-color: lighten(govuk-colour("green"), 60%);
+    background-color: lighten(govuk-colour("green"), 70%);
     border-color: govuk-colour("green");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat {
         color: govuk-colour("green");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("green");
     }
 }
 
@@ -72,9 +79,11 @@
     background-color: lighten(govuk-colour("red"), 60%);
     border-color: govuk-colour("red");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat {
         color: govuk-colour("red");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("red");
     }
 }
 
@@ -83,9 +92,11 @@
     background-color: lighten(govuk-colour("purple"), 60%);
     border-color: govuk-colour("purple");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat {
         color: govuk-colour("purple");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("purple");
     }
 }
 
@@ -94,9 +105,11 @@
     background-color: lighten(govuk-colour("yellow"), 60%);
     border-color: govuk-colour("yellow");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat {
         color: govuk-colour("yellow");
+    }
+    .five-columns__caption {
+        background-color: govuk-colour("yellow");
     }
 }
 
@@ -105,62 +118,10 @@
     background-color: lighten(govuk-colour("blue"), 60%);
     border-color: govuk-colour("blue");
 
-    .headline-stat,
-    .caption {
+    .five-columns__headline-stat {
         color: govuk-colour("blue");
     }
-}
-
-.govuk-table__header--tag-fixed-centred {
-    @extend .govuk-table__header;
-    width: 6em;
-    text-align: center;
-}
-
-.govuk-table__cell--tag-fixed-centred {
-    @extend .govuk-table__cell;
-    width: 6em;
-    text-align: center;
-}
-
-.govuk-tag__fixed-width {
-    @extend .govuk-tag;
-    width: 3em;
-    text-align: center;
-}
-
-.govuk-tag__fixed-width--all {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("blue");
-}
-
-.govuk-tag__fixed-width--tested {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("purple");
-
-}
-
-.govuk-tag__fixed-width--passed,
-.govuk-tag__fixed-width--ignored {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("green");
-
-}
-
-.govuk-tag__fixed-width--failed {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("red");
-
-}
-
-.govuk-tag__fixed-width--not-applicable {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("grey-1");
-
-}
-
-.govuk-tag__fixed-width--issues {
-    @extend .govuk-tag__fixed-width;
-    background-color: govuk-colour("purple");
-
+    .five-columns__caption {
+        background-color: govuk-colour("blue");
+    }
 }

@@ -93,19 +93,14 @@ class TemplateHandler:
 
         return [
             {
-                "name": "Home",
-                "link": f"{root_path}",
-                "active": ('--active' if route == "/" else '')
-            },
-            {
                 "name": "Overview",
                 "link": f"{root_path}/overview",
-                "active": ('--active' if re.match("^\/overview",route) else '')
+                "active": re.match("^\/overview",route)
             },
             {
                 "name": "Product Teams",
                 "link": f"{root_path}/team",
-                "active": ('--active' if re.match("^\/team",route) else '')
+                "active": re.match("^\/team",route)
             }
         ]
 

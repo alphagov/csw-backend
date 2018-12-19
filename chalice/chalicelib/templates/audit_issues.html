@@ -4,13 +4,9 @@
   <main class="govuk-main-wrapper " id="main-content" role="main">
     {% include "components/breadcrumbs.html" %}
 
-    <h1 class="govuk-heading-l">{{ team.team_name }} Team Dashboard</h1>
+    {% include "components/audit_header.html" %}
 
-    {% include "components/team_stats.html" %}
-
-    {% include "components/check_results.html" %}
-
-    {% include "components/failed_resources.html" %}
+    {% include "components/issues_list.html" %}
 
   </main>
 </div>

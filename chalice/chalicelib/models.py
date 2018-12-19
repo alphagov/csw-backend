@@ -33,6 +33,40 @@ class User(database_handle.BaseModel):
 
         return user
 
+    def get_overview_data(self):
+        """
+        Retrieve overview data about the status of all accounts monitored by CSW
+        accessible by the current user
+        :return:
+        """
+        # TODO replace this with a select based on user access team roles
+        teams = ProductTeam.select().where(ProductTeam.active == True)
+
+        overview_stats = {
+            "accounts_audited": 0,
+            "accounts_unaudited": 0,
+            "accounts_passed": 0,
+            "accounts_failed": 0,
+            "accounts_inactive": 0,
+            "issues_found": 0
+        }
+        team_summaries = []
+        for team in teams:
+            team_stats = team.get_team_stats()
+            team_data = {
+                "team": team.serialize(),
+                "summary": team_stats
+            }
+            for stat in overview_stats:
+                overview_stats[stat] += team_stats["all"][stat]
+            team_summaries.append(team_data)
+
+        overview_data = {
+            "all": overview_stats,
+            "teams": team_summaries
+        }
+        return overview_data
+
 
 class UserSession(database_handle.BaseModel):
     """
@@ -156,6 +190,13 @@ class ProductTeam(database_handle.BaseModel):
         unaudited_accounts = []
         for account in team_accounts:
             app.log.debug(account.account_name)
+        account_stats = {
+            "accounts_audited": 0,
+            "accounts_unaudited": 0,
+            "accounts_passed": 0,
+            "accounts_failed": 0,
+            "accounts_inactive": 0
+        }
         team_stats = {
             "active_criteria": 0,
             "criteria_processed": 0,
@@ -173,20 +214,33 @@ class ProductTeam(database_handle.BaseModel):
                     latest_data = latest.serialize()
                     app.log.debug("Latest audit: " + app.utilities.to_json(latest_data))
                     account_data = account.serialize()
-                    account_audits.append({
+                    account_passed = (latest.criteria_failed == 0)
+                    account_status = {
                         "account": account_data,
-                        "stats": latest_data
-                    })
+                        "stats": latest_data,
+                        "passed": account_passed
+                    }
+                    account_audits.append(account_status)
+                    account_stats["accounts_audited"] += 1
+                    if account_passed:
+                        account_stats["accounts_passed"] += 1
+                    else:
+                        account_stats["accounts_failed"] += 1
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
                 else:
                     app.log.error("Latest audit not found for account: " + str(account.id))
+                    account_stats["accounts_unaudited"] += 1
                     unaudited_accounts.append({
                         "account": account.serialize()
                     })
+            else:
+                account_stats["accounts_inactive"] += 1
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
+        # add account stats to team stats dictionary
+        team_stats.update(account_stats)
         return {
-            "team": team_stats,
+            "all": team_stats,
             "accounts": account_audits,
             "unaudited_accounts": unaudited_accounts
         }
@@ -239,6 +293,14 @@ class ProductTeam(database_handle.BaseModel):
 
                         latest = account.get_latest_audit()
                         if latest is not None:
+                            # account_stats = latest.get_stats()
+                            # account_data.append({
+                            #     "account_subscription": account.serialize(),
+                            #     "stats": account_stats
+                            # })
+                            # for stat in team_stats:
+                            #     team_stats[stat] += account_stats[stat]
+
                             audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
                             for audit_criterion in audit_criteria:
                                 app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
@@ -339,6 +401,57 @@ class AccountAudit(database_handle.BaseModel):
         except Exception as err:
             self.app.log.error("Failed to get audit failed resources: " + str(err))
             return []
+
+    def get_issues_list(self):
+        account_issues = self.get_audit_failed_resources()
+        issues_list = []
+        if len(account_issues) > 0:
+            for compliance in account_issues:
+                audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                status = Status.get_by_id(compliance.status_id)
+                issues_list.append({
+                    "compliance": compliance.serialize(),
+                    "resource": audit_resource.serialize(),
+                    "criterion": criterion.serialize(),
+                    "status": status.serialize()
+                })
+
+        return issues_list
+
+    def get_stats(self):
+
+        audit_stats = {
+            "resources": 0,
+            "tested": 0,
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0
+        }
+        criteria_stats = []
+        try:
+            audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == self.id)
+            for audit_criterion in audit_criteria:
+                criterion = Criterion.select().where(Criterion.id == audit_criterion.criterion_id.id)
+                app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
+                if criterion is not None:
+
+                    audit_criterion_stats = audit_criterion.serialize()
+                    # Add to stats totals for audit
+                    for stat in audit_stats:
+                        audit_stats[stat] += audit_criterion_stats[stat]
+
+                    # Append criteria stats with current check results
+                    criteria_stats.append(audit_criterion_stats)
+
+        except Exception as err:
+            app.log.debug("Catch generic exception from get_stats: " + str(err))
+
+        stats = {
+            "audit": audit_stats,
+            "criteria": criteria_stats
+        }
+        return stats
 
 
 class AccountLatestAudit(database_handle.BaseModel):
@@ -455,6 +568,41 @@ class AuditCriterion(database_handle.BaseModel):
 
     class Meta:
         table_name = "audit_criterion"
+
+    def get_failed_resources(self):
+        account_audit_id = self.account_audit_id
+
+        try:
+            criterion = self.criterion_id
+
+            return (ResourceCompliance.select()
+                .join(AuditResource)
+                .where(
+                    AuditResource.criterion_id == criterion.id,
+                    AuditResource.account_audit_id == account_audit_id,
+                    ResourceCompliance.status_id == 3
+                )
+            )
+        except Exception as err:
+            self.app.log.error("Failed to get audit failed resources: " + str(err))
+            return []
+
+    def get_issues_list(self):
+        account_issues = self.get_failed_resources()
+        issues_list = []
+        if len(account_issues) > 0:
+            for compliance in account_issues:
+                audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                criterion = Criterion.get_by_id(audit_resource.criterion_id)
+                status = Status.get_by_id(compliance.status_id)
+                issues_list.append({
+                    "compliance": compliance.serialize(),
+                    "resource": audit_resource.serialize(),
+                    "criterion": criterion.serialize(),
+                    "status": status.serialize()
+                })
+
+        return issues_list
 
 
 # This is where we store the results of quering the API

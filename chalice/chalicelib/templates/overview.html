@@ -2,17 +2,18 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    <div class="govuk-breadcrumbs">
-      <ol class="govuk-breadcrumbs__list">
-        <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="{{base_path}}/">Home</a>
-        </li>
-      </ol>
-    </div>
+    {% include "components/breadcrumbs.html" %}
 
     <h1 class="govuk-heading-l">Overview</h1>
+    <p class="govuk-body-s">
+      This view is currently intended to become an internal only view.
+    </p>
 
-    {% include "components/check_results.html" %}
+    {# include "components/check_results.html" #}
+
+    {% include "components/overview_status.html" %}
+
+    {% include "components/overview_teams.html" %}
 
   </main>
 </div>

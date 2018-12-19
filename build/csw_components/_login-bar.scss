@@ -2,20 +2,25 @@
     a.login,
     a.logout {
         color: govuk-colour("white");
+        font-weight: bold;
         &:hover,
         &:active {
             color: govuk-colour("grey-3");
         }
     }
+    .csw-login-status--message {
+        color: govuk-colour("white");
+        font-weight: bold;
+    }
 }
 
+.govuk-header__navigation-item {
+    line-height: 2em;
+}
+
+.govuk-header__navigation-item--signin,
 .csw-login-status {
     float: right;
-
-}
-
-.csw-login-status--text {
-    line-height: 2em;
 }
 
 .csw-login-status--avatar {

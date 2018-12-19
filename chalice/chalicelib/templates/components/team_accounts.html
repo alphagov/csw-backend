@@ -1,0 +1,57 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <p>The following AWS accounts are being audited for this team.</p>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+       <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Name</th>
+                    <th class="govuk-table__header">Date Audited</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Issues</th>
+                    <th class="govuk-table__header">Details</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for account_audit in team_summary.accounts %}
+                {%- set item = account_audit.stats -%}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
+                    <td class="govuk-table__cell">{{ item.date_completed | datetime }}</td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <strong class="{{ 'govuk-tag__fixed-width--passed' if account_audit.passed else 'govuk-tag__fixed-width--failed' }}">
+                            {{ "Pass" if account_audit.passed else "Fail" }}
+                        </strong>
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        {%- if item.issues_found > 0 -%}
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/issues">
+                            {{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}
+                        </a>
+                        {%- else -%}
+                        0 issues
+                        {%- endif -%}
+                    </td>
+                    <td class="govuk-table__cell">
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status" role="button" class="csw-team-list__cta-button">
+                            View details
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% for account_audit in team_summary.unaudited_accounts %}
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
+                    <td class="govuk-table__cell">None</td>
+                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell"/>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

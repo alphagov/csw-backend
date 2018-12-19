@@ -1,0 +1,55 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/breadcrumbs.html" %}
+
+    {%- set audit = audit_check.account_audit_id -%}
+    {% include "components/audit_header.html" %}
+
+    <!--div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">
+                            Check
+                        </th>
+                        <td class="govuk-table__cell">
+                          {{ audit_check.criterion_id.criterion_name }}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">
+                            Check
+                        </th>
+                        <td class="govuk-table__cell">
+                            {{ audit_check.criterion_id.description|safe }}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">
+                            Why is it important?
+                        </th>
+                        <td class="govuk-table__cell">
+                          {{ audit_check.criterion_id.why_is_it_important|safe }}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">
+                            How do I fix it?
+                        </th>
+                        <td class="govuk-table__cell">
+                          {{ audit_check.criterion_id.how_do_i_fix_it|safe }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div-->
+
+    {% include "components/issues_list.html" %}
+
+  </main>
+</div>
+{% endblock %}

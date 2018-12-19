@@ -1,0 +1,24 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/breadcrumbs.html" %}
+
+    <h1 class="govuk-heading-l">
+      <span class="govuk-caption-l">
+      {{ team.team_name }}
+      </span>
+      Team status
+    </h1>
+
+    {% include "components/team_status.html" %}
+
+    <h2 class="govuk-heading-m">
+      Team accounts
+    </h2>
+
+    {% include "components/team_accounts.html" %}
+
+  </main>
+</div>
+{% endblock %}

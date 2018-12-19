@@ -1,0 +1,49 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-m">Issues</h2>
+        <p>We have detected the following issues with this account.</p>
+
+        <p>The details page shows information about why this has been flagged,
+            how important we think it is
+            and what we recommend you should do about it.</p>
+    </div>
+</div>
+{%- for issue in issues -%}
+<div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
+    <div class="govuk-grid-column-two-thirds">
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Resource</th>
+                    <td class="govuk-table__cell">
+                        {{ issue.resource.resource_name }}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">ID</th>
+                    <td class="govuk-table__cell">
+                        {% if issue.resource.resource_name != issue.resource.resource_id %}
+                        {{ issue.resource.resource_id }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Region</th>
+                    <td class="govuk-table__cell">{{ issue.resource.region }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Check</th>
+                    <td class="govuk-table__cell">{{ issue.criterion.criterion_name }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Reason</th>
+                    <td class="govuk-table__cell">{{ issue.compliance.annotation | safe }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="govuk-grid-column-one-third">
+        <a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a>
+    </div>
+</div>
+{%- endfor -%}

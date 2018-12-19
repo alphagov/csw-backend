@@ -5,8 +5,8 @@
             {%- set item = stats[key] -%}
             <div class="five-columns__column">
               <div class="five-columns__column-content--{{ item.modifier_class }}">
-                  <p class="headline-stat">{{ item.display_stat }}</p>
-                  <p class="caption">{{ item.category | title }}</p>
+                  <p class="five-columns__headline-stat">{{ item.display_stat }}</p>
+                  <div class="five-columns__caption">{{ item.category | title }}</div>
               </div>
             </div>
             {%- endfor -%}

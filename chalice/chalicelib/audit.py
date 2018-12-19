@@ -197,10 +197,11 @@ def account_evaluate_criteria(event):
                 audit_criterion.regions = summary['regions']['count']
                 audit_criterion.save()
                 # Only update the processed stat if the assume was successful
-                audit.criteria_processed += 1
 
-            audit.date_updated = datetime.now()
+                status = True
+
             message_data = audit_criterion.serialize()
+            message_data['processed'] = status
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role
             # message_data['assume_failed'] = (session is None)
@@ -209,7 +210,8 @@ def account_evaluate_criteria(event):
                 queue_url,
                 message_body
             )  # TODO: unecessary assignment?
-            status = True
+
+
     except Exception as err:
         app.log.error(str(err))
     return status
@@ -224,6 +226,9 @@ def audit_evaluated_metric(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
+            if audit_criteria_data['processed']:
+                audit.criteria_processed += 1
+
             if (audit_criteria_data['failed'] > 0):
                 audit.criteria_failed += 1
                 audit.issues_found += audit_criteria_data['failed']
