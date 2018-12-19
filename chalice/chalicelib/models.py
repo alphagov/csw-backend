@@ -359,6 +359,20 @@ class AccountSubscription(database_handle.BaseModel):
             app.log.debug("Catch generic exception from get_latest_audit: " + str(err))
         return latest
 
+    def get_audit_history(self):
+        account_id = self.id
+        try:
+            audit_history = (AccountAudit
+                .select()
+                .where(AccountAudit.account_subscription_id == account_id))
+        except peewee.DoesNotExist as err:
+            audit_history = []
+            app.log.debug("Failed to get audit history: " + str(err))
+        except Exception as err:
+            audit_history = []
+            app.log.debug("Catch generic exception from get_audit_history: " + str(err))
+        return audit_history
+
 
 # When an audit is triggered an audit record is created which
 # counts each criteria as it is measured so that we know
