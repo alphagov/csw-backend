@@ -17,20 +17,22 @@
                 <th class="govuk-table__header">Audit date</th>
                 <th class="govuk-table__header">Completion</th>
                 <th class="govuk-table__header">Status</th>
+                <th class="govuk-table__header">Resources</th>
                 <th class="govuk-table__header">Issues</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
-            {% for audit in audit_history %}
+            {% for audit_data in audit_history %}
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">{{ (audit.date_completed if audit.date_completed else audit_date_updated) | datetime }}</td>
-                <td class="govuk-table__cell">{{ "Completed" if audit.date_completed else "Incomplete" }}</td>
+                <td class="govuk-table__cell">{{ (audit_data.audit.date_completed if audit_data.audit.date_completed else audit_data.audit.date_updated) | datetime }}</td>
+                <td class="govuk-table__cell">{{ "Completed" if audit_data.audit.date_completed else "Incomplete" }}</td>
                 <td class="govuk-table__cell--tag-fixed-centred">
                     <strong class="{{ 'govuk-tag__fixed-width--passed' if (audit.issues_found == 0) else 'govuk-tag__fixed-width--failed' }}">
-                        {{ "Pass" if (audit.issues_found == 0) else "Fail" }}
+                        {{ "Pass" if (audit_data.audit.issues_found == 0) else "Fail" }}
                     </strong>
                 </td>
-                <td class="govuk-table__cell--integer">{{ audit.issues_Found }}</td>
+                <td class="govuk-table__cell--integer">{{ audit_data.stats.resources }}</td>
+                <td class="govuk-table__cell--integer">{{ audit_data.audit.issues_found }}</td>
             </tr>
             {% endfor %}
         </tbody>

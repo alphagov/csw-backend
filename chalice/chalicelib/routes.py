@@ -325,10 +325,14 @@ def account_history(id):
         account = models.AccountSubscription.get_by_id(account_id)
         team = account.product_team_id
         audit_history = account.get_audit_history()
-        history_data = models.AccountAudit.serialize_list(audit_history)
-        for audit in history_data:
+        history_data = []
+        for audit in audit_history:
             audit_stats = audit.get_stats()
-            audit["stats"] = audit_stats
+            history_data.append({
+                "audit": audit.serialize(),
+                "stats": audit_stats
+            })
+
         template_data = {
             "breadcrumbs": [
                 {
