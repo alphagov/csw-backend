@@ -364,7 +364,8 @@ class AccountSubscription(database_handle.BaseModel):
         try:
             audit_history = (AccountAudit
                 .select()
-                .where(AccountAudit.account_subscription_id == account_id))
+                .where(AccountAudit.account_subscription_id == account_id)
+                .order_by(AccountAudit.date_started.desc()))
         except peewee.DoesNotExist as err:
             audit_history = []
             app.log.debug("Failed to get audit history: " + str(err))
