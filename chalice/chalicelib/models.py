@@ -362,9 +362,14 @@ class AccountSubscription(database_handle.BaseModel):
     def get_audit_history(self):
         account_id = self.id
         try:
+            show_last_n_days = 30
+            time_limit = datetime.datetime.now() - datetime.timedelta(days=show_last_n_days)
             audit_history = (AccountAudit
                 .select()
-                .where(AccountAudit.account_subscription_id == account_id)
+                .where(
+                    AccountAudit.account_subscription_id == account_id,
+                    AccountAudit.date_started >= time_limit
+                )
                 .order_by(AccountAudit.date_started.desc()))
         except peewee.DoesNotExist as err:
             audit_history = []
