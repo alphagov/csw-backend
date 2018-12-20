@@ -244,9 +244,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_iam_access_key_rotation.AwsIamAccessKeyRotationYellow",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "IAM Access Key Rotation Yellow",
-                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 90 days",
-                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account.",
-                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. To rotate access keys, it is recommended to follow these steps: 1) Create a second access key in addition to the one in use. 2) Update all your applications to use the new access key and validate that the applications are working. 3) Change the state of the previous access key to inactive. 4) Validate that your applications are still working as expected. 5) Delete the inactive access key.",
+                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 90 days<br />",
+                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account<br />.",
+                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. <br />To rotate access keys, it is recommended to follow these steps: <br />1) Create a second access key in addition to the one in use. <br />2) Update all your applications to use the new access key and validate that the applications are working. <br />3) Change the state of the previous access key to inactive. <br />4) Validate that your applications are still working as expected. <br />5) Delete the inactive access key.<br />",
                 "active": true,
                 "is_regional": false
             }
@@ -259,9 +259,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_iam_access_key_rotation.AwsIamAccessKeyRotationRed",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "IAM Access Key Rotation Red",
-                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 2 years",
-                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account.",
-                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. To rotate access keys, it is recommended to follow these steps: 1) Create a second access key in addition to the one in use. 2) Update all your applications to use the new access key and validate that the applications are working. 3) Change the state of the previous access key to inactive. 4) Validate that your applications are still working as expected. 5) Delete the inactive access key.",
+                "description": "At least one active Identity and Access Management (IAM) access key has not been rotated in the last 2 years<br />",
+                "why_is_it_important": "Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of access keys can be used without your knowledge to access certain components within your AWS account.<br />",
+                "how_do_i_fix_it": "Ensure that all your IAM user access keys are rotated at least every 90 days in order to decrease the likelihood of accidental exposures and protect your AWS resources against unauthorized access. <br />To rotate access keys, it is recommended to follow these steps: <br />1) Create a second access key in addition to the one in use. <br />2) Update all your applications to use the new access key and validate that the applications are working. <br />3) Change the state of the previous access key to inactive. <br />4) Validate that your applications are still working as expected. <br />5) Delete the inactive access key.<br />",
                 "active": true,
                 "is_regional": false
             }
@@ -274,9 +274,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_exposed_key.AwsIamPotentiallyExposedAccessKey",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Potentially Exposed Access Keys",
-                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.",
-                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.",
-                "how_do_i_fix_it": "Delete the affected access key, and generate a new one for the user or application. Please follow the below recommendations accordingly: - DELETE THE KEY (for IAM users): Navigate to your IAM Users list in the AWS Management Console, here: https://console.aws.amazon.com/iam/home#users . Please select the IAM user identified above. Click on the \"User Actions\" drop-down menu and then click \"Manage Access Keys\" to show that users active Access Keys. - ROTATE THE KEY (for applications) If your application uses the access key, you need to replace the exposed key with a new one. To do this, first create a second key (at that point both keys will be active) and modify your application to use the new key. Then disable (but do not delete) the first key. If there are any problems with your application, you can make the first key active again. When your application is fully functional with the first key inactive, please delete the first key. We strongly encourage you to immediately review your AWS account for any unauthorized AWS usage, suspect running instances, or inappropriate IAM users and policies. To review any unauthorized access, please inspect CloudTrail logs to see what was done with the access key while it was leaked and also Investigate how the access key was leaked, and take steps to prevent it from happening again.",
+                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.<br />",
+                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. <br />If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.<br />",
+                "how_do_i_fix_it": "Delete the affected access key, and generate a new one for the user or application. <br />Please follow the below recommendations accordingly: <br />- DELETE THE KEY (for IAM users): Navigate to your IAM Users list in the AWS Management Console, <a href=\"https://console.aws.amazon.com/iam/home#users\">here</a>. Please select the IAM user identified above. Click on the \"User Actions\" drop-down menu and then click \"Manage Access Keys\" to show that users active Access Keys. <br />- ROTATE THE KEY (for applications) If your application uses the access key, you need to replace the exposed key with a new one. To do this, first create a second key (at that point both keys will be active) and modify your application to use the new key. Then disable (but do not delete) the first key. If there are any problems with your application, you can make the first key active again. When your application is fully functional with the first key inactive, please delete the first key. We strongly encourage you to immediately review your AWS account for any unauthorized AWS usage, suspect running instances, or inappropriate IAM users and policies. To review any unauthorized access, please inspect CloudTrail logs to see what was done with the access key while it was leaked and also Investigate how the access key was leaked, and take steps to prevent it from happening again.<br />",
                 "active": true,
                 "is_regional": false
             }
@@ -289,8 +289,8 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_exposed_key.AwsIamSuspectedExposedAccessKey",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Suspected Exposed Access Keys",
-                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.",
-                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.",
+                "description": "An AWS Access Key ID and corresponding secret key were found on popular code repositories, or there is irregular EC2 usage that indicates that an access key has been compromised.<br />",
+                "why_is_it_important": "Access keys are what allow AWS users to authenticate themselves so that they can make use of certain functions within AWS, such as making API calls, or using the AWS command line interface to query the account, make or remove resources, and so on. <br />If these access keys are leaked, attackers may gain a better understanding of how your account is structured, and they may steal and/or vandalise data within your account.<br />",
                 "how_do_i_fix_it": "Alert not actionable.",
                 "active": true,
                 "is_regional": false
@@ -304,9 +304,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityNoListener",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "ELB Listener Security: No listener that uses a secure protocol (HTTPS or SSL).",
-                "description": "A load balancer does not have any listeners that use a secure protocol (HTTPS, SSL, etc)",
-                "why_is_it_important": "If the listeners do not use a secure protocol, the requests between your clients and the load balancer are unencrypted and less secure.",
-                "how_do_i_fix_it": "Either add an HTTPS listener with an up-to-date security policy to the ELB, or edit an existing one to use HTTPS. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "description": "A load balancer does not have any listeners that use a secure protocol (HTTPS, SSL, etc)<br />",
+                "why_is_it_important": "If the listeners do not use a secure protocol, the requests between your clients and the load balancer are unencrypted and less secure.<br />",
+                "how_do_i_fix_it": "Either add an HTTPS listener with an up-to-date security policy to the ELB, or edit an existing one to use HTTPS. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -319,9 +319,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityPredefinedOutdated",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "ELB Listener uses an outadated predefined SSL security policy.",
-                "description": "The security policy on one of the listeners to a load balancer is outdated.",
-                "why_is_it_important": "The security policy of a listener defines the ciphers and protocols it uses when communicating with the ELB. Policies get updated when protocols are found to be not as secure as once thought, so an outdated security policy may be leave the connection between a listener and an ELB vulnerable.",
-                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "description": "The security policy on one of the listeners to a load balancer is outdated.<br />",
+                "why_is_it_important": "The security policy of a listener defines the ciphers and protocols it uses when communicating with the ELB. <br />Policies get updated when protocols are found to be not as secure as once thought, so an outdated security policy may be leave the connection between a listener and an ELB vulnerable.<br />",
+                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -334,9 +334,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityProtocolDiscouraged",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "An ELB listener uses a cipher or protocol that is not recommended.",
-                "description": "A load balancer uses a cipher or protocol that is not recommended.",
-                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
-                "how_do_i_fix_it": "Change the security policy on the listener to one that is recommended. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "description": "A load balancer uses a cipher or protocol that is not recommended.<br />",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. <br />It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.<br />",
+                "how_do_i_fix_it": "Change the security policy on the listener to one that is recommended. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -349,9 +349,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_elb_listener_security.ELBListenerSecurityInsecureProtocol",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "ELB Listener Security: Outdated predefined SSL security policy.",
-                "description": "An ELB Listener uses an insecure cipher or protocol.",
-                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.",
-                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. Further instructions and information can be found here: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html",
+                "description": "An ELB Listener uses an insecure cipher or protocol.<br />",
+                "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. <br />It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.<br />",
+                "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -364,9 +364,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketReadAll",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "S3 Bucket Permissions: The bucket ACL allows List access for Everyone or Any Authenticated AWS User",
-                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
-                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. that they are closed to everyone outside of GDS.",
-                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.<br />",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure that they are closed to everyone outside of GDS.<br />",
+                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -379,9 +379,9 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketOpenAccess",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "S3 Bucket Permissions:  A bucket policy allows any kind of open access.",
-                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
-                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. that they are closed to everyone outside of GDS.",
-                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.<br />",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure that they are closed to everyone outside of GDS.<br />",
+                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.<br />",
                 "active": true,
                 "is_regional": true
             }
@@ -394,8 +394,8 @@ gulp.task('environment.database_populate', function() {
                 "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketWriteAll",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "S3 Bucket Permissions: The bucket ACL allows Upload/Delete access for Everyone or Any Authenticated AWS User",
-                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
-                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. Therefore it’s vital to secure all S3 buckets by making sure  that they are closed to everyone outside of GDS",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.<br />",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure  that they are closed to everyone outside of GDS.<br />",
                 "how_do_i_fix_it": "",
                 "active": true,
                 "is_regional": true
