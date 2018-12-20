@@ -1,14 +1,14 @@
 <h1 class="govuk-heading-l">What is this for?</h1>
-<p>
+<p class="govuk-body-s">
   Cloud Security Watch is a tool for highlighting
   security configuration issues in AWS.
 </p>
-<p>
+<p class="govuk-body-s">
   Examples of these things are security groups
   with critical ports open to the outside world or S3 buckets
   with read/write access open to anyone.
 </p>
-<p>
+<p class="govuk-body-s">
   The aims of Cloud Security Watch are:
 </p>
 <ul class="govuk-list">
@@ -17,11 +17,17 @@
   <li>To remove false positives and allow for recording known exceptions</li>
 </ul>
 <h2 class="govuk-heading-m">Principle of least privilege</h2>
-<p>To use the tool you have to grant us access to read your account configuration.
-You do that by creating a role in IAM which trusts the lambda functions which run
-our audit.</p>
-<p>The role is defined to have the smallest set of permissions that allow it to run.
-Generally those permissions all come from the read-only (Get, List, Describe) API
-endpoints.</p>
-<p>You can read the details of the granted permissions and how to set up a role to
-enable the service using terraform on [GitHub](https://github.com/alphagov/csw-client-role).</p>
+<p class="govuk-body-s">
+  To use the tool you have to grant us access to read your account configuration.
+  You do that by creating a role in IAM which trusts the lambda functions which run
+  our audit.
+</p>
+<p class="govuk-body-s">
+  The role is defined to have the smallest set of permissions that allow it to run.
+  Generally those permissions all come from the read-only (Get, List, Describe) API
+  endpoints.
+</p>
+<p class="govuk-body-s">
+  You can read the details of the granted permissions and how to set up a role to
+  enable the service using terraform on [GitHub](https://github.com/alphagov/csw-client-role).
+</p>
