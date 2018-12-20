@@ -14,6 +14,12 @@
         <table class="govuk-table">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Status</th>
+                    <td class="govuk-table__cell">
+                        <strong class="govuk-tag__fixed-width--failed">{{ item.status.status_name }}</strong>
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
                     <th class="govuk-table__header">Resource</th>
                     <td class="govuk-table__cell">
                         {{ issue.resource.resource_name }}
@@ -41,8 +47,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-    <div class="govuk-grid-column-one-third">
         <a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a>
     </div>
 </div>

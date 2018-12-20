@@ -14,6 +14,13 @@
     }
 }
 
+.govuk-header__content--full-width {
+    @include mq ($from: desktop) {
+      width: 100%;
+      float: left;
+    }
+}
+
 .govuk-header__navigation-item {
     line-height: 2em;
 }
