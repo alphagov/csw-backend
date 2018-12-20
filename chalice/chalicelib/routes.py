@@ -243,6 +243,11 @@ def account_status(id):
                 ],
                 "audit": latest.serialize(),
                 "status": {
+                    "audit_completed": {
+                        "display_stat": ("Yes" if latest.date_completed else "No"),
+                        "category": "Checks Passed",
+                        "modifier_class": "passed" if latest.date_completed > 0 else "failed"
+                    },
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
                         "category": "Checks Passed",
@@ -388,6 +393,11 @@ def account_status(id, audit_id):
                 ],
                 "audit": audit.serialize(),
                 "status": {
+                    "audit_completed": {
+                        "display_stat": ("Yes" if audit.date_completed else "No"),
+                        "category": "Checks Passed",
+                        "modifier_class": "passed" if audit.date_completed > 0 else "failed"
+                    },
                     "checks_passed": {
                         "display_stat": audit.criteria_passed,
                         "category": "Checks Passed",
