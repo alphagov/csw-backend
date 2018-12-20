@@ -355,6 +355,51 @@ gulp.task('environment.database_populate', function() {
                 "active": true,
                 "is_regional": true
             }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"The bucket ACL allows List access for Everyone or Any Authenticated AWS User",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketReadAll",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "S3 Bucket Permissions: The bucket ACL allows List access for Everyone or Any Authenticated AWS User",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. that they are closed to everyone outside of GDS.",
+                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.",
+                "active": true,
+                "is_regional": true
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":" A bucket policy allows any kind of open access.",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketOpenAccess",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "S3 Bucket Permissions:  A bucket policy allows any kind of open access.",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. that they are closed to everyone outside of GDS.",
+                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.",
+                "active": true,
+                "is_regional": true
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"The bucket ACL allows Upload/Delete access for Everyone or Any Authenticated AWS User",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_s3_bucket_permissions.S3BucketWriteAll",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "S3 Bucket Permissions: The bucket ACL allows Upload/Delete access for Everyone or Any Authenticated AWS User",
+                "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
+                "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. Therefore it’s vital to secure all S3 buckets by making sure  that they are closed to everyone outside of GDS",
+                "how_do_i_fix_it": "",
+                "active": true,
+                "is_regional": true
+            }
         }
     ]
   };
