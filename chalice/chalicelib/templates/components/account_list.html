@@ -15,10 +15,10 @@
                 {% for account in accounts %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">{{ account.account_name }}</td>
-                    <td class="govuk-table__cell--integer">{{ account.account_id }}</td>
+                    <td class="govuk-table__cell--numeric">{{ account.account_id }}</td>
                     <td class="govuk-table__cell">{{ account.active }}</td>
                     <td class="govuk-table__cell">{{ account.account_latest_audit.account_audit_id,date_completed }}</td>
-                    <td class="govuk-table__cell--integer">{{ account.account_latest_audit.account_audit_id.issues_Found }}</td>
+                    <td class="govuk-table__cell--numeric">{{ account.account_latest_audit.account_audit_id.issues_Found }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
