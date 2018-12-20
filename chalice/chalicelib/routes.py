@@ -368,7 +368,7 @@ def account_status(id, audit_id):
         load_route_services()
         account = models.AccountSubscription.get_by_id(account_id)
         audit = models.AccountAudit.get_by_id(audit_id)
-        team = account.team_id
+        team = account.product_team_id
         if audit is not None:
             audit_stats = audit.get_stats()
             template_data = {
