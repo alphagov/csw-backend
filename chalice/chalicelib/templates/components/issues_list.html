@@ -45,9 +45,17 @@
                     <th class="govuk-table__header">Reason</th>
                     <td class="govuk-table__cell">{{ issue.compliance.annotation | safe }}</td>
                 </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">How do I fix it?</th>
+                    <td class="govuk-table__cell">{{ issue.criterion.how_do_i_fix_it | safe }}</td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Why is it important?</th>
+                    <td class="govuk-table__cell">{{ issue.criterion.why_is_it_important | safe }}</td>
+                </tr>
             </tbody>
         </table>
-        <a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a>
+        <!--a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a-->
     </div>
 </div>
 {%- endfor -%}
