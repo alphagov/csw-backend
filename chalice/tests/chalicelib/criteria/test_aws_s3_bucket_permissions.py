@@ -41,7 +41,7 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
-                if key == 'non_applicable':
+                if key in ['compliant', 'non_applicable', ]:
                     self.assertEqual(len(item), 0, msg='data must be a list with no elements')
                 else:
                     self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
