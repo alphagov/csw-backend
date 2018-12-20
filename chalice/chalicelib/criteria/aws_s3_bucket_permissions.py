@@ -119,7 +119,20 @@ class S3BucketOpenAccess(S3BucketPermissions):
         super(S3BucketOpenAccess, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
-        pass
+        compliance_type = 'NON_COMPLIANT'
+        if item["metadata"][6] == 'Yes':
+            self.annotation = (
+                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy has open access.'
+            )
+        else:
+            compliance_type = 'COMPLIANT'
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
 
 
 class S3BucketWriteAll(S3BucketPermissions):
