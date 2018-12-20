@@ -3,6 +3,7 @@ implements aws::s3::bucket_permissions
 checkId: Pfx0RwqBli
 Checks on the S3 bucket permissions that can potentially compromise files.
 """
+import json
 
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_support_client import GdsSupportClient
@@ -28,10 +29,19 @@ class S3BucketPermissions(CriteriaDefault):
         super(S3BucketPermissions, self).__init__(app)
 
     def get_data(self, session, **kwargs):
-        pass
+        output = self.client.describe_trusted_advisor_check_result(
+            session,
+            checkId=self.check_id,
+            language=self.language
+        )
+        self.app.log.debug(json.dumps(output))
+        return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
 
     def translate(self, data={}):
-        pass
+        return {
+            'resource_id': 'root',
+            'resource_name': 'Root Account',
+        }
 
 
 class S3BucketReadAll(S3BucketPermissions):
