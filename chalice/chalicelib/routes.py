@@ -254,14 +254,14 @@ def account_status(id):
                         "modifier_class": "passed" if latest.criteria_failed == 0 else "failed"
                     },
                     "resources_passed": {
-                        "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
+                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
                         "category": "Resources Passed",
-                        "modifier_class": "passed" if (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]) > 0 else "failed"
+                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
                     },
                     "resources_failed": {
-                        "display_stat": audit_stats["audit"]["failed"],
+                        "display_stat": audit_stats["all"]["failed"],
                         "category": "Resources Failed",
-                        "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
+                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
                     }
                 },
                 "audit_stats": audit_stats
@@ -399,14 +399,14 @@ def account_status(id, audit_id):
                         "modifier_class": "passed" if audit.criteria_failed == 0 else "failed"
                     },
                     "resources_passed": {
-                        "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
+                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
                         "category": "Resources Passed",
-                        "modifier_class": "passed" if (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]) > 0 else "failed"
+                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
                     },
                     "resources_failed": {
-                        "display_stat": audit_stats["audit"]["failed"],
+                        "display_stat": audit_stats["all"]["failed"],
                         "category": "Resources Failed",
-                        "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
+                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
                     }
                 },
                 "audit_stats": audit_stats

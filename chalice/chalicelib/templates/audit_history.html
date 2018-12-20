@@ -31,7 +31,7 @@
                         {{ "Pass" if (audit_data.audit.issues_found == 0) else "Fail" }}
                     </strong>
                 </td>
-                <td class="govuk-table__cell--integer">{{ audit_data.stats.resources }}</td>
+                <td class="govuk-table__cell--integer">{{ audit_data.stats.all.resources }}</td>
                 <td class="govuk-table__cell--integer">{{ audit_data.audit.issues_found }}</td>
             </tr>
             {% endfor %}

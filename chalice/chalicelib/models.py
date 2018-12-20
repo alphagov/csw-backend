@@ -463,7 +463,7 @@ class AccountAudit(database_handle.BaseModel):
             app.log.debug("Catch generic exception from get_stats: " + str(err))
 
         stats = {
-            "audit": audit_stats,
+            "all": audit_stats,
             "criteria": criteria_stats
         }
         return stats
