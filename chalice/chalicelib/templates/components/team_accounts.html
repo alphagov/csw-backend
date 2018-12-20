@@ -15,6 +15,7 @@
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
                     <th class="govuk-table__header">Details</th>
+                    <th class="govuk-table__header">History</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -40,6 +41,11 @@
                     <td class="govuk-table__cell">
                         <a href="{{base_path}}/account/{{account_audit.account.id}}/status" role="button" class="csw-team-list__cta-button">
                             View details
+                        </a>
+                    </td>
+                    <td class="govuk-table__cell">
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/history" role="button" class="csw-team-list__cta-button">
+                            View history
                         </a>
                     </td>
                 </tr>
