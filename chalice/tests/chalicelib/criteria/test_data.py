@@ -1490,7 +1490,7 @@ S3_BUCKET_PERMISSIONS = {  # result dictionaries for each key below
             'status': 'error',
             'timestamp': '2018-11-07T16:31:55Z'},
     # TODO: open access for the 1st flagged resource?
-    'open_access': {'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
+    'open_access_fails': {'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
                                                            'estimatedPercentMonthlySavings': 0.0}},
             'checkId': 'Pfx0RwqBli',
             'flaggedResources': [{'isSuppressed': False,
