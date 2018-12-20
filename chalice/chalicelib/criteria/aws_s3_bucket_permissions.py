@@ -78,7 +78,7 @@ class S3BucketReadAll(S3BucketPermissions):
         if item["metadata"][3] == 'Yes':
             self.annotation = (
                 f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy allows "everyone" '
-                f'or "any authenticated AWS user" to list its contents'
+                f'or "any authenticated AWS user" to list its contents.'
             )
         else:
             compliance_type = 'COMPLIANT'
@@ -151,4 +151,18 @@ class S3BucketWriteAll(S3BucketPermissions):
         super(S3BucketWriteAll, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
-        pass
+        compliance_type = 'NON_COMPLIANT'
+        if item["metadata"][4] == 'Yes':
+            self.annotation = (
+                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy allows "everyone" '
+                f'or "any authenticated AWS user" to update/delete its contents.'
+            )
+        else:
+            compliance_type = 'COMPLIANT'
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
