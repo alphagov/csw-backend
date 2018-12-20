@@ -27,7 +27,7 @@
                 <td class="govuk-table__cell">{{ (audit_data.audit.date_completed if audit_data.audit.date_completed else audit_data.audit.date_updated) | datetime }}</td>
                 <td class="govuk-table__cell">{{ "Completed" if audit_data.audit.date_completed else "Incomplete" }}</td>
                 <td class="govuk-table__cell--tag-fixed-centred">
-                    <strong class="{{ 'govuk-tag__fixed-width--passed' if (audit.issues_found == 0) else 'govuk-tag__fixed-width--failed' }}">
+                    <strong class="{{ 'govuk-tag__fixed-width--passed' if (audit_data.audit.issues_found == 0) else 'govuk-tag__fixed-width--failed' }}">
                         {{ "Pass" if (audit_data.audit.issues_found == 0) else "Fail" }}
                     </strong>
                 </td>
