@@ -1,6 +1,8 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <p>The following AWS accounts are being audited for this team.</p>
+        <p>
+            The following AWS accounts are being audited for this team.
+        </p>
     </div>
 </div>
 <div class="govuk-grid-row">
@@ -13,6 +15,7 @@
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
                     <th class="govuk-table__header">Details</th>
+                    <th class="govuk-table__header">History</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -36,8 +39,13 @@
                         {%- endif -%}
                     </td>
                     <td class="govuk-table__cell">
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status" role="button" class="csw-team-list__cta-button">
-                            View details
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
+                            View current audit
+                        </a>
+                    </td>
+                    <td class="govuk-table__cell">
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/history">
+                            View history
                         </a>
                     </td>
                 </tr>
@@ -46,6 +54,7 @@
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
                     <td class="govuk-table__cell">None</td>
+                    <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>

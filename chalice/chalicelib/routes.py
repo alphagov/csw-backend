@@ -146,8 +146,8 @@ def team_status(id):
         template_data = {
             "breadcrumbs": [
                 {
-                    "title": "Teams",
-                    "link": f"/team"
+                    "title": "My teams",
+                    "link": "/team"
                 }
             ],
             "status": {
@@ -202,8 +202,8 @@ def team_issues(id):
         template_data = {
             "breadcrumbs": [
                 {
-                    "title": "Teams",
-                    "link": f"/team"
+                    "title": "My teams",
+                    "link": "/team"
                 }
             ],
             "team": team.serialize(),
@@ -233,8 +233,8 @@ def account_status(id):
             template_data = {
                 "breadcrumbs": [
                     {
-                        "title": "Teams",
-                        "link": f"/team"
+                        "title": "My teams",
+                        "link": "/team"
                     },
                     {
                         "title": team.team_name,
@@ -243,6 +243,11 @@ def account_status(id):
                 ],
                 "audit": latest.serialize(),
                 "status": {
+                    "audit_completed": {
+                        "display_stat": ("Yes" if (latest.date_completed is not None) else "No"),
+                        "category": "Audit complete",
+                        "modifier_class": "passed" if (latest.date_completed is not None) else "failed"
+                    },
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
                         "category": "Checks Passed",
@@ -254,14 +259,14 @@ def account_status(id):
                         "modifier_class": "passed" if latest.criteria_failed == 0 else "failed"
                     },
                     "resources_passed": {
-                        "display_stat": (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]),
+                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
                         "category": "Resources Passed",
-                        "modifier_class": "passed" if (audit_stats["audit"]["passed"] + audit_stats["audit"]["ignored"]) > 0 else "failed"
+                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
                     },
                     "resources_failed": {
-                        "display_stat": audit_stats["audit"]["failed"],
+                        "display_stat": audit_stats["all"]["failed"],
                         "category": "Resources Failed",
-                        "modifier_class": "passed" if audit_stats["audit"]["failed"] == 0 else "failed"
+                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
                     }
                 },
                 "audit_stats": audit_stats
@@ -292,8 +297,8 @@ def account_issues(id):
             template_data = {
                 "breadcrumbs": [
                     {
-                        "title": "Teams",
-                        "link": f"/team"
+                        "title": "My teams",
+                        "link": "/team"
                     },
 
                     {
@@ -317,6 +322,118 @@ def account_issues(id):
     return Response(**response)
 
 
+@app.route('/account/{id}/history')
+def account_history(id):
+    account_id = int(id)
+    load_route_services()
+    try:
+        account = models.AccountSubscription.get_by_id(account_id)
+        team = account.product_team_id
+        audit_history = account.get_audit_history()
+        history_data = []
+        for audit in audit_history:
+            audit_stats = audit.get_stats()
+            history_data.append({
+                "audit": audit.serialize(),
+                "stats": audit_stats
+            })
+
+        template_data = {
+            "breadcrumbs": [
+                {
+                    "title": "My teams",
+                    "link": "/team"
+                },
+
+                {
+                    "title": team.team_name,
+                    "link": f"/team/{team.id}/status"
+                }
+            ],
+            "account": account.serialize(),
+            "audit_history": history_data
+        }
+        response = app.templates.render_authorized_template(
+            'audit_history.html',
+            app.current_request,
+            template_data
+        )
+
+    except Exception as err:
+        app.log.error("Route: account history error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/account/{id}/history/{audit_id}')
+def account_status(id, audit_id):
+    account_id = int(id)
+    audit_id = int(audit_id)
+    try:
+        load_route_services()
+        account = models.AccountSubscription.get_by_id(account_id)
+        audit = models.AccountAudit.get_by_id(audit_id)
+        team = account.product_team_id
+        if audit is not None:
+            audit_stats = audit.get_stats()
+            template_data = {
+                "breadcrumbs": [
+                    {
+                        "title": "My teams",
+                        "link": "/team"
+                    },
+                    {
+                        "title": team.team_name,
+                        "link": f"/team/{team.id}/status"
+                    },
+                    {
+                        "title": account.account_name,
+                        "link": f"/account/{account.id}/history"
+                    }
+                ],
+                "audit": audit.serialize(),
+                "status": {
+                    "audit_completed": {
+                        "display_stat": ("Yes" if (audit.date_completed is not None) else "No"),
+                        "category": "Audit complete",
+                        "modifier_class": "passed" if (audit.date_completed is not None) else "failed"
+                    },
+                    "checks_passed": {
+                        "display_stat": audit.criteria_passed,
+                        "category": "Checks Passed",
+                        "modifier_class": "passed" if audit.criteria_passed > 0 else "failed"
+                    },
+                    "checks_failed": {
+                        "display_stat": audit.criteria_failed,
+                        "category": "Checks Failed",
+                        "modifier_class": "passed" if audit.criteria_failed == 0 else "failed"
+                    },
+                    "resources_passed": {
+                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
+                        "category": "Resources Passed",
+                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
+                    },
+                    "resources_failed": {
+                        "display_stat": audit_stats["all"]["failed"],
+                        "category": "Resources Failed",
+                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
+                    }
+                },
+                "audit_stats": audit_stats
+            }
+            response = app.templates.render_authorized_template(
+                'audit_status.html',
+                app.current_request,
+                template_data
+            )
+        else:
+            raise Exception(f"No historic audit for account: {account_id}")
+    except Exception as err:
+        app.log.error("Route: account status error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/check/{id}/issues')
 def check_issues(id):
     try:
@@ -331,8 +448,8 @@ def check_issues(id):
         template_data = {
             "breadcrumbs": [
                 {
-                    "title": "Teams",
-                    "link": f"/team"
+                    "title": "My teams",
+                    "link": "/team"
                 },
                 {
                     "title": team.team_name,

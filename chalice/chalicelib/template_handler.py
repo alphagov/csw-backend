@@ -98,7 +98,7 @@ class TemplateHandler:
                 "active": re.match("^\/overview",route)
             },
             {
-                "name": "Product Teams",
+                "name": "My teams",
                 "link": f"{root_path}/team",
                 "active": re.match("^\/team",route)
             }
