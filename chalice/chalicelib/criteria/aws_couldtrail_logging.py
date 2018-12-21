@@ -39,8 +39,8 @@ class CouldtrailLogging(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'resource_id': data['resourceId'],
-            'resource_name': data['metadata'][1],  # trail name
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or None
         }
 
 
@@ -69,7 +69,7 @@ class CouldtrailLogHasErrors(CouldtrailLogging):
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (
                 f'The cloudtrail {item["metadata"][1]} in region {item["metadata"][0]} has errors, '
-                f'the last one was: "{item["metadata"][4]}"'
+                f'the last one being: "{item["metadata"][4]}".'
             )
         return self.build_evaluation(
             item['resourceId'],
@@ -101,7 +101,7 @@ class CouldtrailLogNotInRegion(CouldtrailLogging):
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
-        if item["metadata"][2] == 'Off':
+        if item["metadata"][2] != 'On':  # alternatively =='Off' if you don't want it triggered when trail disabled
             compliance_type = 'NON_COMPLIANT'
             self.annotation = f'Cloudtrail {item["metadata"][1]} is deactivated in region {item["metadata"][0]}'
         return self.build_evaluation(
@@ -167,10 +167,9 @@ class CouldtrailLogNotToCST(CouldtrailLogging):
         super(CouldtrailLogNotToCST, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
-        compliance_type = 'NON_COMPLIANT'
-        if item["metadata"][3] == self.cst_bucket_name:
-            compliance_type = 'COMPLIANT'
-        else:
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][3] != self.cst_bucket_name:
+            compliance_type = 'NON_COMPLIANT'
             self.annotation = (
                 f'Trail {item["metadata"][1]} in region {item["metadata"][0]} is not sent to {self.cst_bucket_name}'
             )

@@ -930,7 +930,236 @@ CLOUDTRAIL_LOGGING = {
         },
         'status': 'error',
         'timestamp': '2018-10-30T15:42:36Z'
-    }
+    },
+    'not_in_cst_bucket': {
+        'categorySpecificSummary': {
+            'costOptimizing': {
+                'estimatedMonthlySavings': 0.0,
+                'estimatedPercentMonthlySavings': 0.0
+            }
+        },
+        'checkId': 'vjafUGJ9H0',
+        'flaggedResources': [
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'us-east-2',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'VvC9ovd75N6104DTSYmObUVpXQQnHHtnHpN-iMxQbzo',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ca-central-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    '_TKegn3HXXRwN3k9h1bGriclTrIVcBeAi_shbp-aU4A',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'us-east-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'LGbPMx_BciQXdx9_gybBw4uJ0dSDP0w9_cj3CkpslG0',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'us-west-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'yEauwulys9ZPV1ILSDjAkSgEL0QPuGKCzUDPvL-OtIA',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'eu-west-3',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'qZ2O-WN6IB_1BWfs3AA0hgv30ZwNO3G_EHU-4dNLnl4',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'eu-west-2',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'bn8DoncTHe33YFs8MwhGozEIJf57CLOKp3Na54rUbA0',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'us-west-2',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'RDgxMLH58eesm1IKJxCwaJYMUnA2tq1KMkKRtuIx9gk',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'eu-west-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    '65ovE2uTkT1aCs2EazyT7Iq6r_OdfikxUWv6Mw5RK5o',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'eu-central-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    '0XLtiwkvb-L0NEMnlP5iAR-kKm74ei5FN2cw9PhRoqU',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'sa-east-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    's9ODasM-gWNDl2HdPYFPsb84cIRVZWtdnUE7_aX17GQ',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ap-northeast-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'IdvMsTEOxBREZIPEVHS7HQknsBzcwfwM0_fG4NQe0jM',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ap-south-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    '200R2Z-zGcNO4QI0hOoVTvhVbv_D1f4Fl_Q6LIQFcbk',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ap-northeast-2',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'NY0Fv5zllfREOdu_-F2kJJiEE7glPVvCDNrf7NZmzHA',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ap-southeast-2',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    '8NjMM8JQ-ZQKGVNXxuAY9iPjFXhshvfAq1SslDKBsww',
+                'status': 'ok'
+            },
+            {
+                'isSuppressed': False,
+                'metadata': [
+                    'ap-southeast-1',
+                    'CSW_Trail',
+                    'On',
+                    'other-bucket',
+                    None,
+                    'Green'
+                ],
+                'resourceId':
+                    'VcSDwjxhLJ0wAew9_OrrGOjKzm3NYUI-DM5DCYHUmrg',
+                'status': 'ok'
+            }
+        ],
+        'resourcesSummary': {
+            'resourcesFlagged': 0,
+            'resourcesIgnored': 0,
+            'resourcesProcessed': 15,
+            'resourcesSuppressed': 0
+        },
+        'status': 'ok',
+        'timestamp': '2018-10-22T13:37:41Z'
+    },
 }
 
 IAM_KEY_ROTATION_ITEMS = {

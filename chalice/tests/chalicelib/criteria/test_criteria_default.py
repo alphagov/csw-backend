@@ -367,7 +367,7 @@ class CriteriaSubclassTestCaseMixin(object):
         get_data method tests
         """
         # input params
-        data = None
+        data = {}
         # output value
         output = self.subclass.translate(data)
         with self.subTest():
