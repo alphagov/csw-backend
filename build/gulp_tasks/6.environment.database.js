@@ -308,7 +308,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "If the listeners do not use a secure protocol, the requests between your clients and the load balancer are unencrypted and less secure.<br />",
                 "how_do_i_fix_it": "Either add an HTTPS listener with an up-to-date security policy to the ELB, or edit an existing one to use HTTPS. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -323,7 +323,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "The security policy of a listener defines the ciphers and protocols it uses when communicating with the ELB. <br />Policies get updated when protocols are found to be not as secure as once thought, so an outdated security policy may be leave the connection between a listener and an ELB vulnerable.<br />",
                 "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -338,7 +338,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. <br />It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.<br />",
                 "how_do_i_fix_it": "Change the security policy on the listener to one that is recommended. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -353,7 +353,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "Vulnerabilities can be found in ciphers and protocols, and so they may become deprecated in favour of more secure ones. <br />It is important to make sure that a listener does not use outdated ciphers or protocols, as otherwise they will be insecure.<br />",
                 "how_do_i_fix_it": "Change the security policy on the listener to a more recent one. <br />Further instructions and information can be found <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html\">here</a>.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -368,7 +368,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure that they are closed to everyone outside of GDS.<br />",
                 "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -383,7 +383,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure that they are closed to everyone outside of GDS.<br />",
                 "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.<br />",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         },
         {
@@ -398,7 +398,7 @@ gulp.task('environment.database_populate', function() {
                 "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure  that they are closed to everyone outside of GDS.<br />",
                 "how_do_i_fix_it": "",
                 "active": true,
-                "is_regional": true
+                "is_regional": false
             }
         }
     ]
