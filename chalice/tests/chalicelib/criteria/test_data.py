@@ -31,7 +31,7 @@ EMPTY_SUMMARY = {
 }
 
 CLOUDTRAIL_LOGGING = {
-    'green': {
+    'all_pass': {
         'categorySpecificSummary': {
             'costOptimizing': {
                 'estimatedMonthlySavings': 0.0,
@@ -260,7 +260,7 @@ CLOUDTRAIL_LOGGING = {
         'status': 'ok',
         'timestamp': '2018-10-22T13:37:41Z'
     },
-    'yellow': {
+    'has_errors': {
         'categorySpecificSummary': {
             'costOptimizing': {
                 'estimatedMonthlySavings': 0.0,
@@ -290,8 +290,8 @@ CLOUDTRAIL_LOGGING = {
                     'CSW_Trail',
                     'On',
                     'cyber-security-staging-csw-cloudtrail',
-                    None,
-                    'Green'
+                    'Internal Server Error',
+                    'Yellow'
                 ],
                 'resourceId':
                     'VvC9ovd75N6104DTSYmObUVpXQQnHHtnHpN-iMxQbzo',
@@ -304,8 +304,8 @@ CLOUDTRAIL_LOGGING = {
                     'CSW_Trail',
                     'On',
                     'cyber-security-staging-csw-cloudtrail',
-                    None,
-                    'Green'
+                    'Internal Server Error',
+                    'Yellow'
                 ],
                 'resourceId':
                     '_TKegn3HXXRwN3k9h1bGriclTrIVcBeAi_shbp-aU4A',
@@ -318,8 +318,8 @@ CLOUDTRAIL_LOGGING = {
                     'CSW_Trail',
                     'On',
                     'cyber-security-staging-csw-cloudtrail',
-                    None,
-                    'Green'
+                    'Internal Server Error',
+                    'Yellow'
                 ],
                 'resourceId':
                     'yEauwulys9ZPV1ILSDjAkSgEL0QPuGKCzUDPvL-OtIA',
@@ -388,8 +388,8 @@ CLOUDTRAIL_LOGGING = {
                     'CSW_Trail',
                     'On',
                     'cyber-security-staging-csw-cloudtrail',
-                    None,
-                    'Green'
+                    'Internal Server Error',
+                    'Yellow'
                 ],
                 'resourceId':
                     '0XLtiwkvb-L0NEMnlP5iAR-kKm74ei5FN2cw9PhRoqU',
@@ -489,7 +489,7 @@ CLOUDTRAIL_LOGGING = {
         'status': 'warning',
         'timestamp': '2018-10-22T15:29:15Z'
     },
-    'red': {
+    'off_in_regions': {
         'categorySpecificSummary': {
             'costOptimizing': {
                 'estimatedMonthlySavings': 0.0,
@@ -717,7 +717,7 @@ CLOUDTRAIL_LOGGING = {
         'status': 'error',
         'timestamp': '2018-10-22T14:06:38Z'
     },
-    'very_red': {
+    'fail_all': {
         'categorySpecificSummary': {
             'costOptimizing': {
                 'estimatedMonthlySavings': 0.0,
