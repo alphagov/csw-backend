@@ -61,6 +61,42 @@ class TestCouldtrailLoggingMixin(CriteriaSubclassTestCaseMixin):
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
+    def test_evaluate_off_in_regions(self):
+        """
+        Compliant case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['off_in_regions']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_has_errors(self):
+        """
+        Compliant case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['has_errors']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail_all_except_has_errors(self):
+        """
+        Non-applicable case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['fail_all']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+
 
 class TestCouldtrailLogHasErrors(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
 
@@ -70,6 +106,30 @@ class TestCouldtrailLogHasErrors(TestCouldtrailLoggingMixin, TestCaseWithAttrAss
         super(TestCouldtrailLogHasErrors, self).setUpClass()
         self.subclass = CouldtrailLogHasErrors(self.app)
 
+    def test_evaluate_has_errors(self):
+        """
+        Compliant case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['has_errors']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+
+    def test_evaluate_fail_all_except_has_errors(self):
+        """
+        Non-applicable case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['fail_all']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
 
 class TestCouldtrailLogNotInRegion(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
 
@@ -78,6 +138,18 @@ class TestCouldtrailLogNotInRegion(TestCouldtrailLoggingMixin, TestCaseWithAttrA
         """
         super(TestCouldtrailLogNotInRegion, self).setUpClass()
         self.subclass = CouldtrailLogNotInRegion(self.app)
+
+    def test_evaluate_off_in_regions(self):
+        """
+        Compliant case
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in CLOUDTRAIL_LOGGING['off_in_regions']['flaggedResources']:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
 
 
 class TestCouldtrailLogTurnedOff(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
