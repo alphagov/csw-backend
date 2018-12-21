@@ -59,8 +59,8 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', '', ])[2],  # access key or empty string
         }
 
     def evaluate(self, event, item, whitelist=[]):
