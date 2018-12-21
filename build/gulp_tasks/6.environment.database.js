@@ -396,7 +396,67 @@ gulp.task('environment.database_populate', function() {
                 "title": "S3 Bucket Permissions: The bucket ACL allows Upload/Delete access for Everyone or Any Authenticated AWS User",
                 "description": "There are S3 buckets with open access permissions or allow access to any authenticated AWS user in your account.",
                 "why_is_it_important": "If a bucket has world upload/delete permissions, this allows anyone to create, modify and delete files in the S3 bucket; this can clearly cause issues. <br />However, even “List” permissions being open to the world can cause problems - malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />Therefore it’s vital to secure all S3 buckets by making sure  that they are closed to everyone outside of GDS.",
-                "how_do_i_fix_it": "",
+                "how_do_i_fix_it": "Review the permissions on the listed buckets, and change them to make sure that they are no longer open.",
+                "active": true,
+                "is_regional": false
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Delivery Errors",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogHasErrors",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Cloudtrail Logging: Delivery Errors",
+                "description": "CloudTrail reports that there are errors in delivering the logs to an S3 bucket.",
+                "why_is_it_important": "CloudTrail keeps logs of API calls made on your AWS account. <br />These logs allow closer monitoring of activity, to make sure that users and resources are not behaving incorrectly. <br />Because of this, it is important to make sure CloudTrail is not misconfigured.",
+                "how_do_i_fix_it": "Make sure that the S3 bucket that CloudTrail targets exists - if it gets removed, the logs can’t be delivered. <br />Make sure that CloudTrail has write permissions for the bucket it’s trying to deliver its logs to.",
+                "active": true,
+                "is_regional": false
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Turned off in a region",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogNotInRegion",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Cloudtrail Logging: Turned off in a region",
+                "description": "A trail has not been created for a region in your account.",
+                "why_is_it_important": "CloudTrail keeps logs of API calls made on your AWS account. <br />These logs allow closer monitoring of activity, to make sure that users and resources are not behaving incorrectly. <br />Because of this, it is important to make sure CloudTrail is not misconfigured.",
+                "how_do_i_fix_it": "Make sure you enable CloudTrail in every region.",
+                "active": true,
+                "is_regional": false
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Not activated",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogTurnedOff",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Cloudtrail Logging: Not activated",
+                "description": "Logging is turned off for a trail in your account.",
+                "why_is_it_important": "CloudTrail keeps logs of API calls made on your AWS account. <br />These logs allow closer monitoring of activity, to make sure that users and resources are not behaving incorrectly. <br />Because of this, it is important to make sure CloudTrail is not misconfigured.",
+                "how_do_i_fix_it": "Make sure that logging is switched on for all regions.",
+                "active": true,
+                "is_regional": false
+            }
+        },
+        {
+            "Model":"Criterion",
+            "Params":{
+                "criterion_name":"Not sent to CST",
+                "criteria_provider_id":2,
+                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogNotToCST",
+                "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                "title": "Cloudtrail Logging: Not sent to CST",
+                "description": "Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.",
+                "why_is_it_important": "CloudTrail keeps logs of API calls made on your AWS account. <br />These logs allow closer monitoring of activity, to make sure that users and resources are not behaving incorrectly. <br />If these logs are not delivered to the Cyber Security Team, we will not be able to monitor and review what happens in the case of an incident.",
+                "how_do_i_fix_it": "Set up CloudTrail to deliver logs to the Cyber Security Team bucket, at [S3 BUCKET URL]. <br />To do this, you can add these lines to your internal configuration management tool (Terraform, Ansible, etc): [MAGIC LINES]",
                 "active": true,
                 "is_regional": false
             }

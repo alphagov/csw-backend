@@ -51,15 +51,20 @@ class CouldtrailLogHasErrors(CouldtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = ''
+        self.title = 'Cloudtrail Logging: Delivery Errors'
         self.description = (
-            ''
+            'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
         )
         self.why_is_it_important = (
-            ''
+            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'These logs allow closer monitoring of activity, '
+            'to make sure that users and resources are not behaving incorrectly. '
+            'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
-            ''
+            'Make sure that the S3 bucket that CloudTrail targets exists '
+            '- if it gets removed, the logs can’t be delivered. '
+            'Make sure that CloudTrail has write permissions for the bucket it’s trying to deliver its logs to.'
         )
         super(CouldtrailLogHasErrors, self).__init__(app)
 
@@ -87,15 +92,18 @@ class CouldtrailLogNotInRegion(CouldtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = ''
+        self.title = 'Cloudtrail Logging: Turned off in a region'
         self.description = (
-            ''
+            'A trail has not been created for a region in your account.'
         )
         self.why_is_it_important = (
-            ''
+            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'These logs allow closer monitoring of activity, '
+            'to make sure that users and resources are not behaving incorrectly. '
+            'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
-            ''
+            'Make sure you enable CloudTrail in every region.'
         )
         super(CouldtrailLogNotInRegion, self).__init__(app)
 
@@ -120,15 +128,18 @@ class CouldtrailLogTurnedOff(CouldtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = ''
+        self.title = '"Cloudtrail Logging: Not activated'
         self.description = (
-            ''
+            'Logging is turned off for a trail in your account.'
         )
         self.why_is_it_important = (
-            ''
+            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'These logs allow closer monitoring of activity, '
+            'to make sure that users and resources are not behaving incorrectly. '
+            'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
-            ''
+            'Make sure that logging is switched on for all regions.'
         )
         super(CouldtrailLogTurnedOff, self).__init__(app)
 
@@ -154,15 +165,21 @@ class CouldtrailLogNotToCST(CouldtrailLogging):
     cst_bucket_name = 'cyber-security-staging-csw-cloudtrail'
 
     def __init__(self, app):
-        self.title = ''
+        self.title = 'Cloudtrail Logging: Not sent to CST'
         self.description = (
-            ''
+            'Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.'
         )
         self.why_is_it_important = (
-            ''
+            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'These logs allow closer monitoring of activity, '
+            'to make sure that users and resources are not behaving incorrectly. '
+            'If these logs are not delivered to the Cyber Security Team, '
+            'we will not be able to monitor and review what happens in the case of an incident.'
         )
         self.how_do_i_fix_it = (
-            ''
+            'Set up CloudTrail to deliver logs to the Cyber Security Team bucket, at [S3 BUCKET URL]. '
+            'To do this, you can add these lines to '
+            'your internal configuration management tool (Terraform, Ansible, etc): [MAGIC LINES]'
         )
         super(CouldtrailLogNotToCST, self).__init__(app)
 
