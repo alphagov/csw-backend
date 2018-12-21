@@ -40,7 +40,7 @@ class CouldtrailLogging(CriteriaDefault):
     def translate(self, data={}):
         return {
             'resource_id': data.get('resourceId', ''),
-            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or None
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
         }
 
 
