@@ -39,7 +39,145 @@ class CouldtrailLogging(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
+            'resource_id': data['resourceId'],
+            'resource_name': data['metadata'][1],  # trail name
         }
 
+
+class CouldtrailLogHasErrors(CouldtrailLogging):
+    """
+    TODO
+    """
+    active = True
+
+    def __init__(self, app):
+        self.title = ''
+        self.description = (
+            ''
+        )
+        self.why_is_it_important = (
+            ''
+        )
+        self.how_do_i_fix_it = (
+            ''
+        )
+        super(CouldtrailLogHasErrors, self).__init__(app)
+
+    def evaluate(self, event, item, whitelist=[]):
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][4] is not None:
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = (
+                f'The cloudtrail {item["metadata"][1]} in region {item["metadata"][0]} has errors, '
+                f'the last one was: "{item["metadata"][4]}"'
+            )
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
+
+
+class CouldtrailLogNotInRegion(CouldtrailLogging):
+    """
+    TODO
+    """
+    active = True
+
+    def __init__(self, app):
+        self.title = ''
+        self.description = (
+            ''
+        )
+        self.why_is_it_important = (
+            ''
+        )
+        self.how_do_i_fix_it = (
+            ''
+        )
+        super(CouldtrailLogNotInRegion, self).__init__(app)
+
+    def evaluate(self, event, item, whitelist=[]):
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][2] == 'Off':
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = f'Cloudtrail {item["metadata"][1]} is deactivated in region {item["metadata"][0]}'
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
+
+
+class CouldtrailLogTurnedOff(CouldtrailLogging):
+    """
+    TODO
+    """
+    active = True
+
+    def __init__(self, app):
+        self.title = ''
+        self.description = (
+            ''
+        )
+        self.why_is_it_important = (
+            ''
+        )
+        self.how_do_i_fix_it = (
+            ''
+        )
+        super(CouldtrailLogTurnedOff, self).__init__(app)
+
+    def evaluate(self, event, item, whitelist=[]):
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][1] is None or item["metadata"][2] == 'Not enabled' or item["metadata"][3] is None:
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = 'Cloudtrail is turned off!'
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
+
+
+class CouldtrailLogNotToCST(CouldtrailLogging):
+    """
+    Subclass checking if the cloud trail is sent to the cst bucket declared here.
+    """
+    active = True
+    cst_bucket_name = 'cyber-security-staging-csw-cloudtrail'
+
+    def __init__(self, app):
+        self.title = ''
+        self.description = (
+            ''
+        )
+        self.why_is_it_important = (
+            ''
+        )
+        self.how_do_i_fix_it = (
+            ''
+        )
+        super(CouldtrailLogNotToCST, self).__init__(app)
+
+    def evaluate(self, event, item, whitelist=[]):
+        compliance_type = 'NON_COMPLIANT'
+        if item["metadata"][3] == self.cst_bucket_name:
+            compliance_type = 'COMPLIANT'
+        else:
+            self.annotation = (
+                f'Trail {item["metadata"][1]} in region {item["metadata"][0]} is not sent to {self.cst_bucket_name}'
+            )
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
