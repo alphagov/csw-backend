@@ -1,5 +1,5 @@
 """
-implements aws::couldtrail::logging
+implements aws::cloudtrail::logging
 checkId: vjafUGJ9H0
 TA checks for cloudtrail being turned on in all regions and without errors.
 Also checks if CST receives the trails in its predefined bucket.
@@ -10,7 +10,7 @@ from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_support_client import GdsSupportClient
 
 
-class CouldtrailLogging(CriteriaDefault):
+class CloudtrailLogging(CriteriaDefault):
     """
     """
     active = False
@@ -26,7 +26,7 @@ class CouldtrailLogging(CriteriaDefault):
         self.language = 'en'
         self.region = 'us-east-1'
         self.annotation = ''
-        super(CouldtrailLogging, self).__init__(app)
+        super(CloudtrailLogging, self).__init__(app)
 
     def get_data(self, session, **kwargs):
         output = self.client.describe_trusted_advisor_check_result(
@@ -44,7 +44,7 @@ class CouldtrailLogging(CriteriaDefault):
         }
 
 
-class CouldtrailLogHasErrors(CouldtrailLogging):
+class CloudtrailLogHasErrors(CloudtrailLogging):
     """
     TODO
     """
@@ -66,7 +66,7 @@ class CouldtrailLogHasErrors(CouldtrailLogging):
             '- if it gets removed, the logs can’t be delivered. '
             'Make sure that CloudTrail has write permissions for the bucket it’s trying to deliver its logs to.'
         )
-        super(CouldtrailLogHasErrors, self).__init__(app)
+        super(CloudtrailLogHasErrors, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
@@ -85,7 +85,7 @@ class CouldtrailLogHasErrors(CouldtrailLogging):
         )
 
 
-class CouldtrailLogNotInRegion(CouldtrailLogging):
+class CloudtrailLogNotInRegion(CloudtrailLogging):
     """
     TODO
     """
@@ -105,7 +105,7 @@ class CouldtrailLogNotInRegion(CouldtrailLogging):
         self.how_do_i_fix_it = (
             'Make sure you enable CloudTrail in every region.'
         )
-        super(CouldtrailLogNotInRegion, self).__init__(app)
+        super(CloudtrailLogNotInRegion, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
@@ -121,7 +121,7 @@ class CouldtrailLogNotInRegion(CouldtrailLogging):
         )
 
 
-class CouldtrailLogTurnedOff(CouldtrailLogging):
+class CloudtrailLogTurnedOff(CloudtrailLogging):
     """
     TODO
     """
@@ -141,7 +141,7 @@ class CouldtrailLogTurnedOff(CouldtrailLogging):
         self.how_do_i_fix_it = (
             'Make sure that logging is switched on for all regions.'
         )
-        super(CouldtrailLogTurnedOff, self).__init__(app)
+        super(CloudtrailLogTurnedOff, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
@@ -157,7 +157,7 @@ class CouldtrailLogTurnedOff(CouldtrailLogging):
         )
 
 
-class CouldtrailLogNotToCST(CouldtrailLogging):
+class CloudtrailLogNotToCST(CloudtrailLogging):
     """
     Subclass checking if the cloud trail is sent to the cst bucket declared here.
     """
@@ -181,7 +181,7 @@ class CouldtrailLogNotToCST(CouldtrailLogging):
             'To do this, you can add these lines to '
             'your internal configuration management tool (Terraform, Ansible, etc): [MAGIC LINES]'
         )
-        super(CouldtrailLogNotToCST, self).__init__(app)
+        super(CloudtrailLogNotToCST, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'

@@ -406,7 +406,7 @@ gulp.task('environment.database_populate', function() {
             "Params":{
                 "criterion_name":"Delivery Errors",
                 "criteria_provider_id":2,
-                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogHasErrors",
+                "invoke_class_name":"chalicelib.criteria.aws_cloudtrail_logging.CloudtrailLogHasErrors",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Cloudtrail Logging: Delivery Errors",
                 "description": "CloudTrail reports that there are errors in delivering the logs to an S3 bucket.",
@@ -421,7 +421,7 @@ gulp.task('environment.database_populate', function() {
             "Params":{
                 "criterion_name":"Turned off in a region",
                 "criteria_provider_id":2,
-                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogNotInRegion",
+                "invoke_class_name":"chalicelib.criteria.aws_cloudtrail_logging.CloudtrailLogNotInRegion",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Cloudtrail Logging: Turned off in a region",
                 "description": "A trail has not been created for a region in your account.",
@@ -436,7 +436,7 @@ gulp.task('environment.database_populate', function() {
             "Params":{
                 "criterion_name":"Not activated",
                 "criteria_provider_id":2,
-                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogTurnedOff",
+                "invoke_class_name":"chalicelib.criteria.aws_cloudtrail_logging.CloudtrailLogTurnedOff",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Cloudtrail Logging: Not activated",
                 "description": "Logging is turned off for a trail in your account.",
@@ -451,7 +451,7 @@ gulp.task('environment.database_populate', function() {
             "Params":{
                 "criterion_name":"Not sent to CST",
                 "criteria_provider_id":2,
-                "invoke_class_name":"chalicelib.criteria.aws_couldtrail_logging.CouldtrailLogNotToCST",
+                "invoke_class_name":"chalicelib.criteria.aws_cloudtrail_logging.CloudtrailLogNotToCST",
                 "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
                 "title": "Cloudtrail Logging: Not sent to CST",
                 "description": "Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.",

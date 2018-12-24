@@ -1,8 +1,8 @@
-from chalicelib.criteria.aws_couldtrail_logging import (
-    CouldtrailLogHasErrors,
-    CouldtrailLogNotInRegion,
-    CouldtrailLogTurnedOff,
-    CouldtrailLogNotToCST,
+from chalicelib.criteria.aws_cloudtrail_logging import (
+    CloudtrailLogHasErrors,
+    CloudtrailLogNotInRegion,
+    CloudtrailLogTurnedOff,
+    CloudtrailLogNotToCST,
 )
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
@@ -10,7 +10,7 @@ from tests.chalicelib.criteria.test_criteria_default import (
 from tests.chalicelib.criteria.test_data import CLOUDTRAIL_LOGGING
 
 
-class TestCouldtrailLoggingMixin(CriteriaSubclassTestCaseMixin):
+class TestCloudtrailLoggingMixin(CriteriaSubclassTestCaseMixin):
     """
     Mixin class for the two key test case classes below
     """
@@ -19,7 +19,7 @@ class TestCouldtrailLoggingMixin(CriteriaSubclassTestCaseMixin):
     def setUpClass(cls):
         """
         """
-        super(TestCouldtrailLoggingMixin, cls).setUpClass()
+        super(TestCloudtrailLoggingMixin, cls).setUpClass()
         cls.test_data = CLOUDTRAIL_LOGGING
 
     def test_init_client(self):
@@ -98,13 +98,13 @@ class TestCouldtrailLoggingMixin(CriteriaSubclassTestCaseMixin):
             self._evaluate_failed_status_assertions(item, output)
 
 
-class TestCouldtrailLogHasErrors(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
+class TestCloudtrailLogHasErrors(TestCloudtrailLoggingMixin, TestCaseWithAttrAssert):
 
     def setUp(self):
         """
         """
-        super(TestCouldtrailLogHasErrors, self).setUpClass()
-        self.subclass = CouldtrailLogHasErrors(self.app)
+        super(TestCloudtrailLogHasErrors, self).setUpClass()
+        self.subclass = CloudtrailLogHasErrors(self.app)
 
     def test_evaluate_has_errors(self):
         """
@@ -131,13 +131,13 @@ class TestCouldtrailLogHasErrors(TestCouldtrailLoggingMixin, TestCaseWithAttrAss
             self._evaluate_passed_status_assertions(item, output)
 
 
-class TestCouldtrailLogNotInRegion(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
+class TestCloudtrailLogNotInRegion(TestCloudtrailLoggingMixin, TestCaseWithAttrAssert):
 
     def setUp(self):
         """
         """
-        super(TestCouldtrailLogNotInRegion, self).setUpClass()
-        self.subclass = CouldtrailLogNotInRegion(self.app)
+        super(TestCloudtrailLogNotInRegion, self).setUpClass()
+        self.subclass = CloudtrailLogNotInRegion(self.app)
 
     def test_evaluate_off_in_regions(self):
         """
@@ -152,19 +152,19 @@ class TestCouldtrailLogNotInRegion(TestCouldtrailLoggingMixin, TestCaseWithAttrA
             self._evaluate_failed_status_assertions(item, output)
 
 
-class TestCouldtrailLogTurnedOff(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
+class TestCloudtrailLogTurnedOff(TestCloudtrailLoggingMixin, TestCaseWithAttrAssert):
 
     def setUp(self):
         """
         """
-        super(TestCouldtrailLogTurnedOff, self).setUpClass()
-        self.subclass = CouldtrailLogTurnedOff(self.app)
+        super(TestCloudtrailLogTurnedOff, self).setUpClass()
+        self.subclass = CloudtrailLogTurnedOff(self.app)
 
 
-class TestCouldtrailLogNotToCST(TestCouldtrailLoggingMixin, TestCaseWithAttrAssert):
+class TestCloudtrailLogNotToCST(TestCloudtrailLoggingMixin, TestCaseWithAttrAssert):
 
     def setUp(self):
         """
         """
-        super(TestCouldtrailLogNotToCST, self).setUpClass()
-        self.subclass = CouldtrailLogNotToCST(self.app)
+        super(TestCloudtrailLogNotToCST, self).setUpClass()
+        self.subclass = CloudtrailLogNotToCST(self.app)
