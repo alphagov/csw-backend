@@ -24,11 +24,11 @@ class DatabaseHandle():
             value = ""
         return value
 
-    def log(self, type, message):
+    def log(self, log_type, message):
         if (self.app is not None):
-            if (type == 'error'):
+            if (log_type == 'error'):
                 self.app.log.error(message)
-            elif (type == 'debug'):
+            elif (log_type == 'debug'):
                 self.app.log.debug(message)
 
     def get_handle(self):
