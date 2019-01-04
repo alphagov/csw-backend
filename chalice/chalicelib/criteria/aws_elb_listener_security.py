@@ -39,8 +39,8 @@ class ELBListenerSecurity(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # load balancer name or empty
         }
 
 

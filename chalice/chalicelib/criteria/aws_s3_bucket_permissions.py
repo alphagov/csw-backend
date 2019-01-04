@@ -39,8 +39,8 @@ class S3BucketPermissions(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or None
         }
 
 
