@@ -42,18 +42,18 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
     def get_port_range(self, rule):
 
-        range = []
+        rule_range = []
         if "FromPort" in rule:
-            range.append(str(rule["FromPort"]))
+            rule_range.append(str(rule["FromPort"]))
 
         if "ToPort" in rule:
-            range.append(str(rule["ToPort"]))
+            rule_range.append(str(rule["ToPort"]))
 
         # if port range from and to are the same just return one
-        if len(range) == 2 and range[0] == range[1]:
-            port_range = range[0]
+        if len(rule_range) == 2 and rule_range[0] == rule_range[1]:
+            port_range = rule_range[0]
         else:
-            port_range = '-'.join(range)
+            port_range = '-'.join(rule_range)
 
         return port_range
 
