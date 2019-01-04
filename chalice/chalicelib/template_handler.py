@@ -52,29 +52,29 @@ class TemplateHandler:
 
     def register_filters(self):
 
-        def format_datetime(value, format='datetime'):
-            if format == 'datetime':
+        def format_datetime(value, formatting='datetime'):
+            if formatting == 'datetime':
                 render_as = value.strftime('%d/%m/%Y %H:%M')
-            elif format == 'date':
+            elif formatting == 'date':
                 render_as = value.strftime('%d/%m/%Y')
-            elif format == 'time':
+            elif formatting == 'time':
                 render_as = value.strftime('%H:%M')
 
             return render_as
 
         self.env.filters['datetime'] = format_datetime
 
-        def format_timestamp(value, format='datetime'):
+        def format_timestamp(value, formatting='datetime'):
 
             timestamp_pattern = '^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$'
 
             m = re.search(timestamp_pattern, value)
 
-            if format == 'datetime':
+            if formatting == 'datetime':
                 render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1) + " " + m.group(4) + ":" + m.group(5)
-            elif format == 'date':
+            elif formatting == 'date':
                 render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1)
-            elif format == 'time':
+            elif formatting == 'time':
                 render_as = m.group(4) + ":" + m.group(5)
 
             return render_as
