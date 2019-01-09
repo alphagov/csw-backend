@@ -174,3 +174,14 @@ def database_list_models(event, context):
         app.log.error(str(err))
         tables = []
     return tables
+
+
+@app.lambda_function()
+def database_add_new_criteria(event, context):
+    try:
+        dbh = DatabaseHandle(app)
+        for criterion in active_criteria_finder():
+            dbh.get_or_create_criterion({'criterion_name': criterion})
+    except Exception as err:
+        app.log.error(str(err))
+    return None

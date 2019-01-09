@@ -156,46 +156,35 @@ class DatabaseHandle():
 
         return item
 
-    # TODO: After switch to alembic as part of the migration template
-    # def push_active_criteria(self, event):
-    #     """
-    #     Parses all the submodules of the criteria submodule for Criteria subclasses with the class attr active == True
-    #     and populates the database with their class attr.
-    #     """
-    #     db = self.get_handle()
-    #     created = []
-    #     try:
-    #         db.connect()
-
-    #         path_components = ['chalicelib', 'criteria', ]
-    #         for m in pkgutil.walk_packages(path=[os.path.join(path_components)]):
-    #             module = importlib.import_module('.'.join(path_components + m.name)
-    #             for member in dir(module):
-    #                 candidate = getattr(module, member)
-    #                 if inspect.isclass(candidate) and getattr(candidate, 'active', False):
-    #                     self.create_item({
-    #                         'Model': 'Criterion',
-    #                         'Params': {
-    #                             # 'criterion_name':'IAM inspector policy is up-to-date',
-    #                             # 'criteria_provider_id':3,
-    #                             'invoke_class_name': '.'.join(path_components + m.name + [candidate.__name__],
-    #                             # 'invoke_class_get_data_method': candidate.,
-    #                             'title': candidate.title,
-    #                             'description': candidate.description,
-    #                             'why_is_it_important': candidate.why_is_it_important,
-    #                             'how_do_i_fix_it': candidate.how_do_i_fix_it,
-    #                             'active': candidate.active,
-    #                             # 'is_regional': false
-    #                         },
-    #                     })
-
-    #         db.close()
-    #     except Exception as e:
-    #         if db is not None:
-    #             db.rollback()
-    #         self.app.log.error(str(e))
-    #     return created
-
+    def get_or_create_criterion(self, event):
+        """
+        This will work only on criteria using trusted advisor!!!
+        To be generic, the client's API calls must be within one function that each subclass overloads!
+        """
+        db = self.get_handle()
+        db.connect()
+        model = self.get_model('Criterion')
+        count = model.select().where(model.criterion_name == event['criterion_name']).count()
+        db.close()
+        if count < 1:
+            module = '.'.join(event['criterion_name'].split('.')[:-1])
+            cls_name = event['criterion_name'].split('.')[-1]
+            obj = getattr(importlib.import_module(module), cls_name)(self.app)
+            self.create_item({
+                'Model': 'Criterion',
+                'Params': {
+                    "criterion_name": cls_name,
+                    "criteria_provider_id": 2,
+                    "invoke_class_name": event['criterion_name'],
+                    "invoke_class_get_data_method": "describe_trusted_advisor_check_result",
+                    "title":  obj.title,
+                    "description": obj.description,
+                    "why_is_it_important": obj.why_is_it_important,
+                    "how_do_i_fix_it": obj.how_do_i_fix_it,
+                    "active": obj.active,
+                    "is_regional": False
+                },
+            })
 
 
 class BaseModel(peewee.Model):
