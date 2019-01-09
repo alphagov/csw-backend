@@ -3,12 +3,29 @@ DATABASE ADMIN HELPER LAMBDAS
 native lambda admin function to be invoked
 """
 # TODO add authentication or rely on API permissions and assume roles to control access
+import importlib
+import inspect
 import os
+import pkgutil
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from app import app
 from chalicelib.database_handle import DatabaseHandle
+
+
+def active_criteria_finder(parent_module_name='chalicelib.criteria'):
+    """
+    A helper function returning a set with all classes in the chalicelib.criteria submodules
+    having a class attribute named active with value True.
+    """
+    parent_module = importlib.import_module(parent_module_name)
+    active_criteria = set()
+    for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
+        for name, cls in inspect.getmembers(importlib.import_module(f'{parent_module.__name__}.{module_name}')):
+            if inspect.isclass(cls) and getattr(cls, 'active', False):
+                active_criteria.add(f'{parent_module.__name__}.{module_name}.{name}')
+    return active_criteria
 
 
 @app.lambda_function()
