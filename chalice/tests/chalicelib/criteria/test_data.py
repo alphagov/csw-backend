@@ -1697,7 +1697,9 @@ ELB_SECURITY_GROUPS = {
             'status': 'warning',
             'timestamp': '2018-12-18T12:17:46Z'},
     # could not replicate the red
-}import datetime
+}
+
+import datetime
 from dateutil.tz import tzutc
 IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
     "pass": [

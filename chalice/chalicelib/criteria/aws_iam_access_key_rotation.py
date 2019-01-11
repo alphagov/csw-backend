@@ -3,29 +3,19 @@ implements aws::iam::access_key_rotation
 checkId: DqdJqYeRm5
 The access key is active and has been rotated in the past 90 days (yellow/warning) or 2 years (red/error).
 """
-import json
-
-from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_support_client import GdsSupportClient
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 
 
-class AwsIamAccessKeyRotationBase(CriteriaDefault):
+class AwsIamAccessKeyRotationBase(TrustedAdvisorCriterion):
     """
     Base class, don't subclass this, use the two subclasses declared below.
     """
     active = False
 
     def __init__(self, app):
-        # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
-        # attributes common in both subclasses
         self.resource_type = 'AWS::iam::access_key_rotation'
-        self.ClientClass = GdsSupportClient
         self.check_id = 'DqdJqYeRm5'
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
+        super(AwsIamAccessKeyRotationBase, self).__init__(app)  # moved to define status_interval before using it below
         self.title = " Outdated IAM access keys"
         self.description = (
             'At least one active Identity and Access Management '
@@ -45,19 +35,11 @@ class AwsIamAccessKeyRotationBase(CriteriaDefault):
             '4) Validate that your applications are still working as expected. '
             '5) Delete the inactive access key.'
         )
-        super(AwsIamAccessKeyRotationBase, self).__init__(app)
-
-    def get_data(self, session, **kwargs):
-        output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
-        )
-        self.app.log.debug(json.dumps(output))
-        # Return as a list of 1 item for consistency with other checks
-        return output['flaggedResources']
 
     def translate(self, data={}):
+        """
+        Unlike other TA checks here we overwrite translate to return the access key, instead of the standard resource.
+        """
         return {
             'resource_id': data.get('resourceId', ''),
             'resource_name': data.get('metadata', ['', '', '', ])[2],  # access key or empty string

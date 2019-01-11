@@ -1,4 +1,7 @@
+import json
+
 from chalicelib.aws.gds_aws_client import GdsAwsClient
+from chalicelib.aws.gds_support_client import GdsSupportClient
 
 
 class CriteriaDefault():
@@ -149,3 +152,35 @@ class CriteriaDefault():
             summary["regions"]["count"] = len(regions)
 
         return summary
+
+
+class TrustedAdvisorCriterion(CriteriaDefault):
+    """
+    A specialisation factoring out all the common attributes and methods
+    of criteria that use one API call to describe TA in order to infer compliance.
+    """
+    def __init__(self, app):
+        # attributes to overwrite in subclasses
+        self.status_string = ''
+        self.status_interval = ''
+        # attributes common in both subclasses
+        self.ClientClass = GdsSupportClient
+        self.language = 'en'
+        self.region = 'us-east-1'
+        self.annotation = ''
+        super(TrustedAdvisorCriterion, self).__init__(app)
+
+    def get_data(self, session, **kwargs):
+        output = self.client.describe_trusted_advisor_check_result(
+            session,
+            checkId=self.check_id,
+            language=self.language
+        )
+        self.app.log.debug(json.dumps(output))
+        return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
+
+    def translate(self, data={}):
+        return {
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
+        }

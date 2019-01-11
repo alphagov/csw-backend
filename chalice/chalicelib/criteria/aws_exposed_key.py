@@ -3,29 +3,18 @@ implements aws::iam::access_key_rotation
 checkId: DqdJqYeRm5
 The access key is active and has been rotated in the past 90 days (yellow/warning) or 2 years (red/error).
 """
-import json
-
-from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_support_client import GdsSupportClient
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 
 
-class AwsIamExposedAccessKey(CriteriaDefault):
+class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
     """
     Subclass Criterion checking for (potentially) exposed access keys.
     """
     active = False
 
     def __init__(self, app):
-        # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
-        # attributes common in both subclasses
         self.resource_type = 'AWS::iam::exposed_key'
-        self.ClientClass = GdsSupportClient
         self.check_id = '12Fnkpl8Y5'
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
         self.title = 'Exposed Access Keys'
         self.description = (
             'An AWS Access Key ID and corresponding secret key were found on popular code repositories, '
@@ -40,21 +29,6 @@ class AwsIamExposedAccessKey(CriteriaDefault):
             'and they may steal and/or vandalise data within your account.'
         )
         super(AwsIamExposedAccessKey, self).__init__(app)
-
-    def get_data(self, session, **kwargs):
-        output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
-        )
-        self.app.log.debug(json.dumps(output))
-        return output['flaggedResources']  # will have len() == 0 if compliant
-
-    def translate(self, data={}):
-        return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
-        }
 
 
 class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
