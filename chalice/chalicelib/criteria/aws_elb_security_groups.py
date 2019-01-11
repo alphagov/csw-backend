@@ -13,12 +13,24 @@ class ELBSecurityGroups(CriteriaDefault):
     """
     Superclass for both checks.
     """
+    active = False
+
     def __init__(self, app):
+        # attributes to overwrite in subclasses
+        self.status_string = ''
+        self.status_interval = ''
+        # attributes common in both subclasses
+        self.resource_type = 'AWS::ELB::SecurityGroups'
+        self.ClientClass = GdsSupportClient
+        self.check_id = 'xSqX82fQu'
+        self.language = 'en'
+        self.region = 'us-east-1'
+        self.annotation = ''
         super(ELBSecurityGroups, self).__init__(app)
 
     def get_data(self, session, **kwargs):
         pass
-    
+
     def translate(self, data={}):
         pass
 
