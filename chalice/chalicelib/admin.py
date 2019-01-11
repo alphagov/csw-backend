@@ -23,7 +23,13 @@ def active_criteria_finder(parent_module_name='chalicelib.criteria'):
     active_criteria = set()
     for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
         for name, cls in inspect.getmembers(importlib.import_module(f'{parent_module.__name__}.{module_name}')):
-            if inspect.isclass(cls) and getattr(cls, 'active', False):
+            if (  # is a class
+                inspect.isclass(cls)
+            ) and (  # has the class attribute active set to True
+                getattr(cls, 'active', False)
+            ) and (  # is a subclass of Trusted Advisor Criteria
+                'TrustedAdvisorCriterion' in [supercls.__name__ for supercls in inspect.getmro(cls)]
+            ):
                 active_criteria.add(f'{parent_module.__name__}.{module_name}.{name}')
     return active_criteria
 
@@ -173,15 +179,15 @@ def database_list_models(event, context):
     except Exception as err:
         app.log.error(str(err))
         tables = []
-    return tables
+    return list(tables)
 
 
 @app.lambda_function()
 def database_add_new_criteria(event, context):
-    try:
-        dbh = DatabaseHandle(app)
-        for criterion in active_criteria_finder():
-            dbh.get_or_create_criterion({'criterion_name': criterion})
-    except Exception as err:
-        app.log.error(str(err))
+    # try:
+    dbh = DatabaseHandle(app)
+    for criterion in active_criteria_finder():
+        dbh.get_or_create_criterion({'criterion_name': criterion})
+    # except Exception as err:
+    #     app.log.error(str(err))
     return None

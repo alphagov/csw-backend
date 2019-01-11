@@ -5,7 +5,6 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
-import pkgutil
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -164,7 +163,7 @@ class DatabaseHandle():
         db = self.get_handle()
         db.connect()
         model = self.get_model('Criterion')
-        count = model.select().where(model.criterion_name == event['criterion_name']).count()
+        count = model.select().where(model.invoke_class_name == event['criterion_name']).count()
         db.close()
         if count < 1:
             module = '.'.join(event['criterion_name'].split('.')[:-1])
@@ -225,4 +224,3 @@ class BaseModel(peewee.Model):
         return [
             item.serialize() for item in items
         ]
-
