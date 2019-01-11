@@ -29,10 +29,19 @@ class ELBSecurityGroups(CriteriaDefault):
         super(ELBSecurityGroups, self).__init__(app)
 
     def get_data(self, session, **kwargs):
-        pass
+        output = self.client.describe_trusted_advisor_check_result(
+            session,
+            checkId=self.check_id,
+            language=self.language
+        )
+        self.app.log.debug(json.dumps(output))
+        return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
 
     def translate(self, data={}):
-        pass
+        return {
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
+        }
 
 
 class ELBSecurityGroupsYellow(ELBSecurityGroups):
