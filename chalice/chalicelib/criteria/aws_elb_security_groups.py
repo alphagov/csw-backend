@@ -48,6 +48,8 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
     """
     Subclass checking for port mismatch between the ELB and VPC.
     """
+    active = True
+
     def __init__(self, app):
         self.title = 'ELB not matching ports of security group.'
         self.description = (
@@ -84,6 +86,8 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
     """
     Subclass checking for existance of a security group for the ELB.
     """
+    active = True
+
     def __init__(self, app):
         self.title = 'A security group associated with a load balancer does not exist.'
         self.description = (
