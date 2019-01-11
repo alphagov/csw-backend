@@ -101,4 +101,17 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
         super(ELBSecurityGroupsRed, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
-        pass
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][2] == 'error':
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = (
+                'No security group associated with '
+                f'the load balancer "{item["metadata"][1]}" in region "{item["metadata"][0]}".'
+            )
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
