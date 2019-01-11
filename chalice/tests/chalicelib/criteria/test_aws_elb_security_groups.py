@@ -40,7 +40,8 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
-                self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
+                if key != 'no_elb':
+                    self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
 
     ###
     # Test the three outputs below for pass/inapplicability,
