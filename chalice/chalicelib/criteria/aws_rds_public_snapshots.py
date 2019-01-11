@@ -36,6 +36,12 @@ class RDSPublicSnapshot(TrustedAdvisorCriterion):
         )
         super(RDSPublicSnapshot, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', '', '', ])[3],  # snapshot ID or empty string
+        }
+
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
         if item['status'] == 'error':
