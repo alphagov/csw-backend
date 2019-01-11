@@ -176,6 +176,9 @@ class TrustedAdvisorCriterion(CriteriaDefault):
             checkId=self.check_id,
             language=self.language
         )
+        # if the TA results does not contain the key flaggedResources, add it with an empty list for its value
+        if 'flaggedResources' not in output:
+            output['flaggedResources'] = []
         self.app.log.debug(json.dumps(output))
         return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
 
