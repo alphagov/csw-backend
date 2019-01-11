@@ -64,7 +64,20 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
         super(ELBSecurityGroupsYellow, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
-        pass
+        compliance_type = 'COMPLIANT'
+        if item["metadata"][2] == 'warning':
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = (
+                f'The security group (with ID "{item["metadata"][3]}") allows access to ports that '
+                f'are not configured for the load balancer "{item["metadata"][1]}" in region "{item["metadata"][0]}".'
+            )
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
 
 
 class ELBSecurityGroupsRed(ELBSecurityGroups):
