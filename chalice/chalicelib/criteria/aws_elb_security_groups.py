@@ -49,6 +49,18 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
     Subclass checking for port mismatch between the ELB and VPC.
     """
     def __init__(self, app):
+        self.title = 'ELB not matching ports of security group.'
+        self.description = (
+            'The inbound rules of an Amazon VPC Security group associated with the load balancer '
+            'allows access to ports that are not defined in the listener configuration of the loader.'
+        )
+        self.why_is_it_important = (
+            'Having ports open unnecessarily can increase the risk of losing data or malicious attacks.'
+        )
+        self.how_do_i_fix_it = (
+            'Change or remove the rules in the security group that refer to the ports '
+            'that are undefined in the listener configuration.'
+        )
         super(ELBSecurityGroupsYellow, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
@@ -60,6 +72,19 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
     Subclass checking for existance of a security group for the ELB.
     """
     def __init__(self, app):
+        self.title = 'A security group associated with a load balancer does not exist.'
+        self.description = (
+            'A security group associated with a load balancer does not exist.'
+        )
+        self.why_is_it_important = (
+            'If a security group associated with a load balancer is deleted, '
+            'the load balancer does not work as expected.'
+        )
+        self.how_do_i_fix_it = (
+            'Create a new security group and reconfigure the load balancer to refer to it.'
+            'Please follow the AWS quidance on how to attach a security group to  a load balancer:'
+            'https://aws.amazon.com/premiumsupport/knowledge-center/security-group-load-balancer/ '
+        )
         super(ELBSecurityGroupsRed, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
