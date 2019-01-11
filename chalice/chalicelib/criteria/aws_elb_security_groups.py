@@ -67,7 +67,7 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
-        if item["metadata"][2] == 'warning':
+        if item["metadata"][2] == 'Yellow':
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (
                 f'The security group (with ID "{item["metadata"][3]}") allows access to ports that '
@@ -106,7 +106,7 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
-        if item["metadata"][2] == 'error':
+        if item["metadata"][2] == 'Red':
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (
                 'No security group associated with '
