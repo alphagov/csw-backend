@@ -41,7 +41,7 @@ class EBSPublicSnapshot(TrustedAdvisorCriterion):
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (
                 f'The snapshot with ID "{item["metadata"][3]}" in volume "{item["metadata"][2]}" '
-                f'of region "{item["metadata"][1]}" is marked as "public"'
+                f'of the region "{item["metadata"][1]}" is marked as "public".'
             )
         return self.build_evaluation(
             item['resourceId'],
