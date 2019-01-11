@@ -1751,3 +1751,79 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             }
         ]
 }
+EBS_PUBLIC_SNAPSHOTS = {
+    'empty': {
+        'checkId': 'ePs02jT06w',
+        'resourcesSummary': {'resourcesFlagged': 0,
+                            'resourcesIgnored': 0,
+                            'resourcesProcessed': 0,
+                            'resourcesSuppressed': 0},
+        'status': 'ok'
+    },
+    'pass': {
+        'checkId': 'ePs02jT06w',
+        'resourcesSummary': {'resourcesFlagged': 0,
+                                'resourcesIgnored': 0,
+                                'resourcesProcessed': 1,
+                                'resourcesSuppressed': 0},
+        'status': 'ok'
+    },
+    'fail': {
+        'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
+                                                        'estimatedPercentMonthlySavings': 0.0}},
+        'checkId': 'ePs02jT06w',
+        'flaggedResources': [{'isSuppressed': False,
+                                'metadata': ['Red',
+                                            'eu-west-2',
+                                            'vol-09953db33411d5b74',
+                                            'snap-06cfe7d144b49bb4d',
+                                            'csw-ebs-test-snapshot'],
+                                'region': 'eu-west-2',
+                                'resourceId': 'N4RrZ3HkYaAqyQoQIbkRw9CY--L_oVxGyDbPJtuoQ_E',
+                                'status': 'error'}],
+        'resourcesSummary': {'resourcesFlagged': 1,
+                                'resourcesIgnored': 0,
+                                'resourcesProcessed': 1,
+                                'resourcesSuppressed': 0},
+        'status': 'error',
+        'timestamp': '2018-12-28T08:51:25Z'
+    },
+}
+
+RDS_PUBLIC_SNAPSHOTS = {
+    'empty': {
+        'checkId': 'rSs93HQwa1',
+        'resourcesSummary': {'resourcesFlagged': 0,
+                                'resourcesIgnored': 0,
+                                'resourcesProcessed': 0,
+                                'resourcesSuppressed': 0},
+        'status': 'ok'
+    },
+    'pass': {
+        'checkId': 'rSs93HQwa1',
+        'resourcesSummary': {'resourcesFlagged': 0,
+                                'resourcesIgnored': 0,
+                                'resourcesProcessed': 1,
+                                'resourcesSuppressed': 0},
+        'status': 'ok'
+    },
+    'fail': {
+        'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
+                                                           'estimatedPercentMonthlySavings': 0.0}},
+        'checkId': 'rSs93HQwa1',
+        'flaggedResources': [{'isSuppressed': False,
+                                'metadata': ['Red',
+                                            'eu-west-2',
+                                            'cswrdspublic',
+                                            'arn:aws:rds:eu-west-2:489877524855:snapshot:cswrdspublic-copy'],
+                                'region': 'eu-west-2',
+                                'resourceId': '15MaHWQnZ_xXHpfgiN2OFWvu11ruAxg4Mip4O1y7lUw',
+                                'status': 'error'}],
+        'resourcesSummary': {'resourcesFlagged': 1,
+                                'resourcesIgnored': 0,
+                                'resourcesProcessed': 1,
+                                'resourcesSuppressed': 0},
+        'status': 'error',
+        'timestamp': '2018-12-27T15:41:04Z'
+    },
+}
