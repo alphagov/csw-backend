@@ -1646,7 +1646,58 @@ S3_BUCKET_PERMISSIONS = {  # result dictionaries for each key below
             'status': 'warning',
             'timestamp': '2018-12-18T14:59:14Z'},
 }
-import datetime
+
+ELB_SECURITY_GROUPS = {
+    'no_elb': {'categorySpecificSummary': {},
+            'checkId': 'xSqX82fQu',
+            'flaggedResources': [],
+            'resourcesSummary': {'resourcesFlagged': 0,
+                                 'resourcesIgnored': 0,
+                                 'resourcesProcessed': 0,
+                                 'resourcesSuppressed': 0},
+            'status': 'ok',
+            'timestamp': '2018-12-18T12:19:44Z'},
+    'green': {'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
+                                                           'estimatedPercentMonthlySavings': 0.0}},
+            'checkId': 'xSqX82fQu',
+            'flaggedResources': [{'isSuppressed': False,
+                                  'metadata': ['us-west-2',
+                                               'csw-elb-test',
+                                               'Green',
+                                               '-',
+                                               '-'],
+                                  'region': 'us-west-2',
+                                  'resourceId': 'F9K676gEDzPukzT28fq0ZBpGJFK6p1evCuW1iIqAFyI',
+                                  'status': 'ok'}],
+            'resourcesSummary': {'resourcesFlagged': 0,
+                                 'resourcesIgnored': 0,
+                                 'resourcesProcessed': 1,
+                                 'resourcesSuppressed': 0},
+            'status': 'ok',
+            'timestamp': '2018-12-18T15:37:51Z'},
+    'yellow': {'categorySpecificSummary': {'costOptimizing': {'estimatedMonthlySavings': 0.0,
+                                                           'estimatedPercentMonthlySavings': 0.0}},
+            'checkId': 'xSqX82fQu',
+            'flaggedResources': [{'isSuppressed': False,
+                                  'metadata': ['us-west-2',
+                                               'cloudgoat-elb',
+                                               'Yellow',
+                                               '[sg-06e89cdff68e54af9]',
+                                               'Security group allows access '
+                                               'to ports that are not '
+                                               'configured for the load '
+                                               'balancer'],
+                                  'region': 'us-west-2',
+                                  'resourceId': 'LE_xZ-s3Ndiz-Vg5Pn-kiRUGTFKBpZILsZSEYE2Ur9A',
+                                  'status': 'warning'}],
+            'resourcesSummary': {'resourcesFlagged': 1,
+                                 'resourcesIgnored': 0,
+                                 'resourcesProcessed': 1,
+                                 'resourcesSuppressed': 0},
+            'status': 'warning',
+            'timestamp': '2018-12-18T12:17:46Z'},
+    # could not replicate the red
+}import datetime
 from dateutil.tz import tzutc
 IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
     "pass": [
