@@ -7,24 +7,24 @@ class GdsIamClient(GdsAwsClient):
 
     resource_type = "AWS::IAM::*"
 
-    def __init__(self):
-        self.iam = self.get_boto3_session_client('iam', session) 
-
     def list_users(self, session):
 
-        response = self.iam.list_users()
+        iam = self.get_boto3_session_client('iam', session)
+        response = iam.list_users()
 
         return response['Users']
 
     def list_roles(self, session):
 
-        response = self.iam.list_roles()
+        iam = self.get_boto3_session_client('iam', session)
+        response = iam.list_roles()
 
         return response['Roles']
 
     def get_role_policy(self, session, role_name, policy_name):
 
-        response = self.iam.get_role_policy(
+        iam = self.get_boto3_session_client('iam', session)
+        response = iam.get_role_policy(
             RoleName=role_name,
             PolicyName=policy_name
         )
