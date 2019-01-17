@@ -275,34 +275,35 @@ class CriteriaSubclassTestCaseMixin(object):
                 msg='annotation must be empty after init'
             )
         # subclass specific attributes
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'check_id')
-            self.assertIsInstance(
-                self.subclass.check_id,
-                str,
-                msg='check_id must be a non-empty string'
-            )
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'check_id')
-            self.assertGreater(
-                len(self.subclass.check_id),
-                0,
-                msg='check_id must be a non-empty string'
-            )
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'language')
-            self.assertIsInstance(
-                self.subclass.language,
-                str,
-                msg='language must be a non-empty string'
-            )
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'language')
-            self.assertGreater(
-                len(self.subclass.language),
-                0,
-                msg='language must be a non-empty string'
-            )
+        # TODO: Ares move this in a TA-specific test case
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'check_id')
+        #     self.assertIsInstance(
+        #         self.subclass.check_id,
+        #         str,
+        #         msg='check_id must be a non-empty string'
+        #     )
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'check_id')
+        #     self.assertGreater(
+        #         len(self.subclass.check_id),
+        #         0,
+        #         msg='check_id must be a non-empty string'
+        #     )
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'language')
+        #     self.assertIsInstance(
+        #         self.subclass.language,
+        #         str,
+        #         msg='language must be a non-empty string'
+        #     )
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'language')
+        #     self.assertGreater(
+        #         len(self.subclass.language),
+        #         0,
+        #         msg='language must be a non-empty string'
+        #     )
         with self.subTest():
             self.assertHasAttr(self.subclass, 'region')
             self.assertIsInstance(
