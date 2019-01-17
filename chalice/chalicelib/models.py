@@ -495,6 +495,7 @@ class CriteriaProvider(database_handle.BaseModel):
 # invoke_class_method like describe_trusted_advisor_check_result
 class Criterion(database_handle.BaseModel):
     criterion_name = peewee.CharField()
+    # TODO: remove the FK below and its class above, not used
     criteria_provider_id = peewee.ForeignKeyField(CriteriaProvider, backref='criteria')
     invoke_class_name = peewee.CharField()
     invoke_class_get_data_method = peewee.CharField()

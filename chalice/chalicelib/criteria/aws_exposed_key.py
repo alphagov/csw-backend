@@ -15,7 +15,6 @@ class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
     def __init__(self, app):
         self.resource_type = 'AWS::iam::exposed_key'
         self.check_id = '12Fnkpl8Y5'
-        self.title = 'Exposed Access Keys'
         self.description = (
             'An AWS Access Key ID and corresponding secret key were found on popular code repositories, '
             'or there is irregular EC2 usage that indicates that an access key has been compromised.'
@@ -38,6 +37,7 @@ class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
+        self.title = 'Potentially Exposed Access Keys'
         self.how_do_i_fix_it = (
             'Delete the affected access key, and generate a new one '
             'for the user or application. Please follow the below recommendations accordingly:'
@@ -100,6 +100,7 @@ class AwsIamSuspectedExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
+        self.title = 'Suspected Exposed Access Keys'
         self.how_do_i_fix_it = 'Alert not actionable'
         super(AwsIamSuspectedExposedAccessKey, self).__init__(app)
 

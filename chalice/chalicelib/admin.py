@@ -14,21 +14,21 @@ from app import app
 from chalicelib.database_handle import DatabaseHandle
 
 
-def active_criteria_finder(parent_module_name='chalicelib.criteria'):
+def criteria_finder(parent_module_name='chalicelib.criteria'):
     """
     A helper function returning a set with all classes in the chalicelib.criteria submodules
     having a class attribute named active with value True.
     """
     parent_module = importlib.import_module(parent_module_name)
-    active_criteria = set()
+    active_criteria = set()  # set to gurantee uniqueness of elements
     for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
         for name, cls in inspect.getmembers(importlib.import_module(f'{parent_module.__name__}.{module_name}')):
             if (  # is a class
                 inspect.isclass(cls)
-            ) and (  # has the class attribute active set to True
-                getattr(cls, 'active', False)
-            ) and (  # is a subclass of Trusted Advisor Criteria
-                'TrustedAdvisorCriterion' in [supercls.__name__ for supercls in inspect.getmro(cls)]
+            # ) and (  # has the class attribute active set to True
+            #     getattr(cls, 'active', False)
+            ) and (  # is a subclass of the base criterion
+                'CriteriaDefault' in [supercls.__name__ for supercls in inspect.getmro(cls)]
             ):
                 active_criteria.add(f'{parent_module.__name__}.{module_name}.{name}')
     return active_criteria
@@ -186,8 +186,8 @@ def database_list_models(event, context):
 def database_add_new_criteria(event, context):
     # try:
     dbh = DatabaseHandle(app)
-    for criterion in active_criteria_finder():
-        dbh.get_or_create_criterion({'criterion_name': criterion})
+    for criterion in criteria_finder():
+        dbh.create_or_update_criterion({'criterion_name': criterion})
     # except Exception as err:
     #     app.log.error(str(err))
     return None

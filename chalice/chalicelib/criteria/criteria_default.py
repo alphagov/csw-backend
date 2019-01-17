@@ -168,6 +168,7 @@ class TrustedAdvisorCriterion(CriteriaDefault):
         self.language = 'en'
         self.region = 'us-east-1'
         self.annotation = ''
+        self.is_regional = False
         super(TrustedAdvisorCriterion, self).__init__(app)
 
     def get_data(self, session, **kwargs):
