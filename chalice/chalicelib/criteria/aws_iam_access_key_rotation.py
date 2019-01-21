@@ -28,12 +28,13 @@ class AwsIamAccessKeyRotationBase(TrustedAdvisorCriterion):
         self.how_do_i_fix_it = (
             'Ensure that all your IAM user access keys are rotated at least every {self.status_interval} in order to  '
             'decrease the likelihood of accidental exposures and protect your AWS resources '
-            'against unauthorized access. To rotate access keys, it is recommended to follow these steps: '
-            '1) Create a second access key in addition to the one in use. '
-            '2) Update all your applications to use the new access key and validate that the applications are working. '
-            '3) Change the state of the previous access key to inactive. '
-            '4) Validate that your applications are still working as expected. '
-            '5) Delete the inactive access key.'
+            'against unauthorized access. <br />To rotate access keys, it is recommended to follow these steps: <ol>'
+            '<li>Create a second access key in addition to the one in use.</li>'
+            '<li>Update all your applications to use the new access key and validate that the applications are working.</li>'
+            '<li>Change the state of the previous access key to inactive.</li>'
+            '<li>Validate that your applications are still working as expected.</li>'
+            '<li>Delete the inactive access key.</li>'
+            '</ol>'
         )
 
     def translate(self, data={}):

@@ -20,18 +20,18 @@ class EBSPublicSnapshot(TrustedAdvisorCriterion):
         )
         self.why_is_it_important = (
             'When you make a snapshot public, you give all AWS accounts '
-            'and users access to all the data on the snapshot. '
+            'and users access to all the data on the snapshot.<br />'
             'If you want to share a snapshot with particular users or accounts, mark the snapshot as private, '
-            'and then specify the user or accounts you want to share the snapshot data with. '
+            'and then specify the user or accounts you want to share the snapshot data with.<br />'
             'Note: Results for this check are automatically refreshed several times daily, '
             'and refresh requests are not allowed. It might take a few hours for changes to appear.'
         )
         self.how_do_i_fix_it = (
             'Unless you are certain you want to share all the data in the snapshot with all AWS accounts and users, '
             'modify the permissions: mark the snapshot as private, '
-            'and then specify the accounts that you want to give permissions to. '
-            'For more information, see Sharing an Amazon EBS Snapshot link below: '
-            'https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html'
+            'and then specify the accounts that you want to give permissions to.<br />'
+            'For more information, see '
+            '<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ShareSnapshot.html">Sharing an Amazon EBS Snapshot</a>.'
         )
         super(EBSPublicSnapshot, self).__init__(app)
 

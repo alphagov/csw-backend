@@ -35,9 +35,9 @@ class S3BucketReadAll(S3BucketPermissions):
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '
-            'modify and delete files in the S3 bucket; this can clearly cause issues. '
+            'modify and delete files in the S3 bucket; this can clearly cause issues. <br />'
             'However, even “List” permissions being open to the world can cause problems '
-            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. '
+            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />'
             'Therefore it’s vital to secure all S3 buckets by making sure '
             'that they are closed to everyone outside of GDS.'
         )
@@ -81,9 +81,9 @@ class S3BucketOpenAccess(S3BucketPermissions):
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '
-            'modify and delete files in the S3 bucket; this can clearly cause issues. '
+            'modify and delete files in the S3 bucket; this can clearly cause issues. <br />'
             'However, even “List” permissions being open to the world can cause problems '
-            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. '
+            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />'
             'Therefore it’s vital to secure all S3 buckets by making sure '
             'that they are closed to everyone outside of GDS.'
         )
@@ -126,9 +126,9 @@ class S3BucketWriteAll(S3BucketPermissions):
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '
-            'modify and delete files in the S3 bucket; this can clearly cause issues. '
+            'modify and delete files in the S3 bucket; this can clearly cause issues. <br />'
             'However, even “List” permissions being open to the world can cause problems '
-            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. '
+            '- malicious individuals can rack up costs on a bucket by repeatedly listing documents on a bucket. <br />'
             'Therefore it’s vital to secure all S3 buckets by making sure '
             'that they are closed to everyone outside of GDS.'
         )

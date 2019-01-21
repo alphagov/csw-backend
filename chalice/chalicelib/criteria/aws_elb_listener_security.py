@@ -31,8 +31,8 @@ class ELBListenerSecurityNoListener(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Either add an HTTPS listener with an up-to-date security policy to the ELB, '
-            'or edit an existing one to use HTTPS. Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'or edit an existing one to use HTTPS. <br />Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityNoListener, self).__init__(app)
 
@@ -73,8 +73,8 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to a more recent one. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityPredefinedOutdated, self).__init__(app)
 
@@ -116,8 +116,8 @@ class ELBListenerSecurityProtocolDiscouraged(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to one that is recommended. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityProtocolDiscouraged, self).__init__(app)
 
@@ -159,8 +159,8 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to a more recent one. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityInsecureProtocol, self).__init__(app)
 

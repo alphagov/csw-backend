@@ -71,8 +71,8 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
         )
         self.how_do_i_fix_it = (
             'Create a new security group and reconfigure the load balancer to refer to it.'
-            'Please follow the AWS quidance on how to attach a security group to  a load balancer:'
-            'https://aws.amazon.com/premiumsupport/knowledge-center/security-group-load-balancer/ '
+            'Please follow the AWS quidance on '
+            '<a href="https://aws.amazon.com/premiumsupport/knowledge-center/security-group-load-balancer/">how to attach a security group to a load balancer</a>.'
         )
         super(ELBSecurityGroupsRed, self).__init__(app)
 
