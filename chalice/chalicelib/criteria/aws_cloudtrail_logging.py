@@ -4,44 +4,18 @@ checkId: vjafUGJ9H0
 TA checks for cloudtrail being turned on in all regions and without errors.
 Also checks if CST receives the trails in its predefined bucket.
 """
-import json
-
-from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_support_client import GdsSupportClient
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 
 
-class CloudtrailLogging(CriteriaDefault):
+class CloudtrailLogging(TrustedAdvisorCriterion):
     """
     """
     active = False
 
     def __init__(self, app):
-        # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
-        # attributes common in both subclasses
         self.resource_type = 'AWS::Cloudtrail::Logging'
-        self.ClientClass = GdsSupportClient
         self.check_id = 'vjafUGJ9H0'
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
         super(CloudtrailLogging, self).__init__(app)
-
-    def get_data(self, session, **kwargs):
-        output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
-        )
-        self.app.log.debug(json.dumps(output))
-        return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
-
-    def translate(self, data={}):
-        return {
-            'resource_id': data.get('resourceId', ''),
-            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
-        }
 
 
 class CloudtrailLogHasErrors(CloudtrailLogging):
@@ -56,14 +30,14 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
             'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
         )
         self.why_is_it_important = (
-            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'CloudTrail keeps logs of API calls made on your AWS account.<br />'
             'These logs allow closer monitoring of activity, '
-            'to make sure that users and resources are not behaving incorrectly. '
+            'to make sure that users and resources are not behaving incorrectly.<br />'
             'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
             'Make sure that the S3 bucket that CloudTrail targets exists '
-            '- if it gets removed, the logs can’t be delivered. '
+            '- if it gets removed, the logs can’t be delivered.<br />'
             'Make sure that CloudTrail has write permissions for the bucket it’s trying to deliver its logs to.'
         )
         super(CloudtrailLogHasErrors, self).__init__(app)
@@ -97,9 +71,9 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
             'A trail has not been created for a region in your account.'
         )
         self.why_is_it_important = (
-            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'CloudTrail keeps logs of API calls made on your AWS account.<br />'
             'These logs allow closer monitoring of activity, '
-            'to make sure that users and resources are not behaving incorrectly. '
+            'to make sure that users and resources are not behaving incorrectly.<br />'
             'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
@@ -133,9 +107,9 @@ class CloudtrailLogTurnedOff(CloudtrailLogging):
             'Logging is turned off for a trail in your account.'
         )
         self.why_is_it_important = (
-            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'CloudTrail keeps logs of API calls made on your AWS account.<br />'
             'These logs allow closer monitoring of activity, '
-            'to make sure that users and resources are not behaving incorrectly. '
+            'to make sure that users and resources are not behaving incorrectly.<br />'
             'Because of this, it is important to make sure CloudTrail is not misconfigured.'
         )
         self.how_do_i_fix_it = (
@@ -170,14 +144,14 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
             'Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.'
         )
         self.why_is_it_important = (
-            'CloudTrail keeps logs of API calls made on your AWS account. '
+            'CloudTrail keeps logs of API calls made on your AWS account.<br />'
             'These logs allow closer monitoring of activity, '
-            'to make sure that users and resources are not behaving incorrectly. '
+            'to make sure that users and resources are not behaving incorrectly.<br />'
             'If these logs are not delivered to the Cyber Security Team, '
             'we will not be able to monitor and review what happens in the case of an incident.'
         )
         self.how_do_i_fix_it = (
-            'Set up CloudTrail to deliver logs to the Cyber Security Team bucket, at [S3 BUCKET URL]. '
+            'Set up CloudTrail to deliver logs to the Cyber Security Team bucket, at [S3 BUCKET URL].<br />'
             'To do this, you can add these lines to '
             'your internal configuration management tool (Terraform, Ansible, etc): [MAGIC LINES]'
         )

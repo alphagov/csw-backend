@@ -31,18 +31,6 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
     how_do_i_fix_it = """Create a role that trusts an IAM user from a separate account, to allow them to assume a
         role into your account."""
 
-    # It would be nice to define a default here that contains the GDS account number (so we can use
-    # it to construct a regex to check the trust relationship), but we probably don't want to commit
-    # that to a public repo. Check the environment variables to see if the GDS account number is
-    # defined there. If not, we probably want to define it at some point in the setup
-    #try:
-        #user_account = os.environ["IAM_USER_ACCOUNT"]
-    #except Exception:
-        #user_account = ""
-
-    iam_user_regex = re.compile(user_account + ":user")
-
-
     def get_data(self, session, **kwargs):
         self.app.log.debug("Getting a list of roles in the account...")
 
@@ -66,6 +54,16 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
         principal = role["AssumeRolePolicyDocument"]["Statement"][0]["Principal"]
 
         self.app.log.debug(f"Principal of that role: {json.dumps(principal)}")
+
+        # It would be nice to define a default here that contains the GDS account number (so we can use
+        # it to construct a regex to check the trust relationship), but we probably don't want to commit
+        # that to a public repo. Check the environment variables to see if the GDS account number is
+        # defined there. If not, we probably want to define it at some point in the setup
+        try:
+            user_account = os.environ["IAM_USER_ACCOUNT"]
+        except Exception:
+            user_account = ""
+        self.iam_user_regex = re.compile(user_account + ":user")
 
         if "AWS" in principal:
             for arn in principal["AWS"]:

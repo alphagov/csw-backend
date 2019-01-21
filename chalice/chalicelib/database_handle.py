@@ -5,7 +5,6 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
-import pkgutil
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -156,46 +155,56 @@ class DatabaseHandle():
 
         return item
 
-    # TODO: After switch to alembic as part of the migration template
-    # def push_active_criteria(self, event):
-    #     """
-    #     Parses all the submodules of the criteria submodule for Criteria subclasses with the class attr active == True
-    #     and populates the database with their class attr.
-    #     """
-    #     db = self.get_handle()
-    #     created = []
-    #     try:
-    #         db.connect()
-
-    #         path_components = ['chalicelib', 'criteria', ]
-    #         for m in pkgutil.walk_packages(path=[os.path.join(path_components)]):
-    #             module = importlib.import_module('.'.join(path_components + m.name)
-    #             for member in dir(module):
-    #                 candidate = getattr(module, member)
-    #                 if inspect.isclass(candidate) and getattr(candidate, 'active', False):
-    #                     self.create_item({
-    #                         'Model': 'Criterion',
-    #                         'Params': {
-    #                             # 'criterion_name':'IAM inspector policy is up-to-date',
-    #                             # 'criteria_provider_id':3,
-    #                             'invoke_class_name': '.'.join(path_components + m.name + [candidate.__name__],
-    #                             # 'invoke_class_get_data_method': candidate.,
-    #                             'title': candidate.title,
-    #                             'description': candidate.description,
-    #                             'why_is_it_important': candidate.why_is_it_important,
-    #                             'how_do_i_fix_it': candidate.how_do_i_fix_it,
-    #                             'active': candidate.active,
-    #                             # 'is_regional': false
-    #                         },
-    #                     })
-
-    #         db.close()
-    #     except Exception as e:
-    #         if db is not None:
-    #             db.rollback()
-    #         self.app.log.error(str(e))
-    #     return created
-
+    def create_or_update_criterion(self, event):
+        """
+        Creates or updates Criteria DB records based on the codebase.
+        """
+        from chalicelib.models import Criterion
+        db = self.get_handle()
+        db.connect()
+        recs = Criterion.select().where(Criterion.invoke_class_name == event['criterion_name'])
+        count = recs.count()
+        obj = getattr(
+            importlib.import_module('.'.join(event['criterion_name'].split('.')[:-1])),
+            event['criterion_name'].split('.')[-1]
+        )(self.app)  # instantiate the appropriate Criterion subclass
+        if count < 1 and obj.active is True:  # new and active criteria
+            Criterion.create(
+                criterion_name=obj.title,
+                criteria_provider_id={
+                    'GdsSupportClient': 1,
+                    'GdsEc2SecurityGroupClient': 2,
+                    'GdsIamClient': 3,
+                }[obj.ClientClass.__name__],  # values are based in the sequence providers are fed by database_populate
+                invoke_class_name=event['criterion_name'],
+                invoke_class_get_data_method="doesn't matter, we should get rid of this column",
+                title=obj.title,
+                description=obj.description,
+                why_is_it_important=obj.why_is_it_important,
+                how_do_i_fix_it=obj.how_do_i_fix_it,
+                active=obj.active,
+                is_regional=getattr(obj, 'is_regional', True),
+            )
+        elif count == 1:  # if it already exists update, even if it deactivates it
+            existing = recs.get()
+            existing.criterion_name = obj.title
+            existing.criteria_provider_id = {
+                'GdsSupportClient': 1,
+                'GdsEc2SecurityGroupClient': 2,
+                'GdsIamClient': 3,
+            }[obj.ClientClass.__name__]
+            # existing.invoke_class_name = event['criterion_name']  # the unique column we base our search on
+            existing.invoke_class_get_data_method = "doesn't matter, we should get rid of this column"
+            existing.title = obj.title
+            existing.description = obj.description
+            existing.why_is_it_important = obj.why_is_it_important
+            existing.how_do_i_fix_it = obj.how_do_i_fix_it
+            existing.active = obj.active
+            existing.is_regional = getattr(obj, 'is_regional', True)
+            existing.save()
+        # else:
+        #     raise  # multiple objects returned when zero or one should
+        db.close()
 
 
 class BaseModel(peewee.Model):
@@ -213,27 +222,28 @@ class BaseModel(peewee.Model):
         schema = "public"
 
     def save(self, force_insert=False, only=None):
-        try:
-            item = super().save(force_insert, only)
-        except Exception as error:
-            item = 0
-            self._meta.database.app.log.error("Save failed: "+str(error))
-            self._meta.database.rollback()
-        return item
+        # try:
+        #     item = super().save(force_insert, only)
+        # except Exception as error:
+        #     item = 0
+        #     self._meta.database.app.log.error("Save failed: "+str(error))
+        #     self._meta.database.rollback()
+        # return item
+        return super().save(force_insert, only)
 
     @classmethod
     def create(cls, **query):
-        try:
-            item = super().create(**query)
-        except Exception as error:
-            item = None
-            cls._meta.database.app.log.error("Create failed: " + str(error))
-            cls._meta.database.rollback()
-        return item
+        # try:
+        #     item = super().create(**query)
+        # except Exception as error:
+        #     item = None
+        #     cls._meta.database.app.log.error("Create failed: " + str(error))
+        #     cls._meta.database.rollback()
+        # return item
+        return super().create(**query)
 
     @classmethod
     def serialize_list(cls, items):
         return [
             item.serialize() for item in items
         ]
-

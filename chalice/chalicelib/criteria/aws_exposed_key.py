@@ -3,30 +3,18 @@ implements aws::iam::access_key_rotation
 checkId: DqdJqYeRm5
 The access key is active and has been rotated in the past 90 days (yellow/warning) or 2 years (red/error).
 """
-import json
-
-from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_support_client import GdsSupportClient
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 
 
-class AwsIamExposedAccessKey(CriteriaDefault):
+class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
     """
     Subclass Criterion checking for (potentially) exposed access keys.
     """
     active = False
 
     def __init__(self, app):
-        # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
-        # attributes common in both subclasses
         self.resource_type = 'AWS::iam::exposed_key'
-        self.ClientClass = GdsSupportClient
         self.check_id = '12Fnkpl8Y5'
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
-        self.title = 'Exposed Access Keys'
         self.description = (
             'An AWS Access Key ID and corresponding secret key were found on popular code repositories, '
             'or there is irregular EC2 usage that indicates that an access key has been compromised.'
@@ -34,27 +22,12 @@ class AwsIamExposedAccessKey(CriteriaDefault):
         self.why_is_it_important = (
             'Access keys are what allow AWS users to authenticate themselves so that they can make use of certain '
             'functions within AWS, such as making API calls, '
-            'or using the AWS command line interface to query the account, make or remove resources, and so on. '
+            'or using the AWS command line interface to query the account, make or remove resources, and so on. <br />'
             'If these access keys are leaked, '
             'attackers may gain a better understanding of how your account is structured, '
             'and they may steal and/or vandalise data within your account.'
         )
         super(AwsIamExposedAccessKey, self).__init__(app)
-
-    def get_data(self, session, **kwargs):
-        output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
-        )
-        self.app.log.debug(json.dumps(output))
-        return output['flaggedResources']  # will have len() == 0 if compliant
-
-    def translate(self, data={}):
-        return {
-            'resource_id': 'root',
-            'resource_name': 'Root Account',
-        }
 
 
 class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
@@ -64,28 +37,29 @@ class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
+        self.title = 'Potentially Exposed Access Keys'
         self.how_do_i_fix_it = (
             'Delete the affected access key, and generate a new one '
-            'for the user or application. Please follow the below recommendations accordingly:'
-            '- DELETE THE KEY (for IAM users): '
+            'for the user or application. <br />Please follow the below recommendations accordingly:<br />'
+            '- DELETE THE KEY (for IAM users)<br />'
             'Navigate to your IAM Users list in the AWS Management Console, '
-            'here: https://console.aws.amazon.com/iam/home#users . '
+            '<a href="https://console.aws.amazon.com/iam/home#users">here</a>.<br />'
             'Please select the IAM user identified above. Click on the "User Actions" drop-down menu '
             'and then click "Manage Access Keys" to show that user\'s active Access Keys. '
             'Click "Delete" next to the access key identified above.'
-            '- ROTATE THE KEY (for applications)'
-            'If your application uses the access key, you need to replace the exposed key with a new one. '
+            '- ROTATE THE KEY (for applications)<br />'
+            'If your application uses the access key, you need to replace the exposed key with a new one.<br />'
             'To do this, first create a second key (at that point both keys will be active) '
-            'and modify your application to use the new key.'
-            'Then disable (but do not delete) the first key. '
-            'If there are any problems with your application, you can make the first key active again. '
-            'When your application is fully functional with the first key inactive, please delete the first key.'
+            'and modify your application to use the new key.<br />'
+            'Then disable (but do not delete) the first key.<br />'
+            'If there are any problems with your application, you can make the first key active again.<br />'
+            'When your application is fully functional with the first key inactive, please delete the first key.<br />'
             'We strongly encourage you to immediately review your AWS account for any unauthorized AWS usage, '
-            'suspect running instances, or inappropriate IAM users and policies. '
+            'suspect running instances, or inappropriate IAM users and policies.<br />'
             'To review any unauthorized access, '
             'please inspect CloudTrail logs to see what was done with the access key while it was leaked '
             'and also Investigate how the access key was leaked, '
-            'and take steps to prevent it from happening again.'
+            'and take steps to prevent it from happening again.<br />'
         )
         super(AwsIamPotentiallyExposedAccessKey, self).__init__(app)
 
@@ -126,6 +100,7 @@ class AwsIamSuspectedExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
+        self.title = 'Suspected Exposed Access Keys'
         self.how_do_i_fix_it = 'Alert not actionable'
         super(AwsIamSuspectedExposedAccessKey, self).__init__(app)
 

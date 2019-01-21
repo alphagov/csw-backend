@@ -3,45 +3,17 @@ implements aws::elb::listener_security
 checkId: a2sEc6ILx
 Checks on the Elastic Load Balancer HTTPS/SSL listener's security configuration.
 """
-import json
-
-from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_support_client import GdsSupportClient
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 
 
-class ELBListenerSecurity(CriteriaDefault):
+class ELBListenerSecurity(TrustedAdvisorCriterion):
     """
     Subclass Criterion checking for the four ELB listener checks
     """
-    active = False
-
     def __init__(self, app):
-        # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
-        # attributes common in both subclasses
         self.resource_type = 'AWS::elb::listener_security'
-        self.ClientClass = GdsSupportClient
         self.check_id = 'a2sEc6ILx'
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
         super(ELBListenerSecurity, self).__init__(app)
-
-    def get_data(self, session, **kwargs):
-        output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
-        )
-        self.app.log.debug(json.dumps(output))
-        return output['flaggedResources']  # will have len() == 0 if compliant
-
-    def translate(self, data={}):
-        return {
-            'resource_id': data.get('resourceId', ''),
-            'resource_name': data.get('metadata', ['', '', ])[1],  # load balancer name or empty
-        }
 
 
 class ELBListenerSecurityNoListener(ELBListenerSecurity):
@@ -59,8 +31,8 @@ class ELBListenerSecurityNoListener(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Either add an HTTPS listener with an up-to-date security policy to the ELB, '
-            'or edit an existing one to use HTTPS. Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'or edit an existing one to use HTTPS. <br />Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityNoListener, self).__init__(app)
 
@@ -101,8 +73,8 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to a more recent one. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityPredefinedOutdated, self).__init__(app)
 
@@ -144,8 +116,8 @@ class ELBListenerSecurityProtocolDiscouraged(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to one that is recommended. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityProtocolDiscouraged, self).__init__(app)
 
@@ -187,8 +159,8 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
         )
         self.how_do_i_fix_it = (
             'Change the security policy on the listener to a more recent one. '
-            'Further instructions and information can be found here: '
-            'https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html'
+            'Further instructions and information can be found '
+            '<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html">here</a>.'
         )
         super(ELBListenerSecurityInsecureProtocol, self).__init__(app)
 
