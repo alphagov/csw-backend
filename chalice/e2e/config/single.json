@@ -1,0 +1,13 @@
+{
+  "server": "hub.browserstack.com",
+  "user": "danjones17",
+  "key": "pMtQzX2MAyxJGzzkM9GZ",
+
+  "capabilities": {
+    "browserstack.debug": true
+  },
+
+  "environments": [{
+    "browser": "chrome"
+  }]
+}
