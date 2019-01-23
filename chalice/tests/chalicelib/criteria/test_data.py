@@ -1703,53 +1703,77 @@ import datetime
 from dateutil.tz import tzutc
 IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
     "pass": [
-            {
-                'Path': '/',
-                'RoleName': 'PassRole',
-                'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
-                'Arn': 'arn:aws:iam::987654321000:role/PassRole',
-                'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
-                'AssumeRolePolicyDocument': {
-                    'Version': '2012-10-17',
-                    'Statement': [
-                        {
-                            'Effect': 'Allow',
-                            'Principal': {
-                                'AWS': [
-                                    'arn:aws:iam::010101010101:user/username', 
-                                    ] },
-                            'Action': 'sts:AssumeRole',
-                        }
-                    ]
-                },
-                'Description': 'This role should pass the test',
-                'MaxSessionDuration': 3600
-            }
-        ],
-    "fail": [ 
-            {
-                'Path': '/',
-                'RoleName': 'FailRole',
-                'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
-                'Arn': 'arn:aws:iam::987654321000:role/FailRole',
-                'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
-                'AssumeRolePolicyDocument': {
-                    'Version': '2012-10-17',
-                    'Statement': [
-                        {
-                            'Effect': 'Allow',
-                            'Principal': {
-                                'AWS': [
-                                    'arn:aws:iam::101010101010:user/username', 
-                                    ] },
-                            'Action': 'sts:AssumeRole',
-                        }
-                    ]
-                },
-                'Description': 'This role should fail the test',
-                'MaxSessionDuration': 3600
-            }
-        ]
+        {
+            'Path': '/',
+            'RoleName': 'PassRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/PassRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'AWS': [
+                                'arn:aws:iam::010101010101:user/username',
+                                ] },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should pass',
+            'MaxSessionDuration': 3600
+        }
+    ],
+    "fail-invalid-user": [
+        {
+            'Path': '/',
+            'RoleName': 'FailRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/FailRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'AWS': [
+                                'arn:aws:iam::101010101010:user/username',
+                                ] },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should fail because it does not trust the right account',
+            'MaxSessionDuration': 3600
+        }
+    ],
+    "fail-principal-service": [
+        {
+            'Path': '/',
+            'RoleName': 'FailRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/FailRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'Service': [
+                                'ec2.amazonaws.com',
+                                ] },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should fail because it defines a service in its trust relationship, instead of an identity',
+            'MaxSessionDuration': 3600
+        }
+    ]
 }
 EBS_PUBLIC_SNAPSHOTS = {
     'empty': {
