@@ -27,13 +27,13 @@ class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
         """
         test that the client ec2 the correct API method
         """
-        self.assertIn('describe_egress_restriction', dir(self.subclass.client))
+        self.assertIn('describe_security_groups', dir(self.subclass.client))
 
     def test_get_data(self):
         """
         """
         # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-        self.subclass.client.describe_egress_restriction = \
+        self.subclass.client.describe_security_groups = \
             lambda session: EGRESS_RESTRICTION['pass']
         # output value
         item = self.subclass.get_data(None)
