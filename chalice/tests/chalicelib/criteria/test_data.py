@@ -1827,3 +1827,8 @@ RDS_PUBLIC_SNAPSHOTS = {
         'timestamp': '2018-12-27T15:41:04Z'
     },
 }
+
+EGRESS_RESTRICTION = {
+    'pass': {},
+    'fail': {},
+}
