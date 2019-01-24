@@ -1,11 +1,11 @@
-from chalicelib.criteria.aws_ec2_egress_restriction import EgressRestrition
+from chalicelib.criteria.aws_ec2_egress_restriction import UnrestrictedEgressSecurityGroups
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
 from tests.chalicelib.criteria.test_data import EGRESS_RESTRICTION
 
 
-class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
+class TestUnrestrictedEgressSecurityGroups(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
     """
     Mixin class for the two key test case classes below
     """
@@ -14,14 +14,14 @@ class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
     def setUpClass(cls):
         """
         """
-        super(TestEgressRestrition, cls).setUpClass()
+        super(TestUnrestrictedEgressSecurityGroups, cls).setUpClass()
         cls.test_data = EGRESS_RESTRICTION
 
     def setUp(self):
         """
         """
-        super(TestEgressRestrition, self).setUpClass()
-        self.subclass = EgressRestrition(self.app)
+        super(TestUnrestrictedEgressSecurityGroups, self).setUpClass()
+        self.subclass = UnrestrictedEgressSecurityGroups(self.app)
 
     def test_init_client(self):
         """
@@ -34,14 +34,31 @@ class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
         """
         # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
         self.subclass.client.describe_security_groups = \
-            lambda session: EGRESS_RESTRICTION['pass']
+            lambda session: EGRESS_RESTRICTION['fail']['SecurityGroups']
         # output value
         item = self.subclass.get_data(None)
         # must return a dictionary with the three necessary keys
         msg = "the method must return a list of dictionaries"
-        print(item)
         with self.subTest():
-            self.assertIsInstance(item, dict, msg=msg)
+            self.assertIsInstance(item, list, msg=msg)
+
+    def test_translate(self):
+        """
+        """
+        # output value
+        for case in EGRESS_RESTRICTION:
+            for group in EGRESS_RESTRICTION[case]['SecurityGroups']:
+                translation = self.subclass.translate(group)
+                self.assertEqual(
+                    translation['resource_id'],
+                    group['GroupId'],
+                    msg='The resource ID does not match the Security Group ID.'
+                )
+                self.assertEqual(
+                    translation['resource_name'],
+                    group['GroupName'],
+                    msg='The resource name does not match the Security Group name.'
+                )
 
     def test_evaluate_pass(self):
         """
@@ -49,7 +66,7 @@ class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
         # input params
         event = {}
         whitelist = []
-        for item in EGRESS_RESTRICTION['pass']:
+        for item in EGRESS_RESTRICTION['pass']['SecurityGroups']:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -60,8 +77,7 @@ class TestEgressRestrition(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
         # input params
         event = {}
         whitelist = []
-        for item in EGRESS_RESTRICTION['fail']:
+        for item in EGRESS_RESTRICTION['fail']['SecurityGroups']:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
-
