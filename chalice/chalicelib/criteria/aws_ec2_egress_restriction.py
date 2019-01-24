@@ -16,21 +16,19 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
         self.is_regional = True
         self.title = 'Unrestricted Egress Security Groups'
         self.description = (
-            'Checks security groups for rules that allow unrestricted access to a resource.'
+            'Checks security groups for egress rules that allow unrestricted access to a resource.'
         )
         self.why_is_it_important = (
-            'Unrestricted access increases opportunities for malicious activity '
-            '(hacking, denial-of-service attacks, loss of data).'
+            'Unrestricted outbound network traffic increases opportunities for malicious activity '
+            '(hacking, denial-of-service attacks, loss of data). <br />'
+            'If internal servers are compromised, they can pose a threat to a larger network of resources, '
+            'for example especially when attempting to steal sensitive data '
+            'or communicate with command and control systems.'
         )
         self.how_do_i_fix_it = (
-            'Restrict access to only those IP addresses that require it. <br />'
-            'To restrict access to a specific IP address, set the suffix to /32 ''(for example, 192.0.2.10/32). <br />'
-            'Be sure to delete overly permissive rules after creating rules that are more restrictive <br />. '
-            'Additional Resources:<br />.'
-            '<a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html">'
-            'Amazon EC2 Security Groups</a><br />.'
-            '<a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">'
-            'Classless Inter-Domain Routing</a> (Wikipedia)<br />.'
+            'Restrict outbound network traffic to only those IP addresses and ports that require it. '
+            '<a href="https://aws.amazon.com/answers/networking/controlling-vpc-egress-traffic/">'
+            'Additional Resources</a>.'
         )
         super(UnrestrictedEgressSecurityGroups, self).__init__(app)
 
@@ -38,7 +36,6 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
         return self.client.describe_security_groups(session, **kwargs)
 
     def translate(self, data):
-        print(data, type(data))
         return {
             "resource_id": data['GroupId'],
             "resource_name": data['GroupName'],
