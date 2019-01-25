@@ -209,7 +209,7 @@ class TemplateHandler:
                 if (redirect_status["action"] == "complete"):
                     self.app.log.debug("Redirection made - deleting cookie")
                     expiration = datetime.datetime.now()
-                    headers["Set-Cookie"] = self.auth.cookie + self.auth.create_set_cookie_header("login_redirect", "", expiration)
+                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", "", expiration)
 
                 data["logout_url"] = f"{root_path}/logout"
                 data["menu"] = self.get_menu(root_path)
