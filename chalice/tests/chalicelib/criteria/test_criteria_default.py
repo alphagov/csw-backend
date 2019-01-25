@@ -304,20 +304,20 @@ class CriteriaSubclassTestCaseMixin(object):
         #         0,
         #         msg='language must be a non-empty string'
         #     )
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'region')
-            self.assertIsInstance(
-                self.subclass.region,
-                str,
-                msg='region must be a non-empty string'
-            )
-        with self.subTest():
-            self.assertHasAttr(self.subclass, 'region')
-            self.assertGreater(
-                len(self.subclass.region),
-                0,
-                msg='region must be a non-empty string'
-            )
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'region')
+        #     self.assertIsInstance(
+        #         self.subclass.region,
+        #         str,
+        #         msg='region must be a non-empty string'
+        #     )
+        # with self.subTest():
+        #     self.assertHasAttr(self.subclass, 'region')
+        #     self.assertGreater(
+        #         len(self.subclass.region),
+        #         0,
+        #         msg='region must be a non-empty string'
+        #     )
         with self.subTest():
             self.assertIsInstance(
                 self.subclass.title,
