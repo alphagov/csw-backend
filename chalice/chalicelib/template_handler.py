@@ -108,23 +108,28 @@ class TemplateHandler:
     def get_redirect_status(self, req):
         """
         Decides whether a login redirect is required or completed
-        :param route:
+        :param req:
         :return:
         """
         route = self.get_request_path()
+        self.app.log.debug(f"Check redirect status for: {route}")
         login_redirect = self.auth.get_cookie_value(req, "login_redirect")
         status = { "action": "none" }
         has_header = (login_redirect is not None)
         is_current_route = (login_redirect == route)
-        if (has_header and (not is_current_route)):
+        is_non_redirected_route = route not in [None,"","/","/logout","/login"]
+
+        if (has_header and (not is_current_route) and (not is_non_redirected_route)):
             status = {
                 "action": "redirect",
                 "target": login_redirect
             }
+
         if (has_header and is_current_route):
             status = {
                 "action": "complete"
             }
+        self.app.log.debug("Redirect Status: " + str(status))
         return status
 
     def render_authorized_template(self, template_file, req, data=None):
@@ -184,15 +189,17 @@ class TemplateHandler:
 
                 # check for login_redirect in cookie
                 redirect_status = self.get_redirect_status(req)
+
                 # unset redirect cookie and set redirect header
                 if (redirect_status["action"] == "redirect"):
                     self.app.log.debug("Redirect to target: "+redirect_status["target"])
-                    #status_code = 302
-                    #headers["Location"] = redirect_status["target"]
+                    status_code = 302
+                    headers["Location"] = root_path + redirect_status["target"]
+
                 if (redirect_status["action"] == "complete"):
                     self.app.log.debug("Redirection made - deleting cookie")
-                    #expiration = datetime.datetime.now()
-                    #headers["Set-Cookie"] += self.auth.create_set_cookie_header("login_redirect", "", expiration)
+                    expiration = datetime.datetime.now()
+                    headers["Set-Cookie"] += self.auth.create_set_cookie_header("login_redirect", "", expiration)
 
                 data["logout_url"] = f"{root_path}/logout"
                 data["menu"] = self.get_menu(root_path)
@@ -214,8 +221,8 @@ class TemplateHandler:
                     headers["Location"] = self.base_url
                     # Store requested path in login_redirect cookie
                     self.app.log.debug("Not logged in - add login redirect cookie to target: "+route)
-                    #expiration = self.auth.get_default_cookie_expiration()
-                    #headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", route, expiration)
+                    expiration = self.auth.get_default_cookie_expiration()
+                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", route, expiration)
 
             # Always populate login link in template data
             login_url = self.auth.get_auth_url(self.base_url + route)
