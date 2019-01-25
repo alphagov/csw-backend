@@ -37,6 +37,7 @@ class TemplateHandler:
 
     def get_request_path(self):
 
+        self.app.log.debug("Context: "+str(self.app.current_request.context))
         return self.app.current_request.context['resourcePath']
 
     def get_template(self, file):
