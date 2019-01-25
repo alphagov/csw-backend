@@ -119,7 +119,9 @@ class TemplateHandler:
         is_current_route = (login_redirect == route)
         is_non_redirected_route = route not in [None,"","/","/logout","/login"]
 
-        if (has_header and (not is_current_route) and (not is_non_redirected_route)):
+        if (has_header
+                and (not is_current_route)
+                and (not is_non_redirected_route)):
             status = {
                 "action": "redirect",
                 "target": login_redirect
@@ -191,7 +193,8 @@ class TemplateHandler:
                 redirect_status = self.get_redirect_status(req)
 
                 # unset redirect cookie and set redirect header
-                if (redirect_status["action"] == "redirect"):
+                if ((redirect_status["action"] == "redirect")
+                    and (redirect_status["target"] != "/logout")):
                     self.app.log.debug("Redirect to target: "+redirect_status["target"])
                     status_code = 302
                     headers["Location"] = root_path + redirect_status["target"]
