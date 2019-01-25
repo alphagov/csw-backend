@@ -31,6 +31,32 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
                 # You can make this conditional on whether we're testing on a pass or fail - maybe a list size 0
                 # is ok for pass, but not for fail
 
+    def test_translate(self):
+        for role in self.test_data.values():
+            with self.subTest():
+                translation = self.subclass.translate(role[0])
+                self.assertIsInstance(translation, dict, msg="The output of the translate method is not a dict.")
+                self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in the output of the translate method.")
+                self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in the output of the translate method.")
+                self.assertEqual(
+                    translation['resource_id'],
+                    role[0]['Arn'],
+                    msg="The resource ID does not match the role ARN."
+                )
+                self.assertEqual(
+                    translation['resource_name'],
+                    role[0]['RoleName'],
+                    msg="The resource name does not match the role name."
+                )
+
+    def test_evaluate_pass(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass']: # depends on get_data
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
     def test_evaluate_fail_invalid_user(self):
         event = {}
         whitelist = []
