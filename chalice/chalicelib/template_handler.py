@@ -223,7 +223,7 @@ class TemplateHandler:
 
             # Back to logged out
             else:
-                template_file = 'logged_out.html'
+                template_file = 'login.html'
 
                 # Redirect to homepage to login
                 if route not in ["", "/","/logout"]:
