@@ -246,6 +246,15 @@ class AuthHandler:
 
         return valid
 
+    def get_default_cookie_expiration(self):
+        """
+        Add expiration to current timestamp
+
+        :return datetime:
+        """
+        return datetime.datetime.now() + self.cookie_expiration
+
+
     def generate_cookie_header_val(self, token):
         """
         Generate a session cookie with the default expiry
@@ -254,8 +263,8 @@ class AuthHandler:
         :return str:
         """
 
-        expiration = datetime.datetime.now() + self.cookie_expiration
-
+        #expiration = datetime.datetime.now() + self.cookie_expiration
+        expiration = self.get_default_cookie_expiration()
         return self.create_set_cookie_header("session", token, expiration)
 
     def generate_logout_header_val(self):
