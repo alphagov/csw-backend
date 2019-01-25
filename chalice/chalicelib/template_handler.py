@@ -223,10 +223,11 @@ class TemplateHandler:
 
             # Back to logged out
             else:
-                template_file = 'login.html'
+                template_file = 'logged_out.html'
 
                 # Redirect to homepage to login
                 if route not in ["", "/","/logout"]:
+                    template_file = 'login.html'
                     status_code = 302
                     headers["Location"] = self.base_url
                     # Store requested path in login_redirect cookie
