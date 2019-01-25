@@ -1883,3 +1883,20 @@ EGRESS_RESTRICTION = {
                      'OwnerId': '489877524855',
                      'VpcId': 'vpc-0faa4c64'}]},
 }
+# Unfortunately, we have only pass data for this criterion's checks.
+RDS_SECURITY_GROUPS = {'ResponseMetadata': {'HTTPHeaders': {'content-length': '245',
+                                      'content-type': 'application/x-amz-json-1.1',
+                                      'date': 'Tue, 18 Dec 2018 16:19:03 GMT',
+                                      'x-amzn-requestid': 'a30b095a-02e0-11e9-8e3f-0bd149a3f8fd'},
+                      'HTTPStatusCode': 200,
+                      'RequestId': 'a30b095a-02e0-11e9-8e3f-0bd149a3f8fd',
+                      'RetryAttempts': 0},
+ 'result': {'categorySpecificSummary': {},
+            'checkId': 'nNauJisYIT',
+            'flaggedResources': [],
+            'resourcesSummary': {'resourcesFlagged': 0,
+                                 'resourcesIgnored': 0,
+                                 'resourcesProcessed': 1,
+                                 'resourcesSuppressed': 0},
+            'status': 'ok',
+            'timestamp': '2018-12-18T16:14:30Z'}}
