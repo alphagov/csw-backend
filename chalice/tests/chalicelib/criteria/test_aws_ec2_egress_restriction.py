@@ -48,17 +48,21 @@ class TestUnrestrictedEgressSecurityGroups(CriteriaSubclassTestCaseMixin, TestCa
         # output value
         for case in EGRESS_RESTRICTION:
             for group in EGRESS_RESTRICTION[case]['SecurityGroups']:
-                translation = self.subclass.translate(group)
-                self.assertEqual(
-                    translation['resource_id'],
-                    group['GroupId'],
-                    msg='The resource ID does not match the Security Group ID.'
-                )
-                self.assertEqual(
-                    translation['resource_name'],
-                    group['GroupName'],
-                    msg='The resource name does not match the Security Group name.'
-                )
+                with self.subTest():
+                    translation = self.subclass.translate(group)
+                    self.assertIsInstance(translation, dict, msg="The output of the translate method is not a dict.")
+                    self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in the output of the translate method.")
+                    self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in the output of the translate method.")
+                    self.assertEqual(
+                        translation['resource_id'],
+                        group['GroupId'],
+                        msg='The resource ID does not match the Security Group ID.'
+                    )
+                    self.assertEqual(
+                        translation['resource_name'],
+                        group['GroupName'],
+                        msg='The resource name does not match the Security Group name.'
+                    )
 
     def test_evaluate_pass(self):
         """
