@@ -69,6 +69,10 @@ class User(database_handle.BaseModel):
         return overview_data
 
     def get_my_teams(self):
+        """
+        Get list of teams for which there is a corresponding ProductTeamUser record
+        :return arr ProductTeam:
+        """
         try:
             teams = ProductTeam.select().join(ProductTeamUser).where(ProductTeamUser.user_id == self.id)
         except Exception as err:
@@ -163,7 +167,11 @@ class ProductTeam(database_handle.BaseModel):
         table_name = "product_team"
 
     def user_has_access(self, user):
-        # Check whether the user is a member in ProductTeamUser
+        """
+        Check whether the current user has access to this team
+        :param user:
+        :return:
+        """
         try:
             member = (ProductTeamUser
                       .select()
