@@ -141,9 +141,11 @@ class UserSession(database_handle.BaseModel):
         return session
 
 
-# Create a product team reference table to link AWS
-# accounts to the teams who they belong to
 class ProductTeam(database_handle.BaseModel):
+    """
+    Create a product team reference table to link AWS
+    accounts to the teams who they belong to
+    """
     team_name = peewee.CharField()
     active = peewee.BooleanField()
 
@@ -333,9 +335,16 @@ class ProductTeam(database_handle.BaseModel):
         return criteria_stats
 
 
-# Create a subscriptions table which designates
-# which AWS accounts we should scan
+class ProductTeamUser(database_handle.BaseModel):
+    """
+    Link product team records to user accounts in order to limit access
+    """
+
 class AccountSubscription(database_handle.BaseModel):
+    """
+    Create a subscriptions table which designates
+    which AWS accounts we should scan
+    """
     account_id = peewee.BigIntegerField()
     account_name = peewee.CharField()
     product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
