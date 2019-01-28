@@ -40,7 +40,8 @@ class User(database_handle.BaseModel):
         :return:
         """
         # TODO replace this with a select based on user access team roles
-        teams = ProductTeam.select().where(ProductTeam.active == True)
+        #teams = ProductTeam.select().where(ProductTeam.active == True)
+        teams = self.get_my_teams()
 
         overview_stats = {
             "accounts_audited": 0,
@@ -66,6 +67,15 @@ class User(database_handle.BaseModel):
             "teams": team_summaries
         }
         return overview_data
+
+    def get_my_teams(self):
+        try:
+            teams = ProductTeam.select().join(ProductTeamUser).where(ProductTeamUser.user_id == self.id)
+        except Exception as err:
+            app.log.debug("Failed to get team list for current user: " + str(err))
+            teams = []
+        return teams
+
 
 
 class UserSession(database_handle.BaseModel):
@@ -151,6 +161,20 @@ class ProductTeam(database_handle.BaseModel):
 
     class Meta:
         table_name = "product_team"
+
+    def user_has_access(self, user):
+        # Check whether the user is a member in ProductTeamUser
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .join(ProductTeam)
+                      .where(ProductTeam.id == self.id,
+                             ProductTeamUser.user_id == user).get())
+            is_member = True
+        except Exception as err:
+            # If there's no matching record they're not a member - this is not an error.
+            is_member = False
+        return is_member
 
     def get_team_failed_resources(self):
         team_id = self.id
@@ -339,6 +363,12 @@ class ProductTeamUser(database_handle.BaseModel):
     """
     Link product team records to user accounts in order to limit access
     """
+    user_id = peewee.ForeignKeyField(User, backref='sessions')
+    product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
+
+    class Meta:
+        table_name = "product_team_user"
+
 
 class AccountSubscription(database_handle.BaseModel):
     """
@@ -352,6 +382,22 @@ class AccountSubscription(database_handle.BaseModel):
 
     class Meta:
         table_name = "account_subscription"
+
+    def user_has_access(self, user):
+        # Check whether the user is a member in ProductTeamUser
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .join(ProductTeam)
+                      .join(AccountSubscription)
+                      .where(AccountSubscription.id == self.id,
+                             ProductTeamUser.user_id == user)
+                      .get())
+            is_member = True
+        except Exception as err:
+            # If there's no matching record they're not a member - this is not an error.
+            is_member = False
+        return is_member
 
     def get_latest_audit(self):
         account_id = self.id

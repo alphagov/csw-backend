@@ -92,7 +92,15 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
-        teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
+        authed = app.auth.try_login(app.current_request)
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+            teams = user.get_my_teams()
+        else:
+            teams = []
+
+        #teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
         team_list = []
         for team in teams:
             team_stats = team.get_team_stats()
@@ -110,6 +118,7 @@ def team_list():
             app.current_request,
             template_data
         )
+
     except Exception as err:
         app.log.error("Route: team error: " + str(err))
         response = app.templates.default_server_error()
@@ -119,6 +128,7 @@ def team_list():
 @app.route('/team/{id}/dashboard')
 def team_dashboard(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
@@ -144,6 +154,7 @@ def team_dashboard(id):
 @app.route('/team/{id}/status')
 def team_status(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
@@ -200,6 +211,7 @@ def team_status(id):
 @app.route('/team/{id}/issues')
 def team_issues(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
@@ -229,6 +241,7 @@ def team_issues(id):
 @app.route('/account/{id}/status')
 def account_status(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -293,6 +306,7 @@ def account_status(id):
 @app.route('/account/{id}/issues')
 def account_issues(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -331,6 +345,7 @@ def account_issues(id):
 @app.route('/account/{id}/history')
 def account_history(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -374,6 +389,7 @@ def account_history(id):
 @app.route('/account/{id}/history/{audit_id}')
 def account_status(id, audit_id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     audit_id = int(audit_id)
     try:
         load_route_services()
@@ -450,6 +466,7 @@ def check_issues(id):
         audit = audit_check.account_audit_id
         account = audit.account_subscription_id
         team = account.product_team_id
+        # TODO - add check user has access to team
 
         template_data = {
             "breadcrumbs": [
@@ -490,6 +507,8 @@ def resource_details(id):
         account = models.AccountSubscription.get_by_id(
             models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
         )
+        # TODO - add check user has access to account team
+
         compliance = (
             models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
         ).get()
