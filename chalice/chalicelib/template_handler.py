@@ -50,7 +50,11 @@ class TemplateHandler:
 
     def get_template(self, file):
 
-        template = self.env.get_template(file)
+        try:
+            template = self.env.get_template(file)
+        except Exception as err:
+            template = None
+            self.app.log.debug("Tried to load non-existent template: "+str(err))
         return template
 
     def get_auth_handler(self):
