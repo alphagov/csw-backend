@@ -26,10 +26,11 @@ class TemplateHandler:
 
         self.register_filters()
 
-        self.logged_out_routes = self.app.logged_out_routes
-
         self.logged_in = False
         self.login_data = {}
+
+    def set_logged_out_routes(self, routes_list):
+        self.logged_out_routes = routes_list
 
     def render_template(self, file, params):
 
