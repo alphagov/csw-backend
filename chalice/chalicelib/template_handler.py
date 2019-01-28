@@ -121,6 +121,17 @@ class TemplateHandler:
     def get_redirect_status(self, req):
         """
         Decides whether a login redirect is required or completed
+        If a user goes straight to a page which requires login but does not have a valid JWT
+        - the requested path is stored in a login_redirect cookie
+        - the user is redirected to the denied page to login
+        - the OAuth process returns the user to the home page
+        - if the cookie is set
+                and the user is logged in
+            the home page redirects to the cookie path
+        - if the cookie is present
+                and the user is logged in
+                and the requested page matches the cookie path
+            the cookie is expired
         """
         route = self.get_request_path()
         self.app.log.debug(f"Check redirect status for: {route}")
