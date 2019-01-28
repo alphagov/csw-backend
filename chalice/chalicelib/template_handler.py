@@ -228,15 +228,15 @@ class TemplateHandler:
 
             # Back to logged out
             else:
-                template_file = 'logged_out.html'
-                redirect_to = self.base_url
+                if route == "/denied":
+                    template_file = "denied.html"
+                else:
+                    template_file = 'logged_out.html'
 
                 # Redirect to login
                 if route not in ["", "/", "/logout", "/login", "/denied"]:
-                    template_file = "denied.html"
-                    redirect_to = self.base_url + "/denied"
                     status_code = 302
-                    headers["Location"] = redirect_to
+                    headers["Location"] = self.base_url + "/denied"
                     # Return user to requested route after login
                     self.app.log.debug("Not logged in - add login redirect cookie to target: "+route)
                     expiration = self.auth.get_default_cookie_expiration()
