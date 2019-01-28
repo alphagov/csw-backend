@@ -92,6 +92,8 @@ def load_route_services():
             "font/eot"
         ]
 
+        # Define a list of routes which can be rendered outside login
+        # TODO - Find a nicer way of doing this per route.
         app.templates.set_logged_out_routes(["", "/", "/login", "/logout", "/denied"])
 
     except Exception as err:
