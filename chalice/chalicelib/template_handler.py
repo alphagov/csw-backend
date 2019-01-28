@@ -121,12 +121,17 @@ class TemplateHandler:
         self.app.log.debug(f"Check redirect status for: {route}")
         login_redirect = self.auth.get_cookie_value(req, "login_redirect")
         status = {
-            "action": "notify",
-            "target": login_redirect
+            "action": "none"
         }
         has_header = (login_redirect not in [None,""])
         is_current_route = (login_redirect == route)
         is_after_oauth_route = (route == self.auth.get_after_oauth_path())
+
+        if (has_header):
+            status = {
+                "action": "notify",
+                "target": login_redirect
+            }
 
         if (has_header and is_after_oauth_route):
             status = {
@@ -138,6 +143,7 @@ class TemplateHandler:
             status = {
                 "action": "complete"
             }
+
         self.app.log.debug("Redirect Status: " + str(status))
         return status
 
@@ -235,13 +241,11 @@ class TemplateHandler:
 
             # Always populate login link in template data
             login_url = self.auth.get_auth_url(self.base_url + route)
-            login_redirect = self.get_redirect_status(req)
 
             # Add the redirect path to the template data so
             # you can tell the user they're being redirected
-            if (login_redirect["action"] == "notify"
-                    and login_redirect["target"] is not None):
-                data["login_redirect"] = login_redirect["target"]
+            if (redirect_status["action"] == "notify"):
+                data["login_redirect"] = redirect_status["target"]
                 
             data["login_url"] = login_url
             data["asset_path"] = asset_path
