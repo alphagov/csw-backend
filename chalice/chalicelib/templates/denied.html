@@ -2,9 +2,13 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    <h1 class="govuk-heading-l">Access</h1>
+    <h1 class="govuk-heading-l">Access denied</h1>
     <p>Sign in with your Google account</p>
     <a href="{{ login_url }}" role="button" class="govuk-button">Sign in</a>
+
+    {%- if login_redirect is defined -%}
+    {% include "components/redirection.html" %}
+    {%- endif -%}
 
     {% include "components/request_access.html" %}
   </main>

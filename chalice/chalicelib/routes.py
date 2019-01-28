@@ -13,6 +13,12 @@ def index():
     return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
 
 
+@app.route('/denied')
+def index():
+    load_route_services()
+    return Response(**app.templates.render_authorized_template('denied.html', app.current_request))
+
+
 @app.route('/overview')
 def overview_dashboard():
     load_route_services()
