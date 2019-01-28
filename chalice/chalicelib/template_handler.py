@@ -225,10 +225,10 @@ class TemplateHandler:
                 template_file = 'logged_out.html'
 
                 # Redirect to login
-                status_code = 302
-                headers["Location"] = self.base_url
-                # Return user to requested route after login
-                if route not in ["", "/","/logout","/login"]:
+                if route not in ["", "/", "/logout", "/login"]:
+                    status_code = 302
+                    headers["Location"] = self.base_url
+                    # Return user to requested route after login
                     self.app.log.debug("Not logged in - add login redirect cookie to target: "+route)
                     expiration = self.auth.get_default_cookie_expiration()
                     headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", route, expiration)
