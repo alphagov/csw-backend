@@ -124,10 +124,9 @@ class TemplateHandler:
             "action": "none",
             "target": login_redirect
         }
-        has_header = (login_redirect is not None)
+        has_header = (login_redirect not in [None,""])
         is_current_route = (login_redirect == route)
-        after_oauth_path = self.auth.get_after_oauth_path()
-        is_after_oauth_route = (route == after_oauth_path)
+        is_after_oauth_route = (route == self.auth.get_after_oauth_path())
 
         if (has_header and is_after_oauth_route):
             status = {
