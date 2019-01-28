@@ -372,7 +372,7 @@ class ProductTeamUser(database_handle.BaseModel):
     Link product team records to user accounts in order to limit access
     """
     user_id = peewee.ForeignKeyField(User, backref='sessions')
-    product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
+    team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
 
     class Meta:
         table_name = "product_team_user"
