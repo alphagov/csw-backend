@@ -2,7 +2,9 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
+    {%- if login_redirect is not None -%}
     {% include "components/redirection.html %}
+    {%- endif -%}
 
     {% include "components/intro.html" %}
 
