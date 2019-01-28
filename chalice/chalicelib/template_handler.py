@@ -121,8 +121,6 @@ class TemplateHandler:
     def get_redirect_status(self, req):
         """
         Decides whether a login redirect is required or completed
-        :param req:
-        :return:
         """
         route = self.get_request_path()
         self.app.log.debug(f"Check redirect status for: {route}")
@@ -212,12 +210,13 @@ class TemplateHandler:
                 if self.auth.cookie is not None:
                     headers["Set-Cookie"] = self.auth.cookie
 
-                # unset redirect cookie and set redirect header
+                # Set redirect header
                 if (redirect_status["action"] == "redirect"):
                     self.app.log.debug("Redirect to target: "+redirect_status["target"])
                     status_code = 302
                     headers["Location"] = root_path + redirect_status["target"]
 
+                # Unset redirect cookie
                 if (redirect_status["action"] == "complete"):
                     self.app.log.debug("Redirection made - deleting cookie")
                     expiration = datetime.datetime.now()
@@ -244,7 +243,7 @@ class TemplateHandler:
                     # Fallback on the logged_out template
                     template_file = 'logged_out.html'
 
-                # Redirect to login
+                # Redirect to access denied for login
                 if route not in self.logged_out_routes:
                     status_code = 302
                     headers["Location"] = self.base_url + "/denied"
