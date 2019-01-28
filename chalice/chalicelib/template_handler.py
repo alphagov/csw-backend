@@ -231,9 +231,14 @@ class TemplateHandler:
 
             # Back to logged out
             else:
-                if route == "/denied":
-                    template_file = "denied.html"
+                # Try loading the template matching the route name
+                route_template_path = os.path.join(self.template_dir, f"{route}.html")
+                route_template_exists = os.path.isfile(route_template_path)
+                if ((route in self.logged_out_routes)
+                        and (route_template_exists)):
+                    template_file = f"{route}.html"
                 else:
+                    # Fallback on the logged_out template
                     template_file = 'logged_out.html'
 
                 # Redirect to login
