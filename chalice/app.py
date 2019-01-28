@@ -92,6 +92,8 @@ def load_route_services():
             "font/eot"
         ]
 
+        app.logged_out_routes = ["", "/", "/login", "/logout", "/denied"]
+
     except Exception as err:
         app.log.error(str(err))
 

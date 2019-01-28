@@ -26,6 +26,8 @@ class TemplateHandler:
 
         self.register_filters()
 
+        self.logged_out_routes = self.app.logged_out_routes
+
         self.logged_in = False
         self.login_data = {}
 
@@ -234,7 +236,7 @@ class TemplateHandler:
                     template_file = 'logged_out.html'
 
                 # Redirect to login
-                if route not in ["", "/", "/logout", "/login", "/denied"]:
+                if route not in self.logged_out_routes:
                     status_code = 302
                     headers["Location"] = self.base_url + "/denied"
                     # Return user to requested route after login
