@@ -232,10 +232,9 @@ class TemplateHandler:
             # Back to logged out
             else:
                 # Try loading the template matching the route name
-                route_template_path = os.path.join(self.template_dir, f"{route}.html")
-                route_template_exists = os.path.isfile(route_template_path)
+                route_template = self.get_template(f"{route}.html")
                 if ((route in self.logged_out_routes)
-                        and (route_template_exists)):
+                        and (route_template is not None)):
                     template_file = f"{route}.html"
                 else:
                     # Fallback on the logged_out template
