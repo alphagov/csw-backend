@@ -121,7 +121,7 @@ class TemplateHandler:
         self.app.log.debug(f"Check redirect status for: {route}")
         login_redirect = self.auth.get_cookie_value(req, "login_redirect")
         status = {
-            "action": "none",
+            "action": "notify",
             "target": login_redirect
         }
         has_header = (login_redirect not in [None,""])
@@ -239,7 +239,8 @@ class TemplateHandler:
 
             # Add the redirect path to the template data so
             # you can tell the user they're being redirected
-            if (login_redirect["action"] == "none"):
+            if (login_redirect["action"] == "notify"
+                    and login_redirect["target"] is not None):
                 data["login_redirect"] = login_redirect["target"]
                 
             data["login_url"] = login_url
