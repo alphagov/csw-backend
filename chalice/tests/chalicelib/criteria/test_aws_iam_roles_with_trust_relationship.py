@@ -66,6 +66,7 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("No trusted users", self.subclass.annotation)
 
     def test_evaluate_fail_principal_service(self):
         event = {}
@@ -74,3 +75,4 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("Invalid service", self.subclass.annotation)
