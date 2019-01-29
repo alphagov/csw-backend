@@ -36,8 +36,10 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
             with self.subTest():
                 translation = self.subclass.translate(role[0])
                 self.assertIsInstance(translation, dict, msg="The output of the translate method is not a dict.")
-                self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in the output of the translate method.")
-                self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in the output of the translate method.")
+                self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in "
+                                                              "the output of the translate method.")
+                self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in "
+                                                                "the output of the translate method.")
                 self.assertEqual(
                     translation['resource_id'],
                     role[0]['Arn'],
