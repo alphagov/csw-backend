@@ -20,16 +20,16 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     title = "Cloud Security Watch - IAM used correctly"
 
-    description = """Checks whether there is at least one role within the account that has a trust relationship
-        with an IAM user from a different account."""
+    description = ("Checks whether there is at least one role within the account that has a trust relationship"
+                    "with an IAM user from a different account." )
 
-    why_is_it_important = """Delivery accounts are set up such that there need not be any new IAM users in them,
-        with users assuming a role into the delivery account instead. If there is no role defined in the account
-        which doesn't refer to an IAM user from a different account, there is no way to gain access to the
-        delivery account without logging in as the root user, which is not recommended."""
+    why_is_it_important = ("Delivery accounts are set up such that there need not be any IAM users in them, "
+        "with users assuming a role into the delivery account instead.<br />"
+        "If there is no role defined in the account which doesn't trust an IAM user from a different account, there is "
+        "no way to gain access to the delivery account without logging in as the root user, which is not recommended.")
 
-    how_do_i_fix_it = """Create a role that trusts an IAM user from a separate account, to allow them to assume a
-        role into your account."""
+    how_do_i_fix_it = ("Create a role that trusts an IAM user from a separate account, to allow them to assume a "
+        "role into your account.")
 
     # It would be nice to define a default here that contains the GDS account number (so we can use
     # it to construct a regex to check the trust relationship), but we probably don't want to commit
