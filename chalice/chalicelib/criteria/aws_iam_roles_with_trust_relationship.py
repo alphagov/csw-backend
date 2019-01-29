@@ -3,7 +3,6 @@
 # Checks if there is at least one role which defines a trust relationship that contains IAM users
 # from a separate "main account".
 import json
-import os
 import re
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_iam_client import GdsIamClient
