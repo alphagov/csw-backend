@@ -38,9 +38,14 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
         #user_account = os.environ["IAM_USER_ACCOUNT"]
     #except Exception:
         #user_account = ""
-    user_account = "010101010101" # dummy value defined in the unit test
 
-    iam_user_regex = re.compile(user_account + ":user")
+    def __init__(self, app):
+        super(AwsIamRolesWithTrustRelationship, self).__init__(app)
+        self.user_account = self.retrieve_user_account()
+        self.iam_user_regex = re.compile(self.user_account + ":user")
+
+    def retrieve_user_account(self):
+        return "010101010101" # TODO: dummy value defined in the unit test - change for final
 
 
     def get_data(self, session, **kwargs):
