@@ -75,18 +75,24 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
         if "AWS" in principal:
             for arn in principal["AWS"]:
-                if self.iam_user_regex.search(arn): # matches the iam_user format we look for
+                if self.iam_user_regex.search(arn): # matches the iam_user format we're looking for
                     compliance_type = "COMPLIANT"
                     self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
                     break # don't need to loop over the rest, we've got an IAM user matched
-
-        if not compliance_type:
+            else: # We didn't break out of the loop, no arns have been matched
+                compliance_type = "NON_COMPLIANT"
+                self.app.log.debug("Role does not trust any IAM users from the main account")
+                self.annotation = ("<p>No trusted users: This role does not define any IAM users from the account "
+                                   f"{self.user_account} in their trust relationship.</p>"
+                                   "<p>This prevents any users from the trusted account assuming this role. "
+                                   "(However, it does not prevent IAM users from other accounts from "
+                                   "assuming this role.)</p>")
+        else:
             compliance_type = "NON_COMPLIANT"
-            self.app.log.debug("No roles are compliant")
-            self.annotation = ("<p>There are no roles in the account that define an IAM user from "
-                               f"the account {self.user_account} in their trust relationship.</p>")
-            self.annotation += ("<p>Users cannot assume role into your account. Make sure that you "
-                                "have a role that defines an appropriate trust relationship.</p>")
+            self.app.log.debug("Principal does not define any AWS identites")
+            self.annotation = ("<p>Invalid service: This role trusts a service, such as EC2 or Lambda, "
+                               "instead of an identity.</p>"
+                               "<p>This role is not designed for any user (from any account) to assume it.</p>")
 
         evaluation = self.build_evaluation(
             "root",
