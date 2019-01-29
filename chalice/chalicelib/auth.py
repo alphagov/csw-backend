@@ -53,6 +53,7 @@ class AuthHandler:
             'authenticated': False,
             'is_registered': False
         }
+        self.after_oauth_path = ""
 
     def get_params(self):
         """
@@ -102,11 +103,14 @@ class AuthHandler:
 
         return self.flow
 
+    def get_after_oauth_path(self):
+        return self.after_oauth_path
+
     def initialise_flow(self, req):
 
-        self.base_url = self.get_base_url(req)
+        self.after_oauth_url = self.get_base_url(req) + self.after_oauth_path
 
-        self.get_auth_flow(self.base_url)
+        self.get_auth_flow(self.after_oauth_url)
 
     def get_auth_url(self, url):
 
@@ -246,6 +250,15 @@ class AuthHandler:
 
         return valid
 
+    def get_default_cookie_expiration(self):
+        """
+        Add expiration to current timestamp
+
+        :return datetime:
+        """
+        return datetime.datetime.now() + self.cookie_expiration
+
+
     def generate_cookie_header_val(self, token):
         """
         Generate a session cookie with the default expiry
@@ -254,8 +267,8 @@ class AuthHandler:
         :return str:
         """
 
-        expiration = datetime.datetime.now() + self.cookie_expiration
-
+        #expiration = datetime.datetime.now() + self.cookie_expiration
+        expiration = self.get_default_cookie_expiration()
         return self.create_set_cookie_header("session", token, expiration)
 
     def generate_logout_header_val(self):

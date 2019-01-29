@@ -6,13 +6,11 @@
     {% include "components/redirection.html" %}
     {%- endif -%}
 
-    {% include "components/intro.html" %}
-
-    <h2 class="govuk-heading-m">Access</h2>
+    <h1 class="govuk-heading-l">Access denied</h1>
     <p>Sign in with your Google account</p>
     <a href="{{ login_url }}" role="button" class="govuk-button">Sign in</a>
 
     {% include "components/request_access.html" %}
   </main>
-</div>	
+</div>
 {% endblock %}

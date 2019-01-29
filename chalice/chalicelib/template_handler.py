@@ -1,5 +1,6 @@
 import os
 import re
+import datetime
 # from urllib.parse import urlparse, parse_qs
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -28,6 +29,9 @@ class TemplateHandler:
         self.logged_in = False
         self.login_data = {}
 
+    def set_logged_out_routes(self, routes_list):
+        self.logged_out_routes = routes_list
+
     def render_template(self, file, params):
 
         template = self.get_template(file)
@@ -36,11 +40,21 @@ class TemplateHandler:
 
     def get_request_path(self):
 
-        return self.app.current_request.context['resourcePath']
+        self.base_url = self.auth.get_base_url(self.app.current_request)
+        self.app.log.debug("Context: "+str(self.app.current_request.context))
+        # return self.app.current_request.context['resourcePath']
+        full_path = self.app.current_request.context['path']
+        base_path = self.get_root_path()
+        path = full_path.replace(base_path,"")
+        return path
 
     def get_template(self, file):
 
-        template = self.env.get_template(file)
+        try:
+            template = self.env.get_template(file)
+        except Exception as err:
+            template = None
+            self.app.log.debug("Tried to load non-existent template: "+str(err))
         return template
 
     def get_auth_handler(self):
@@ -104,6 +118,51 @@ class TemplateHandler:
             }
         ]
 
+    def get_redirect_status(self, req):
+        """
+        Decides whether a login redirect is required or completed
+        If a user goes straight to a page which requires login but does not have a valid JWT
+        - the requested path is stored in a login_redirect cookie
+        - the user is redirected to the denied page to login
+        - the OAuth process returns the user to the home page
+        - if the cookie is set
+                and the user is logged in
+            the home page redirects to the cookie path
+        - if the cookie is present
+                and the user is logged in
+                and the requested page matches the cookie path
+            the cookie is expired
+        """
+        route = self.get_request_path()
+        self.app.log.debug(f"Check redirect status for: {route}")
+        login_redirect = self.auth.get_cookie_value(req, "login_redirect")
+        status = {
+            "action": "none"
+        }
+        has_header = (login_redirect not in [None,""])
+        is_current_route = (login_redirect == route)
+        is_after_oauth_route = (route == self.auth.get_after_oauth_path())
+
+        if (has_header):
+            status = {
+                "action": "notify",
+                "target": login_redirect
+            }
+
+        if (has_header and is_after_oauth_route):
+            status = {
+                "action": "redirect",
+                "target": login_redirect
+            }
+
+        if (has_header and is_current_route):
+            status = {
+                "action": "complete"
+            }
+
+        self.app.log.debug("Redirect Status: " + str(status))
+        return status
+
     def render_authorized_template(self, template_file, req, data=None):
 
         headers = {
@@ -149,6 +208,9 @@ class TemplateHandler:
             # TODO add permission control
             login_data = self.auth.get_login_data()
 
+            # check for login_redirect in cookie
+            redirect_status = self.get_redirect_status(req)
+
             # Successfully authenticated and permissioned user
             if logged_in:
 
@@ -158,6 +220,18 @@ class TemplateHandler:
 
                 if self.auth.cookie is not None:
                     headers["Set-Cookie"] = self.auth.cookie
+
+                # Set redirect header
+                if (redirect_status["action"] == "redirect"):
+                    self.app.log.debug("Redirect to target: "+redirect_status["target"])
+                    status_code = 302
+                    headers["Location"] = root_path + redirect_status["target"]
+
+                # Unset redirect cookie
+                if (redirect_status["action"] == "complete"):
+                    self.app.log.debug("Redirection made - deleting cookie")
+                    expiration = datetime.datetime.now()
+                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", "", expiration)
 
                 data["logout_url"] = f"{root_path}/logout"
                 data["menu"] = self.get_menu(root_path)
@@ -171,16 +245,32 @@ class TemplateHandler:
 
             # Back to logged out
             else:
-                template_file = 'logged_out.html'
+                # Try loading the template matching the route name
+                route_template = self.get_template(f"{route}.html")
+                if ((route in self.logged_out_routes)
+                        and (route_template is not None)):
+                    template_file = f"{route}.html"
+                else:
+                    # Fallback on the logged_out template
+                    template_file = 'logged_out.html'
 
-                # Redirect to homepage to login
-                if route != "/":
+                # Redirect to access denied for login
+                if route not in self.logged_out_routes:
                     status_code = 302
-                    headers["Location"] = self.base_url
+                    headers["Location"] = self.base_url + "/denied"
+                    # Return user to requested route after login
+                    self.app.log.debug("Not logged in - add login redirect cookie to target: "+route)
+                    expiration = self.auth.get_default_cookie_expiration()
+                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", route, expiration)
 
             # Always populate login link in template data
             login_url = self.auth.get_auth_url(self.base_url + route)
 
+            # Add the redirect path to the template data so
+            # you can tell the user they're being redirected
+            if (redirect_status["action"] == "notify"):
+                data["login_redirect"] = redirect_status["target"]
+                
             data["login_url"] = login_url
             data["asset_path"] = asset_path
             data["base_path"] = root_path
