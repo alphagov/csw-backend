@@ -38,7 +38,6 @@ class TestRDSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
                     lambda session, checkId, language: RDS_PUBLIC_SNAPSHOTS[key]
                 # output value
                 item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
-                print(item)
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
