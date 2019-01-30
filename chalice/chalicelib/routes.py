@@ -131,20 +131,36 @@ def team_dashboard(id):
     # TODO - add check user has access to team
     load_route_services()
     try:
-        team = models.ProductTeam.get_by_id(team_id)
-        app.log.debug("Team: " + app.utilities.to_json(team))
-        criteria_stats = models.ProductTeam.get_criteria_stats([team])
-        app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
-        response = app.templates.render_authorized_template(
-            'team_dashboard.html',
-            app.current_request,
-            {
-                "team": team.serialize(),
-                "team_summary": team.get_team_stats(),
-                "criteria_summary": criteria_stats,
-                "failed_resources": team.get_team_failed_resources()
-            }
-        )
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+
+            team = models.ProductTeam.get_by_id(team_id)
+            if (team.user_has_access(user)):
+                app.log.debug("Team: " + app.utilities.to_json(team))
+                criteria_stats = models.ProductTeam.get_criteria_stats([team])
+                app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+                response = app.templates.render_authorized_template(
+                    'team_dashboard.html',
+                    app.current_request,
+                    {
+                        "team": team.serialize(),
+                        "team_summary": team.get_team_stats(),
+                        "criteria_summary": criteria_stats,
+                        "failed_resources": team.get_team_failed_resources()
+                    }
+                )
+            else:
+                response = app.templates.render_authorized_template(
+                    'denied.html',
+                    app.current_request,
+                    {
+                        "refused": {
+                            "type": "team",
+                            "requested": team.serialize()
+                        }
+                    }
+                )
     except Exception as err:
         app.log.error("Route: team dashboard error: " + str(err))
         response = app.templates.default_server_error()
