@@ -74,9 +74,6 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
         else:
             compliance_type = 'COMPLIANT'
             self.annotation = ''
-        print(compliance_type)
-        print(self.annotation)
-        print(item)
         return self.build_evaluation(
             item['resourceId'],
             compliance_type,
@@ -96,3 +93,25 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
         super(AwsIamAccessKeyRotationRed, self).__init__(app)
         self.status_string = 'Red'
         self.status_interval = '2 years'
+
+    def evaluate(self, event, item, whitelist=[]):
+        """
+        The event parameter is the lambda dictionary triggering this criterion
+        and must be passed unmodified to the return dictionary.
+        The item parameter is the value of the result key of the
+        support API method called describe_trusted_advisor_check_result.
+        """
+        compliance_type = 'COMPLIANT'
+        if item['status'] == 'error':
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = (
+                f'User "{item["metadata"][1]}" has not rotated access key '
+                f'"{item["metadata"][2]}" for more than {self.status_interval}'
+            )
+        return self.build_evaluation(
+            item['resourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
