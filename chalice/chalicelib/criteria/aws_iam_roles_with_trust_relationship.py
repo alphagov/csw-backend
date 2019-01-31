@@ -73,26 +73,29 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
         if "AWS" in principal:
             # If value of the AWS key isn't a list, it's a str, so put it in a list to iterate over it correctly
-            for arn in (principal["AWS"] if isinstance(principal["AWS"], list) else [principal["AWS"]]):
-                search = self.iam_user_regex.fullmatch(arn)  # Checks if arn fully matches the regex
-                if search and search.group(1) != self.user_account:
-                    compliance_type = "NON_COMPLIANT"
-                    self.app.log.debug("Role has an IAM User from an unknown AWS account defined in its trust policy")
-                    self.annotation = ("<p>Untrusted user: This role trusts an IAM user from an AWS account that is "
-                                       "not recognised. Roles may only trust IAM Users from account number "
-                                       f"{self.user_account}.</p>"
-                                       "<p>This is a security risk, as it allows an IAM User from an unkown account to "
-                                       "assume a role into this account, with potentially significant privileges.</p>")
-                    break  # don't need to loop over the rest, we've got an IAM user matched
-            else:  # We didn't break out of the loop, no arns have been matched
-                compliance_type = "COMPLIANT"
-                self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
-        # TODO: add a no trusted users part too somehow
-        # self.annotation = ("<p>No trusted users: This role does not define any IAM users from the account "
-        #                 f"{self.user_account} in their trust relationship.</p>"
-        #                 "<p>This prevents any users from the trusted account assuming this role. "
-        #                 "(However, it does not prevent IAM users from other accounts from "
-        #                 "assuming this role.)</p>")
+            identities = (principal["AWS"] if isinstance(principal["AWS"], list) else [principal["AWS"]])
+            users = [self.iam_user_regex.fullmatch(arn) for arn in identities]
+            if set(users) == {None}:  # No matches
+                compliance_type = "NON_COMPLIANT"
+                self.annotation = ("<p>No trusted users: This role does not define any IAM users.</p>"
+                                   "<p>This prevents any users from assuming this role. (However, it does not prevent "
+                                   "IAM users from other accounts from assuming this role.)</p>")
+            else:
+                for user_match in users:
+                    if user_match and user_match.group(1) != self.user_account:
+                        compliance_type = "NON_COMPLIANT"
+                        self.app.log.debug("Role has an IAM User from unknown AWS account defined in its trust policy")
+                        self.annotation = ("<p>Untrusted user: This role trusts an IAM user from an AWS account that "
+                                           "is not recognised. Roles may only trust IAM Users from account number "
+                                           f"{self.user_account}.</p>"
+                                           "<p>This is a security risk, as it allows an IAM User from an unkown "
+                                           "account to assume a role into this account, with potentially significant "
+                                           "privileges.</p>")
+                        break  # don't need to loop over the rest, we've got an IAM user matched
+                else:   # There must be at least 1 User from the self.user_account, with none that match other accounts
+                    compliance_type = "COMPLIANT"
+                    self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
+
         else:
             compliance_type = "NON_COMPLIANT"
             self.app.log.debug("Principal does not define any AWS identites")
