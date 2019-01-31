@@ -1799,6 +1799,29 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'MaxSessionDuration': 3600
         }
     ],
+    "fail-only-roles": [
+        {
+            'Path': '/',
+            'RoleName': 'FailRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/FailRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            "AWS" : 'arn:aws:iam::010101010101:role/somerole'
+                        },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should fail because this role only trusts another role - we look for Users',
+            'MaxSessionDuration': 3600
+        }
+    ],
     "fail-principal-service": [
         {
             'Path': '/',
