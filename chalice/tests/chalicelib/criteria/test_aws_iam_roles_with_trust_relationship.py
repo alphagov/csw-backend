@@ -68,14 +68,22 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
-    def test_evaluate_fail_invalid_user(self):
+    def test_evaluate_fail_invalid_account(self):
         event = {}
         whitelist = []
-        for item in self.test_data['fail-invalid-user']:  # depends on get_data
+        for item in self.test_data['fail-invalid-account']:  # depends on get_data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("No trusted users", self.subclass.annotation)
+
+    def test_evaluate_fail_mixed_users(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail-mixed-users']:  # depends on get_data
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
 
     def test_evaluate_fail_principal_service(self):
         event = {}

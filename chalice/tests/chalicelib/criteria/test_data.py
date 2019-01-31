@@ -1718,7 +1718,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                             'AWS': [
                                 'arn:aws:iam::010101010101:user/user1',
                                 'arn:aws:iam::010101010101:user/user2'
-                                ] },
+                            ] },
                         'Action': 'sts:AssumeRole',
                     }
                 ]
@@ -1750,7 +1750,31 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'MaxSessionDuration': 3600
         }
     ],
-    "fail-invalid-user": [
+    "fail-invalid-account": [
+        {
+            'Path': '/',
+            'RoleName': 'FailRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/FailRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'AWS':
+                                'arn:aws:iam::101010101010:user/username',
+                            },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should fail because it does not trust the right account',
+            'MaxSessionDuration': 3600
+        }
+    ],
+    "fail-mixed-users": [
         {
             'Path': '/',
             'RoleName': 'FailRole',
@@ -1764,13 +1788,14 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                         'Effect': 'Allow',
                         'Principal': {
                             'AWS': [
-                                'arn:aws:iam::101010101010:user/username',
-                                ] },
+                                'arn:aws:iam::010101010101:user/user1',
+                                'arn:aws:iam::101010101010:user/user2'
+                            ] },
                         'Action': 'sts:AssumeRole',
                     }
                 ]
             },
-            'Description': 'This role should fail because it does not trust the right account',
+            'Description': 'This role should fail because there is at least one user from an untrusted account',
             'MaxSessionDuration': 3600
         }
     ],
