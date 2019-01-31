@@ -8,7 +8,6 @@ from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_iam_client import GdsIamClient
 
 
-
 class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     active = True
@@ -20,7 +19,7 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
     title = "Cloud Security Watch - IAM used correctly"
 
     description = ("Checks whether there is at least one role within the account that has a trust relationship"
-                   "with an IAM user from a different account." )
+                   "with an IAM user from a different account.")
 
     why_is_it_important = ("Delivery accounts are set up such that there need not be any IAM users in them, "
                            "with users assuming a role into the delivery account instead.<br />"
@@ -35,10 +34,10 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
     # it to construct a regex to check the trust relationship), but we probably don't want to commit
     # that to a public repo. Check the environment variables to see if the GDS account number is
     # defined there. If not, we probably want to define it at some point in the setup
-    #try:
-        #user_account = os.environ["IAM_USER_ACCOUNT"]
-    #except Exception:
-        #user_account = ""
+    # try:
+    #   user_account = os.environ["IAM_USER_ACCOUNT"]
+    # except Exception:
+    #   user_account = ""
 
     def __init__(self, app):
         super(AwsIamRolesWithTrustRelationship, self).__init__(app)
@@ -46,8 +45,7 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
         self.iam_user_regex = re.compile(self.user_account + ":user")
 
     def retrieve_user_account(self):
-        return "010101010101" # TODO: dummy value defined in the unit test - change for final
-
+        return "010101010101"  # TODO: dummy value defined in the unit test - change for final
 
     def get_data(self, session, **kwargs):
         self.app.log.debug("Getting a list of roles in the account...")
@@ -75,11 +73,11 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
         if "AWS" in principal:
             for arn in principal["AWS"]:
-                if self.iam_user_regex.search(arn): # matches the iam_user format we're looking for
+                if self.iam_user_regex.search(arn):  # matches the iam_user format we're looking for
                     compliance_type = "COMPLIANT"
                     self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
-                    break # don't need to loop over the rest, we've got an IAM user matched
-            else: # We didn't break out of the loop, no arns have been matched
+                    break  # don't need to loop over the rest, we've got an IAM user matched
+            else:  # We didn't break out of the loop, no arns have been matched
                 compliance_type = "NON_COMPLIANT"
                 self.app.log.debug("Role does not trust any IAM users from the main account")
                 self.annotation = ("<p>No trusted users: This role does not define any IAM users from the account "
