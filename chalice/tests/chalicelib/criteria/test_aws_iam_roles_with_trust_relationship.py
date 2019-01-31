@@ -51,10 +51,18 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
                     msg="The resource name does not match the role name."
                 )
 
-    def test_evaluate_pass(self):
+    def test_evaluate_pass_list_of_users(self):
         event = {}
         whitelist = []
-        for item in self.test_data['pass']: # depends on get_data
+        for item in self.test_data['pass-list-of-users']: # depends on get-data
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_pass_single_user(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass-single-user']: # depends on get-data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)

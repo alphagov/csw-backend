@@ -1702,7 +1702,7 @@ ELB_SECURITY_GROUPS = {
 import datetime
 from dateutil.tz import tzutc
 IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
-    "pass": [
+    "pass-list-of-users": [
         {
             'Path': '/',
             'RoleName': 'PassRole',
@@ -1716,8 +1716,32 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                         'Effect': 'Allow',
                         'Principal': {
                             'AWS': [
-                                'arn:aws:iam::010101010101:user/username',
+                                'arn:aws:iam::010101010101:user/user1',
+                                'arn:aws:iam::010101010101:user/user2'
                                 ] },
+                        'Action': 'sts:AssumeRole',
+                    }
+                ]
+            },
+            'Description': 'This role should pass',
+            'MaxSessionDuration': 3600
+        }
+    ],
+    "pass-single-user": [
+        {
+            'Path': '/',
+            'RoleName': 'PassRole',
+            'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
+            'Arn': 'arn:aws:iam::987654321000:role/PassRole',
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'AssumeRolePolicyDocument': {
+                'Version': '2012-10-17',
+                'Statement': [
+                    {
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'AWS': 'arn:aws:iam::010101010101:user/username'
+                            },
                         'Action': 'sts:AssumeRole',
                     }
                 ]
