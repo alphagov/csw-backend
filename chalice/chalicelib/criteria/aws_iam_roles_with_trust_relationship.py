@@ -72,7 +72,8 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
         self.app.log.debug(f"Principal of that role: {json.dumps(principal)}")
 
         if "AWS" in principal:
-            for arn in principal["AWS"]:
+            # If value of the AWS key isn't a list, it's a str, so put it in a list to iterate over it correctly
+            for arn in (principal["AWS"] if isinstance(principal["AWS"], list) else [principal["AWS"]]):
                 if self.iam_user_regex.search(arn):  # matches the iam_user format we're looking for
                     compliance_type = "COMPLIANT"
                     self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
