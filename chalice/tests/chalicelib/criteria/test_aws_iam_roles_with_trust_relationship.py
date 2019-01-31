@@ -5,6 +5,7 @@ from tests.chalicelib.criteria.test_criteria_default import (
 )
 from tests.chalicelib.criteria.test_data import IAM_ROLES_WITH_TRUST_RELATIONSHIP
 
+
 class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
 
     @classmethod
@@ -54,7 +55,7 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
     def test_evaluate_pass_list_of_users(self):
         event = {}
         whitelist = []
-        for item in self.test_data['pass-list-of-users']: # depends on get-data
+        for item in self.test_data['pass-list-of-users']:  # depends on get-data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -62,7 +63,7 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
     def test_evaluate_pass_single_user(self):
         event = {}
         whitelist = []
-        for item in self.test_data['pass-single-user']: # depends on get-data
+        for item in self.test_data['pass-single-user']:  # depends on get-data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -70,7 +71,7 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
     def test_evaluate_fail_invalid_user(self):
         event = {}
         whitelist = []
-        for item in self.test_data['fail-invalid-user']: # depends on get_data
+        for item in self.test_data['fail-invalid-user']:  # depends on get_data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
@@ -79,7 +80,7 @@ class TestAwsIamRolesWithTrustRelationsip(CriteriaSubclassTestCaseMixin, TestCas
     def test_evaluate_fail_principal_service(self):
         event = {}
         whitelist = []
-        for item in self.test_data['fail-principal-service']: # depends on get_data
+        for item in self.test_data['fail-principal-service']:  # depends on get_data
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
