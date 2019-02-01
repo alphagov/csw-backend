@@ -1716,8 +1716,8 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                         'Effect': 'Allow',
                         'Principal': {
                             'AWS': [
-                                'arn:aws:iam::010101010101:user/user1',
-                                'arn:aws:iam::010101010101:user/user2'
+                                'arn:aws:iam::622626885786:user/user1',
+                                'arn:aws:iam::622626885786:user/user2'
                             ] },
                         'Action': 'sts:AssumeRole',
                     }
@@ -1740,7 +1740,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                     {
                         'Effect': 'Allow',
                         'Principal': {
-                            'AWS': 'arn:aws:iam::010101010101:user/username'
+                            'AWS': 'arn:aws:iam::622626885786:user/username'
                             },
                         'Action': 'sts:AssumeRole',
                     }
@@ -1788,7 +1788,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                         'Effect': 'Allow',
                         'Principal': {
                             'AWS': [
-                                'arn:aws:iam::010101010101:user/user1',
+                                'arn:aws:iam::622626885786:user/user1',
                                 'arn:aws:iam::101010101010:user/user2'
                             ] },
                         'Action': 'sts:AssumeRole',
@@ -1812,7 +1812,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                     {
                         'Effect': 'Allow',
                         'Principal': {
-                            "AWS" : 'arn:aws:iam::010101010101:role/somerole'
+                            "AWS" : 'arn:aws:iam::622626885786:role/somerole'
                         },
                         'Action': 'sts:AssumeRole',
                     }
@@ -1835,9 +1835,8 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
                     {
                         'Effect': 'Allow',
                         'Principal': {
-                            'Service': [
-                                'ec2.amazonaws.com',
-                                ] },
+                            'Service': 'ec2.amazonaws.com'
+                        },
                         'Action': 'sts:AssumeRole',
                     }
                 ]

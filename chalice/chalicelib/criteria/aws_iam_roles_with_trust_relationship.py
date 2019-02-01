@@ -47,7 +47,7 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
         self.iam_user_regex = re.compile(r"arn:aws:iam::(\d{12}):user/.+")
 
     def retrieve_user_account(self):
-        return "010101010101"  # TODO: dummy value defined in the unit test - change for final
+        return "622626885786"  # TODO: Find a better way to retrieve the trusted account number
 
     def get_data(self, session, **kwargs):
         self.app.log.debug("Getting a list of roles in the account...")
