@@ -130,6 +130,110 @@ gulp.task('environment.database_create_tables', function() {
 
 });
 
+gulp.task('environment.database_migrate', function() {
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+  var pipeline = gulp.src(config.files.environment_settings)
+  // Parse settings into file.data
+  .pipe(modifyFile(function(content, path, file) {
+    var settings = JSON.parse(content);
+    file.data = settings;
+    return content;
+  }))
+  // Get RDS user password from parameter store
+  // Add to file.data
+  .pipe(data(function(file) {
+
+    var parameter = '/csw/'+env+'/rds/user';
+    var property = 'postgres_user_password';
+    return helpers.getParameterInPipelinePromise(parameter, file.data.region, file, property);
+
+  }))
+  // Pass commands to psql_tunnel.py script
+  .pipe(data(function(file) {
+    var promise, path, command;
+
+    path = config.paths.root + "/build/gulp_helpers";
+
+    command = "SELECT * FROM public._metadata_version;";
+
+    promise = helpers.psqlExecuteInPipelinePromise(
+        path,
+        command,
+        file,
+        'cloud_sec_watch',
+        file.data.postgres_user_password,
+        'csw'
+    );
+
+    promise.then(function(output) {
+        var type, current_level, apply;
+
+        //console.log(file.data.task_output);
+        try {
+            output = JSON.parse(file.data.task_output);
+        } catch (err) {
+            output = [['definition',0],['population',0]];
+        }
+
+        file.data.database = {};
+        output.forEach(function(row) {
+            type = row[0];
+            current_level = row[1];
+            file.data.database[type] = current_level;
+
+            (function(promise, type, current_level) {
+                var sqlPath;
+                sqlPath = config.paths.root + "/build/sql/"+type;
+                apply = [];
+
+                if (fs.existsSync(sqlPath)) {
+                    fs.readdir(sqlPath, function(err, items) {
+                      // console.log("files", items);
+                      items.forEach(function(item) {
+                        // console.log(item);
+                        index = parseInt(item.replace(/\.sql/,''));
+                        if (index > current_level) {
+                            apply.push(item);
+
+                            promise.then(function() {
+                                var scriptPath;
+                                scriptPath = sqlPath + "/" + item;
+                                return helpers.psqlExecuteScriptInPipelinePromise(
+                                    path,
+                                    scriptPath,
+                                    file,
+                                    'cloud_sec_watch',
+                                    file.data.postgres_user_password,
+                                    'csw'
+                                );
+                            }).then(function() {
+                                var command = "UPDATE public._metadata_version SET version = "+index+" WHERE type='"+type+"'";
+                                return helpers.psqlExecuteInPipelinePromise(
+                                    path,
+                                    command,
+                                    file,
+                                    'cloud_sec_watch',
+                                    file.data.postgres_user_password,
+                                    'csw'
+                                );
+                            });
+                        }
+                      });
+
+                    });
+                }
+            })(promise, type, current_level);
+        });
+    });
+    return promise;
+  }));
+
+  return pipeline;
+});
+
 
 gulp.task('environment.database_populate', function() {
 
@@ -192,7 +296,6 @@ gulp.task('environment.database_populate', function() {
 
     return helpers.lambdaInvokePromise(function_name, working, payloads, file, output_file);
   }));
-
 
   return pipeline;
 
