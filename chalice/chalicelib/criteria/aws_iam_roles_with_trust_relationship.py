@@ -16,6 +16,8 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     resource_type = "AWS::IAM::Role"
 
+    is_regional = False
+
     title = "Cloud Security Watch - IAM used correctly"
 
     description = ("Checks whether there is at least one role within the account that has a trust relationship"
