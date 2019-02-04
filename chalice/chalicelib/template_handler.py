@@ -118,6 +118,19 @@ class TemplateHandler:
             }
         ]
 
+    def refuse(self, req, type, item):
+        response = self.render_authorized_template(
+            'denied.html',
+            req,
+            {
+                "refused": {
+                    "type": type,
+                    "item": item
+                }
+            }
+        )
+        return response
+
     def get_redirect_status(self, req):
         """
         Decides whether a login redirect is required or completed
