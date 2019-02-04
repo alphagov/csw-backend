@@ -47,6 +47,7 @@ gulp.task('environment.deploy', gulp.series(
     'copy.assets',
     'sass.csw',
     'environment.terraform',
+    'environment.database_migrate',
     'environment.chalice_s3_deploy'
 ));
 

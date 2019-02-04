@@ -305,5 +305,6 @@ gulp.task('environment.database_populate', function() {
 gulp.task('environment.database_build', gulp.series(
     'environment.database_create',
     'environment.database_create_tables',
+    'environment.database_migrate',
     'environment.database_populate'
 ));
