@@ -153,11 +153,12 @@ gulp.task('environment.database_migrate', function() {
   }))
   // Pass commands to psql_tunnel.py script
   .pipe(data(function(file) {
-    var promise, path, command;
+    var promise, path, command, meta_table;
 
+    meta_table = "public._metadata_version";
     path = config.paths.root + "/build/gulp_helpers";
 
-    command = "SELECT * FROM public._metadata_version;";
+    command = "SELECT * FROM "+meta_table+";";
 
     promise = helpers.psqlExecuteInPipelinePromise(
         path,
@@ -210,7 +211,7 @@ gulp.task('environment.database_migrate', function() {
                                     'csw'
                                 );
                             }).then(function() {
-                                var command = "UPDATE public._metadata_version SET version = "+index+" WHERE type='"+type+"'";
+                                var command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+type+"'";
                                 return helpers.psqlExecuteInPipelinePromise(
                                     path,
                                     command,
