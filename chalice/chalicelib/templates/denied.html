@@ -6,6 +6,10 @@
     {% include "components/redirection.html" %}
     {%- endif -%}
 
+    {%- if refused is defined -%}
+    {% include "components/refused.html" %}
+    {%- endif -%}
+
     <h1 class="govuk-heading-l">Access denied</h1>
     <p>Sign in with your Google account</p>
     <a href="{{ login_url }}" role="button" class="govuk-button">Sign in</a>
