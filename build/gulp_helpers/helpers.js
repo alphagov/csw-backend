@@ -78,7 +78,9 @@ var helpers = {
           function(out) {
             console.log("SUCCESS");
             console.log(out.stdout);
-            file.data.task_output = out.stdout;
+            if (file.data) {
+                file.data.task_output = out.stdout;
+            }
             return file.data;
           },
           function(err) {
