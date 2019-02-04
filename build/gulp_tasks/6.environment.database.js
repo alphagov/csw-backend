@@ -176,6 +176,13 @@ gulp.task('environment.database_migrate', function() {
         try {
             output = JSON.parse(file.data.task_output);
         } catch (err) {
+            /*
+            The assumption here is that there are 2 indices for migrations
+            1. definition - Schema creates and alters.
+            2. population - My plan is to retrieve these files from a separate private repository
+                which can contain all the GDS specific configuration data about teams we've
+                onboarded. This should replace the need for the database populate gulp task
+            */
             output = [['definition',0],['population',0]];
         }
 
