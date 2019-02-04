@@ -74,12 +74,54 @@ class User(database_handle.BaseModel):
         :return arr ProductTeam:
         """
         try:
-            teams = ProductTeam.select().join(ProductTeamUser).where(ProductTeamUser.user_id == self.id)
+            teams = (ProductTeam
+                     .select()
+                     .join(ProductTeamUser)
+                     .where(ProductTeamUser.user_id == self.id))
         except Exception as err:
             app.log.debug("Failed to get team list for current user: " + str(err))
             teams = []
         return teams
 
+    def get_my_accounts(self):
+        try:
+            accounts = (AccountSubscription
+                        .select()
+                        .join(ProductTeam)
+                        .join(ProductTeamUser)
+                        .where(ProductTeamUser.user_id == self.id))
+        except Exception as err:
+            app.log.debug("Failed to get account list for current user: " + str(err))
+            accounts = []
+        return accounts
+
+    def can_access_team(self, team_id):
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .where(
+                        ProductTeamUser.user_id == self.id,
+                        ProductTeamUser.team_id == team_id)
+                      .get())
+            has_access = True
+        except Exception as err:
+            has_access = False
+        return has_access
+
+    def can_access_account(self, account_id):
+        try:
+            member = (AccountSubscription
+                      .select()
+                      .join(ProductTeam)
+                      .join(ProductTeamUser)
+                      .where(
+                        AccountSubscription.id == account_id,
+                        ProductTeamUser.user_id == self.id)
+                      .get())
+            has_access = True
+        except Exception as err:
+            has_access = False
+        return has_access
 
 
 class UserSession(database_handle.BaseModel):
