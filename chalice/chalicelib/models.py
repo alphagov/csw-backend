@@ -166,6 +166,12 @@ class ProductTeam(database_handle.BaseModel):
     class Meta:
         table_name = "product_team"
 
+    def get_item(self):
+        return {
+            "id": self.id,
+            "name": self.team_name
+        }
+
     def user_has_access(self, user):
         """
         Check whether the current user has access to this team
@@ -390,6 +396,13 @@ class AccountSubscription(database_handle.BaseModel):
 
     class Meta:
         table_name = "account_subscription"
+
+    def get_item(self):
+        return {
+            "id": self.id,
+            "name": self.account_name,
+            "reference": self.account_id
+        }
 
     def user_has_access(self, user):
         # Check whether the user is a member in ProductTeamUser
