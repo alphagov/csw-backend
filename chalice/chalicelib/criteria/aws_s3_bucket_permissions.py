@@ -17,6 +17,13 @@ class S3BucketPermissions(TrustedAdvisorCriterion):
         self.check_id = 'Pfx0RwqBli'
         super(S3BucketPermissions, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'region': data.get('region', ''),
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', '', ])[2],  # bucket name
+        }
+
 
 class S3BucketReadAll(S3BucketPermissions):
     """
