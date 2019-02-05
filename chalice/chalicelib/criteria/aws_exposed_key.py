@@ -29,6 +29,15 @@ class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
         )
         super(AwsIamExposedAccessKey, self).__init__(app)
 
+    def translate(self, data={}):
+        """
+        Unlike other TA checks here we overwrite translate to return the access key, instead of the standard resource.
+        """
+        return {
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', ])[0],  # access key ID
+        }
+
 
 class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     """
