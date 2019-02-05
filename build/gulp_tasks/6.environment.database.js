@@ -309,6 +309,27 @@ gulp.task('environment.database_populate', function() {
 
 });
 
+gulp.task('environment.database_define_criteria', function() {
+
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+
+  var pipeline = gulp.src(config.files.environment_settings)
+  .pipe(data(function(file) {
+    var i;
+    var function_name = "csw-"+env+"-add_new_criteria";
+    var output_file = config.paths.environment + "/lambda.out"
+    var working = config.paths.environment;
+
+    return helpers.lambdaInvokePromise(function_name, working, null, file, output_file);
+  }));
+
+  return pipeline;
+
+});
+
 gulp.task('environment.database_build', gulp.series(
     'environment.database_create',
     'environment.database_create_tables',
