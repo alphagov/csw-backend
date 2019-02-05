@@ -28,7 +28,7 @@ class AwsIamAccessKeyRotationBase(TrustedAdvisorCriterion):
         """
         return {
             'resource_id': data.get('resourceId', ''),
-            'resource_name': data.get('metadata', ['', '', '', ])[2],  # access key or empty string
+            'resource_name': data.get('metadata', ['', '', ])[1],  # access key user
         }
 
 
