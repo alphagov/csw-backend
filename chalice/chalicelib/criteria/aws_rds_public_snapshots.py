@@ -38,6 +38,7 @@ class RDSPublicSnapshot(TrustedAdvisorCriterion):
 
     def translate(self, data={}):
         return {
+            'region': data.get('region', ''),
             'resource_id': data.get('resourceId', ''),
             'resource_name': data.get('metadata', ['', '', '', '', ])[3],  # snapshot ID or empty string
         }
