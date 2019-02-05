@@ -319,7 +319,7 @@ gulp.task('environment.database_define_criteria', function() {
   var pipeline = gulp.src(config.files.environment_settings)
   .pipe(data(function(file) {
     var i;
-    var function_name = "csw-"+env+"-add_new_criteria";
+    var function_name = "csw-"+env+"-database_add_new_criteria";
     var output_file = config.paths.environment + "/lambda.out"
     var working = config.paths.environment;
 
