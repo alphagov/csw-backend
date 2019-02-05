@@ -15,6 +15,13 @@ class ELBListenerSecurity(TrustedAdvisorCriterion):
         self.check_id = 'a2sEc6ILx'
         super(ELBListenerSecurity, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'region': data.get('metadata', ['', ])[0],
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # Load Balancer Name
+        }
+
 
 class ELBListenerSecurityNoListener(ELBListenerSecurity):
     """
