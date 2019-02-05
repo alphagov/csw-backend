@@ -17,6 +17,13 @@ class CloudtrailLogging(TrustedAdvisorCriterion):
         self.check_id = 'vjafUGJ9H0'
         super(CloudtrailLogging, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'region': data.get('metadata', ['', ])[0],
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
+        }
+
 
 class CloudtrailLogHasErrors(CloudtrailLogging):
     """
