@@ -32,7 +32,7 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Delivery Errorless'
+        self.title = 'Cloudtrail Logging delivered without errors'
         self.description = (
             'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
         )

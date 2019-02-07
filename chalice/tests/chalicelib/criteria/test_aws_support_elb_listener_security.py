@@ -78,7 +78,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
 
     def test_evaluate_predifined_outdated(self):
         """
-        yellow because predefined cypher/protocol is outadated
+        yellow because predefined cypher/protocol is outdated
         """
         # input params
         event = {}
