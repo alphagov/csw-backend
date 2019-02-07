@@ -146,19 +146,16 @@ gulp.task('environment.database_run_migrations', function() {
             file.data.database[type] = current_level;
 
             (function(promise, type, current_level) {
-                var sqlPath, i, index;
+                var sqlPath;
                 sqlPath = config.paths.root + "/build/sql/"+type;
 
                 if (fs.existsSync(sqlPath)) {
                     fs.readdir(sqlPath, function(err, items) {
-                      for(i=0;i<items.length;i++) {
-                        item = items[i];
-                        index = parseInt(item.replace(/\.sql/,''));
-                        if (index > current_level) {
-                            // TODO make these run sequentially so they're chained to each other rather than all
-                            // chained to the parent promise.
-                            (function(promise, item) {
-                                promise.then(function() {
+                        items.reduce(function(previousPromise, item) {
+                            var index;
+                            index = parseInt(item.replace(/\.sql/,''));
+                            if (index > current_level) {
+                                return previousPromise.then(function() {
                                     var scriptPath;
                                     scriptPath = sqlPath + "/" + item;
                                     return helpers.psqlExecuteScriptInPipelinePromise(
@@ -180,10 +177,10 @@ gulp.task('environment.database_run_migrations', function() {
                                         'csw'
                                     );
                                 });
-                            })(promise, item);
-                        }
-                      }
-
+                            } else {
+                                return previousPromise;
+                            }
+                        }, promise);
                     });
                 }
             })(promise, type, current_level);
