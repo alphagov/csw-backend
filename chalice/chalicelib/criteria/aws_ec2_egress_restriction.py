@@ -14,7 +14,7 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
         self.resource_type = 'AWS::EC2::SecurityGroup'
         self.annotation = ''
         self.is_regional = True
-        self.title = 'Unrestricted Egress Security Groups'
+        self.title = 'Egress Security Groups Restrictions'
         self.description = (
             'Checks security groups for egress rules that allow unrestricted access to a resource.'
         )

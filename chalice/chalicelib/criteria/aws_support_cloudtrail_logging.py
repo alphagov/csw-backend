@@ -32,7 +32,7 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Delivery Errors'
+        self.title = 'Cloudtrail Delivery Errorless'
         self.description = (
             'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
         )
@@ -73,7 +73,7 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Turned off in a region'
+        self.title = 'Cloudtrail logging turned on in all regions'
         self.description = (
             'A trail has not been created for a region in your account.'
         )
@@ -109,7 +109,7 @@ class CloudtrailLogTurnedOff(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = '"Cloudtrail Logging: Not activated'
+        self.title = '"Cloudtrail Logging Activated'
         self.description = (
             'Logging is turned off for a trail in your account.'
         )
@@ -146,7 +146,7 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
     cst_bucket_name = 'cyber-security-staging-csw-cloudtrail'
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Not sent to CST'
+        self.title = 'Cloudtrail logs sent to CST'
         self.description = (
             'Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.'
         )

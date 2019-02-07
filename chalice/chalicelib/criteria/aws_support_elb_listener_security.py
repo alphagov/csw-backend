@@ -30,7 +30,7 @@ class ELBListenerSecurityNoListener(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'ELB Listener Security: No listener that uses a secure protocol (HTTPS or SSL).'
+        self.title = 'ELB listener using secure protocols'
         self.description = 'A load balancer does not have any listeners that use a secure protocol (HTTPS, SSL, etc)'
         self.why_is_it_important = (
             'If the listeners do not use a secure protocol, '
@@ -71,7 +71,7 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'ELB Listener uses an outadated predefined SSL security policy.'
+        self.title = 'ELB listener not using outadated predefined SSL security policies'
         self.description = 'The security policy on one of the listeners to a load balancer is outdated.'
         self.why_is_it_important = (
             'The security policy of a listener defines ciphers and protocols it uses when communicating with the ELB. '
@@ -113,7 +113,7 @@ class ELBListenerSecurityProtocolDiscouraged(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'An ELB listener uses a cipher or protocol that is not recommended.'
+        self.title = 'ELB listener using recommended ciphers or protocols'
         self.description = 'A load balancer uses a cipher or protocol that is not recommended.'
         self.why_is_it_important = (
             'Vulnerabilities can be found in ciphers and protocols, '
@@ -156,7 +156,7 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'An ELB Listener uses an insecure cipher or protocol.'
+        self.title = 'ELB listener not using insecure ciphers or protocols'
         self.description = 'A load balancer uses an insecure cipher or protocol.'
         self.why_is_it_important = (
             'Vulnerabilities can be found in ciphers and protocols, '

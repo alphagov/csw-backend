@@ -15,7 +15,6 @@ class AwsIamAccessKeyRotationBase(TrustedAdvisorCriterion):
     def __init__(self, app):
         self.resource_type = 'AWS::iam::access_key_rotation'
         self.check_id = 'DqdJqYeRm5'
-        self.title = " Outdated IAM access keys"
         self.why_is_it_important = (
             'Rotating IAM credentials periodically will significantly reduce the chances that a compromised set of '
             'access keys can be used without your knowledge to access certain components within your AWS account.'
@@ -40,6 +39,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationYellow, self).__init__(app)
+        self.title = " Quarterly IAM access keys rotation"
         self.description = (
             'At least one active Identity and Access Management '
             f'(IAM) access key has not been rotated in the last 90 days.'
@@ -89,6 +89,7 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationRed, self).__init__(app)
+        self.title = 'Biennial IAM access keys rotation'
         self.description = (
             'At least one active Identity and Access Management '
             f'(IAM) access key has not been rotated in the last 2 years.'

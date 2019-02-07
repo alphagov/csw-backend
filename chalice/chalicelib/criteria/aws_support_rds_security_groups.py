@@ -76,7 +76,7 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
     active = True
 
     def __init__(self, app):
-        self.title = 'Amazon RDS Security Group Unrestricted Access'
+        self.title = 'Amazon RDS Security Group Restricted Access'
         self.description = (
             'A rule in the database security group grants global access (i.e. access from any IP address).'
         )
