@@ -30,6 +30,7 @@ class AwsS3SecurePolicy(CriteriaDefault):
     def get_data(self, session, **kwargs):
         self.app.log.debug("Getting a list of buckets in this account")
         buckets = self.client.get_bucket_list(session)
+        self.app.log.debug("Adding a 'Policy' key to these buckets")
         for bucket in buckets:
             # I know mutating what you're iterating over is a bad idea...
             bucket['Policy'] = self.client.get_bucket_policy(session, bucket['Name'])
