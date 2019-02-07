@@ -67,10 +67,26 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("has no policy", self.subclass.annotation)
 
-    def test_evaluate_fail_insecure_policy(self):
+    def test_evaluate_fail_no_condition(self):
         event = {}
         whitelist = []
-        for item in self.test_data['fail_insecure_policy']:
+        for item in self.test_data['fail_no_condition']:
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("condition", self.subclass.annotation)
+            self.assertIn("policy does not have a condition", self.subclass.annotation)
+
+    def test_evaluate_fail_no_secure_condition(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_no_secure_condition']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("no SecureTransport", self.subclass.annotation)
+
+    def test_evaluate_fail_only_insecure(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_only_insecure']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("explicitly disallows HTTPS", self.subclass.annotation)

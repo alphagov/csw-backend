@@ -2005,22 +2005,74 @@ S3_BUCKET_POLICIES = {
                        "policy does not exist")
         }
     ],
-    'fail_insecure_policy' : [
+    'fail_no_condition' : [
         {
-            'Name': 'fail_insecure_policy_bucket',
+            'Name': 'fail_no_condition_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
             'Policy': {
-                "Version": "2008-10-17", 
-                "Id": "some_policy", 
+                "Version": "2008-10-17",
+                "Id": "some_policy",
                 "Statement": [
                     {
-                        "Sid": "AddPerm", 
-                        "Effect": "Allow", 
-                        "Principal": { 
-                            "AWS": "*" 
+                        "Sid": "AddPerm",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
                         },
-                        "Action": "s3:GetObject", 
-                        "Resource": "arn:aws:s3:::my_bucket/*", 
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::my_bucket/*",
+                    }
+                ]
+            }
+        }
+    ],
+    'fail_no_secure_condition' : [
+        {
+            'Name': 'fail_no_secure_condition_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'Policy': {
+                "Version": "2008-10-17",
+                "Id": "some_policy",
+                "Statement": [
+                    {
+                        "Sid": "AddPerm",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
+                        },
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::my_bucket/*",
+                        "Condition": {
+                            "StringLike": {
+                                "aws:Referer":["http://www.example.com/*","http://example.com/*"]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    'fail_only_insecure' : [
+        {
+            'Name': 'fail_only_insecure_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'Policy': {
+                "Version": "2008-10-17",
+                "Id": "some_policy",
+                "Statement": [
+                    {
+                        "Sid": "AddPerm",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
+                        },
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::my_bucket/*",
+                        "Condition": {
+                            "Bool": {
+                                "aws:SecureTransport": "false"
+                            }
+                        }
                     }
                 ]
             }
@@ -2031,17 +2083,17 @@ S3_BUCKET_POLICIES = {
             'Name': 'pass_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
             'Policy': {
-                "Version": "2008-10-17", 
-                "Id": "some_policy", 
+                "Version": "2008-10-17",
+                "Id": "some_policy",
                 "Statement": [
                     {
-                        "Sid": "AddPerm", 
-                        "Effect": "Allow", 
-                        "Principal": { 
-                            "AWS": "*" 
+                        "Sid": "AddPerm",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
                         },
-                        "Action": "s3:GetObject", 
-                        "Resource": "arn:aws:s3:::my_bucket/*", 
+                        "Action": "s3:GetObject",
+                        "Resource": "arn:aws:s3:::my_bucket/*",
                         "Condition": { 
                             "Bool": { 
                                 "aws:SecureTransport": "true"
