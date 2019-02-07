@@ -135,6 +135,8 @@ gulp.task('environment.database_switch_config', function() {
   var tool = (args.tool == undefined)?'csw':args.tool;
 
   var config = helpers.getConfigLocations(env, tool);
+  // TODO - check path exists before trying to symlink
+  // if (fs.existsSync(sqlPath)) {
   var pipeline = gulp.src(config.paths.root + "/../csw-configuration/environments/"+env+"/sql/population")
   .pipe(gulp.symlink(config.paths.root + "/build/sql"));
 
