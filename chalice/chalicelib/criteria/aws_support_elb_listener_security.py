@@ -71,7 +71,7 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'ELB listener not using outdated predefined SSL security policies'
+        self.title = 'ELB listener using up-to-date predefined SSL security policies'
         self.description = 'The security policy on one of the listeners to a load balancer is outdated.'
         self.why_is_it_important = (
             'The security policy of a listener defines ciphers and protocols it uses when communicating with the ELB. '
@@ -156,7 +156,7 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
     active = True
 
     def __init__(self, app):
-        self.title = 'ELB listener not using insecure ciphers or protocols'
+        self.title = 'ELB listener using secure ciphers or protocols'
         self.description = 'A load balancer uses an insecure cipher or protocol.'
         self.why_is_it_important = (
             'Vulnerabilities can be found in ciphers and protocols, '
