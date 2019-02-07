@@ -52,52 +52,25 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
                     msg="resource_name does not match the bucket name"
                 )
 
-#    def test_evaluate_pass_list_of_users(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['pass-list-of-users']:
-#            # tests
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_passed_status_assertions(item, output)
-#
-#    def test_evaluate_pass_single_user(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['pass-single-user']:
-#            # tests
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_passed_status_assertions(item, output)
-#
-#    def test_evaluate_fail_invalid_account(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['fail-invalid-account']:
-#            # tests
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_failed_status_assertions(item, output)
-#            self.assertIn("not recognised", self.subclass.annotation)
-#
-#    def test_evaluate_fail_only_roles(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['fail-only-roles']:
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_failed_status_assertions(item, output)
-#            self.assertIn("No trusted users", self.subclass.annotation)
-#
-#    def test_evaluate_fail_mixed_users(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['fail-mixed-users']:
-#            # tests
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_failed_status_assertions(item, output)
-#
-#    def test_evaluate_fail_principal_service(self):
-#        event = {}
-#        whitelist = []
-#        for item in self.test_data['fail-principal-service']:
-#            # tests
-#            output = self._evaluate_invariant_assertions(event, item, whitelist)
-#            self._evaluate_failed_status_assertions(item, output)
-#            self.assertIn("Invalid service", self.subclass.annotation)
+    def test_evaluate_pass(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail_no_policy(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_no_policy']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("has no policy", self.subclass.annotation)
+
+    def test_evaluate_fail_insecure_policy(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_insecure_policy']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("condition", self.subclass.annotation)
