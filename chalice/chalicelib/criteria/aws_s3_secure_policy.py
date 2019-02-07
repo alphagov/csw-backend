@@ -46,8 +46,47 @@ class AwsS3SecurePolicy(CriteriaDefault):
 
         return item
 
-    def evaluate(self, event, role, whitelist=[]):
+    def evaluate(self, event, bucket, whitelist=[]):
         compliance_type = ""
+        self.app.log.debug(f"Evaluating bucket with name {bucket['Name']}")
+        if not isinstance(bucket['Policy'], dict):  # Failure: no policy
+            log_string = "Bucket does not have a policy"
+            compliance_type = "NOT_COMPLIANT"
+            self.annotation = ("<p>This bucket has no policy attached.<p>"
+                               "<p>This means you cannot prevent non-HTTPS connections to your bucket, which poses a "
+                               "security risk.</p>")
+        else:
+            for statement in bucket['Policy']['Statement']:
+                if 'Condition' not in statement:  # Failure: No condition
+                    log_string = "Bucket does not have any conditions on its policy"
+                    compliance_type = "NOT_COMPLIANT"
+                    self.annotation = ("<p>This bucket's policy does not have a condition.</p>"
+                                       "<p>This means you cannot prevent non-HTTPS connections to your bucket, "
+                                       "which poses a security risk.</p>")
+                    break
+                else:
+                    secure = statement['Condition'].get('Bool', {}).get('aws:SecureTransport')
+                    if secure == "false":  # secure is either "true", "false", or None if it didn't exist
+                        # Failure: HTTPS is specifically disallowed
+                        log_string = "Bucket's policy condition explicitly disallows HTTPS"
+                        compliance_type = "NOT_COMPLIANT"
+                        self.annotation = ("<p>This bucket's policy explicitly disallows HTTPS.</p>"
+                                           "<p>This means you cannot have any HTTPS connections to your bucket, "
+                                           "which poses a security risk.</p>")
+                        break
+                    if not secure:  # testing if secure is None
+                        # Failure: no secure transport condition
+                        log_string = "Bucket does not disallow insecure connections"
+                        compliance_type = "NOT_COMPLIANT"
+                        self.annotation = ("<p>This bucket's policy does not disallow connections over HTTP.</p>"
+                                           "<p>There is no SecureTransport condition in this bucket's policy, "
+                                           "meaning you cannot prevent non-HTTPS connections to your bucket, "
+                                           "which poses a security risk.</p>")
+                        break
+            else:
+                compliance_type = "COMPLIANT"
+                log_string = "Bucket is compliant"
+
         evaluation = self.build_evaluation(
             "root",
             compliance_type,
@@ -56,4 +95,5 @@ class AwsS3SecurePolicy(CriteriaDefault):
             self.annotation
         )
 
+        self.app.log.debug(log_string)
         return evaluation
