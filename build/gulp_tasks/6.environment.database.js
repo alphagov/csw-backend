@@ -209,34 +209,36 @@ gulp.task('environment.database_run_migrations', function() {
 
                 if (fs.existsSync(sqlPath)) {
                     fs.readdir(sqlPath, function(err, items) {
-                      // console.log("files", items);
                       for(i=0;i<items.length;i++) {
                         item = items[i];
-                        // console.log(item);
                         index = parseInt(item.replace(/\.sql/,''));
                         if (index > current_level) {
-                            promise.then(function() {
-                                var scriptPath;
-                                scriptPath = sqlPath + "/" + item;
-                                return helpers.psqlExecuteScriptInPipelinePromise(
-                                    path,
-                                    scriptPath,
-                                    file,
-                                    'cloud_sec_watch',
-                                    file.data.postgres_user_password,
-                                    'csw'
-                                );
-                            }).then(function() {
-                                var command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+type+"'";
-                                return helpers.psqlExecuteInPipelinePromise(
-                                    path,
-                                    command,
-                                    file,
-                                    'cloud_sec_watch',
-                                    file.data.postgres_user_password,
-                                    'csw'
-                                );
-                            });
+                            // TODO make these run sequentially so they're chained to each other rather than all
+                            // chained to the parent promise.
+                            (function(promise, item) {
+                                promise.then(function() {
+                                    var scriptPath;
+                                    scriptPath = sqlPath + "/" + item;
+                                    return helpers.psqlExecuteScriptInPipelinePromise(
+                                        path,
+                                        scriptPath,
+                                        file,
+                                        'cloud_sec_watch',
+                                        file.data.postgres_user_password,
+                                        'csw'
+                                    );
+                                }).then(function() {
+                                    var command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+type+"'";
+                                    return helpers.psqlExecuteInPipelinePromise(
+                                        path,
+                                        command,
+                                        file,
+                                        'cloud_sec_watch',
+                                        file.data.postgres_user_password,
+                                        'csw'
+                                    );
+                                });
+                            })(promise, item);
                         }
                       }
 
