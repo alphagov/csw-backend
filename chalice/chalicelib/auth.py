@@ -39,7 +39,6 @@ class AuthHandler:
 
         self.scopes = [
             "https://www.googleapis.com/auth/userinfo.profile",
-            "https://www.googleapis.com/auth/plus.me",
             "https://www.googleapis.com/auth/userinfo.email"
         ]
 
@@ -282,6 +281,7 @@ class AuthHandler:
 
         # Update closed date on database UserSession
         try:
+            self.app.log.debug("Close session for user: "+self.user['email'])
             db_user = models.User.find_active_by_email(self.user['email'])
             models.UserSession.close(db_user)
         except Exception as error:
