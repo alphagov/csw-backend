@@ -39,8 +39,8 @@ class AwsS3SecurePolicy(CriteriaDefault):
     def translate(self, data):
 
         item = {
-            "resource_id": 'arn:aws:s3:::' + data.get('name', ''),
-            "resource_name": data.get('name', '')
+            "resource_id": 'arn:aws:s3:::' + data.get('Name', ''),
+            "resource_name": data.get('Name', '')
         }
 
         return item
