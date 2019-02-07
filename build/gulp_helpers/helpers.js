@@ -78,6 +78,9 @@ var helpers = {
           function(out) {
             console.log("SUCCESS");
             console.log(out.stdout);
+            if (file.data) {
+                file.data.task_output = out.stdout;
+            }
             return file.data;
           },
           function(err) {
@@ -352,7 +355,7 @@ var helpers = {
         return this.runTaskInPipelinePromise(task, directory, file);
 	},
 
-	psqlExecuteInPipelinePromise: function(path, command, file) {
+	psqlExecuteInPipelinePromise: function(path, command, file, user, password, database) {
 
 	    var tunnel = file.data.bastion_public_ip;
         // TODO is this right? Should we assume this
@@ -360,9 +363,15 @@ var helpers = {
         // or write .ssh/config
         var key = file.data.ssh_public_key_path.replace(/\.pub$/,'');
         var host = file.data.rds_connection_string;
-        var username = 'root';
-        var password = file.data.postgres_root_password;
-        var database = 'postgres';
+        var username = (typeof user == 'undefined')
+                            ? 'root'
+                            : user;
+        var password = (typeof password == 'undefined')
+                            ? file.data.postgres_root_password
+                            : password;
+        var database = (typeof database == 'undefined')
+                            ? 'postgres'
+                            : database;
 
         var task = " python psql_tunnel.py ";
         task += " --tunnel "+tunnel;
@@ -370,10 +379,42 @@ var helpers = {
         task += " --host "+host;
         task += " --user "+username;
         task += " --password \""+password+"\"";
-        task += " --database postgres";
+        task += " --database \""+database+"\"";
         task += " --command \""+command+"\""
 
         console.log(path + ": " + task);
+
+        return this.runTaskInPipelinePromise(task, path, file);
+
+	},
+
+	psqlExecuteScriptInPipelinePromise: function(path, script, file, user, password, database) {
+
+	    var tunnel = file.data.bastion_public_ip;
+        // TODO is this right? Should we assume this
+        // or prompt user for the ssh key
+        // or write .ssh/config
+        var key = file.data.ssh_public_key_path.replace(/\.pub$/,'');
+        var host = file.data.rds_connection_string;
+        var username = (typeof user == 'undefined')
+                            ? 'root'
+                            : user;
+        var password = (typeof password == 'undefined')
+                            ? file.data.postgres_root_password
+                            : password;
+        var database = (typeof database == 'undefined')
+                            ? 'postgres'
+                            : database;
+
+        console.log(database + " " + username + " " + script);
+        var task = " python psql_tunnel.py ";
+        task += " --tunnel "+tunnel;
+        task += " --key \""+key+"\"";
+        task += " --host "+host;
+        task += " --user "+username;
+        task += " --password \""+password+"\"";
+        task += " --database \""+database+"\"";
+        task += " --script \""+script+"\""
 
         return this.runTaskInPipelinePromise(task, path, file);
 

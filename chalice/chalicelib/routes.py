@@ -92,7 +92,15 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
-        teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
+        authed = app.auth.try_login(app.current_request)
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+            teams = user.get_my_teams()
+        else:
+            teams = []
+
+        #teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
         team_list = []
         for team in teams:
             team_stats = team.get_team_stats()
@@ -110,6 +118,7 @@ def team_list():
             app.current_request,
             template_data
         )
+
     except Exception as err:
         app.log.error("Route: team error: " + str(err))
         response = app.templates.default_server_error()
@@ -119,22 +128,29 @@ def team_list():
 @app.route('/team/{id}/dashboard')
 def team_dashboard(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
+
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
         criteria_stats = models.ProductTeam.get_criteria_stats([team])
         app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
+
+        template_data = {
+            "team": team.serialize(),
+            "team_summary": team.get_team_stats(),
+            "criteria_summary": criteria_stats,
+            "failed_resources": team.get_team_failed_resources()
+        }
+
         response = app.templates.render_authorized_template(
             'team_dashboard.html',
             app.current_request,
-            {
-                "team": team.serialize(),
-                "team_summary": team.get_team_stats(),
-                "criteria_summary": criteria_stats,
-                "failed_resources": team.get_team_failed_resources()
-            }
+            template_data,
+            [team]
         )
+
     except Exception as err:
         app.log.error("Route: team dashboard error: " + str(err))
         response = app.templates.default_server_error()
@@ -144,6 +160,7 @@ def team_dashboard(id):
 @app.route('/team/{id}/status')
 def team_status(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
@@ -189,7 +206,8 @@ def team_status(id):
         response = app.templates.render_authorized_template(
             'team_status.html',
             app.current_request,
-            template_data
+            template_data,
+            [team]
         )
     except Exception as err:
         app.log.error("Route: team status error: " + str(err))
@@ -200,6 +218,7 @@ def team_status(id):
 @app.route('/team/{id}/issues')
 def team_issues(id):
     team_id = int(id)
+    # TODO - add check user has access to team
     load_route_services()
     try:
         team = models.ProductTeam.get_by_id(team_id)
@@ -218,7 +237,8 @@ def team_issues(id):
         response = app.templates.render_authorized_template(
             'team_issues.html',
             app.current_request,
-            template_data
+            template_data,
+            [team]
         )
     except Exception as err:
         app.log.error("Route: team issues error: " + str(err))
@@ -229,6 +249,7 @@ def team_issues(id):
 @app.route('/account/{id}/status')
 def account_status(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -280,7 +301,8 @@ def account_status(id):
             response = app.templates.render_authorized_template(
                 'audit_status.html',
                 app.current_request,
-                template_data
+                template_data,
+                [account]
             )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
@@ -293,6 +315,7 @@ def account_status(id):
 @app.route('/account/{id}/issues')
 def account_issues(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -318,7 +341,8 @@ def account_issues(id):
             response = app.templates.render_authorized_template(
                 'audit_issues.html',
                 app.current_request,
-                template_data
+                template_data,
+                [account]
             )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
@@ -331,6 +355,7 @@ def account_issues(id):
 @app.route('/account/{id}/history')
 def account_history(id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     load_route_services()
     try:
         account = models.AccountSubscription.get_by_id(account_id)
@@ -362,7 +387,8 @@ def account_history(id):
         response = app.templates.render_authorized_template(
             'audit_history.html',
             app.current_request,
-            template_data
+            template_data,
+            [account]
         )
 
     except Exception as err:
@@ -374,6 +400,7 @@ def account_history(id):
 @app.route('/account/{id}/history/{audit_id}')
 def account_status(id, audit_id):
     account_id = int(id)
+    # TODO - add check user has access to account team
     audit_id = int(audit_id)
     try:
         load_route_services()
@@ -430,7 +457,8 @@ def account_status(id, audit_id):
             response = app.templates.render_authorized_template(
                 'audit_status.html',
                 app.current_request,
-                template_data
+                template_data,
+                [account]
             )
         else:
             raise Exception(f"No historic audit for account: {account_id}")
@@ -450,6 +478,7 @@ def check_issues(id):
         audit = audit_check.account_audit_id
         account = audit.account_subscription_id
         team = account.product_team_id
+        # TODO - add check user has access to team
 
         template_data = {
             "breadcrumbs": [
@@ -472,7 +501,8 @@ def check_issues(id):
         response = app.templates.render_authorized_template(
             'check_issues.html',
             app.current_request,
-            template_data
+            template_data,
+            [account]
         )
 
     except Exception as err:
@@ -490,6 +520,8 @@ def resource_details(id):
         account = models.AccountSubscription.get_by_id(
             models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
         )
+        # TODO - add check user has access to account team
+
         compliance = (
             models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
         ).get()

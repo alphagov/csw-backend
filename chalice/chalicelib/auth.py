@@ -249,6 +249,15 @@ class AuthHandler:
 
         return valid
 
+    def get_user_record(self, email):
+        """
+        Retrieve a user record by email address
+        :param email:
+        :return:
+        """
+        db_user = models.User.find_active_by_email(email)
+        return db_user
+
     def get_default_cookie_expiration(self):
         """
         Add expiration to current timestamp

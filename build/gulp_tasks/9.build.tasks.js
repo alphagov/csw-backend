@@ -39,15 +39,22 @@ gulp.task('environment.infrastructure', gulp.series(
     'environment.terraform'
 ));
 
+// Separate
+gulp.task('environment.redeploy', gulp.series(
+    'copy.assets',
+    'sass.csw',
+    'environment.database_migrate',
+    'environment.chalice_s3_deploy',
+    'environment.database_define_criteria'
+));
+
 // Re-copy assets
 // Re-compile CSS
 // Re-apply terraform
 // Re-deploy chalice
 gulp.task('environment.deploy', gulp.series(
-    'copy.assets',
-    'sass.csw',
     'environment.terraform',
-    'environment.chalice_s3_deploy'
+    'environment.redeploy'
 ));
 
 // Delete chalice and destroy terraformed environment in AWS

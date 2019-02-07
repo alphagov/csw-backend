@@ -125,3 +125,7 @@ build/csw-infra
 
 #VSCode
 .vscode/
+
+# Ignore private config repo
+configuration/
+build/sql/population

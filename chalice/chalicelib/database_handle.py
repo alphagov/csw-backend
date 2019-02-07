@@ -231,6 +231,14 @@ class BaseModel(peewee.Model):
         # return item
         return super().save(force_insert, only)
 
+    def user_has_access(self, user):
+        """
+        Default method to be overridden by models with access control
+        requirements.
+        :return:
+        """
+        return True
+
     @classmethod
     def create(cls, **query):
         # try:

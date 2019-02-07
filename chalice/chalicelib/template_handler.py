@@ -118,6 +118,19 @@ class TemplateHandler:
             }
         ]
 
+    def refuse(self, req, type, item):
+        response = self.render_authorized_template(
+            'denied.html',
+            req,
+            {
+                "refused": {
+                    "type": type,
+                    "item": item
+                }
+            }
+        )
+        return response
+
     def get_redirect_status(self, req):
         """
         Decides whether a login redirect is required or completed
@@ -163,7 +176,20 @@ class TemplateHandler:
         self.app.log.debug("Redirect Status: " + str(status))
         return status
 
-    def render_authorized_template(self, template_file, req, data=None):
+    def render_authorized_template(self, template_file, req, data=None, check_access=[]):
+        """
+        Check the user is logged in
+        If so render the template using the data supplied
+        If not create a redirect to force login
+        Optionally check whether the user has access to a given list of resources
+        by calling the user_has_access method in each item
+        TODO make the access check generic
+        :param template_file:
+        :param req:
+        :param data:
+        :param team:
+        :return:
+        """
 
         headers = {
             "Content-Type": "text/html"
@@ -214,27 +240,47 @@ class TemplateHandler:
             # Successfully authenticated and permissioned user
             if logged_in:
 
-                data.update(login_data)
+                has_access = True
+                if len(check_access) > 0:
+                    user = self.auth.get_user_record(login_data['email'])
+                    for item in check_access:
+                        item_access = item.user_has_access(user)
+                        if not item_access:
+                            refused = item.get_item()
 
-                self.app.log.debug('template data: '+str(data))
+                    has_access = has_access & item_access
 
-                if self.auth.cookie is not None:
-                    headers["Set-Cookie"] = self.auth.cookie
+                if has_access:
+                    data.update(login_data)
 
-                # Set redirect header
-                if (redirect_status["action"] == "redirect"):
-                    self.app.log.debug("Redirect to target: "+redirect_status["target"])
-                    status_code = 302
-                    headers["Location"] = root_path + redirect_status["target"]
+                    self.app.log.debug('template data: '+str(data))
 
-                # Unset redirect cookie
-                if (redirect_status["action"] == "complete"):
-                    self.app.log.debug("Redirection made - deleting cookie")
-                    expiration = datetime.datetime.now()
-                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", "", expiration)
+                    if self.auth.cookie is not None:
+                        headers["Set-Cookie"] = self.auth.cookie
 
-                data["logout_url"] = f"{root_path}/logout"
-                data["menu"] = self.get_menu(root_path)
+                    # Set redirect header
+                    if (redirect_status["action"] == "redirect"):
+                        self.app.log.debug("Redirect to target: "+redirect_status["target"])
+                        status_code = 302
+                        headers["Location"] = root_path + redirect_status["target"]
+
+                    # Unset redirect cookie
+                    if (redirect_status["action"] == "complete"):
+                        self.app.log.debug("Redirection made - deleting cookie")
+                        expiration = datetime.datetime.now()
+                        headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", "", expiration)
+
+                    data["logout_url"] = f"{root_path}/logout"
+                    data["menu"] = self.get_menu(root_path)
+                else:
+                    template_file = 'denied.html'
+
+                    data = {
+                        "refused": {
+                            "type": "team",
+                            "item": refused
+                        }
+                    }
 
             # Check for successful auth but non-registered user
             elif login_data['authenticated'] and not login_data['is_registered']:

@@ -40,7 +40,8 @@ class User(database_handle.BaseModel):
         :return:
         """
         # TODO replace this with a select based on user access team roles
-        teams = ProductTeam.select().where(ProductTeam.active == True)
+        #teams = ProductTeam.select().where(ProductTeam.active == True)
+        teams = self.get_my_teams()
 
         overview_stats = {
             "accounts_audited": 0,
@@ -66,6 +67,61 @@ class User(database_handle.BaseModel):
             "teams": team_summaries
         }
         return overview_data
+
+    def get_my_teams(self):
+        """
+        Get list of teams for which there is a corresponding ProductTeamUser record
+        :return arr ProductTeam:
+        """
+        try:
+            teams = (ProductTeam
+                     .select()
+                     .join(ProductTeamUser)
+                     .where(ProductTeamUser.user_id == self.id))
+        except Exception as err:
+            app.log.debug("Failed to get team list for current user: " + str(err))
+            teams = []
+        return teams
+
+    def get_my_accounts(self):
+        try:
+            accounts = (AccountSubscription
+                        .select()
+                        .join(ProductTeam)
+                        .join(ProductTeamUser)
+                        .where(ProductTeamUser.user_id == self.id))
+        except Exception as err:
+            app.log.debug("Failed to get account list for current user: " + str(err))
+            accounts = []
+        return accounts
+
+    def can_access_team(self, team_id):
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .where(
+                        ProductTeamUser.user_id == self.id,
+                        ProductTeamUser.team_id == team_id)
+                      .get())
+            has_access = True
+        except Exception as err:
+            has_access = False
+        return has_access
+
+    def can_access_account(self, account_id):
+        try:
+            member = (AccountSubscription
+                      .select()
+                      .join(ProductTeam)
+                      .join(ProductTeamUser)
+                      .where(
+                        AccountSubscription.id == account_id,
+                        ProductTeamUser.user_id == self.id)
+                      .get())
+            has_access = True
+        except Exception as err:
+            has_access = False
+        return has_access
 
 
 class UserSession(database_handle.BaseModel):
@@ -141,14 +197,40 @@ class UserSession(database_handle.BaseModel):
         return session
 
 
-# Create a product team reference table to link AWS
-# accounts to the teams who they belong to
 class ProductTeam(database_handle.BaseModel):
+    """
+    Create a product team reference table to link AWS
+    accounts to the teams who they belong to
+    """
     team_name = peewee.CharField()
     active = peewee.BooleanField()
 
     class Meta:
         table_name = "product_team"
+
+    def get_item(self):
+        return {
+            "id": self.id,
+            "name": self.team_name
+        }
+
+    def user_has_access(self, user):
+        """
+        Check whether the current user has access to this team
+        :param user:
+        :return:
+        """
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .join(ProductTeam)
+                      .where(ProductTeam.id == self.id,
+                             ProductTeamUser.user_id == user).get())
+            is_member = True
+        except Exception as err:
+            # If there's no matching record they're not a member - this is not an error.
+            is_member = False
+        return is_member
 
     def get_team_failed_resources(self):
         team_id = self.id
@@ -333,9 +415,22 @@ class ProductTeam(database_handle.BaseModel):
         return criteria_stats
 
 
-# Create a subscriptions table which designates
-# which AWS accounts we should scan
+class ProductTeamUser(database_handle.BaseModel):
+    """
+    Link product team records to user accounts in order to limit access
+    """
+    user_id = peewee.ForeignKeyField(User, backref='sessions')
+    team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
+
+    class Meta:
+        table_name = "product_team_user"
+
+
 class AccountSubscription(database_handle.BaseModel):
+    """
+    Create a subscriptions table which designates
+    which AWS accounts we should scan
+    """
     account_id = peewee.BigIntegerField()
     account_name = peewee.CharField()
     product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
@@ -343,6 +438,29 @@ class AccountSubscription(database_handle.BaseModel):
 
     class Meta:
         table_name = "account_subscription"
+
+    def get_item(self):
+        return {
+            "id": self.id,
+            "name": self.account_name,
+            "reference": self.account_id
+        }
+
+    def user_has_access(self, user):
+        # Check whether the user is a member in ProductTeamUser
+        try:
+            member = (ProductTeamUser
+                      .select()
+                      .join(ProductTeam)
+                      .join(AccountSubscription)
+                      .where(AccountSubscription.id == self.id,
+                             ProductTeamUser.user_id == user)
+                      .get())
+            is_member = True
+        except Exception as err:
+            # If there's no matching record they're not a member - this is not an error.
+            is_member = False
+        return is_member
 
     def get_latest_audit(self):
         account_id = self.id
