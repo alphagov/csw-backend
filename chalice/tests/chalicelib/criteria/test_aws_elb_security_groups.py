@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_elb_security_groups import (
+from chalicelib.criteria.aws_support_elb_security_groups import (
     ELBSecurityGroupsYellow,
     ELBSecurityGroupsRed,
 )

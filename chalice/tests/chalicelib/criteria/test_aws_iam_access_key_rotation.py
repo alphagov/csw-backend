@@ -1,6 +1,6 @@
 import unittest
 
-from chalicelib.criteria.aws_iam_access_key_rotation import (
+from chalicelib.criteria.aws_support_access_key_rotation import (
     AwsIamAccessKeyRotationYellow, AwsIamAccessKeyRotationRed
 )
 from tests.chalicelib.criteria.test_criteria_default import (

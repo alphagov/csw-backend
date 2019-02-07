@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_rds_public_snapshots import RDSPublicSnapshot
+from chalicelib.criteria.aws_support_rds_public_snapshots import RDSPublicSnapshot
 from tests.chalicelib.criteria.test_criteria_default import CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 from tests.chalicelib.criteria.test_data import RDS_PUBLIC_SNAPSHOTS
 

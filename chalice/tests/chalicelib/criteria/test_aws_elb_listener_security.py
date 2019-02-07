@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_elb_listener_security import (
+from chalicelib.criteria.aws_support_elb_listener_security import (
     ELBListenerSecurityNoListener,
     ELBListenerSecurityPredefinedOutdated,
     ELBListenerSecurityProtocolDiscouraged,

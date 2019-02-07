@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_cloudtrail_logging import (
+from chalicelib.criteria.aws_support_cloudtrail_logging import (
     CloudtrailLogHasErrors,
     CloudtrailLogNotInRegion,
     CloudtrailLogTurnedOff,

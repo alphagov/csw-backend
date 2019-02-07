@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_ebs_public_snapshots import EBSPublicSnapshot
+from chalicelib.criteria.aws_support_ebs_public_snapshots import EBSPublicSnapshot
 from tests.chalicelib.criteria.test_criteria_default import CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 from tests.chalicelib.criteria.test_data import EBS_PUBLIC_SNAPSHOTS
 
