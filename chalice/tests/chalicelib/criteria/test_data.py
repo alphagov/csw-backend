@@ -2049,3 +2049,8 @@ S3_BUCKET_POLICIES = {
              '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
              '{"Bool": {"aws:SecureTransport": "true"}}}]}')
 }
+
+S3_VERSIONING_DATA = {
+    "pass" : {},
+    "fail" : {}
+}
