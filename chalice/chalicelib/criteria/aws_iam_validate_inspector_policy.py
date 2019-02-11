@@ -16,7 +16,7 @@ class AwsIamValidateInspectorPolicy(CriteriaDefault):
 
     resource_type = "AWS::IAM::Policy"
 
-    title = "Cloud Security Watch - IAM Inspector Role Policy is up-to-date"
+    title = "IAM Roles: The inspector role policy for Cloud Security Watch is up to date"
 
     description = """Checks whether the Cloud Security Watch role matches the current definition."""
 

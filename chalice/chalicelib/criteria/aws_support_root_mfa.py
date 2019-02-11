@@ -16,7 +16,7 @@ class AwsSupportRootMfa(CriteriaDefault):
 
     ClientClass = GdsSupportClient
 
-    title = "Multi-Factor Authentication enabled for root user on account"
+    title = "MFA: Muti-factor authentication is enabled for the root account"
 
     description = """Checks the root account and warns if multi-factor authentication (MFA) 
     is not enabled. For increased security, we recommend that you protect your account by 

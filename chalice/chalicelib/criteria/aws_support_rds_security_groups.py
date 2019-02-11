@@ -39,7 +39,7 @@ class AwsSupportRDSSecurityGroupsYellow(AwsSupportRDSSecurityGroups):
     active = True
 
     def __init__(self, app):
-        self.title = 'Amazon RDS Security Group Insufficient Access Restrictions'
+        self.title = 'RDS Security Groups: Ingress is restricted for flagged ports'
         self.description = (
             'A rule in the database security group references an Amazon EC2 security group, '
             'which grants global access to a range of IP addresses or on a commonly used port '
@@ -76,7 +76,7 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
     active = True
 
     def __init__(self, app):
-        self.title = 'Amazon RDS Security Group Restricted Access'
+        self.title = 'RDS Security Groups: Ingress is restricted to specific IPs or CIDRs'
         self.description = (
             'A rule in the database security group grants global access (i.e. access from any IP address).'
         )

@@ -39,7 +39,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationYellow, self).__init__(app)
-        self.title = " Quarterly IAM access keys rotation"
+        self.title = 'IAM Access Keys: Keys are rotated regularly (within 90 days)'
         self.description = (
             'At least one active Identity and Access Management '
             f'(IAM) access key has not been rotated in the last 90 days.'
@@ -89,7 +89,7 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationRed, self).__init__(app)
-        self.title = 'Biennial IAM access keys rotation'
+        self.title = 'IAM Access Keys: Keys are rotated regularly (within 2 years)'
         self.description = (
             'At least one active Identity and Access Management '
             f'(IAM) access key has not been rotated in the last 2 years.'

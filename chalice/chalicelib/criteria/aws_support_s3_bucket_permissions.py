@@ -33,7 +33,7 @@ class S3BucketReadAll(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket ACL disallows List access for "Everyone" or "Any Authenticated AWS User"'
+            'S3 Bucket ACLs: Does not allow List access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
             'There are S3 buckets with open access permissions '
@@ -79,7 +79,7 @@ class S3BucketOpenAccess(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket policy disallows any kind of open access.'
+            'S3 Bucket Policies: Does not allow open access'
         )
         self.description = (
             'There are S3 buckets with open access permissions or '
@@ -123,7 +123,7 @@ class S3BucketWriteAll(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket ACL disallows Upload/Delete access for "Everyone" or "Any Authenticated AWS User".'
+            'S3 Bucket ACLs: Does not allow Upload or Delete access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
             'There are S3 buckets with open access permissions or allow access '

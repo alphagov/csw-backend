@@ -13,7 +13,7 @@ class EBSPublicSnapshot(TrustedAdvisorCriterion):
     def __init__(self, app):
         self.resource_type = 'AWS::EBS::PublicSnapshots'
         self.check_id = 'xSqX82fQu'
-        self.title = 'Amazon Elastic Block Store Snapshots Restrictions'
+        self.title = 'EBS Snapshots: There are no public snapshots'
         self.description = (
             'Checks the permission settings for your Amazon Elastic Block Store (Amazon EBS) volume snapshots '
             'and alerts you if any snapshots are marked as public. '
