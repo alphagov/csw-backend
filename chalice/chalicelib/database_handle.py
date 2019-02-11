@@ -175,6 +175,7 @@ class DatabaseHandle():
                     'GdsSupportClient': 1,
                     'GdsEc2SecurityGroupClient': 2,
                     'GdsIamClient': 3,
+                    'GdsS3Client': 4,
                 }[obj.ClientClass.__name__],  # values are based in the sequence providers are fed by database_populate
                 invoke_class_name=event['criterion_name'],
                 invoke_class_get_data_method="doesn't matter, we should get rid of this column",
