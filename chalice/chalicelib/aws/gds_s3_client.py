@@ -28,3 +28,8 @@ class GdsS3Client(GdsAwsClient):
             policy = str(exception)
 
         return policy
+
+    def get_bucket_versioning(self, session, bucket_name):
+
+        s3 = self.get_boto3_session_client('s3', session)
+        return s3.get_bucket_versioning(Bucket=bucket_name)
