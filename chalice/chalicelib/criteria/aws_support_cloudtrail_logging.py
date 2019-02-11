@@ -142,7 +142,7 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
     """
     Subclass checking if the cloud trail is sent to the cst bucket declared here.
     """
-    active = True
+    active = False
     cst_bucket_name = 'cyber-security-staging-csw-cloudtrail'
 
     def __init__(self, app):
