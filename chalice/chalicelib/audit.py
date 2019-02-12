@@ -138,10 +138,10 @@ def account_evaluate_criteria(event):
             app.log.debug("criterion: " + criterion.title)
             provider = criterion_data["criteria_provider_id"]
             app.log.debug("provider: " + provider["provider_name"])
-            ClientClass = app.utilities.get_class_by_name(criterion.invoke_class_name)
-            client = ClientClass(app)
+            CheckClass = app.utilities.get_class_by_name(criterion.invoke_class_name)
+            check = CheckClass(app)
             account_id = audit.account_subscription_id.account_id
-            session = client.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
+            session = check.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
             if session is not None:
                 params = {}
                 for param in criterion.criterion_params:
@@ -161,33 +161,31 @@ def account_evaluate_criteria(event):
                 summary = None
                 for params in requests:
                     try:
-                        data = client.get_data(session, **params)
+                        data = check.get_data(session, **params)
                     except ClientError as boto3_error:
                         app.log.error(str(boto3_error))
                         data = None
                     if data is not None:
                         app.log.debug("api response: " + app.utilities.to_json(data))
-                        for item_raw in data:
-                            compliance = client.evaluate({}, item_raw)
+                        for api_response_item in data:
+                            compliance = check.evaluate({}, api_response_item)
                             app.log.debug(app.utilities.to_json(compliance))
-                            item = {
-                                "account_audit_id": audit.id,
-                                "criterion_id": criterion.id,
-                                "resource_data": app.utilities.to_json(item_raw),
-                                "date_evaluated": datetime.now()
-                            }
-                            item_standard = client.translate(item_raw)
-                            item.update(item_standard)
-                            item_raw.update(item_standard)
-                            if "region" in params:
-                                item["region"] = params["region"]
-                                item_raw["region"] = params["region"]
-                            app.log.debug(app.utilities.to_json(item))
-                            audit_resource = models.AuditResource.create(**item)
+
+                            audit_resource_item = check.build_audit_resource_item(
+                                api_item = api_response_item,
+                                audit = audit,
+                                criterion = criterion,
+                                params = params
+                            )
+
+                            # create an audit_resource record
+                            audit_resource = models.AuditResource.create(**audit_resource_item)
+
+                            # populate foreign key for compliance record
                             compliance["audit_resource_id"] = audit_resource
-                            item_raw["resource_compliance"] = compliance
+                            api_response_item["resource_compliance"] = compliance
                             resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
-                        summary = client.summarize(data, summary)
+                        summary = check.summarize(data, summary)
                 app.log.debug(app.utilities.to_json(summary))
                 audit_criterion.resources = summary['all']['display_stat']
                 audit_criterion.tested = summary['applicable']['display_stat']
