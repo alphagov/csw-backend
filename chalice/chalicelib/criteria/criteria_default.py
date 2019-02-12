@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from chalicelib.aws.gds_aws_client import GdsAwsClient
 from chalicelib.aws.gds_support_client import GdsSupportClient
@@ -37,6 +38,28 @@ class CriteriaDefault():
 
     def get_data(self, session, **kwargs):
         return []
+
+    def get_resource_persistent_id(self, item, audit):
+        """
+        The resource_identifier needs to be something which will
+        be unchanged by a terraform destroy/apply so should not
+        include the resource's ID.
+        This is why the resource ARN is not the default.
+        For IAM Users, Roles or S3 buckets the ARN can be used since
+        the ARN contains the name and not an ID.
+
+        By default the resource identifier is in the format:
+        {criteria resource type}::{region}::{account}::{resource_name}
+
+        This should be overridden for specific resource types
+        where the default behaviour is not appropriate.
+        :param item:
+        :return:
+        """
+        return (self.resource_type + "::"
+                + item.get('region','') + "::"
+                + str(audit.account_subscription_id.account_id) + "::"
+                + item.get('resource_name',''))
 
     def build_evaluation(
         self, resource_id, compliance_type, event, resource_type,
@@ -153,6 +176,47 @@ class CriteriaDefault():
 
         return summary
 
+    def translate(self, data={}):
+        """
+        Default method to create name and id fields for an audit_resource
+        This method should be overridden for each AWS resource type to return
+        approprate fields.
+        :param data:
+        :return:
+        """
+        item = {
+            'resource_id': data.get('ResourceId', ''),
+            'resource_name': data.get('Name','')  # trail name or empty string
+        }
+        return item
+
+    def build_audit_resource_item(self, api_item, audit, criterion, params):
+
+        item = self.translate(api_item)
+        # store original API resource data
+        item["resource_data"] = self.app.utilities.to_json(api_item)
+
+        # populate foreign keys
+        item["account_audit_id"] = audit
+        item["criterion_id"] = criterion
+
+        # set evaluated date
+        item["date_evaluated"] = datetime.now()
+
+        # for some TA checks the region will be populated from the
+        # check.translate method.
+        # for custom checks where an API call is made for each region
+        # the region is added here.
+        if "region" in params:
+            item["region"] = params["region"]
+            # item_raw["region"] = params["region"]
+
+        # populate the resource_identifier field
+        item['resource_persistent_id'] = self.get_resource_persistent_id(item, audit)
+
+        return item
+
+
 
 class TrustedAdvisorCriterion(CriteriaDefault):
     """
@@ -184,7 +248,17 @@ class TrustedAdvisorCriterion(CriteriaDefault):
         return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
 
     def translate(self, data={}):
-        return {
+        """
+        Default method to create name and id fields for an audit_resource
+        from Trusted Advisor response - flagged_resources
+        This method should be overridden for each AWS resource type to return
+        approprate fields.
+        :param data:
+        :return:
+        """
+
+        item = {
             'resource_id': data.get('resourceId', ''),
             'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
         }
+        return item
