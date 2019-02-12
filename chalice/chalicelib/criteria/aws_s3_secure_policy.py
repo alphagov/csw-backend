@@ -17,12 +17,20 @@ class AwsS3SecurePolicy(CriteriaDefault):
 
     title = "S3 - Insecure Bucket Policies"
 
-    description = "Checks whether the S3 bucket has a policy that only allows connection via HTTPS"
+    description = ("It has been found that the following buckets do not have policies, or do notuse the condition "
+                   "'aws:SecureTransports3bucket' in their s3 policies to enforce clear test communications.")
 
-    why_is_it_important = ("HTTPS allows for data transferred to and from S3 buckets to be encrypted. If this data is "
-                           "not encrypted, it would allow for sensitive data to be intercepted in transit.")
+    why_is_it_important = ("When S3 buckets are not configured to strictly require SSL connections, the communication "
+                           "between the clients (users, applications) and these buckets is vulnerable to eavesdropping "
+                           "and man-in-the-middle (MITM) attacks.")
 
-    how_do_i_fix_it = "Attach a policy with a condition that only allows access through HTTPS."
+    how_do_i_fix_it = ("Define an access policy that will enforce SSL-only (encrypted) access to your S3 data, "
+                       "especially when dealing with sensitive or private data. Then, set the condition "
+                       "'aws:SecureTransports3bucket' in your S3 policy to enforce HTTPS requests to your buckets. An "
+                       "example of a S3 policy can be found in the AWS blog below:<br />"
+                       "<a href=' https://aws.amazon.com/blogs/security/how-to-use-bucket-policies-and-apply-defense-in"
+                       "-depth-to-help-secure-your-amazon-s3-data/>https://aws.amazon.com/blogs/security/how-to-use-buc"
+                       "ket-policies-and-apply-defense-in-depth-to-help-secure-your-amazon-s3-data/</a>")
 
     def __init__(self, app):
         super(AwsS3SecurePolicy, self).__init__(app)
@@ -52,7 +60,7 @@ class AwsS3SecurePolicy(CriteriaDefault):
         if not isinstance(bucket['Policy'], dict):  # Failure: no policy
             log_string = "Bucket does not have a policy"
             compliance_type = "NOT_COMPLIANT"
-            self.annotation = ("<p>This bucket has no policy attached.<p>"
+            self.annotation = ("<p>This bucket has no policy attached.</p>"
                                "<p>This means you cannot prevent non-HTTPS connections to your bucket, which poses a "
                                "security risk.</p>")
         else:
