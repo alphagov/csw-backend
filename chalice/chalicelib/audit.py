@@ -89,12 +89,14 @@ def account_audit_criteria(event):
         app.log.debug("Set prefix: " + app.prefix)
         queue_url = sqs.get_queue_url(f"{app.prefix}-audit-account-metric-queue")
         app.log.debug("Retrieved queue url: " + queue_url)
-        active_criteria = models.Criterion.select().where(models.Criterion.active == True)
+        # active_criteria = models.Criterion.select().where(models.Criterion.active == True)
         messages = []
         for message in event:
             audit_data = json.loads(message.body)
             app.log.debug(message.body)
             audit = models.AccountAudit.get_by_id(audit_data['id'])
+            account = audit.account_subscription_id
+            active_criteria = account.get_profile_criteria()
             audit.active_criteria = len(list(active_criteria))
             for criterion in active_criteria:
                 audit_criterion = models.AuditCriterion.create(

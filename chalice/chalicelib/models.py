@@ -1,7 +1,5 @@
 import datetime
-
 import peewee
-
 from app import app  # used only for logging
 from chalicelib import database_handle
 
@@ -426,6 +424,85 @@ class ProductTeamUser(database_handle.BaseModel):
         table_name = "product_team_user"
 
 
+
+class CriteriaProvider(database_handle.BaseModel):
+    """
+    eg AWS domain - Trusted Advisor EC2...
+    The tool could be extended beyond the scope of AWS
+    """
+    provider_name = peewee.CharField()
+
+    class Meta:
+        table_name = "criteria_provider"
+
+
+class Criterion(database_handle.BaseModel):
+    """
+    eg Trusted Advisor - Security Groups - Specific Ports Unrestricted
+    invoke_class_method like describe_trusted_advisor_check_result
+    """
+    criterion_name = peewee.CharField()
+    # TODO: remove the FK below and its class above, not used
+    criteria_provider_id = peewee.ForeignKeyField(CriteriaProvider, backref='criteria')
+    invoke_class_name = peewee.CharField()
+    invoke_class_get_data_method = peewee.CharField()
+    title = peewee.TextField()
+    description = peewee.TextField()
+    why_is_it_important = peewee.TextField()
+    how_do_i_fix_it = peewee.TextField()
+    active = peewee.BooleanField(default=True)
+    is_regional = peewee.BooleanField(default=True)
+
+    class Meta:
+        table_name = "criterion"
+
+
+class CriterionParams(database_handle.BaseModel):
+    """
+    Primarily for trusted advisor checks specifies arguments that need to be provided
+    eg
+    language=en
+    checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
+    """
+    criterion_id = peewee.ForeignKeyField(Criterion, backref='criterion_params')
+    param_name = peewee.CharField()
+    param_value = peewee.CharField()
+
+    class Meta:
+        table_name = "criterion_params"
+
+
+class AuditProfile(database_handle.BaseModel):
+    """
+    Create named audit profiles to enable running different types of audit
+    for different types of AWS usage.
+    """
+    profile_name = peewee.CharField()
+    description = peewee.TextField()
+    class Meta:
+        table_name = "audit_profile"
+
+    def get_active_criteria(self):
+        criteria =  (Criterion
+                      .select()
+                      .join(AuditProfileCriterion)
+                      .where(AuditProfileCriterion.audit_profile_id == self.id,
+                             Criterion.active == True))
+        return criteria
+
+class AuditProfileCriterion(database_handle.BaseModel):
+    """
+    Link check criteria to a named profile so that we can run a different collection
+    of checks against specialist AWS accounts serving a specific purpose.
+    """
+    audit_profile_id = peewee.ForeignKeyField(AuditProfile, backref='audit_profile_criterion')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref='audit_profile_criterion')
+    display = peewee.BooleanField(default=True)
+
+    class Meta:
+        table_name = "audit_profile_criterion"
+
+
 class AccountSubscription(database_handle.BaseModel):
     """
     Create a subscriptions table which designates
@@ -435,6 +512,7 @@ class AccountSubscription(database_handle.BaseModel):
     account_name = peewee.CharField()
     product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
     active = peewee.BooleanField()
+    audit_profile_id = peewee.ForeignKeyField(AuditProfile, backref='account_subscriptions')
 
     class Meta:
         table_name = "account_subscription"
@@ -447,7 +525,9 @@ class AccountSubscription(database_handle.BaseModel):
         }
 
     def user_has_access(self, user):
-        # Check whether the user is a member in ProductTeamUser
+        """
+        Check whether the user is a member in ProductTeamUser
+        """
         try:
             member = (ProductTeamUser
                       .select()
@@ -497,26 +577,39 @@ class AccountSubscription(database_handle.BaseModel):
             app.log.debug("Catch generic exception from get_audit_history: " + str(err))
         return audit_history
 
+    def get_profile_criteria(self):
+        try:
+            if self.audit_profile_id:
+                criteria = self.audit_profile_id.get_active_criteria()
+            else:
+                criteria = Criterion.select().where(Criterion.active == True)
+        except Exception as err:
+            self.app.log.error("Failed to get audit profile criteria list: " + str(err))
+            criteria = []
+        return criteria
 
-# When an audit is triggered an audit record is created which
-# counts each criteria as it is measured so that we know
-# when an audit is complete
 
-# There is a bit of overkill in terms of storing numbers which
-# makes it easy to track progress when we're working with lambdas
-
-# active_criteria = the criteria present at the start of the audit
-# criteria_processed = we've tried to audit that criterion
-# criteria_analysed = we audited it successfully
-# criteria_failed = we were unable to get the data or complete the audit
-
-# a completed audit should have
-# active_criteria = criteria_processed
-# = (criteria_analysed + criteria_failed)
-
-# a successful audit should have
-# active_criteria = criteria_analysed
 class AccountAudit(database_handle.BaseModel):
+    """
+    When an audit is triggered an audit record is created which
+    counts each criteria as it is measured so that we know
+    when an audit is complete
+
+    There is a bit of overkill in terms of storing numbers which
+    makes it easy to track progress when we're working with lambdas
+
+    active_criteria = the criteria present at the start of the audit
+    criteria_processed = we've tried to audit that criterion
+    criteria_analysed = we audited it successfully
+    criteria_failed = we were unable to get the data or complete the audit
+
+    a completed audit should have
+    active_criteria = criteria_processed
+    = (criteria_analysed + criteria_failed)
+
+    a successful audit should have
+    active_criteria = criteria_analysed
+    """
     account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='account_audits')
     date_started = peewee.DateTimeField(default=datetime.datetime.now)
     date_updated = peewee.DateTimeField(default=datetime.datetime.now)
@@ -600,49 +693,10 @@ class AccountLatestAudit(database_handle.BaseModel):
         table_name = "account_latest_audit"
 
 
-# eg AWS domain - Trusted Advisor EC2...
-# The tool could be extended beyond the scope of AWS
-class CriteriaProvider(database_handle.BaseModel):
-    provider_name = peewee.CharField()
-
-    class Meta:
-        table_name = "criteria_provider"
-
-
-# eg Trusted Advisor - Security Groups - Specific Ports Unrestricted
-# invoke_class_method like describe_trusted_advisor_check_result
-class Criterion(database_handle.BaseModel):
-    criterion_name = peewee.CharField()
-    # TODO: remove the FK below and its class above, not used
-    criteria_provider_id = peewee.ForeignKeyField(CriteriaProvider, backref='criteria')
-    invoke_class_name = peewee.CharField()
-    invoke_class_get_data_method = peewee.CharField()
-    title = peewee.TextField()
-    description = peewee.TextField()
-    why_is_it_important = peewee.TextField()
-    how_do_i_fix_it = peewee.TextField()
-    active = peewee.BooleanField(default=True)
-    is_regional = peewee.BooleanField(default=True)
-
-    class Meta:
-        table_name = "criterion"
-
-
-# Primarily for trusted advisor checks specifies arguments that need to be provided
-# eg
-# language=en
-# checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
-class CriterionParams(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='criterion_params')
-    param_name = peewee.CharField()
-    param_value = peewee.CharField()
-
-    class Meta:
-        table_name = "criterion_params"
-
-
-# We may want more statuses than Red/Amber/Green
 class Status(database_handle.BaseModel):
+    """
+    We may want more statuses than Red/Amber/Green
+    """
     status_name = peewee.CharField()
     description = peewee.TextField()
 
@@ -650,9 +704,11 @@ class Status(database_handle.BaseModel):
         table_name = "status"
 
 
-# For metrics and accepted risks we can associate a severity which
-# allows us to float higher value issues to the top
 class Severity(database_handle.BaseModel):
+    """
+    For metrics and accepted risks we can associate a severity which
+    allows us to float higher value issues to the top
+    """
     severity_name = peewee.CharField()
     description = peewee.TextField()
 
@@ -660,12 +716,14 @@ class Severity(database_handle.BaseModel):
         table_name = "severity"
 
 
-# For metrics and accepted risks we can associate a severity which
-# allows us to float higher value issues to the top
-# notification classes should extend a base Notification class
-# and then override a notify method
-# This is a stub that will need to be expanded to enable reporting to things like ZenDesk
 class NotificationMethod(database_handle.BaseModel):
+    """
+    For metrics and accepted risks we can associate a severity which
+    allows us to float higher value issues to the top
+    notification classes should extend a base Notification class
+    and then override a notify method
+    This is a stub that will need to be expanded to enable reporting to things like ZenDesk
+    """
     system_name = peewee.CharField()
     description = peewee.TextField()
     invoke_class_name = peewee.CharField()
@@ -674,17 +732,19 @@ class NotificationMethod(database_handle.BaseModel):
         table_name = "notification_method"
 
 
-# For each audit if we're querying the same domain and the same
-# method for multiple checks (eg ec2 describe-security-groups)
-# we can get the data once, store and re-use it rather than calling
-# the api to get the same data multiple times.
-
-# If it's part of a separate audit we need to do it again
-
-# It has a generic name since we may choose to get the AWS data
-# via splunk in the future or we could broaden the reach of the
-# tool to check other vulnerabilities.
 class CachedDataResponse(database_handle.BaseModel):
+    """
+    For each audit if we're querying the same domain and the same
+    method for multiple checks (eg ec2 describe-security-groups)
+    we can get the data once, store and re-use it rather than calling
+    the api to get the same data multiple times.
+
+    If it's part of a separate audit we need to do it again
+
+    It has a generic name since we may choose to get the AWS data
+    via splunk in the future or we could broaden the reach of the
+    tool to check other vulnerabilities.
+    """
     criterion_id = peewee.ForeignKeyField(Criterion, backref='cached_data_responses')
     account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='cached_data_responses')
     invoke_class_name = peewee.CharField()
@@ -744,10 +804,12 @@ class AuditCriterion(database_handle.BaseModel):
         return issues_list
 
 
-# This is where we store the results of quering the API
-# This should include "green" status checks as well as
-# identified risks.
 class AuditResource(database_handle.BaseModel):
+    """
+    This is where we store the results of quering the API
+    This should include "green" status checks as well as
+    identified risks.
+    """
     criterion_id = peewee.ForeignKeyField(Criterion, backref='audit_resources')
     account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='audit_resources')
     region = peewee.CharField(null=True)
@@ -774,8 +836,10 @@ class ResourceCompliance(database_handle.BaseModel):
         table_name = "resource_compliance"
 
 
-# For non-green status issues we record a risk record
 class ResourceRiskAssessment(database_handle.BaseModel):
+    """
+    For non-green status issues we record a risk record
+    """
     criterion_id = peewee.ForeignKeyField(Criterion, backref='resource_risk_assessments')
     audit_resource_id = peewee.ForeignKeyField(AuditResource, backref='resource_risk_assessments')
     account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
