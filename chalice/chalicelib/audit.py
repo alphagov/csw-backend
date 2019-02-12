@@ -142,6 +142,12 @@ def account_evaluate_criteria(event):
             check = CheckClass(app)
             account_id = audit.account_subscription_id.account_id
             session = check.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
+
+            # check passed is set to true and and-equalsed for all
+            # or false and or-equalsed for any
+            check_passed = (check.aggregation_type == "all")
+            is_all = (check_passed)
+
             if session is not None:
                 params = {}
                 for param in criterion.criterion_params:
@@ -199,10 +205,6 @@ def account_evaluate_criteria(event):
                                 compliance["audit_resource_id"] = audit_resource
                                 api_response_item["resource_compliance"] = compliance
 
-                                # temporary measure to provide resource name and id to summarize
-                                api_response_item['resource_name'] = audit_resource_item['resource_name']
-                                api_response_item['resource_id'] = audit_resource_item['resource_id']
-
                                 resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
                                 evaluated.append(audit_resource_item)
                         summary = check.summarize(data, summary)
@@ -220,6 +222,7 @@ def account_evaluate_criteria(event):
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
+            message_data['check_passed'] = check_passed
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role
             # message_data['assume_failed'] = (session is None)
@@ -245,14 +248,16 @@ def audit_evaluated_metric(event):
         for message in event:
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
+
             if audit_criteria_data['processed']:
                 audit.criteria_processed += 1
 
-            if (audit_criteria_data['failed'] > 0):
+            if audit_criteria_data['check_passed']:
+                audit.criteria_passed += 1
+            else:
                 audit.criteria_failed += 1
                 audit.issues_found += audit_criteria_data['failed']
-            else:
-                audit.criteria_passed += 1
+
             if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
                 message_data = audit.serialize()
