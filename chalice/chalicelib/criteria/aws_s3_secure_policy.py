@@ -3,6 +3,7 @@
 # Checks if there is a policy in each bucket in the target account
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_s3_client import GdsS3Client
+import json
 
 
 class AwsS3SecurePolicy(CriteriaDefault):
@@ -28,8 +29,8 @@ class AwsS3SecurePolicy(CriteriaDefault):
                        "especially when dealing with sensitive or private data. Then, set the condition "
                        "'aws:SecureTransports3bucket' in your S3 policy to enforce HTTPS requests to your buckets. An "
                        "example of a S3 policy can be found in the AWS blog below:<br />"
-                       "<a href=' https://aws.amazon.com/blogs/security/how-to-use-bucket-policies-and-apply-defense-in"
-                       "-depth-to-help-secure-your-amazon-s3-data/>https://aws.amazon.com/blogs/security/how-to-use-buc"
+                       "<a href='https://aws.amazon.com/blogs/security/how-to-use-bucket-policies-and-apply-defense-in-"
+                       "depth-to-help-secure-your-amazon-s3-data/'>https://aws.amazon.com/blogs/security/how-to-use-buc"
                        "ket-policies-and-apply-defense-in-depth-to-help-secure-your-amazon-s3-data/</a>")
 
     def __init__(self, app):
@@ -41,7 +42,12 @@ class AwsS3SecurePolicy(CriteriaDefault):
         self.app.log.debug("Adding a 'Policy' key to these buckets")
         for bucket in buckets:
             # I know mutating what you're iterating over is a bad idea...
-            bucket['Policy'] = self.client.get_bucket_policy(session, bucket['Name'])
+            policy = self.client.get_bucket_policy(session, bucket['Name'])
+            self.app.log.debug(f"policy is: '{policy}'")
+            try:
+                bucket['Policy'] = json.loads(policy)
+            except json.decoder.JSONDecodeError:  # policy is not valid JSON - probably an exception from the client
+                bucket['Policy'] = policy
 
         return buckets
 
@@ -60,17 +66,13 @@ class AwsS3SecurePolicy(CriteriaDefault):
         if not isinstance(bucket['Policy'], dict):  # Failure: no policy
             log_string = "Bucket does not have a policy"
             compliance_type = "NOT_COMPLIANT"
-            self.annotation = ("<p>This bucket has no policy attached.</p>"
-                               "<p>This means you cannot prevent non-HTTPS connections to your bucket, which poses a "
-                               "security risk.</p>")
+            self.annotation = "This bucket has no policy attached."
         else:
             for statement in bucket['Policy']['Statement']:
                 if 'Condition' not in statement:  # Failure: No condition
                     log_string = "Bucket does not have any conditions on its policy"
                     compliance_type = "NOT_COMPLIANT"
-                    self.annotation = ("<p>This bucket's policy does not have a condition.</p>"
-                                       "<p>This means you cannot prevent non-HTTPS connections to your bucket, "
-                                       "which poses a security risk.</p>")
+                    self.annotation = "This bucket's policy does not have a condition."
                     break
                 else:
                     secure = statement['Condition'].get('Bool', {}).get('aws:SecureTransport')
@@ -78,18 +80,15 @@ class AwsS3SecurePolicy(CriteriaDefault):
                         # Failure: HTTPS is specifically disallowed
                         log_string = "Bucket's policy condition explicitly disallows HTTPS"
                         compliance_type = "NOT_COMPLIANT"
-                        self.annotation = ("<p>This bucket's policy explicitly disallows HTTPS.</p>"
-                                           "<p>This means you cannot have any HTTPS connections to your bucket, "
-                                           "which poses a security risk.</p>")
+                        self.annotation = ("This bucket's policy explicitly disallows HTTPS."
+                                           "Make sure that the aws:SecureTransport condition is set to 'true'.")
                         break
                     if not secure:  # testing if secure is None
                         # Failure: no secure transport condition
                         log_string = "Bucket does not disallow insecure connections"
                         compliance_type = "NOT_COMPLIANT"
-                        self.annotation = ("<p>This bucket's policy does not disallow connections over HTTP.</p>"
-                                           "<p>There is no SecureTransport condition in this bucket's policy, "
-                                           "meaning you cannot prevent non-HTTPS connections to your bucket, "
-                                           "which poses a security risk.</p>")
+                        self.annotation = ("This bucket's policy does not disallow connections over HTTP, because "
+                                           "there is no SecureTransport condition in this bucket's policy.")
                         break
             else:
                 compliance_type = "COMPLIANT"

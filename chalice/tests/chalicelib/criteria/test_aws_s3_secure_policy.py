@@ -27,7 +27,7 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         for key in self.test_data:
             with self.subTest(key=key):
                 self.subclass.client.get_bucket_list = lambda session: self.test_data[key]
-                self.subclass.client.get_bucket_policy = lambda session, bucket_name: None
+                self.subclass.client.get_bucket_policy = lambda session, bucket_name: ""
                 item = self.subclass.get_data(None)
                 self.assertIsInstance(item, list, msg="The method must return a list of dictionaries")
                 self.assertIn('Policy', item[0], msg="The dictionary must have a Policy key")

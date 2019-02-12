@@ -23,7 +23,7 @@ class GdsS3Client(GdsAwsClient):
             response = s3.get_bucket_policy(
                 Bucket=bucket_name
             )
-            policy = response['Policy']
+            policy = response['Policy']  # This is actually a JSON string instead of a dict. Don't ask me why
         except Exception as exception:
             policy = str(exception)
 
