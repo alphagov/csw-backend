@@ -159,6 +159,12 @@ def account_evaluate_criteria(event):
                 else:
                     requests.append(params)
                 summary = None
+
+
+                # check passed is set to true and and-equalsed for all
+                # or false and or-equalsed for any
+                check_passed = (check.aggregation_type == "all")
+                is_all = (check_passed)
                 for params in requests:
                     try:
                         data = check.get_data(session, **params)
@@ -167,30 +173,38 @@ def account_evaluate_criteria(event):
                         data = None
                     if data is not None:
                         app.log.debug("api response: " + app.utilities.to_json(data))
+                        evaluated = []
                         for api_response_item in data:
                             compliance = check.evaluate({}, api_response_item)
                             app.log.debug(app.utilities.to_json(compliance))
 
-                            audit_resource_item = check.build_audit_resource_item(
-                                api_item = api_response_item,
-                                audit = audit,
-                                criterion = criterion,
-                                params = params
-                            )
+                            item_passed = (compliance['status_id'] == 2)
+                            check_passed = (check_passed and item_passed) if is_all else (check_passed or item_passed)
 
+                            # for "any" type checks only passed resources need to be recorded
+                            # individual failed resources are irrelevant for any checks.
+                            if (is_all or item_passed):
 
-                            # create an audit_resource record
-                            audit_resource = models.AuditResource.create(**audit_resource_item)
+                                audit_resource_item = check.build_audit_resource_item(
+                                    api_item = api_response_item,
+                                    audit = audit,
+                                    criterion = criterion,
+                                    params = params
+                                )
 
-                            # populate foreign key for compliance record
-                            compliance["audit_resource_id"] = audit_resource
-                            api_response_item["resource_compliance"] = compliance
+                                # create an audit_resource record
+                                audit_resource = models.AuditResource.create(**audit_resource_item)
 
-                            # temporary measure to provide resource name and id to summarize
-                            api_response_item['resource_name'] = audit_resource_item['resource_name']
-                            api_response_item['resource_id'] = audit_resource_item['resource_id']
+                                # populate foreign key for compliance record
+                                compliance["audit_resource_id"] = audit_resource
+                                api_response_item["resource_compliance"] = compliance
 
-                            resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
+                                # temporary measure to provide resource name and id to summarize
+                                api_response_item['resource_name'] = audit_resource_item['resource_name']
+                                api_response_item['resource_id'] = audit_resource_item['resource_id']
+
+                                resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
+                                evaluated.append(audit_resource_item)
                         summary = check.summarize(data, summary)
                 app.log.debug(app.utilities.to_json(summary))
                 audit_criterion.resources = summary['all']['display_stat']

@@ -9,6 +9,16 @@ class CriteriaDefault():
 
     active = False
 
+    """
+    aggregation_type = "all" | "any"
+    All (default) means that all resources have to pass for the check to pass
+    and failed resources are recorded as part of the audit results
+
+    Any means that if any individual resource passes then the check passes
+    and individual failed resources are not recorded as part of the audit results
+    """
+    aggregation_type = "all"
+
     resources = dict()
 
     resource_type = "AWS::*::*"
@@ -27,6 +37,9 @@ class CriteriaDefault():
 
     def get_session(self, account="default", role=""):
         return self.client.get_session(account, role)
+
+    def get_aggregation_type(self):
+        return self.aggregation_type
 
     def describe(self):
         return {
