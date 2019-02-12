@@ -252,6 +252,7 @@ def audit_evaluated_metric(event):
             if audit_criteria_data['processed']:
                 audit.criteria_processed += 1
 
+            # Use check_passed status from evaluate lambda.
             if audit_criteria_data['check_passed']:
                 audit.criteria_passed += 1
             else:
