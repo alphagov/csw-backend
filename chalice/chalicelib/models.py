@@ -791,6 +791,31 @@ class ResourceRiskAssessment(database_handle.BaseModel):
         table_name = "resource_risk_assessment"
 
 
+class ResourceException(database_handle.BaseModel):
+    resource_persistent_id = peewee.CharField()
+    criterion_id = peewee.ForeignKeyField(Criterion, backref='resource_exceptions')
+    reason = peewee.CharField()
+    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='resource_exceptions')
+    user_id = peewee.ForeignKeyField(User, backref='resource_exceptions')
+    date_created = peewee.DateTimeField(default=datetime.datetime.now)
+    date_expires = peewee.DateTimeField()
+
+    class Meta:
+        table_name = "resource_exception"
+
+
+class AccountSshCidrAllowlist(database_handle.BaseModel):
+    cidr = peewee.CharField()
+    reason = peewee.CharField()
+    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='ssh_cidr_allowlist')
+    user_id = peewee.ForeignKeyField(User, backref='ssh_cidr_allowlist')
+    date_created = peewee.DateTimeField(default=datetime.datetime.now)
+    date_expires = peewee.DateTimeField()
+
+    class Meta:
+        table_name = "account_ssh_cidr_allowlist"
+
+
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
 '''
