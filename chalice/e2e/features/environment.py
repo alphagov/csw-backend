@@ -1,50 +1,36 @@
 from selenium import webdriver
-from browserstack.local import Local
-import os, json
-
-CONFIG_FILE = os.environ['CONFIG_FILE'] if 'CONFIG_FILE' in os.environ else 'config/single.json'
-TASK_ID = int(os.environ['TASK_ID']) if 'TASK_ID' in os.environ else 0
-
-with open(CONFIG_FILE) as data_file:
-    CONFIG = json.load(data_file)
-
-bs_local = None
-
-BROWSERSTACK_USERNAME = os.environ['BROWSERSTACK_USERNAME'] if 'BROWSERSTACK_USERNAME' in os.environ else CONFIG['user']
-BROWSERSTACK_ACCESS_KEY = os.environ['BROWSERSTACK_ACCESS_KEY'] if 'BROWSERSTACK_ACCESS_KEY' in os.environ else CONFIG['key']
-
-def start_local():
-    """Code to start browserstack local before start of test."""
-    global bs_local
-    bs_local = Local()
-    bs_local_args = { "key": BROWSERSTACK_ACCESS_KEY, "forcelocal": "true" }
-    bs_local.start(**bs_local_args)
-
-def stop_local():
-    """Code to stop browserstack local after end of test."""
-    global bs_local
-    if bs_local is not None:
-        bs_local.stop()
-
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+import requests
+import subprocess
 
 def before_feature(context, feature):
-    desired_capabilities = CONFIG['environments'][TASK_ID]
+    caps = {}
+    caps['name'] = 'Behave Example'
+    caps['build'] = '1.0'
+    caps['browserName'] = "Chrome"      # pulls the latest version of Chrome by default
+    caps['platform'] = "Windows 10"     # to specify a version, add caps['version'] = "desired version"
+    caps['screen_resolution'] = '1366x768'
+    caps['record_video'] = 'true'
+    caps['record_network'] = 'true'
+    caps['take_snapshot'] = 'true'
 
-    for key in CONFIG["capabilities"]:
-        if key not in desired_capabilities:
-            desired_capabilities[key] = CONFIG["capabilities"][key]
 
-    if 'BROWSERSTACK_APP_ID' in os.environ:
-        desired_capabilities['app'] = os.environ['BROWSERSTACK_APP_ID']
+    context.api_session = requests.Session()
 
-    if "browserstack.local" in desired_capabilities and desired_capabilities["browserstack.local"]:
-        start_local()
+    # cmd = "cbt_tunnels --username " + username + " --authkey " + authkey + " --ready tunnel_ready asadmin"
 
-    context.browser = webdriver.Remote(
-        desired_capabilities=desired_capabilities,
-        command_executor="http://%s:%s@%s/wd/hub" % (BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY, CONFIG['server'])
-    )
+    # context.tunnel_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+
+
+
+    context.browser = webdriver.Firefox()
+    # context.browser = webdriver.Remote(
+    #     desired_capabilities=caps,
+    #     command_executor="http://www.google.com"
+    # )
 
 def after_feature(context, feature):
     context.browser.quit()
-    stop_local()
+    # subprocess.Popen.terminate(context.tunnel_proc)

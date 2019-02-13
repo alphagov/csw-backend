@@ -1,4 +1,6 @@
-# Google Steps
+from behave import given, when, then
+import time
+
 @when('visit url "{url}"')
 def step(context, url):
     context.browser.get(url)
