@@ -3,7 +3,8 @@ from chalicelib.criteria.aws_s3_secure_policy import AwsS3SecurePolicy
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )
-from tests.chalicelib.criteria.test_data import S3_BUCKET_POLICIES
+from tests.chalicelib.criteria.test_data import S3_BUCKET_POLICY_BUCKETS, S3_BUCKET_POLICIES
+import json
 
 
 class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
@@ -11,7 +12,8 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
     @classmethod
     def setUpClass(cls):
         super(TestAwsS3SecurePolicy, cls).setUpClass()
-        cls.test_data = S3_BUCKET_POLICIES
+        cls.test_data = S3_BUCKET_POLICY_BUCKETS
+        cls.test_data_policies = S3_BUCKET_POLICIES
 
     def setUp(self):
         """
@@ -27,7 +29,7 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         for key in self.test_data:
             with self.subTest(key=key):
                 self.subclass.client.get_bucket_list = lambda session: self.test_data[key]
-                self.subclass.client.get_bucket_policy = lambda session, bucket_name: ""
+                self.subclass.client.get_bucket_policy = lambda session, bucket_name: self.test_data_policies[key]
                 item = self.subclass.get_data(None)
                 self.assertIsInstance(item, list, msg="The method must return a list of dictionaries")
                 self.assertIn('Policy', item[0], msg="The dictionary must have a Policy key")
@@ -56,6 +58,9 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         event = {}
         whitelist = []
         for item in self.test_data['pass']:
+            policy = self.test_data_policies['pass']
+            item['Policy'] = json.loads(policy)
+
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
@@ -63,6 +68,9 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         event = {}
         whitelist = []
         for item in self.test_data['fail_no_policy']:
+            policy = self.test_data_policies['fail_no_policy']
+            item['Policy'] = policy  # The policy isn't valid JSON in this case
+
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("has no policy", self.subclass.annotation)
@@ -71,6 +79,9 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         event = {}
         whitelist = []
         for item in self.test_data['fail_no_condition']:
+            policy = self.test_data_policies['fail_no_condition']
+            item['Policy'] = json.loads(policy)
+
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("policy does not have a condition", self.subclass.annotation)
@@ -79,6 +90,9 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         event = {}
         whitelist = []
         for item in self.test_data['fail_no_secure_condition']:
+            policy = self.test_data_policies['fail_no_secure_condition']
+            item['Policy'] = json.loads(policy)
+
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("no SecureTransport", self.subclass.annotation)
@@ -87,6 +101,8 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         event = {}
         whitelist = []
         for item in self.test_data['fail_only_insecure']:
+            policy = self.test_data_policies['fail_only_insecure']
+            item['Policy'] = json.loads(policy)
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("explicitly disallows HTTPS", self.subclass.annotation)

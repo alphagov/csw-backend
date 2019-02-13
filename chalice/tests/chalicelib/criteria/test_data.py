@@ -1996,112 +1996,56 @@ RDS_SECURITY_GROUPS = {'ResponseMetadata': {'HTTPHeaders': {'content-length': '2
             'status': 'ok',
             'timestamp': '2018-12-18T16:14:30Z'}}
 
-S3_BUCKET_POLICIES = {
-    'fail_no_policy' : [
+S3_BUCKET_POLICY_BUCKETS = {
+    'fail_no_policy': [
         {
             'Name': 'fail_no_policy_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
-            'Policy': ("An error occurred (NoSuchBucketPolicy) when calling the GetBucketPolicy operation: The bucket "
-                       "policy does not exist")
         }
     ],
-    'fail_no_condition' : [
+    'fail_no_condition': [
         {
             'Name': 'fail_no_condition_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
-            'Policy': {
-                "Version": "2008-10-17",
-                "Id": "some_policy",
-                "Statement": [
-                    {
-                        "Sid": "AddPerm",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": "*"
-                        },
-                        "Action": "s3:GetObject",
-                        "Resource": "arn:aws:s3:::my_bucket/*",
-                    }
-                ]
-            }
         }
     ],
-    'fail_no_secure_condition' : [
+    'fail_no_secure_condition': [
         {
             'Name': 'fail_no_secure_condition_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
-            'Policy': {
-                "Version": "2008-10-17",
-                "Id": "some_policy",
-                "Statement": [
-                    {
-                        "Sid": "AddPerm",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": "*"
-                        },
-                        "Action": "s3:GetObject",
-                        "Resource": "arn:aws:s3:::my_bucket/*",
-                        "Condition": {
-                            "StringLike": {
-                                "aws:Referer":["http://www.example.com/*","http://example.com/*"]
-                            }
-                        }
-                    }
-                ]
-            }
         }
     ],
-    'fail_only_insecure' : [
+    'fail_only_insecure': [
         {
             'Name': 'fail_only_insecure_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
-            'Policy': {
-                "Version": "2008-10-17",
-                "Id": "some_policy",
-                "Statement": [
-                    {
-                        "Sid": "AddPerm",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": "*"
-                        },
-                        "Action": "s3:GetObject",
-                        "Resource": "arn:aws:s3:::my_bucket/*",
-                        "Condition": {
-                            "Bool": {
-                                "aws:SecureTransport": "false"
-                            }
-                        }
-                    }
-                ]
-            }
         }
     ],
-    'pass' : [
+    'pass': [
         {
             'Name': 'pass_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
-            'Policy': {
-                "Version": "2008-10-17",
-                "Id": "some_policy",
-                "Statement": [
-                    {
-                        "Sid": "AddPerm",
-                        "Effect": "Allow",
-                        "Principal": {
-                            "AWS": "*"
-                        },
-                        "Action": "s3:GetObject",
-                        "Resource": "arn:aws:s3:::my_bucket/*",
-                        "Condition": { 
-                            "Bool": { 
-                                "aws:SecureTransport": "true"
-                            }
-                        }
-                    }
-                ]
-            }
         }
     ]
+}
+
+S3_BUCKET_POLICIES = {
+    'fail_no_policy': ("An error occurred (NoSuchBucketPolicy) when calling the GetBucketPolicy operation: The bucket "
+                       "policy does not exist"),
+    'fail_no_condition': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                          '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                          '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*"}]}'),
+    'fail_no_secure_condition': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                 '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                                 '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                 '{"StringLike": {"aws:Referer": ["http://www.example.com/*", '
+                                 '"http://example.com/*"]}}}]}'),
+    'fail_only_insecure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                           '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                           '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                           '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
+    'pass': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+             '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+             '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+             '{"Bool": {"aws:SecureTransport": "true"}}}]}')
 }
