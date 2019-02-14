@@ -34,14 +34,14 @@ class AwsS3Versioning(CriteriaDefault):
         buckets = self.client.get_bucket_list(session)
         for bucket in buckets:
             # Mutating items as I'm iterating over them again... Sorry
-            bucket['Versioning'] = self.client.get_bucket_versioning(session, bucket['Name'])
+            bucket["Versioning"] = self.client.get_bucket_versioning(session, bucket["Name"])
 
         return buckets
 
     def translate(self, data):
         item = {
-            "resource_id": data.get('Name', ''),
-            "resource_name": "arn:aws:s3:::" + data.get('Name', '')
+            "resource_id": data.get("Name", ""),
+            "resource_name": "arn:aws:s3:::" + data.get("Name", "")
         }
 
         return item
@@ -50,7 +50,7 @@ class AwsS3Versioning(CriteriaDefault):
         self.annotation = ""
         compliance_type = ""
         evaluation = self.build_evaluation(
-            ("arn:aws:s3:::" + bucket['Name']),
+            ("arn:aws:s3:::" + bucket["Name"]),
             compliance_type,
             event,
             self.resource_type,
