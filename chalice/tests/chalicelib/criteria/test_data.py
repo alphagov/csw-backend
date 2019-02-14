@@ -2050,7 +2050,23 @@ S3_BUCKET_POLICIES = {
              '{"Bool": {"aws:SecureTransport": "true"}}}]}')
 }
 
-S3_VERSIONING_DATA = {
-    "pass" : {},
-    "fail" : {}
+S3_VERSIONING_BUCKETS = {
+    'pass': [
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ],
+    'fail': [
+        {
+            'Name': 'fail_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ]
+}
+S3_VERSIONING_STATUS = {
+    "pass": {
+        "Status":"Enabled"
+    },
+    "fail": {}
 }

@@ -1,6 +1,6 @@
 from chalicelib.criteria.aws_s3_versioning import AwsS3Versioning
 from tests.chalicelib.criteria.test_criteria_default import (CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
-from tests.chalicelib.criteria.test_data import S3_VERSIONING_DATA
+from tests.chalicelib.criteria.test_data import S3_VERSIONING_BUCKETS, S3_VERSIONING_STATUS
 
 
 class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
@@ -8,7 +8,8 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
     @classmethod
     def setUpClass(cls):
         super(TestAwsS3Versioning, cls).setUpClass()
-        cls.test_data = S3_VERSIONING_DATA
+        cls.test_data = S3_VERSIONING_BUCKETS
+        cls.test_data_status = S3_VERSIONING_STATUS
 
     def setUp(self):
         super(TestAwsS3Versioning, self).setUp()
@@ -23,4 +24,4 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
                 self.subclass.client.get_bucket_list = lambda session: self.test_data[key]
                 self.subclass.client.get_bucket_versioning = lambda session, bucket_name: None
                 item = self.subclass.get_data(None)
-                self.assertIsInstance(item, dict, msg="get_data does not return a dict")
+                self.assertIsInstance(item, list, msg="The method must return a list of dictionaries")
