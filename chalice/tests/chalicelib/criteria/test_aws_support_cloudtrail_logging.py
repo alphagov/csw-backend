@@ -1,4 +1,6 @@
-from chalicelib.criteria.aws_cloudtrail_logging import (
+import unittest
+
+from chalicelib.criteria.aws_support_cloudtrail_logging import (
     CloudtrailLogHasErrors,
     CloudtrailLogNotInRegion,
     CloudtrailLogTurnedOff,
@@ -168,3 +170,7 @@ class TestCloudtrailLogNotToCST(TestCloudtrailLoggingMixin, TestCaseWithAttrAsse
         """
         super(TestCloudtrailLogNotToCST, self).setUpClass()
         self.subclass = CloudtrailLogNotToCST(self.app)
+    
+    @unittest.skip('deactivated this check, therefore we are skipping its test __init__')
+    def test_init_state(self):
+        super(TestCloudtrailLogNotToCST, self).test_init_state()

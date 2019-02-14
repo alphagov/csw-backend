@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_elb_listener_security import (
+from chalicelib.criteria.aws_support_elb_listener_security import (
     ELBListenerSecurityNoListener,
     ELBListenerSecurityPredefinedOutdated,
     ELBListenerSecurityProtocolDiscouraged,
@@ -78,7 +78,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
 
     def test_evaluate_predifined_outdated(self):
         """
-        yellow because predefined cypher/protocol is outadated
+        yellow because predefined cypher/protocol is outdated
         """
         # input params
         event = {}

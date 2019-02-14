@@ -13,7 +13,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     resource_type = "AWS::EC2::SecurityGroup"
 
-    title = "Security Groups - SSH ingress enabled from unknown IPs"
+    title = "EC2 Security Groups: SSH ingress is restricted to authorised IPs or CIDRs"
 
     description = """If SSH is enabled into a VPC it should be limited to known IPs"""
 

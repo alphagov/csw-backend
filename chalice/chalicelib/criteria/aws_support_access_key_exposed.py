@@ -29,6 +29,15 @@ class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
         )
         super(AwsIamExposedAccessKey, self).__init__(app)
 
+    def translate(self, data={}):
+        """
+        Unlike other TA checks here we overwrite translate to return the access key, instead of the standard resource.
+        """
+        return {
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', ])[0],  # access key ID
+        }
+
 
 class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     """
@@ -37,7 +46,7 @@ class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
-        self.title = 'Potentially Exposed Access Keys'
+        self.title = 'IAM Access Keys: Access keys have not been exposed on the internet'
         self.how_do_i_fix_it = (
             'Delete the affected access key, and generate a new one '
             'for the user or application. <br />Please follow the below recommendations accordingly:<br />'
@@ -100,7 +109,7 @@ class AwsIamSuspectedExposedAccessKey(AwsIamExposedAccessKey):
     active = True
 
     def __init__(self, app):
-        self.title = 'Suspected Exposed Access Keys'
+        self.title = 'IAM Access Keys: There is no irregular EC2 activity to suggest an exposed key'
         self.how_do_i_fix_it = 'Alert not actionable'
         super(AwsIamSuspectedExposedAccessKey, self).__init__(app)
 

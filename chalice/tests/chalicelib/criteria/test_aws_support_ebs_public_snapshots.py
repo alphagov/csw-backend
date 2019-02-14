@@ -1,9 +1,9 @@
-from chalicelib.criteria.aws_rds_public_snapshots import RDSPublicSnapshot
+from chalicelib.criteria.aws_support_ebs_public_snapshots import EBSPublicSnapshot
 from tests.chalicelib.criteria.test_criteria_default import CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
-from tests.chalicelib.criteria.test_data import RDS_PUBLIC_SNAPSHOTS
+from tests.chalicelib.criteria.test_data import EBS_PUBLIC_SNAPSHOTS
 
 
-class TestRDSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
+class TestEBSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
     """
     Mixin class for the two key test case classes below
     """
@@ -12,14 +12,14 @@ class TestRDSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
     def setUpClass(cls):
         """
         """
-        super(TestRDSPublicSnapshot, cls).setUpClass()
-        cls.test_data = RDS_PUBLIC_SNAPSHOTS
+        super(TestEBSPublicSnapshot, cls).setUpClass()
+        cls.test_data = EBS_PUBLIC_SNAPSHOTS
 
     def setUp(self):
         """
         """
-        super(TestRDSPublicSnapshot, self).setUpClass()
-        self.subclass = RDSPublicSnapshot(self.app)
+        super(TestEBSPublicSnapshot, self).setUpClass()
+        self.subclass = EBSPublicSnapshot(self.app)
 
     def test_init_client(self):
         """
@@ -31,11 +31,11 @@ class TestRDSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
     def test_get_data(self):
         """
         """
-        for key in RDS_PUBLIC_SNAPSHOTS:
+        for key in EBS_PUBLIC_SNAPSHOTS:
             with self.subTest(key=key):
                 # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
                 self.subclass.client.describe_trusted_advisor_check_result = \
-                    lambda session, checkId, language: RDS_PUBLIC_SNAPSHOTS[key]
+                    lambda session, checkId, language: EBS_PUBLIC_SNAPSHOTS[key]
                 # output value
                 item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
                 # must return a dictionary with the three necessary keys
@@ -54,7 +54,7 @@ class TestRDSPublicSnapshot(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         # input params
         event = {}
         whitelist = []
-        for item in RDS_PUBLIC_SNAPSHOTS['fail']['flaggedResources']:
+        for item in EBS_PUBLIC_SNAPSHOTS['fail']['flaggedResources']:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)

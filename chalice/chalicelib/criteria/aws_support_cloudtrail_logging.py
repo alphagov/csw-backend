@@ -17,6 +17,13 @@ class CloudtrailLogging(TrustedAdvisorCriterion):
         self.check_id = 'vjafUGJ9H0'
         super(CloudtrailLogging, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'region': data.get('metadata', ['', ])[0],
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
+        }
+
 
 class CloudtrailLogHasErrors(CloudtrailLogging):
     """
@@ -25,7 +32,7 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Delivery Errors'
+        self.title = 'CloudTrail: Logs delivered without errors'
         self.description = (
             'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
         )
@@ -66,7 +73,7 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Turned off in a region'
+        self.title = 'CloudTrail: Logging is turned on in all regions'
         self.description = (
             'A trail has not been created for a region in your account.'
         )
@@ -102,7 +109,7 @@ class CloudtrailLogTurnedOff(CloudtrailLogging):
     active = True
 
     def __init__(self, app):
-        self.title = '"Cloudtrail Logging: Not activated'
+        self.title = 'CloudTrail: All configured trails are turned on'
         self.description = (
             'Logging is turned off for a trail in your account.'
         )
@@ -135,11 +142,11 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
     """
     Subclass checking if the cloud trail is sent to the cst bucket declared here.
     """
-    active = True
+    active = False
     cst_bucket_name = 'cyber-security-staging-csw-cloudtrail'
 
     def __init__(self, app):
-        self.title = 'Cloudtrail Logging: Not sent to CST'
+        self.title = 'CloudTrail: A trail is configured to the Cyber Security Team'
         self.description = (
             'Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.'
         )

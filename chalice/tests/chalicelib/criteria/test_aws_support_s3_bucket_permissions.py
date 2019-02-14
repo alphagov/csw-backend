@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_s3_bucket_permissions import (
+from chalicelib.criteria.aws_support_s3_bucket_permissions import (
     S3BucketReadAll,
     S3BucketOpenAccess,
     S3BucketWriteAll,

@@ -23,7 +23,7 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
     active = True
 
     def __init__(self, app):
-        self.title = 'ELB not matching ports of security group.'
+        self.title = 'ELB Security Groups: Ingress ports match listener configuration'
         self.description = (
             'The inbound rules of an Amazon VPC Security group associated with the load balancer '
             'allows access to ports that are not defined in the listener configuration of the loader.'
@@ -61,7 +61,7 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
     active = True
 
     def __init__(self, app):
-        self.title = 'A security group associated with a load balancer does not exist.'
+        self.title = 'ELB Security Groups: The load balancer security group exists'
         self.description = (
             'A security group associated with a load balancer does not exist.'
         )

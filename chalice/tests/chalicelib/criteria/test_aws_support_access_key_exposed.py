@@ -1,4 +1,4 @@
-from chalicelib.criteria.aws_exposed_key import AwsIamPotentiallyExposedAccessKey, AwsIamSuspectedExposedAccessKey
+from chalicelib.criteria.aws_support_access_key_exposed import AwsIamPotentiallyExposedAccessKey, AwsIamSuspectedExposedAccessKey
 from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
 )

@@ -17,6 +17,13 @@ class S3BucketPermissions(TrustedAdvisorCriterion):
         self.check_id = 'Pfx0RwqBli'
         super(S3BucketPermissions, self).__init__(app)
 
+    def translate(self, data={}):
+        return {
+            'region': data.get('region', ''),
+            'resource_id': data.get('resourceId', ''),
+            'resource_name': data.get('metadata', ['', '', '', ])[2],  # bucket name
+        }
+
 
 class S3BucketReadAll(S3BucketPermissions):
     """
@@ -26,8 +33,7 @@ class S3BucketReadAll(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket Permissions: The bucket ACL allows List access '
-            'for "Everyone" or "Any Authenticated AWS User"'
+            'S3 Bucket ACLs: Does not allow List access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
             'There are S3 buckets with open access permissions '
@@ -73,7 +79,7 @@ class S3BucketOpenAccess(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket Permissions:  A bucket policy allows any kind of open access.'
+            'S3 Bucket Policies: Does not allow open access'
         )
         self.description = (
             'There are S3 buckets with open access permissions or '
@@ -117,8 +123,7 @@ class S3BucketWriteAll(S3BucketPermissions):
 
     def __init__(self, app):
         self.title = (
-            'S3 Bucket Permissions:  The bucket ACL allows Upload/Delete access '
-            'for "Everyone" or "Any Authenticated AWS User".'
+            'S3 Bucket ACLs: Does not allow Upload or Delete access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
             'There are S3 buckets with open access permissions or allow access '

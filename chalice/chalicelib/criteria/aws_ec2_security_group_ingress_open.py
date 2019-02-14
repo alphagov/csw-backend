@@ -13,7 +13,7 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
     resource_type = "AWS::EC2::SecurityGroup"
 
-    title = "Security Groups - Ingress open for flagged ports"
+    title = "EC2 Security Groups: Flagged port ingress is restricted"
 
     description = """Unrestricted inbound connections should not be allowed for certain ports"""
 
