@@ -38,7 +38,7 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         for bucket in self.test_data.values():
             with self.subTest():
                 translation = self.subclass.translate(bucket[0])
-                self.assertIsInstance(translation, dict, msg="The output of the tranlsate method should be a dict")
+                self.assertIsInstance(translation, dict, msg="The output of the translate method should be a dict")
                 self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in "
                                                               "the output of the translate method.")
                 self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in "
