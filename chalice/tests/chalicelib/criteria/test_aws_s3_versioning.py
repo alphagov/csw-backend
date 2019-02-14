@@ -25,3 +25,17 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
                 self.subclass.client.get_bucket_versioning = lambda session, bucket_name: None
                 item = self.subclass.get_data(None)
                 self.assertIsInstance(item, list, msg="The method must return a list of dictionaries")
+
+    def test_evaluate_pass(self):
+        event = {}
+        whitelist = {}
+        for item in self.test_data['pass']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail(self):
+        event = {}
+        whitelist = {}
+        for item in self.test_data['fail']:
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
