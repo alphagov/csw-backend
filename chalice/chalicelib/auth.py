@@ -86,6 +86,19 @@ class AuthHandler:
         else:
             self.app.log.debug("Environment variable CSW_ENV missing")
 
+
+    def get_ssm_parameter(self, param_name):
+        """
+        Get a single SSM ParameterStore value by name
+        :param param_name:
+        :return:
+        """
+        ssm = GdsSsmClient(self.app)
+        param_list = [param_name]
+        parameters = ssm.get_parameters(param_list, True)
+        param_value = ssm.get_parameter_value(parameters, param_name)
+        return param_value
+
     def get_auth_flow(self, url):
         """
         Get as instance of the Google OAuth flow object

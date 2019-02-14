@@ -22,7 +22,7 @@ def run_behave_test(config, feature, task_id=0):
 def run(args):
     """Run single, local and parallel test using different config."""
     if args[0] in ('single', 'local'):
-        run_behave_test(args[0], args[0])
+        run_behave_test(args[0], args[1])
     else:
         jobs = []
         for i in range(4):
