@@ -33,6 +33,7 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
         event = {}
         whitelist = {}
         for item in self.test_data['pass']:
+            item["Versioning"] = self.test_data_status['pass']
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
@@ -40,5 +41,6 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
         event = {}
         whitelist = {}
         for item in self.test_data['fail']:
+            item["Versioning"] = self.test_data_status['fail']
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)

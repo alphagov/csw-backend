@@ -21,7 +21,7 @@ class AwsS3Versioning(CriteriaDefault):
     why_is_it_important = ("Versioning in S3 is a way to recover from unintended user changes and actions that might "
                            "occur through misuse or corruption, such as ransomware infection. Each time an object "
                            "changes, a new version of that object is created.")
-    how_do_i_fix_it = ("Enable versioning on the s3 buckets listed above. Please see the following AWS documentation "
+    how_do_i_fix_it = ("Enable versioning on the S3 buckets listed above. Please see the following AWS documentation "
                        "to enable versioning for an S3 bucket:<br />"
                        "<a href='https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html'>"
                        "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html</a>")
@@ -47,8 +47,20 @@ class AwsS3Versioning(CriteriaDefault):
         return item
 
     def evaluate(self, event, bucket, whitelist):
-        self.annotation = ""
-        compliance_type = ""
+        log_string = ""
+        if "Status" in bucket["Versioning"]:
+            if bucket["Versioning"]["Status"] == "Enabled":
+                compliance_type = "COMPLIANT"
+                log_string = "Bucket is found to be compliant."
+            else:
+                compliance_type = "NON_COMPLIANT"
+                self.annotation = "This S3 bucket has versioning suspended."
+                log_string = "Bucket has a Status key in its versioning data, but it does not have the 'Enabled' value."
+        else:
+            compliance_type = "NON_COMPLIANT"
+            self.annotation = "This S3 bucket does not have versioning enabled."
+            log_string = "Bucket does not have a Status key in its versioning data, implying it is not enabled."
+
         evaluation = self.build_evaluation(
             ("arn:aws:s3:::" + bucket["Name"]),
             compliance_type,
@@ -56,4 +68,5 @@ class AwsS3Versioning(CriteriaDefault):
             self.resource_type,
             self.annotation
         )
+        self.app.log.debug(log_string)
         return evaluation
