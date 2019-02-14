@@ -40,8 +40,8 @@ class AwsS3Versioning(CriteriaDefault):
 
     def translate(self, data):
         item = {
-            "resource_id": data.get("Name", ""),
-            "resource_name": "arn:aws:s3:::" + data.get("Name", "")
+            "resource_id": "arn:aws:s3:::" + data.get("Name", ""),
+            "resource_name": data.get("Name", "")
         }
 
         return item
