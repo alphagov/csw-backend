@@ -44,3 +44,11 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
             item["Versioning"] = self.test_data_status['fail']
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+
+    def test_evaluate_fail_with_status(self):
+        event = {}
+        whitelist = {}
+        for item in self.test_data['fail_with_status']:
+            item["Versioning"] = self.test_data_status['fail_with_status']
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
