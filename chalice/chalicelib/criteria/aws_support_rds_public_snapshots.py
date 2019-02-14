@@ -12,7 +12,7 @@ class RDSPublicSnapshot(TrustedAdvisorCriterion):
 
     def __init__(self, app):
         self.resource_type = 'AWS::RDS::PublicSnapshots'
-        self.check_id = 'xSqX82fQu'
+        self.check_id = 'rSs93HQwa1'
         self.title = 'RDS Snapshots: There are no public snapshots'
         self.description = (
             'Checks the permission settings for your Amazon Relational Database Service (Amazon RDS) DB snapshots '

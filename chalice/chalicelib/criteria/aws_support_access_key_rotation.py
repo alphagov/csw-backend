@@ -42,7 +42,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
         self.title = 'IAM Access Keys: Keys are rotated regularly (within 90 days)'
         self.description = (
             'At least one active Identity and Access Management '
-            f'(IAM) access key has not been rotated in the last 90 days.'
+            '(IAM) access key has not been rotated in the last 90 days.'
         )
         self.how_do_i_fix_it = (
             'Ensure that all your IAM user access keys are rotated at least every 90 days in order to  '
@@ -92,7 +92,7 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
         self.title = 'IAM Access Keys: Keys are rotated regularly (within 2 years)'
         self.description = (
             'At least one active Identity and Access Management '
-            f'(IAM) access key has not been rotated in the last 2 years.'
+            '(IAM) access key has not been rotated in the last 2 years.'
         )
         self.how_do_i_fix_it = (
             'Ensure that all your IAM user access keys are rotated at least every 2 years in order to  '
