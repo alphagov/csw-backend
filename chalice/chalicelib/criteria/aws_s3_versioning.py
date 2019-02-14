@@ -46,5 +46,14 @@ class AwsS3Versioning(CriteriaDefault):
 
         return item
 
-    def evaluate(self):
-        pass
+    def evaluate(self, event, bucket, whitelist):
+        self.annotation = ""
+        compliance_type = ""
+        evaluation = self.build_evaluation(
+            ("arn:aws:s3:::" + bucket['Name']),
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
+        return evaluation
