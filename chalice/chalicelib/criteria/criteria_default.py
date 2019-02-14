@@ -56,10 +56,16 @@ class CriteriaDefault():
         :param item:
         :return:
         """
+
+        # aim to use the resource name but fall back to the id if not defined
+        name = item.get('resource_name', '')
+        if name == '':
+            name = item.get('resource_id', '')
+
         return (self.resource_type + "::"
                 + item.get('region','') + "::"
                 + str(audit.account_subscription_id.account_id) + "::"
-                + item.get('resource_name',''))
+                + name)
 
     def build_evaluation(
         self, resource_id, compliance_type, event, resource_type,
