@@ -22,9 +22,12 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
         for key in self.test_data:
             with self.subTest(key=key):
                 self.subclass.client.get_bucket_list = lambda session: self.test_data[key]
-                self.subclass.client.get_bucket_versioning = lambda session, bucket_name: None
+                self.subclass.client.get_bucket_versioning = lambda session, bucket_name: self.test_data_status[key]
                 item = self.subclass.get_data(None)
                 self.assertIsInstance(item, list, msg="The method must return a list of dictionaries")
+                for bucket in item:
+                    self.assertIn('Versioning', bucket, msg="The dicts within the list must have a 'Versioning' key")
+                    self.assertIsInstance(bucket['Versioning'], dict, msg="Versioning must be a dict")
 
     def test_evaluate_pass(self):
         event = {}

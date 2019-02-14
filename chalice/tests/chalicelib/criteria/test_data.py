@@ -2064,9 +2064,35 @@ S3_VERSIONING_BUCKETS = {
         }
     ]
 }
+
 S3_VERSIONING_STATUS = {
     "pass": {
-        "Status":"Enabled"
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                'server': 'AmazonS3',
+                'transfer-encoding': 'chunked',
+                'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'x-amz-request-id': 'D937E50330DBE476'
+            },
+            'HTTPStatusCode': 200,
+            'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+            'RequestId': '9DA0FC9336158F68',
+            'RetryAttempts': 0},
+        "Status": "Enabled"
     },
-    "fail": {}
+    "fail": {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                'server': 'AmazonS3',
+                'transfer-encoding': 'chunked',
+                'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'x-amz-request-id': 'D937E50330DBE476'
+            },
+            'HTTPStatusCode': 200,
+            'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+            'RequestId': '9DA0FC9336158F68',
+            'RetryAttempts': 0}
+    }
 }
