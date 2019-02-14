@@ -620,31 +620,35 @@ def temp_login():
         csw_client = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/client")
         csw_secret = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/secret")
         req = app.current_request
-        headers = req.headers
+        qs = req.query_params
 
-        creds = {
-            'ssm': {
-                'client': csw_client,
-                'secret': csw_secret
-            },
-            'req': headers
+        headers = {
+            "Content-Type": "text/plain"
         }
-        body = app.utilities.to_json(creds)
+        body = "Trying login"
+        if (csw_client == qs.get('client')
+            and csw_secret == qs.get('secret')):
 
-        # app.auth.user_jwt = app.auth.get_jwt(app.auth.user)
-        #
-        # app.auth.cookie = app.auth.generate_cookie_header_val(app.auth.user_jwt)
-        #
-        # app.auth.token = app.auth.user_jwt
+            user = models.User.find_active_by_email(qs.get('email')).serialize()
+
+            app.auth.user_jwt = app.auth.get_jwt(user)
+
+            app.auth.cookie = app.auth.generate_cookie_header_val(app.auth.user_jwt)
+
+            headers["Set-Cookie"] = app.auth.cookie
+
+            body = "Logged in"
+
     except Exception as err:
         body = "Temporary login failed "+str(err)
+        headers = {
+            "Content-Type": "text/plain"
+        }
 
-
-    #return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
     return Response(
         body=body,
-        status_code=200,
-        headers={"Content-Type": "application/json"}
+        headers=headers,
+        status_code=200
     )
 
 # # TO OVERRIDE a route template with the debug template to view the json template data

@@ -15,3 +15,21 @@ def step(context):
         'Secret': os.environ['CSW_SECRET']
     }
     print(str(context.browser.header_overrides))
+
+
+@when('login post to "{url}"')
+def step(context, url):
+    creds = {
+        'email': 'dan.jones@digital.cabinet-office.gov.uk',
+        'client': os.environ['CSW_CLIENT'],
+        'secret': os.environ['CSW_SECRET']
+    }
+    url = url + '?client='+creds['client']+'&secret='+creds['secret']+'&email='+creds['email']
+    response = context.browser.get(url)
+
+    #context.api_session.headers.update({'x-test': 'true'})
+    print(response)
+
+@then('wait "{seconds}" seconds')
+def step(context, seconds):
+    time.sleep(int(seconds))
