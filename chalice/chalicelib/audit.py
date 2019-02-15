@@ -218,7 +218,7 @@ def account_evaluate_criteria(event):
 
     except Exception as err:
         #app.log.error(str(err))
-        app.utilities.log_typed_exception(app.log.error, err)
+        app.log.error(app.utilities.get_typed_exception(err))
     return status
 
 
