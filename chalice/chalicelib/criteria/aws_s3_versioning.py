@@ -48,7 +48,7 @@ class AwsS3Versioning(CriteriaDefault):
 
     def evaluate(self, event, bucket, whitelist):
         log_string = ""
-        if isinstance(bucket["Versioning"], dict) and "Status" in bucket["Versioning"]:
+        if "Status" in bucket["Versioning"]:
             if bucket["Versioning"]["Status"] == "Enabled":
                 compliance_type = "COMPLIANT"
                 log_string = "Bucket is found to be compliant."
@@ -56,11 +56,11 @@ class AwsS3Versioning(CriteriaDefault):
                 compliance_type = "NON_COMPLIANT"
                 self.annotation = "This S3 bucket has versioning suspended."
                 log_string = "Bucket has a Status key in its versioning data, but it does not have the 'Enabled' value."
-        elif isinstance(bucket["Versioning"], str):
+        elif "csw_access_denied_error" in bucket["Versioning"]:
             compliance_type = "NON_COMPLIANT"
             self.annotation = "CSW was denied access to the versioning data of this bucket."
             # how_do_i_fix_it should be different here. Figure this out.
-        else:  # here, bucket["Versioning"] is a dict, but without a Status key - as long as get_data works correctly...
+        else:
             compliance_type = "NON_COMPLIANT"
             self.annotation = "This S3 bucket does not have versioning enabled."
             log_string = "Bucket does not have a Status key in its versioning data, implying it is not enabled."

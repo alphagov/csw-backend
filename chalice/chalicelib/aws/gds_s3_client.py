@@ -35,6 +35,6 @@ class GdsS3Client(GdsAwsClient):
         try:
             versioning = s3.get_bucket_versioning(Bucket=bucket_name)
         except Exception as e:  # Usually a botocore.exceptions.ClientError - Access Denied
-            versioning = str(e)
+            versioning = {"csw_access_denied_error": str(e)}
 
         return versioning
