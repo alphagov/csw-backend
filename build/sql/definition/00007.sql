@@ -30,9 +30,6 @@ CREATE TABLE IF NOT EXISTS account_ssh_cidr_allowlist(
     user_id INTEGER NOT NULL,
     date_created TIMESTAMP NOT NULL,
     date_expires TIMESTAMP NOT NULL,
-    CONSTRAINT "account_ssh_cidr_allowlist_criterion_id_fkey" FOREIGN KEY (criterion_id)
-      REFERENCES "criterion" (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
     CONSTRAINT "account_ssh_cidr_allowlist_account_subscription_id_fkey" FOREIGN KEY (account_subscription_id)
       REFERENCES "account_subscription" (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
