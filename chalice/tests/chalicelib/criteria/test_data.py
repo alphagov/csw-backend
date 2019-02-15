@@ -2068,6 +2068,12 @@ S3_VERSIONING_BUCKETS = {
             'Name': 'fail_with_status_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
         }
+    ],
+    'fail_access_denied': [
+        {
+            'Name': 'fail_with_status_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
     ]
 }
 
@@ -2115,5 +2121,9 @@ S3_VERSIONING_STATUS = {
             'RequestId': '9DA0FC9336158F68',
             'RetryAttempts': 0},
         "Status": "Suspended"
+    },
+    "fail_access_denied": {
+        "csw_access_denied_error": ("An error occurred (AccessDenied) when calling the GetBucketVersioning "
+                                    "operation: Access Denied")
     }
 }
