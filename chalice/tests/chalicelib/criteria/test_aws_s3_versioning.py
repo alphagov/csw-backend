@@ -16,6 +16,7 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
         self.subclass = AwsS3Versioning(self.app)
 
     def test_init_client(self):
+        self.assertIn("get_bucket_list", dir(self.subclass.client))
         self.assertIn("get_bucket_versioning", dir(self.subclass.client))
 
     def test_get_data(self):
