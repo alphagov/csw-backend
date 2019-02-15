@@ -58,8 +58,9 @@ class CriteriaDefault():
         """
 
         # aim to use the resource name but fall back to the id if not defined
-        name = item.get('resource_name', '')
-        if name == '':
+        if 'resource_name' in item:
+            name = item.get('resource_name', '')
+        else:
             name = item.get('resource_id', '')
 
         return (self.resource_type + "::"
