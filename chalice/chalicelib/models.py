@@ -753,12 +753,12 @@ class AuditResource(database_handle.BaseModel):
     region = peewee.CharField(null=True)
     resource_id = peewee.CharField()
     resource_name = peewee.CharField(null=True)
+    resource_persistent_id = peewee.CharField(null=True)
     resource_data = peewee.TextField()
     date_evaluated = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         table_name = "audit_resource"
-
 
 class ResourceCompliance(database_handle.BaseModel):
     audit_resource_id = peewee.ForeignKeyField(AuditResource, backref='resource_compliance')

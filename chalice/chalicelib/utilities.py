@@ -55,3 +55,10 @@ class Utilities():
         ClientClass = getattr(importlib.import_module(module_name), class_name)
 
         return ClientClass
+
+    def get_typed_exception(self, err):
+        if type(err).__module__ in ['__main__', 'builtins']:
+            error_message = "{}: {}".format(type(err).__name__, err)
+        else:
+            error_message = "{}.{}: {}".format(type(err).__module__, type(err).__name__, err)
+        return error_message
