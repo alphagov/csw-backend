@@ -178,7 +178,6 @@ def account_evaluate_criteria(event):
                                 params = params
                             )
 
-                            app.log.debug(app.utilities.to_json(audit_resource_item))
 
                             # create an audit_resource record
                             audit_resource = models.AuditResource.create(**audit_resource_item)
@@ -186,6 +185,11 @@ def account_evaluate_criteria(event):
                             # populate foreign key for compliance record
                             compliance["audit_resource_id"] = audit_resource
                             api_response_item["resource_compliance"] = compliance
+
+                            # temporary measure to provide resource name and id to summarize
+                            api_response_item['resource_name'] = audit_resource_item['resource_name']
+                            api_response_item['resource_id'] = audit_resource_item['resource_id']
+
                             resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
                         summary = check.summarize(data, summary)
                 app.log.debug(app.utilities.to_json(summary))
