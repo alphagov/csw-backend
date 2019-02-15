@@ -95,7 +95,7 @@ class AwsS3SecurePolicy(CriteriaDefault):
                 log_string = "Bucket is compliant"
 
         evaluation = self.build_evaluation(
-            "root",
+            ('arn:aws:s3:::' + bucket['Name']),
             compliance_type,
             event,
             self.resource_type,
