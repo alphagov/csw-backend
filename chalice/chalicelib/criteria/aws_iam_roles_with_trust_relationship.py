@@ -12,6 +12,8 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     active = True
 
+    aggregation_type = "any"
+
     ClientClass = GdsIamClient
 
     resource_type = "AWS::IAM::Role"
