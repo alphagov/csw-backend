@@ -56,7 +56,7 @@ class Utilities():
 
         return ClientClass
 
-    def log_typed_exception(output_to_log, err):
+    def log_typed_exception(self, output_to_log, err):
         if type(err).__module__ in ['__main__', 'builtins']:
             error_message = "{}: {}".format(type(err).__name__, err)
         else:
