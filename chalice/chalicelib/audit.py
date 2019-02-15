@@ -203,11 +203,11 @@ def account_evaluate_criteria(event):
 
                                 # populate foreign key for compliance record
                                 compliance["audit_resource_id"] = audit_resource
-                                api_response_item["resource_compliance"] = compliance
+                                audit_resource_item["resource_compliance"] = compliance
 
                                 resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
                                 evaluated.append(audit_resource_item)
-                        summary = check.summarize(data, summary)
+                        summary = check.summarize(evaluated, summary)
                 app.log.debug(app.utilities.to_json(summary))
                 audit_criterion.resources = summary['all']['display_stat']
                 audit_criterion.tested = summary['applicable']['display_stat']
