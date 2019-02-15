@@ -46,7 +46,7 @@ class AwsS3Versioning(CriteriaDefault):
 
         return item
 
-    def evaluate(self, event, bucket, whitelist):
+    def evaluate(self, event, bucket, whitelist=[]):
         log_string = ""
         if "Status" in bucket["Versioning"]:
             if bucket["Versioning"]["Status"] == "Enabled":
