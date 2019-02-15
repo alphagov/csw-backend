@@ -32,4 +32,9 @@ class GdsS3Client(GdsAwsClient):
     def get_bucket_versioning(self, session, bucket_name):
 
         s3 = self.get_boto3_session_client('s3', session)
-        return s3.get_bucket_versioning(Bucket=bucket_name)
+        try:
+            versioning = s3.get_bucket_versioning(Bucket=bucket_name)
+        except Exception as e:  # Usually a botocore.exceptions.ClientError - Access Denied
+            versioning = str(e)
+
+        return versioning
