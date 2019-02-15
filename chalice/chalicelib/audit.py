@@ -178,6 +178,8 @@ def account_evaluate_criteria(event):
                                 params = params
                             )
 
+                            app.log.debug(app.utilities.to_json(audit_resource))
+
                             # create an audit_resource record
                             audit_resource = models.AuditResource.create(**audit_resource_item)
 
