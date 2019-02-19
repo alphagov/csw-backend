@@ -2199,6 +2199,7 @@ MANAGED_CMK_ROTATION = {
         'CreationDate': datetime.datetime(2019, 2, 12, 14, 14, 34, 508000),
         'DeletionDate': datetime.datetime(2019, 3, 15, 0, 0),
         'Description': '',
+        'Enabled': True,
         'KeyManager': 'CUSTOMER',
         'KeyState': 'PendingDeletion',
         'KeyUsage': 'ENCRYPT_DECRYPT',
