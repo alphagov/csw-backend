@@ -50,6 +50,7 @@ class AwsS3Versioning(CriteriaDefault):
         log_string = ""
         if "Status" in bucket["Versioning"]:
             if bucket["Versioning"]["Status"] == "Enabled":
+                self.annotation = ""
                 compliance_type = "COMPLIANT"
                 log_string = "Bucket is found to be compliant."
             else:
