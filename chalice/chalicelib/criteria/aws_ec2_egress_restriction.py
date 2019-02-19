@@ -16,7 +16,8 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
         self.is_regional = True
         self.title = 'EC2 Security Groups: Egress traffic is restricted by port or CIDR'
         self.description = (
-            'Checks security groups for egress rules that allow unrestricted access to a resource.'
+            'Checks that there are no security groups allowing unrestricted outbound traffic - to any address (IP/0) '
+            'on any port. This is the default AWS behaviour for any new security group.'
         )
         self.why_is_it_important = (
             'Unrestricted outbound network traffic increases opportunities for malicious activity '

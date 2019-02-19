@@ -33,9 +33,7 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
 
     def __init__(self, app):
         self.title = 'CloudTrail: Logs delivered without errors'
-        self.description = (
-            'CloudTrail reports that there are errors in delivering the logs to an S3 bucket.'
-        )
+        self.description = 'Checks that CloudTrail is able to write successfully to the S3 bucket.'
         self.why_is_it_important = (
             'CloudTrail keeps logs of API calls made on your AWS account.<br />'
             'These logs allow closer monitoring of activity, '
@@ -75,7 +73,9 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
     def __init__(self, app):
         self.title = 'CloudTrail: Logging is turned on in all regions'
         self.description = (
-            'A trail has not been created for a region in your account.'
+            'Checks that CloudTrail is configured to monitor all AWS regions regardless of whether there are resources '
+            'deployed to those regions. This enables us to identify malicious activity or accidental misconfiguration '
+            'to the wrong region.'
         )
         self.why_is_it_important = (
             'CloudTrail keeps logs of API calls made on your AWS account.<br />'
@@ -111,7 +111,8 @@ class CloudtrailLogTurnedOff(CloudtrailLogging):
     def __init__(self, app):
         self.title = 'CloudTrail: All configured trails are turned on'
         self.description = (
-            'Logging is turned off for a trail in your account.'
+            'Checks that all the CloudTrails configured on the account are enabled. CloudTrail can be set up but '
+            'disabled so it is not enough to know that it is configured correctly.'
         )
         self.why_is_it_important = (
             'CloudTrail keeps logs of API calls made on your AWS account.<br />'
@@ -148,7 +149,8 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
     def __init__(self, app):
         self.title = 'CloudTrail: A trail is configured to the Cyber Security Team'
         self.description = (
-            'Logs from CloudTrail are not being delivered to the Cloud Security Team’s S3 bucket.'
+            'Checks that there is a multi-region CloudTrail configured to supply logs to the Cyber Security team for '
+            'protective monitoring.'
         )
         self.why_is_it_important = (
             'CloudTrail keeps logs of API calls made on your AWS account.<br />'

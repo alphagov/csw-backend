@@ -18,7 +18,10 @@ class AwsIamValidateInspectorPolicy(CriteriaDefault):
 
     title = "IAM Roles: The inspector role policy for Cloud Security Watch is up to date"
 
-    description = """Checks whether the Cloud Security Watch role matches the current definition."""
+    description = (
+        'Checks that the IAM Inspector role policy used by this service has been updated to the current version and '
+        'has not been altered.'
+    )
 
     why_is_it_important = """If the role policy does not grant the right permissions checks will fail 
         to be processed."""

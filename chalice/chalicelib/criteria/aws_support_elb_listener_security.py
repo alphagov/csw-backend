@@ -31,7 +31,7 @@ class ELBListenerSecurityNoListener(ELBListenerSecurity):
 
     def __init__(self, app):
         self.title = 'ELB: Listeners use secure protocols (https)'
-        self.description = 'A load balancer does not have any listeners that use a secure protocol (HTTPS, SSL, etc)'
+        self.description = 'Checks that Load Balancers are configured to listen for https traffic.'
         self.why_is_it_important = (
             'If the listeners do not use a secure protocol, '
             'the requests between your clients and the load balancer are unencrypted and less secure.'
@@ -72,7 +72,7 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
 
     def __init__(self, app):
         self.title = 'ELB: Listeners use up-to-date predefined cipher policies'
-        self.description = 'The security policy on one of the listeners to a load balancer is outdated.'
+        self.description = 'Checks that Load Balancer listener encryption policies are current.'
         self.why_is_it_important = (
             'The security policy of a listener defines ciphers and protocols it uses when communicating with the ELB. '
             'Policies get updated when protocols are found to be not as secure as once thought, '
@@ -114,7 +114,7 @@ class ELBListenerSecurityProtocolDiscouraged(ELBListenerSecurity):
 
     def __init__(self, app):
         self.title = 'ELB: Listeners use recommended ciphers or protocols'
-        self.description = 'A load balancer uses a cipher or protocol that is not recommended.'
+        self.description = 'Checks that Load Balancer listeners use recommended ciphers or protocols.'
         self.why_is_it_important = (
             'Vulnerabilities can be found in ciphers and protocols, '
             'and so they may become deprecated in favour of more secure ones. '
@@ -157,7 +157,7 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
 
     def __init__(self, app):
         self.title = 'ELB: Listeners use secure ciphers or protocols'
-        self.description = 'A load balancer uses an insecure cipher or protocol.'
+        self.description = 'Checks that Load Balancer listeners are using secure ciphers or protocols.'
         self.why_is_it_important = (
             'Vulnerabilities can be found in ciphers and protocols, '
             'and so they may become deprecated in favour of more secure ones. '
