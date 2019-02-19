@@ -2158,6 +2158,22 @@ S3_VERSIONING_STATUS = {
         }
     }
 MANAGED_CMK_ROTATION = {
+    'fail': {
+        'KeyArn': 'arn:aws:kms:eu-west-1:489877524855:key/40e3530a-711a-4b59-8241-3ac1b7172b9e',
+        'KeyId': '40e3530a-711a-4b59-8241-3ac1b7172b9e',
+
+        'AWSAccountId': '489877524855',
+        'Arn': 'arn:aws:kms:eu-west-1:489877524855:key/d0277f7a-f408-4141-883f-5c90ae274701',
+        'CreationDate': datetime.datetime(2019, 2, 12, 14, 14, 34, 508000),
+        'Description': '',
+        'Enabled': True,
+        'KeyManager': 'CUSTOMER',
+        'KeyState': 'PendingDeletion',
+        'KeyUsage': 'ENCRYPT_DECRYPT',
+        'Origin': 'AWS_KMS',
+
+        'KeyRotationEnabled': False,
+    },
     'pass': {
         'KeyArn': 'arn:aws:kms:eu-west-1:489877524855:key/0c226997-290c-4385-8cea-9b50d0a8d625',
         'KeyId': '0c226997-290c-4385-8cea-9b50d0a8d625',
@@ -2198,22 +2214,6 @@ MANAGED_CMK_ROTATION = {
         'Arn': 'arn:aws:kms:eu-west-1:489877524855:key/d0277f7a-f408-4141-883f-5c90ae274701',
         'CreationDate': datetime.datetime(2019, 2, 12, 14, 14, 34, 508000),
         'DeletionDate': datetime.datetime(2019, 3, 15, 0, 0),
-        'Description': '',
-        'Enabled': True,
-        'KeyManager': 'CUSTOMER',
-        'KeyState': 'PendingDeletion',
-        'KeyUsage': 'ENCRYPT_DECRYPT',
-        'Origin': 'AWS_KMS',
-
-        'KeyRotationEnabled': False,
-    },
-    'fail': {
-        'KeyArn': 'arn:aws:kms:eu-west-1:489877524855:key/40e3530a-711a-4b59-8241-3ac1b7172b9e',
-        'KeyId': '40e3530a-711a-4b59-8241-3ac1b7172b9e',
-
-        'AWSAccountId': '489877524855',
-        'Arn': 'arn:aws:kms:eu-west-1:489877524855:key/d0277f7a-f408-4141-883f-5c90ae274701',
-        'CreationDate': datetime.datetime(2019, 2, 12, 14, 14, 34, 508000),
         'Description': '',
         'Enabled': True,
         'KeyManager': 'CUSTOMER',
