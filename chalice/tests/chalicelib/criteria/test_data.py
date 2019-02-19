@@ -2049,3 +2049,112 @@ S3_BUCKET_POLICIES = {
              '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
              '{"Bool": {"aws:SecureTransport": "true"}}}]}')
 }
+
+S3_VERSIONING_BUCKETS = {
+    'pass': [
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ],
+    'fail': [
+        {
+            'Name': 'fail_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ],
+    'fail_with_status': [
+        {
+            'Name': 'fail_with_status_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ],
+    'fail_then_pass': [
+        {
+            'Name': 'fail_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        },
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
+    ]
+}
+
+S3_VERSIONING_STATUS = {
+    "pass": {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                'server': 'AmazonS3',
+                'transfer-encoding': 'chunked',
+                'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'x-amz-request-id': 'D937E50330DBE476'
+            },
+            'HTTPStatusCode': 200,
+            'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+            'RequestId': '9DA0FC9336158F68',
+            'RetryAttempts': 0},
+        "Status": "Enabled"
+    },
+    "fail": {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                'server': 'AmazonS3',
+                'transfer-encoding': 'chunked',
+                'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'x-amz-request-id': 'D937E50330DBE476'
+            },
+            'HTTPStatusCode': 200,
+            'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+            'RequestId': '9DA0FC9336158F68',
+            'RetryAttempts': 0}
+    },
+    "fail_with_status": {
+        'ResponseMetadata': {
+            'HTTPHeaders': {
+                'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                'server': 'AmazonS3',
+                'transfer-encoding': 'chunked',
+                'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'x-amz-request-id': 'D937E50330DBE476'
+            },
+            'HTTPStatusCode': 200,
+            'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+            'RequestId': '9DA0FC9336158F68',
+            'RetryAttempts': 0},
+        "Status": "Suspended"
+    },
+    "fail_then_pass": {
+        "fail_bucket": {
+            'ResponseMetadata': {
+                'HTTPHeaders': {
+                    'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                    'server': 'AmazonS3',
+                    'transfer-encoding': 'chunked',
+                    'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                    'x-amz-request-id': 'D937E50330DBE476'
+                },
+                'HTTPStatusCode': 200,
+                'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'RequestId': '9DA0FC9336158F68',
+                'RetryAttempts': 0}
+        },
+        "pass_bucket": {
+            'ResponseMetadata': {
+                'HTTPHeaders': {
+                    'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                    'server': 'AmazonS3',
+                    'transfer-encoding': 'chunked',
+                    'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                    'x-amz-request-id': 'D937E50330DBE476'
+                },
+                'HTTPStatusCode': 200,
+                'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'RequestId': '9DA0FC9336158F68',
+                'RetryAttempts': 0},
+            "Status": "Enabled"
+        }
+    }
+}
