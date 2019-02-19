@@ -160,6 +160,14 @@ class DatabaseHandle():
         Creates or updates Criteria DB records based on the codebase.
         """
         from chalicelib.models import Criterion
+        providers = {
+            'GdsSupportClient': 1,
+            'GdsEc2SecurityGroupClient': 2,
+            'GdsIamClient': 3,
+            'GdsS3Client': 4,
+            'GdsKmsClient': 5,
+            'GdsCloudtrailClient': 6,
+        }  # values are based in the sequence providers are fed by database_populate
         db = self.get_handle()
         db.connect()
         recs = Criterion.select().where(Criterion.invoke_class_name == event['criterion_name'])
@@ -171,12 +179,7 @@ class DatabaseHandle():
         if count < 1 and obj.active is True:  # new and active criteria
             Criterion.create(
                 criterion_name=obj.title,
-                criteria_provider_id={
-                    'GdsSupportClient': 1,
-                    'GdsEc2SecurityGroupClient': 2,
-                    'GdsIamClient': 3,
-                    'GdsS3Client': 4,
-                }[obj.ClientClass.__name__],  # values are based in the sequence providers are fed by database_populate
+                criteria_provider_id=providers[obj.ClientClass.__name__],
                 invoke_class_name=event['criterion_name'],
                 invoke_class_get_data_method="doesn't matter, we should get rid of this column",
                 title=obj.title,
@@ -189,12 +192,7 @@ class DatabaseHandle():
         elif count == 1:  # if it already exists update, even if it deactivates it
             existing = recs.get()
             existing.criterion_name = obj.title
-            existing.criteria_provider_id = {
-                'GdsSupportClient': 1,
-                'GdsEc2SecurityGroupClient': 2,
-                'GdsIamClient': 3,
-                'GdsS3Client': 4,
-            }[obj.ClientClass.__name__]
+            existing.criteria_provider_id = providers[obj.ClientClass.__name__]
             # existing.invoke_class_name = event['criterion_name']  # the unique column we base our search on
             existing.invoke_class_get_data_method = "doesn't matter, we should get rid of this column"
             existing.title = obj.title
