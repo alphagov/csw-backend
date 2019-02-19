@@ -2074,6 +2074,16 @@ S3_VERSIONING_BUCKETS = {
             'Name': 'fail_with_status_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
         }
+    ],
+    'fail_then_pass': [
+        {
+            'Name': 'fail_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        },
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+        }
     ]
 }
 
@@ -2125,5 +2135,36 @@ S3_VERSIONING_STATUS = {
     "fail_access_denied": {
         "csw_access_denied_error": ("An error occurred (AccessDenied) when calling the GetBucketVersioning "
                                     "operation: Access Denied")
+    },
+    "fail_then_pass": {
+        "fail_bucket": {
+            'ResponseMetadata': {
+                'HTTPHeaders': {
+                    'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                    'server': 'AmazonS3',
+                    'transfer-encoding': 'chunked',
+                    'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                    'x-amz-request-id': 'D937E50330DBE476'
+                },
+                'HTTPStatusCode': 200,
+                'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'RequestId': '9DA0FC9336158F68',
+                'RetryAttempts': 0}
+        },
+        "pass_bucket": {
+            'ResponseMetadata': {
+                'HTTPHeaders': {
+                    'date': 'Mon, 1 Jan 2000 00:00:01 GMT',
+                    'server': 'AmazonS3',
+                    'transfer-encoding': 'chunked',
+                    'x-amz-id-2': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                    'x-amz-request-id': 'D937E50330DBE476'
+                },
+                'HTTPStatusCode': 200,
+                'HostId': 'odVvCy13WIqsdFEcuiWpmjip5rOkS81BSAUe/i/0ZaG27SRrlnk2u3Srmk/C81vky0NjjzC1uJB=',
+                'RequestId': '9DA0FC9336158F68',
+                'RetryAttempts': 0},
+            "Status": "Enabled"
+        }
     }
 }
