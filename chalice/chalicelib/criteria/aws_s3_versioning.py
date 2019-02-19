@@ -17,7 +17,7 @@ class AwsS3Versioning(CriteriaDefault):
     is_regional = False
 
     title = "S3 Buckets: Bucket Versioning Enabled"
-    description = "The following S3 bucket/s has/have versioning disabled"
+    description = "The following S3 bucket/s has/have versioning enabled."
     why_is_it_important = ("Versioning in S3 is a way to recover from unintended user changes and actions that might "
                            "occur through misuse or corruption, such as ransomware infection. Each time an object "
                            "changes, a new version of that object is created.")
