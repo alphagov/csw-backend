@@ -75,14 +75,6 @@ class TestAwsS3Versioning(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert)
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
-    def test_evaluate_fail_access_denied(self):
-        event = {}
-        whitelist = {}
-        for item in self.test_data['fail_access_denied']:
-            item["Versioning"] = self.test_data_status['fail_access_denied']
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-
     def test_evaluate_fail_then_pass(self):
         event = {}
         whitelist = {}

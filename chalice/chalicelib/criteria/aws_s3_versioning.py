@@ -57,10 +57,6 @@ class AwsS3Versioning(CriteriaDefault):
                 compliance_type = "NON_COMPLIANT"
                 self.annotation = "This S3 bucket has versioning suspended."
                 log_string = "Bucket has a Status key in its versioning data, but it does not have the 'Enabled' value."
-        elif "csw_access_denied_error" in bucket["Versioning"]:
-            compliance_type = "NON_COMPLIANT"
-            self.annotation = "CSW was denied access to the versioning data of this bucket."
-            # how_do_i_fix_it should be different here. Figure this out.
         else:
             compliance_type = "NON_COMPLIANT"
             self.annotation = "This S3 bucket does not have versioning enabled."
