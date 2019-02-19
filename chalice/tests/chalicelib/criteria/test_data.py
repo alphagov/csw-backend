@@ -2157,6 +2157,8 @@ S3_VERSIONING_STATUS = {
             "Status": "Enabled"
         }
     }
+}
+
 MANAGED_CMK_ROTATION = {
     'fail': {
         'KeyArn': 'arn:aws:kms:eu-west-1:489877524855:key/40e3530a-711a-4b59-8241-3ac1b7172b9e',
