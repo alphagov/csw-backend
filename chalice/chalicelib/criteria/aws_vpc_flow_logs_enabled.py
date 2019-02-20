@@ -24,7 +24,14 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         "VPCs. This may increase the time it takes to detect and/or respond to a security event involving your VPC(s)."
     )
 
-    how_do_i_fix_it = "Todo"  # TODO
+    how_do_i_fix_it = (
+        "Enable flow logs in your VPCs. Flow logs can publish flow log data to Amazon S3 or to CloudWatch logs. "
+        "Depends on your choice, see the following AWS documentation: <br />"
+        "Publishing Flow Logs to CloudWatch Logs: "
+        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log <br />"
+        "Publishing Flow Logs to Amazon S3: "
+        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log"
+    )
 
     def get_data(self, session, **params):
         # use params to reference region - see audit.py
