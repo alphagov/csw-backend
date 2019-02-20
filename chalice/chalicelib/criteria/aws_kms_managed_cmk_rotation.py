@@ -9,7 +9,7 @@ class ManagedCmkRotation(CriteriaDefault):
     """
     active = True
     ClientClass = GdsKmsClient
-    is_regional = True
+    is_regional = False
     resource_type = 'AWS::KMS:CMK_ROTATION'
     title = 'Key Management Service: Custom Master Keys rotated annually by the service'
     description = (
@@ -58,7 +58,7 @@ class ManagedCmkRotation(CriteriaDefault):
 
     def get_data(self, session, **kwargs):
         # maybe exclude disabled and keys to be deleted in less than a year?
-        return self.ClientClass.get_key_list_with_details(session)
+        return self.client.get_key_list_with_details(session)
 
     def translate(self, data={}):
         return {

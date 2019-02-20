@@ -20,29 +20,20 @@ class GdsKmsClient(GdsAwsClient):
     def get_key_list(self, session):
         """
         """
-        try:
-            kms_client = self.get_boto3_session_client('kms', session)
-            return kms_client.list_keys().get('Keys', [])
-        except Exception as exception:
-            return str(exception)
+        kms_client = self.get_boto3_session_client('kms', session)
+        return kms_client.list_keys().get('Keys', [])
 
     def get_key_rotation_status(self, session, key_id_or_arn):
         """
         """
-        try:
-            kms_client = self.get_boto3_session_client('kms', session)
-            return kms_client.get_key_rotation_status(KeyId=key_id_or_arn)['KeyRotationEnabled']
-        except Exception as exception:
-            return str(exception)
+        kms_client = self.get_boto3_session_client('kms', session)
+        return kms_client.get_key_rotation_status(KeyId=key_id_or_arn)['KeyRotationEnabled']
 
     def get_key_details(self, session, key_id_or_arn):
         """
         """
-        try:
-            kms_client = self.get_boto3_session_client('kms', session)
-            return kms_client.describe_key(KeyId=key_id_or_arn).get('KeyMetadata', {})
-        except Exception as exception:
-            return str(exception)
+        kms_client = self.get_boto3_session_client('kms', session)
+        return kms_client.describe_key(KeyId=key_id_or_arn).get('KeyMetadata', {})
 
     ###
     # methods for testing, not allowed by users' policies
@@ -51,20 +42,14 @@ class GdsKmsClient(GdsAwsClient):
     def create_key(self, session):
         """
         """
-        try:
-            kms_client = self.get_boto3_session_client('kms', session)
-            return kms_client.create_key().get('KeyMetadata', {})
-        except Exception as exception:
-            return str(exception)
+        kms_client = self.get_boto3_session_client('kms', session)
+        return kms_client.create_key().get('KeyMetadata', {})
 
     def schedule_key_deletion(self, session, key_id_or_arn, days=7):
         """
         The number of days that the key can be deleted can be from 7 to 30, inlcusive.
         """
-        try:
-            kms_client = self.get_boto3_session_client('kms', session)
-            return kms_client.schedule_key_deletion(
-                KeyId=key_id_or_arn, PendingWindowInDays=days
-            ).get('KeyMetadata', {})
-        except Exception as exception:
-            return str(exception)
+        kms_client = self.get_boto3_session_client('kms', session)
+        return kms_client.schedule_key_deletion(
+            KeyId=key_id_or_arn, PendingWindowInDays=days
+        ).get('KeyMetadata', {})
