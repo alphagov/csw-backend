@@ -18,7 +18,10 @@ class AwsS3SecurePolicy(CriteriaDefault):
 
     title = "S3 - Insecure Bucket Policies"
 
-    description = "Checks that all S3 buckets have policies with the condition 'aws:SecureTransport'."
+    description = (
+        "Checks that all S3 buckets have policies with the condition 'aws:SecureTransport' to ensure that data is sent "
+        "or retrieved from the bucket over encrypted https rather than in plain text."
+    )
 
     why_is_it_important = ("When S3 buckets are not configured to strictly require SSL connections, the communication "
                            "between the clients (users, applications) and these buckets is vulnerable to eavesdropping "
