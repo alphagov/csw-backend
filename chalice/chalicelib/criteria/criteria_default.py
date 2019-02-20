@@ -10,6 +10,17 @@ class CriteriaDefault():
     active = False
 
     """
+    exception_type = "resource" | "allowlist" 
+    You can either record exceptions on a per resource basis 
+    - This resource should be excluded from this check 
+        "this load balancer does not accept web traffic"
+    .. or on an allow-list basis 
+    - This resource should not fail for this reason 
+        "allowed ingress from a specified IP"
+    """
+    exception_type = "resource"
+
+    """
     aggregation_type = "all" | "any"
     All (default) means that all resources have to pass for the check to pass
     and failed resources are recorded as part of the audit results

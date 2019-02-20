@@ -544,6 +544,46 @@ def resource_details(id):
     return Response(**response)
 
 
+@app.route('/resource/{id}/exception')
+def resource_exception(id):
+    id = int(id)
+    load_route_services()
+    try:
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
+        # TODO - add check user has access to account team
+
+        compliance = (
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+        ).get()
+
+        exception = models.ResourceException.find_exception(
+            resource.criterion_id.serialize(),
+            resource.resource_persistent_id,
+            account.id
+        )
+
+        response = app.templates.render_authorized_template(
+            'resource_exception.html',
+            app.current_request,
+            {
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "account": account.serialize(),
+                "resource": resource.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "compliance": compliance.serialize(),
+                "exception": exception,
+                "status": models.Status.get_by_id(compliance.status_id).serialize()
+            }
+        )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/logout')
 def logout():
     load_route_services()

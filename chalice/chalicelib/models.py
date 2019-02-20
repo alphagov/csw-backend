@@ -804,6 +804,35 @@ class ResourceException(database_handle.BaseModel):
     class Meta:
         table_name = "resource_exception"
 
+    @classmethod
+    def find_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+        try:
+            exception = (ResourceException.select()
+                .where(
+                    ResourceException.resource_persistent_id == resource_persistent_id,
+                    ResourceException.criterion_id == criterion_id,
+                    ResourceException.account_subscription_id == account_subscription_id
+                )
+                .get()
+            ).serialize()
+        except Exception as err:
+            now = datetime.datetime.now()
+            expiry = now + datetime.timedelta(days=90)
+            exception = {
+                "resource_persistent_id": resource_persistent_id,
+                "criterion_id": criterion_id,
+                "account_subscripton_id": account_subscription_id,
+                "reason": "",
+                "date_created": now.isoformat(),
+                "date_expires": expiry.isoformat(),
+                "expiry_day": expiry.day,
+                "expiry_month": expiry.month,
+                "expiry_year": expiry.year
+            }
+
+
+        return exception
+
 
 class AccountSshCidrAllowlist(database_handle.BaseModel):
     cidr = peewee.CharField()
