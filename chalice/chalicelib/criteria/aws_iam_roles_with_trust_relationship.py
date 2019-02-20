@@ -22,8 +22,10 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     title = "IAM Roles: At least one role trusts IAM users from an authorised authentication AWS account"
 
-    description = ("Checks whether there is at least one role within the account that has a trust relationship"
-                   "with an IAM user from a different account.")
+    description = (
+        'Checks that at least one IAM role trusts an IAM user defined in a designated AWS account used for '
+        'authorisation.'
+    )
 
     why_is_it_important = ("Delivery accounts are set up such that there need not be any IAM users in them, "
                            "with users assuming a role into the delivery account instead.<br />"

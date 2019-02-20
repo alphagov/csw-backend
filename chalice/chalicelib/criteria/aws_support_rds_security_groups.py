@@ -41,9 +41,9 @@ class AwsSupportRDSSecurityGroupsYellow(AwsSupportRDSSecurityGroups):
     def __init__(self, app):
         self.title = 'RDS Security Groups: Ingress is restricted for flagged ports'
         self.description = (
-            'A rule in the database security group references an Amazon EC2 security group, '
-            'which grants global access to a range of IP addresses or on a commonly used port '
-            '(20, 21, 22, 1433, 1434, 3306, 3389, 4333, 5432, 5500).'
+            'Checks that there are no Security Groups associated with RDS Instances allowing inbound access from any '
+            'address (IP/0) to a list of restricted ports including common database ports and FTP. Open access to the '
+            'following ports is flagged: 20, 21, 22, 1433, 1434, 3306, 3389, 4333, 5432, 5500.'
         )
         self.why_is_it_important = (
             'If these ports are globally accessible, '
@@ -78,7 +78,8 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
     def __init__(self, app):
         self.title = 'RDS Security Groups: Ingress is restricted to specific IPs or CIDRs'
         self.description = (
-            'A rule in the database security group grants global access (i.e. access from any IP address).'
+            'Checks that Security Groups associated with RDS instances limit inbound access rather than accepting '
+            'connections from any IP address.'
         )
         self.why_is_it_important = (
             'In general, there is no need for connections from outside AWS or GDS to connect directly to a database. <br />'

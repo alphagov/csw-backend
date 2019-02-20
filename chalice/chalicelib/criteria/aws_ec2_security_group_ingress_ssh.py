@@ -15,7 +15,10 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     title = "EC2 Security Groups: SSH ingress is restricted to authorised IPs or CIDRs"
 
-    description = """If SSH is enabled into a VPC it should be limited to known IPs"""
+    description = (
+        'Checks that there are no security groups allowing inbound SSH access from any address or from specified '
+        'addresses outside the GDS domain.'
+    )
 
     why_is_it_important = """If someone has access to either one of our WiFis or our 
     VPN then there is more chance they should have access"""

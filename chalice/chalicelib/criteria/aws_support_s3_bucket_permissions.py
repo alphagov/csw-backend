@@ -36,8 +36,8 @@ class S3BucketReadAll(S3BucketPermissions):
             'S3 Bucket ACLs: Does not allow List access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
-            'There are S3 buckets with open access permissions '
-            'or allow access to any authenticated AWS user in your account.'
+            'Checks that there are no S3 buckets with ACLs allowing open List access or allowing List access to any '
+            'authenticated AWS user in your account.'
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '
@@ -82,8 +82,7 @@ class S3BucketOpenAccess(S3BucketPermissions):
             'S3 Bucket Policies: Does not allow open access'
         )
         self.description = (
-            'There are S3 buckets with open access permissions or '
-            'allow access to any authenticated AWS user in your account.'
+            'Checks that there are no S3 buckets with a bucket policy allowing open access.'
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '
@@ -126,8 +125,8 @@ class S3BucketWriteAll(S3BucketPermissions):
             'S3 Bucket ACLs: Does not allow Upload or Delete access for "Everyone" or "Any Authenticated AWS User"'
         )
         self.description = (
-            'There are S3 buckets with open access permissions or allow access '
-            'to any authenticated AWS user in your account.'
+            'Checks that there are no S3 buckets with ACLs allowing with open Upload / Delete access or allowing Upload'
+            ' / Delete access to any authenticated AWS user in your account.'
         )
         self.why_is_it_important = (
             'If a bucket has world upload/delete permissions, this allows anyone to create, '

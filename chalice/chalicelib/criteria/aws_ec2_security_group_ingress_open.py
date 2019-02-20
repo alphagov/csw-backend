@@ -15,8 +15,11 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
 
     title = "EC2 Security Groups: Flagged port ingress is restricted"
 
-    description = """Unrestricted inbound connections should not be allowed for certain ports"""
-
+    description = (
+        'Checks that there are no security groups allowing inbound access from any address (IP/0) to a list of '
+        'restricted ports including common database ports and FTP. Open access to the following ports is flagged: 20, '
+        '21, 22, 1433, 1434, 3306, 3389, 4333, 5432, 5500.'
+    )
     why_is_it_important = """By opening ports like FTP or common database connection ports to the 
     world you dramatically increase the risk to your service"""
 

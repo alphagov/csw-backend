@@ -25,8 +25,8 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
     def __init__(self, app):
         self.title = 'ELB Security Groups: Ingress ports match listener configuration'
         self.description = (
-            'The inbound rules of an Amazon VPC Security group associated with the load balancer '
-            'allows access to ports that are not defined in the listener configuration of the loader.'
+            'Checks that the inbound rules of the Security Group associated with a Load Balancer does not allow access '
+            'to ports that are not defined in the Load Balancer listener configuration.'
         )
         self.why_is_it_important = (
             'Having ports open unnecessarily can increase the risk of losing data or malicious attacks.'
@@ -63,7 +63,7 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
     def __init__(self, app):
         self.title = 'ELB Security Groups: The load balancer security group exists'
         self.description = (
-            'A security group associated with a load balancer does not exist.'
+            'Checks that there is a Security Group associated with a Load Balancer and that the Security Group exists.'
         )
         self.why_is_it_important = (
             'If a security group associated with a load balancer is deleted, '

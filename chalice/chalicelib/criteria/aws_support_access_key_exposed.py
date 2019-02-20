@@ -16,8 +16,8 @@ class AwsIamExposedAccessKey(TrustedAdvisorCriterion):
         self.resource_type = 'AWS::iam::exposed_key'
         self.check_id = '12Fnkpl8Y5'
         self.description = (
-            'An AWS Access Key ID and corresponding secret key were found on popular code repositories, '
-            'or there is irregular EC2 usage that indicates that an access key has been compromised.'
+            'Checks that there are no IAM Access Keys and their corresponding Secrets committed to common code '
+            'repositories like GitHub.'
         )
         self.why_is_it_important = (
             'Access keys are what allow AWS users to authenticate themselves so that they can make use of certain '
