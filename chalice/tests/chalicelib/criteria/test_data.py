@@ -2250,3 +2250,7 @@ CLOUDTRAIL_MULTIREGIONAL = {
         'HasCustomEventSelectors': False
     }
 }
+VPC_FLOW_LOGS_DATA = {
+    "pass": {},
+    "fail": {}
+}
