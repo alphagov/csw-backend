@@ -14,3 +14,9 @@ class TestAwsVpcFlowLogsEnabled(CriteriaSubclassTestCaseMixin, TestCaseWithAttrA
     def setUp(self):
         super(TestAwsVpcFlowLogsEnabled, self).setUp()
         self.subclass = AwsVpcFlowLogsEnabled(self.app)
+
+    def test_init_client(self):
+        with self.subTest():
+            self.assertIn("describe_regions", dir(self.subclass.client))
+            self.assertIn("describe_vpcs", dir(self.subclass.client))
+            self.assertIn("describe_flow_logs", dir(self.subclass.client))
