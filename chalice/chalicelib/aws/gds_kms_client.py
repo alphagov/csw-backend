@@ -14,26 +14,41 @@ class GdsKmsClient(GdsAwsClient):
         keys_list = self.get_key_list(session)
         for key in keys_list:
             key.update(self.get_key_rotation_status(session, key['KeyArn']))
-            key.update({'KeyRotationEnabled': self.get_key_details(session, key['KeyArn']['KeyRotationEnabled'])})
+            key.update(self.get_key_details(session, key['KeyArn']))
+        self.app.log.debug('KMS::get_key_list_with_details')
+        self.app.log.debug(type(keys_list))
+        self.app.log.debug(keys_list)
         return keys_list
 
     def get_key_list(self, session):
         """
         """
         kms_client = self.get_boto3_session_client('kms', session)
-        return kms_client.list_keys().get('Keys', [])
+        data = kms_client.list_keys().get('Keys', [])
+        self.app.log.debug('KMS::get_key_list')
+        self.app.log.debug(type(data))
+        self.app.log.debug(data)
+        return data
 
     def get_key_rotation_status(self, session, key_id_or_arn):
         """
         """
         kms_client = self.get_boto3_session_client('kms', session)
-        return kms_client.get_key_rotation_status(KeyId=key_id_or_arn)['KeyRotationEnabled']
+        data = kms_client.get_key_rotation_status(KeyId=key_id_or_arn)
+        self.app.log.debug('KMS::get_key_rotation_status')
+        self.app.log.debug(type(data))
+        self.app.log.debug(data)
+        return data
 
     def get_key_details(self, session, key_id_or_arn):
         """
         """
         kms_client = self.get_boto3_session_client('kms', session)
-        return kms_client.describe_key(KeyId=key_id_or_arn).get('KeyMetadata', {})
+        data = kms_client.describe_key(KeyId=key_id_or_arn)
+        self.app.log.debug('KMS::get_key_details')
+        self.app.log.debug(type(data))
+        self.app.log.debug(data)
+        return data['KeyMetadata']
 
     ###
     # methods for testing, not allowed by users' policies
