@@ -46,11 +46,13 @@ class ManagedCmkRotation(CriteriaDefault):
         '<li>Choose Save.</li>'
         '</ol>'
         'If the CMK was created without key material (its Origin is EXTERNAL), there is no Key rotation tab. '
-        'You cannot automatically rotate these CMK<br />'
+        'You cannot automatically rotate these CMK.<br />'
         'If a CMK is disabled or pending deletion, '
         'the Automatically rotate this CMK every year check box is cleared, '
         'and you cannot change it. '
-        'The key rotation status is restored when you enable the CMK or cancel deletion. '
+        'The key rotation status is restored when you enable the CMK or cancel deletion.<br />'
+        'For more information and options read the AWS '
+        '<a heref="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html">documentation</a>.'
     )
 
     def __init__(self, app):
