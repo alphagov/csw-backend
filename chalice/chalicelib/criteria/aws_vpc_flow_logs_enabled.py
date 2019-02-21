@@ -1,5 +1,6 @@
 # AwsVpcFlowLogsEnabled
 # Extends GdsEc2Client
+# Checks every VPC in current region to see if flow logs exist for those VPCs
 
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
