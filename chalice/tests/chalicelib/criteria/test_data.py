@@ -2275,6 +2275,7 @@ VPC_FLOW_LOGS_VPCS = {
             'InstanceTenancy': 'default',
             'IsDefault': False,
             'State': 'available',
+            'Tags': [{'Key': 'Name', 'Value': 'fail-vpc'}],
             'VpcId': 'vpc-0123456789abcdef0'
         }
     ]
