@@ -35,10 +35,10 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
     def get_data(self, session, **params):
 
-        vpcs = self.client.describe_vpcs(params["region"])
+        vpcs = self.client.describe_vpcs(session, params["region"])
 
         for vpc in vpcs:
-            vpc["FlowLog"] = self.client.describe_flow_logs(vpc, params["region"])
+            vpc["FlowLog"] = self.client.describe_flow_logs(session, vpc, params["region"])
 
         return vpcs
 
