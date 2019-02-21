@@ -34,8 +34,13 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
     )
 
     def get_data(self, session, **params):
-        # use params to reference region - see audit.py
-        pass
+
+        vpcs = self.client.describe_vpcs(params["region"])
+
+        for vpc in vpcs:
+            vpc["FlowLog"] = self.client.describe_flow_logs(vpc, params["region"])
+
+        return vpcs
 
     def evaluate(self):
         pass
