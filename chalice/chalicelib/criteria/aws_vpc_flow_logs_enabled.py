@@ -46,8 +46,27 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         self.app.log.debug("Got all the flow log data")
         return vpcs
 
+    def translate(self, data):
+
+        # Finding the name of this VPC, if it has one
+        if "Tags" in data:
+            for tag in data["Tags"]:
+                if tag["Key"] == "Name":
+                    name = tag["Value"]
+                    break
+            else:  # No Name tag found
+                name = ""
+        else:
+            name = ""
+
+        item = {
+            "resource_id": data.get("VpcId", ""),
+            "resource_name": name
+        }
+        return item
+
     def evaluate(self, event, vpc, whitelist):
-        if len(vpc["FlowLog"]) == 0:  #  No flow log
+        if len(vpc["FlowLog"]) == 0:  # No flow log
             compliance_type = "NOT_COMPLIANT"
             self.annotation = "VPC does not have a flow log set up."
             log_string = "VPC does not have a flow log"
