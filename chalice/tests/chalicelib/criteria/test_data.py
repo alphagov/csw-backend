@@ -2226,6 +2226,7 @@ MANAGED_CMK_ROTATION = {
         'KeyRotationEnabled': False,
     },
 }
+<<<<<<< HEAD
 
 CLOUDTRAIL_MULTIREGIONAL = {
     'pass': {
@@ -2249,8 +2250,31 @@ CLOUDTRAIL_MULTIREGIONAL = {
         'LogFileValidationEnabled': True, 
         'HasCustomEventSelectors': False
     }
+=======
+VPC_FLOW_LOGS_VPCS = {
+    "pass": [
+        {}
+    ],
+    "fail": [
+        {}
+    ]
+>>>>>>> get_data unit tests and test data
 }
 VPC_FLOW_LOGS_DATA = {
-    "pass": {},
-    "fail": {}
+    "pass": [
+        {
+            'CreationTime': datetime.datetime(2015, 1, 1),
+            'DeliverLogsErrorMessage': 'string',
+            'DeliverLogsPermissionArn': 'string',
+            'DeliverLogsStatus': 'string',
+            'FlowLogId': 'string',
+            'FlowLogStatus': 'string',
+            'LogGroupName': 'string',
+            'ResourceId': 'string',
+            'TrafficType': 'ACCEPT',
+            'LogDestinationType': 'cloud-watch-logs',
+            'LogDestination': 'string'
+        },
+    ],
+    "fail": []
 }
