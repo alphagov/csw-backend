@@ -42,5 +42,22 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
         return vpcs
 
-    def evaluate(self):
-        pass
+    def evaluate(self, event, vpc, whitelist):
+        if len(vpc["FlowLog"]) == 0:  #  No flow log
+            compliance_type = "NOT_COMPLIANT"
+            self.annotation = "VPC does not have a flow log set up."
+            log_string = "VPC does not have a flow log"
+        else:  # If the FlowLog key has anything in it, it means that the flow log exists
+            compliance_type = "COMPLIANT"
+            log_string = "VPC has a flow log"
+
+        evaluation = self.build_evaluation(
+            vpc["VpcId"],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
+
+        self.app.log.debug(log_string)
+        return evaluation
