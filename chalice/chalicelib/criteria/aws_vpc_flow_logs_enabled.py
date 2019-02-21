@@ -35,11 +35,14 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
     def get_data(self, session, **params):
 
+        self.app.log.debug(f"Getting VPCs from region {params['region']}")
         vpcs = self.client.describe_vpcs(session, params["region"])
 
+        self.app.log.debug("Got VPCs, iterating over them to get flow log data")
         for vpc in vpcs:
             vpc["FlowLog"] = self.client.describe_flow_logs(session, vpc, params["region"])
 
+        self.app.log.debug("Got all the flow log data")
         return vpcs
 
     def evaluate(self, event, vpc, whitelist):
