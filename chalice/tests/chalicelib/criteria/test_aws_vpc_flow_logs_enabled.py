@@ -33,6 +33,33 @@ class TestAwsVpcFlowLogsEnabled(CriteriaSubclassTestCaseMixin, TestCaseWithAttrA
                 self.assertIsInstance(item[0], dict, msg=message)
                 self.assertIn("FlowLog", item[0], msg="'FlowLog' key not added to VPC dict")
 
+    def test_translate(self):
+        for item in self.test_data.values():
+            with self.subTest():
+                for vpc in item:
+                    translation = self.subclass.translate(vpc)
+                    self.assertIsInstance(translation, dict, msg="The output of the translate method should be a dict")
+                    self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in "
+                                                                  "the output of the translate method.")
+                    self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in "
+                                                                    "the output of the translate method.")
+                    self.assertEqual(
+                        translation["resource_id"],
+                        vpc["VpcId"],
+                        msg="resource_id does not match the VPC id"
+                    )
+                    if "Tags" in vpc:
+                        self.assertEqual(
+                            translation["resource_name"],
+                            vpc["Tags"][0]["Value"],
+                            msg="resource_name does not match the VPC name"
+                        )
+                    else:
+                        self.assertEqual(
+                            translation["resource_name"], "",
+                            msg="resource_name should be an empty string if the VPC has no Name tag"
+                        )
+
     def test_evaluate_pass(self):
         event = {}
         whitelist = {}
