@@ -13,8 +13,5 @@ class GdsCloudtrailClient(GdsAwsClient):
     def describe_trails(self, session):
         """
         """
-        try:
-            cloudtrail_client = self.get_boto3_session_client('cloudtrail', session)
-            return cloudtrail_client.describe_trails().get('trailList', [])
-        except Exception as exception:
-            return str(exception)
+        cloudtrail_client = self.get_boto3_session_client('cloudtrail', session)
+        return cloudtrail_client.describe_trails().get('trailList', [])
