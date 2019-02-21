@@ -32,3 +32,21 @@ class TestAwsVpcFlowLogsEnabled(CriteriaSubclassTestCaseMixin, TestCaseWithAttrA
                 self.assertIsInstance(item, list, msg=message)
                 self.assertIsInstance(item[0], dict, msg=message)
                 self.assertIn("FlowLog", item[0], msg="'FlowLog' key not added to VPC dict")
+
+    def test_evaluate_pass(self):
+        event = {}
+        whitelist = {}
+        key = "pass"
+        for item in self.test_data[key]:
+            item["FlowLog"] = self.test_data_logs[key]
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail(self):
+        event = {}
+        whitelist = {}
+        key = "fail"
+        for item in self.test_data[key]:
+            item["FlowLog"] = self.test_data_logs[key]
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)

@@ -2253,10 +2253,30 @@ CLOUDTRAIL_MULTIREGIONAL = {
 =======
 VPC_FLOW_LOGS_VPCS = {
     "pass": [
-        {}
+        {
+            'CidrBlock': '10.0.0.0/16',
+            'CidrBlockAssociationSet': [{'AssociationId': 'vpc-cidr-assoc-0123456789abcdef0',
+                                        'CidrBlock': '10.0.0.0/16',
+                                        'CidrBlockState': {'State': 'associated'}}],
+            'DhcpOptionsId': 'dopt-01234567',
+            'InstanceTenancy': 'default',
+            'IsDefault': False,
+            'State': 'available',
+            'VpcId': 'vpc-0123456789abcdef0'
+        }
     ],
     "fail": [
-        {}
+        {
+            'CidrBlock': '10.0.0.0/16',
+            'CidrBlockAssociationSet': [{'AssociationId': 'vpc-cidr-assoc-0123456789abcdef0',
+                                        'CidrBlock': '10.0.0.0/16',
+                                        'CidrBlockState': {'State': 'associated'}}],
+            'DhcpOptionsId': 'dopt-01234567',
+            'InstanceTenancy': 'default',
+            'IsDefault': False,
+            'State': 'available',
+            'VpcId': 'vpc-0123456789abcdef0'
+        }
     ]
 >>>>>>> get_data unit tests and test data
 }
