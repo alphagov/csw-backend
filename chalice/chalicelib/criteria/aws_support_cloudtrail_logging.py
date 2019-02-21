@@ -68,7 +68,7 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
     """
     TODO
     """
-    active = True
+    active = False
 
     def __init__(self, app):
         self.title = 'CloudTrail: Logging is turned on in all regions'

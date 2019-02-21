@@ -62,7 +62,7 @@ class ManagedCmkRotation(CriteriaDefault):
         try:
             return self.client.get_key_list_with_details(session)
         except Exception as e:
-            self.app.log.error(self.app.utilieis.get_typed_exception(e))
+            self.app.log.error(self.app.utilities.get_typed_exception(e))
             return []
 
     def translate(self, data={}):

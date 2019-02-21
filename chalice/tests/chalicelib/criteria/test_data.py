@@ -2226,3 +2226,27 @@ MANAGED_CMK_ROTATION = {
         'KeyRotationEnabled': False,
     },
 }
+
+CLOUDTRAIL_MULTIREGIONAL = {
+    'pass': {
+        'Name': 'csw-trail', 
+        'S3BucketName': 'csw-demo', 
+        'IncludeGlobalServiceEvents': True, 
+        'IsMultiRegionTrail': True, 
+        'HomeRegion': 'eu-west-2', 
+        'TrailARN': 'arn:aws:cloudtrail:eu-west-2:489877524855:trail/csw-trail', 
+        'LogFileValidationEnabled': True, 
+        'HasCustomEventSelectors': False
+    },
+    'fail': {
+        'Name': 'gds-org', 
+        'S3BucketName': 'gds-audit-cloudtrails', 
+        'S3KeyPrefix': '988997429095', 
+        'IncludeGlobalServiceEvents': True, 
+        'IsMultiRegionTrail': False, 
+        'HomeRegion': 'eu-west-2', 
+        'TrailARN': 'arn:aws:cloudtrail:eu-west-2:988997429095:trail/gds-org', 
+        'LogFileValidationEnabled': True, 
+        'HasCustomEventSelectors': False
+    }
+}
