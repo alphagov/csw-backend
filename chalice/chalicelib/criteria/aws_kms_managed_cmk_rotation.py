@@ -59,8 +59,11 @@ class ManagedCmkRotation(CriteriaDefault):
         super(ManagedCmkRotation, self).__init__(app)
 
     def get_data(self, session, **kwargs):
-        # maybe exclude disabled and keys to be deleted in less than a year?
-        return self.client.get_key_list_with_details(session)
+        try:
+            return self.client.get_key_list_with_details(session)
+        except Exception as e:
+            self.app.log.error(self.app.utilieis.get_typed_exception(e))
+            return []
 
     def translate(self, data={}):
         return {
