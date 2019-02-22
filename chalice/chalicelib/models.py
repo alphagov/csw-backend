@@ -823,6 +823,7 @@ class ResourceException(database_handle.BaseModel):
                 .get()
             ).serialize()
         except Exception as err:
+            app.log.debug(app.utilities.get_typed_exception(err))
             now = datetime.datetime.now()
             expiry = now + datetime.timedelta(days=90)
             exception = {
