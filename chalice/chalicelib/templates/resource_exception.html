@@ -6,9 +6,14 @@
     <a href="{{ back_link }}" class="govuk-back-link">Back</a>
     {% endif %}
 
-    <h1 class="govuk-heading-l">Add an exception</h1>
+    <h1 class="govuk-heading-l">Resource exception</h1>
 
-    {% include "components/resource_exception.html" %}
+    {% include "components/resource_exception_context.html" %}
+    {% if mode == "create" %}
+    {% include "components/resource_exception_create.html" %}
+    {% elif mode == "review" %}
+    {% include "components/resource_exception_review.html" %}
+    {% endif %}
 
   </main>
 </div>

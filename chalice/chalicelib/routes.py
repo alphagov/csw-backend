@@ -557,7 +557,24 @@ def resource_post_exception(id):
     try:
         data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
+        # TODO - add check user has access to account team
+
+        compliance = (
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+        ).get()
+
+        exception = models.ResourceException.find_exception(
+            resource.criterion_id.id,
+            resource.resource_persistent_id,
+            account.id
+        )
+
         is_valid = True
+        errors = {}
         # TODO defer to generic validation module
         # Validate reason
         try:
@@ -570,8 +587,8 @@ def resource_post_exception(id):
                 raise ValueError("Value contains invalid characters : " + match.group(0))
         except Exception as err:
             is_valid = False
-            data['reason_has_error'] = True
-            data['error_message'] = app.utilities.get_typed_exception(err)
+            errors['reason_has_error'] = True
+            errors['reason_error_message'] = app.utilities.get_typed_exception(err)
 
         # Validate date
         try:
@@ -584,15 +601,32 @@ def resource_post_exception(id):
             data['exception-expiry-timestamp'] = expiry_timestamp.isoformat()
         except Exception as err:
             is_valid = False
-            data['expiry_has_error'] = True
-            data['error_message'] = app.utilities.get_typed_exception(err)
+            errors['expiry_has_error'] = True
+            errors['expiry_error_message'] = app.utilities.get_typed_exception(err)
 
-        json = app.utilities.to_json(data, True)
+        # json = app.utilities.to_json(data, True)
+        # response = app.templates.render_authorized_template(
+        #     'debug.html',
+        #     app.current_request,
+        #     {
+        #         "json": json
+        #     }
+        # )
+        mode = "review" if is_valid else "create"
+
         response = app.templates.render_authorized_template(
-            'debug.html',
+            'resource_exception.html',
             app.current_request,
             {
-                "json": json
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "account": account.serialize(),
+                "resource": resource.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "compliance": compliance.serialize(),
+                "exception": exception,
+                "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                "mode": mode,
+                "errors": errors
             }
         )
     except Exception as err:
@@ -643,7 +677,8 @@ def resource_exception(id):
                 "compliance": compliance.serialize(),
                 "exception": exception,
                 "status": models.Status.get_by_id(compliance.status_id).serialize(),
-                "mode": "create"
+                "mode": "create",
+                "errors": {}
             }
         )
 

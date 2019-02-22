@@ -1,46 +1,8 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-s">Resource identifiers</h2>
-        <table class="govuk-table">
-            <tbody class="govuk-table__body">
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Name</th>
-                    <td class="govuk-table__cell">
-                        {{ resource.resource_name }}
-                    </td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">ID</th>
-                    <td class="govuk-table__cell">
-                        {{ resource.resource_id }}
-                    </td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Region</th>
-                    <td class="govuk-table__cell">
-                        {{ resource.region }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-s">Check</h2>
-        <p class="govuk-body">{{ criterion.criterion_name }}</p>
-
-        <h2 class="govuk-heading-s">Reason flagged</h2>
-        <p class="govuk-body">{{ compliance.annotation|safe }}</p>
-        <p class="govuk-body">{{ criterion.description|safe }}</p>
-
-    </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Add an exception</h2>
         <form action="./exception" method="post">
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if reason_has_error }}">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason_has_error }}">
               <label class="govuk-label" for="exception-reason">
                   Why does this check not apply to this resource?
               </label>
@@ -48,16 +10,23 @@
                 In general this is a reference for you and your team in the future when reviewing whether to extend or
                   remove this exception.
               </span>
-              <textarea class="govuk-textarea"
+              {% if errors.reason_has_error %}
+              <span id="exception-reason-error" class="govuk-error-message">
+                {{ errors.reason_error_message }}
+              </span>
+              {% endif %}
+              <textarea class="govuk-textarea {{'govuk-input--error' if errors.reason_has_error}}"
                         id="exception-reason"
                         name="exception-reason"
                         rows="3"
                         aria-describedby="exception-reason-hint"
                         placeholder="Why not?"
-                        value="{{exception.reason}}"></textarea>
+                        value="{{exception.reason}}">
+
+              </textarea>
             </div>
 
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if date_has_error }}">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.expiry_has_error }}">
               <fieldset class="govuk-fieldset" aria-describedby="exception-expiry-hint" role="group">
                 <legend class="govuk-label">
                   When should the exception expire?
@@ -66,13 +35,18 @@
                   Expiry should be within 12 months.
                     You can review this and remove an exception or extend the expiry at any time.
                 </span>
+                {% if errors.expiry_has_error %}
+                <span id="exception-expiry-error" class="govuk-error-message">
+                  {{ errors.expiry_error_message }}
+                </span>
+                {% endif %}
                 <div class="govuk-date-input" id="exception-expiry">
                   <div class="govuk-date-input__item">
                     <div class="govuk-form-group">
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-day">
                         Day
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if errors.expiry_has_error}}"
                              id="exception-expiry-day"
                              name="exception-expiry-day"
                              type="number"
@@ -86,7 +60,7 @@
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-month">
                         Month
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if errors.expiry_has_error}}"
                              id="exception-expiry-month"
                              name="exception-expiry-month"
                              type="number"
@@ -100,7 +74,7 @@
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-year">
                         Year
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-4"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{'govuk-input--error' if errors.expiry_has_error}}"
                              id="exception-expiry-year"
                              name="exception-expiry-year"
                              type="number"
@@ -111,6 +85,9 @@
                   </div>
                 </div>
               </fieldset>
+            </div>
+
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.expiry_has_error }}">
               <div class="govuk-form-group govuk-!-margin-top-3">
                 <button type="submit" class="govuk-button">
                   Validate
