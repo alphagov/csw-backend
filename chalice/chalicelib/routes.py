@@ -626,8 +626,10 @@ def temp_login():
             "Content-Type": "text/plain"
         }
         body = "Trying login"
-        if (csw_client == qs.get('client')
-            and csw_secret == qs.get('secret')):
+
+        if (env != 'prod'
+                and csw_client == qs.get('client')
+                and csw_secret == qs.get('secret')):
 
             user = models.User.find_active_by_email(qs.get('email')).serialize()
 
