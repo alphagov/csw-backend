@@ -1,5 +1,8 @@
 import json
 import os
+import re
+import urllib
+import datetime
 
 from chalice import Response, BadRequestError
 
@@ -544,11 +547,75 @@ def resource_details(id):
     return Response(**response)
 
 
-@app.route('/resource/{id}/exception')
-def resource_exception(id):
+@app.route('/resource/{id}/exception',
+           methods=['POST'],
+           content_types=['application/x-www-form-urlencoded'])
+def resource_post_exception(id):
     id = int(id)
     load_route_services()
+
     try:
+        data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
+
+        is_valid = True
+        # TODO defer to generic validation module
+        # Validate reason
+        try:
+
+            invalid_chars = "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            pattern = re.compile(invalid_chars)
+            reason = " ".join(data['exception-reason'])
+            if pattern.match(reason):
+                match = re.search(invalid_chars, reason)
+                raise ValueError("Value contains invalid characters : " + match.group(0))
+        except Exception as err:
+            is_valid = False
+            data['reason_has_error'] = True
+            data['error_message'] = app.utilities.get_typed_exception(err)
+
+        # Validate date
+        try:
+            expiry_date = datetime.date(
+                int(data['exception-expiry-year'][0]),
+                int(data['exception-expiry-month'][0]),
+                int(data['exception-expiry-day'][0])
+            )
+            expiry_timestamp = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
+            data['exception-expiry-timestamp'] = expiry_timestamp.isoformat()
+        except Exception as err:
+            is_valid = False
+            data['expiry_has_error'] = True
+            data['error_message'] = app.utilities.get_typed_exception(err)
+
+        json = app.utilities.to_json(data, True)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": json
+            }
+        )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/resource/{id}/exception')
+def resource_exception(id):
+    """
+    Figure out if data has been posted
+    If posted data is valid
+    Return default populated exception if not
+
+    :param id:
+    :return:
+    """
+    id = int(id)
+    load_route_services()
+
+    try:
+
         resource = models.AuditResource.get_by_id(id)
         account = models.AccountSubscription.get_by_id(
             models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
@@ -560,7 +627,7 @@ def resource_exception(id):
         ).get()
 
         exception = models.ResourceException.find_exception(
-            resource.criterion_id.serialize(),
+            resource.criterion_id.id,
             resource.resource_persistent_id,
             account.id
         )
@@ -575,9 +642,11 @@ def resource_exception(id):
                 "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
                 "compliance": compliance.serialize(),
                 "exception": exception,
-                "status": models.Status.get_by_id(compliance.status_id).serialize()
+                "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                "mode": "create"
             }
         )
+
     except Exception as err:
         app.log.error("Route: resource error: " + str(err))
         response = app.templates.default_server_error()

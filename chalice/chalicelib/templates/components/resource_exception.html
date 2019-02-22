@@ -39,11 +39,8 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Add an exception</h2>
-        <pre>
-            {{ exception | tojson(4) }}
-        </pre>
-        <form>
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if exception.reason_has_error }}">
+        <form action="./exception" method="post">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if reason_has_error }}">
               <label class="govuk-label" for="exception-reason">
                   Why does this check not apply to this resource?
               </label>
@@ -60,7 +57,7 @@
                         value="{{exception.reason}}"></textarea>
             </div>
 
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if exception.date_has_error }}">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if date_has_error }}">
               <fieldset class="govuk-fieldset" aria-describedby="exception-expiry-hint" role="group">
                 <legend class="govuk-label">
                   When should the exception expire?
@@ -116,10 +113,17 @@
               </fieldset>
               <div class="govuk-form-group govuk-!-margin-top-3">
                 <button type="submit" class="govuk-button">
-                  Save
+                  Validate
                 </button>
               </div>
             </div>
+            <input type="hidden" name="criterion_id" value="{{exception.criterion_id}}"/>
+            <input type="hidden" name="account_subscription_id" value="{{exception.account_subscription_id}}"/>
+            <input type="hidden" name="account_audit_id" value="{{exception.account_audit_id}}"/>
+            <input type="hidden" name="resource_persistent_id" value="{{exception.resource_persistent_id}}"/>
         </form>
+        <pre>
+            {{ exception | tojson(4) }}
+        </pre>
     </div>
 </div>
