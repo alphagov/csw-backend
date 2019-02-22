@@ -617,32 +617,37 @@ def temp_login():
     try:
         load_route_services()
         env = os.environ['CSW_ENV']
-        csw_client = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/client")
-        csw_secret = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/secret")
-        req = app.current_request
-        qs = req.query_params
 
         headers = {
             "Content-Type": "text/plain"
         }
         body = "Trying login"
+        code = 200
 
-        if (env != 'prod'
-                and csw_client == qs.get('client')
-                and csw_secret == qs.get('secret')):
+        if (env != 'prod'):
+            csw_client = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/client")
+            csw_secret = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/secret")
+            req = app.current_request
+            qs = req.query_params
 
-            user = models.User.find_active_by_email(qs.get('email')).serialize()
+            if (csw_client == qs.get('client')
+                    and csw_secret == qs.get('secret')):
 
-            app.auth.user_jwt = app.auth.get_jwt(user)
+                user = models.User.find_active_by_email(qs.get('email')).serialize()
 
-            app.auth.cookie = app.auth.generate_cookie_header_val(app.auth.user_jwt)
+                app.auth.user_jwt = app.auth.get_jwt(user)
 
-            headers["Set-Cookie"] = app.auth.cookie
+                app.auth.cookie = app.auth.generate_cookie_header_val(app.auth.user_jwt)
 
-            body = "Logged in"
+                headers["Set-Cookie"] = app.auth.cookie
+
+                body = "Logged in"
+        else:
+            raise Exception("Unauthorised")
 
     except Exception as err:
         body = "Temporary login failed "+str(err)
+        code = 403
         headers = {
             "Content-Type": "text/plain"
         }
@@ -650,7 +655,7 @@ def temp_login():
     return Response(
         body=body,
         headers=headers,
-        status_code=200
+        status_code=code
     )
 
 # # TO OVERRIDE a route template with the debug template to view the json template data
