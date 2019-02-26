@@ -585,10 +585,17 @@ def resource_post_exception(id):
 
         # Save exception
         if is_valid:
-            exception_data = models.ResourceException.clean(exception)
+            try:
+                exception_data = models.ResourceException.clean(exception)
+                app.log.debug(app.utilities.to_json(exception))
+                # create an audit_resource record
+                resource_exception = models.ResourceException.create(**exception_data)
+            except Exception as err:
+                app.log.error(app.utilities.get_typed_exception(err))
+        else:
+            app.log.debug(app.utilities.to_json(form.get_errors()))
 
-            # create an audit_resource record
-            resource_exception = models.ResourceException.create(**exception_data)
+
 
 
         # json = app.utilities.to_json(data, True)
