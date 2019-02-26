@@ -260,7 +260,7 @@ class BaseModel(peewee.Model):
         ]
 
     @classmethod
-    def clean(self, data):
+    def clean(cls, data):
         """
         Remove any dictionary properties which are not fields in the table schema
         :param data:
@@ -268,7 +268,8 @@ class BaseModel(peewee.Model):
         """
         clean_data = {}
 
-        fields = self._meta.get_field_names()
+        fields = cls._meta.fields.keys()
+
         for field in fields:
             clean_data[field] = data.get(field, None)
 
