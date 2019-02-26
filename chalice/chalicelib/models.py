@@ -822,6 +822,13 @@ class ResourceException(database_handle.BaseModel):
                 )
                 .get()
             ).serialize()
+
+            expiry = exception['date_expires']
+            app.log.debug("Expiry field type: "+type(expiry))
+            #exception['expiry_day'] = expiry.day
+            #exception['expiry_month'] = expiry.month
+            #exception['expiry_year'] = expiry.year
+
         except Exception as err:
             app.log.debug(app.utilities.get_typed_exception(err))
             now = datetime.datetime.now()
