@@ -34,7 +34,8 @@ class GdsAwsClient:
     # eg: 779799343306-AdminRole
     def get_session_name(self, account, role=''):
         # Force account to be a 12 character zero padded string
-        account = str(account).rjust(12, '0')
+        if account != "default":
+            account = str(account).rjust(12, '0')
         if (role == ""):
             session_name = account
         else:
@@ -142,12 +143,13 @@ class GdsAwsClient:
         '''
         try:
             # force account to be 12 character string with leading zeros.
-            account_id = str(account).rjust(12, '0')
+            if account != "default":
+                account = str(account).rjust(12, '0')
             self.app.log.debug(f"Assuming to account: {account} with role: {role}")
 
             sts = self.get_boto3_client('sts')
 
-            role_arn = f"arn:aws:iam::{account_id}:role/{role}"
+            role_arn = f"arn:aws:iam::{account}:role/{role}"
             print(f"Assume role: {role_arn}")
 
             session_name = self.get_session_name(account, role)
