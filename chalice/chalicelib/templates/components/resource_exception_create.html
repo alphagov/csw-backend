@@ -2,7 +2,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Add an exception</h2>
         <form action="./exception" method="post">
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason_has_error }}">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason }}">
               <label class="govuk-label" for="exception-reason">
                   Why does this check not apply to this resource?
               </label>
@@ -12,21 +12,18 @@
               </span>
               {% if errors.reason_has_error %}
               <span id="exception-reason-error" class="govuk-error-message">
-                {{ errors.reason_error_message }}
+                {{ errors.reason }}
               </span>
               {% endif %}
-              <textarea class="govuk-textarea {{'govuk-input--error' if errors.reason_has_error}}"
+              <textarea class="govuk-textarea {{'govuk-textarea--error' if errors.reason }}"
                         id="exception-reason"
                         name="exception-reason"
                         rows="3"
                         aria-describedby="exception-reason-hint"
-                        placeholder="Why not?"
-                        value="{{exception.reason}}">
-
-              </textarea>
+                        placeholder="Explain yourself">{{exception.reason}}</textarea>
             </div>
 
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.expiry_has_error }}">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if (errors.expiry_components or errors.expiry_date) }}">
               <fieldset class="govuk-fieldset" aria-describedby="exception-expiry-hint" role="group">
                 <legend class="govuk-label">
                   When should the exception expire?
@@ -35,9 +32,10 @@
                   Expiry should be within 12 months.
                     You can review this and remove an exception or extend the expiry at any time.
                 </span>
-                {% if errors.expiry_has_error %}
+                {% if (errors.expiry_date or errors.expiry_components) %}
                 <span id="exception-expiry-error" class="govuk-error-message">
-                  {{ errors.expiry_error_message }}
+                  {{ errors.expiry_date if errors.expiry_date else "" }}
+                  {{ errors.expiry_components if errors.expiry_components else "" }}
                 </span>
                 {% endif %}
                 <div class="govuk-date-input" id="exception-expiry">
@@ -46,7 +44,7 @@
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-day">
                         Day
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if errors.expiry_has_error}}"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if (errors.expiry_components or errors.expiry_date) }}"
                              id="exception-expiry-day"
                              name="exception-expiry-day"
                              type="number"
@@ -60,7 +58,7 @@
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-month">
                         Month
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if errors.expiry_has_error}}"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-2 {{'govuk-input--error' if (errors.expiry_components or errors.expiry_date) }}"
                              id="exception-expiry-month"
                              name="exception-expiry-month"
                              type="number"
@@ -74,7 +72,7 @@
                       <label class="govuk-label govuk-date-input__label" for="exception-expiry-year">
                         Year
                       </label>
-                      <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{'govuk-input--error' if errors.expiry_has_error}}"
+                      <input class="govuk-input govuk-date-input__input govuk-input--width-4 {{'govuk-input--error' if (errors.expiry_components or errors.expiry_date) }}"
                              id="exception-expiry-year"
                              name="exception-expiry-year"
                              type="number"
@@ -101,6 +99,9 @@
         </form>
         <pre>
             {{ exception | tojson(4) }}
+        </pre>
+        <pre>
+            {{ errors | tojson(4) }}
         </pre>
     </div>
 </div>

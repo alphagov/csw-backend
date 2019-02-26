@@ -5,6 +5,7 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
+from chalicelib.validators import *
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -208,6 +209,8 @@ class DatabaseHandle():
 
 
 class BaseModel(peewee.Model):
+
+    validators = []
 
     def serialize(self):
         """

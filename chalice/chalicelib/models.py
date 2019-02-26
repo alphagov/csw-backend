@@ -1,9 +1,16 @@
 import datetime
 
 import peewee
+# peewee has a validator library but it has a max version of 3.1
+# this would mean downgrading our peewee version.
+# essentially it provides some simple validators and then
+# allows you to create custom validators with a standard method signature
+# seemed better to rewrite than downgrade
+# from peewee_validates import ModelValidator
 
 from app import app  # used only for logging
 from chalicelib import database_handle
+from chalicelib.validators import *
 
 
 class User(database_handle.BaseModel):
@@ -822,7 +829,7 @@ class ResourceException(database_handle.BaseModel):
             exception = {
                 "resource_persistent_id": resource_persistent_id,
                 "criterion_id": criterion_id,
-                "account_subscripton_id": account_subscription_id,
+                "account_subscription_id": account_subscription_id,
                 "reason": "",
                 "date_created": now.isoformat(),
                 "date_expires": expiry.isoformat(),
