@@ -829,7 +829,7 @@ class ResourceException(database_handle.BaseModel):
             exception = {
                 "resource_persistent_id": resource_persistent_id,
                 "criterion_id": criterion_id,
-                "account_subscripton_id": account_subscription_id,
+                "account_subscription_id": account_subscription_id,
                 "reason": "",
                 "date_created": now.isoformat(),
                 "date_expires": expiry.isoformat(),

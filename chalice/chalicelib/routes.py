@@ -574,36 +574,14 @@ def resource_post_exception(id):
             account.id
         )
 
-        is_valid = True
-        errors = {}
-        # TODO defer to generic validation module
-        # Validate reason
-        try:
+        form = FormAddResourceException()
 
-            invalid_chars = "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
-            pattern = re.compile(invalid_chars)
-            reason = " ".join(data['exception-reason'])
-            if pattern.match(reason):
-                match = re.search(invalid_chars, reason)
-                raise ValueError("Value contains invalid characters : " + match.group(0))
-        except Exception as err:
-            is_valid = False
-            errors['reason_has_error'] = True
-            errors['reason_error_message'] = app.utilities.get_typed_exception(err)
+        is_valid = form.validate(data)
 
-        # Validate date
-        try:
-            expiry_date = datetime.date(
-                int(data['exception-expiry-year'][0]),
-                int(data['exception-expiry-month'][0]),
-                int(data['exception-expiry-day'][0])
-            )
-            expiry_timestamp = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
-            data['exception-expiry-timestamp'] = expiry_timestamp.isoformat()
-        except Exception as err:
-            is_valid = False
-            errors['expiry_has_error'] = True
-            errors['expiry_error_message'] = app.utilities.get_typed_exception(err)
+        exception["reason"] = form.data["reason"]
+        exception["expiry_day"] = form.data["expiry_components"]["day"]
+        exception["expiry_month"] = form.data["expiry_components"]["month"]
+        exception["expiry_year"] = form.data["expiry_components"]["year"]
 
         # json = app.utilities.to_json(data, True)
         # response = app.templates.render_authorized_template(
@@ -627,7 +605,7 @@ def resource_post_exception(id):
                 "exception": exception,
                 "status": models.Status.get_by_id(compliance.status_id).serialize(),
                 "mode": mode,
-                "errors": errors
+                "errors": form.get_errors()
             }
         )
     except Exception as err:
