@@ -12,7 +12,9 @@
               </span>
               {% if errors.reason %}
               <span id="exception-reason-error" class="govuk-error-message">
-                {{ errors.reason }}
+                  {% for message in errors.reason %}
+                  <span>{{ message }}</span>
+                  {% endfor %}
               </span>
               {% endif %}
               <textarea class="govuk-textarea {{'govuk-textarea--error' if errors.reason }}"
@@ -34,8 +36,17 @@
                 </span>
                 {% if (errors.expiry_date or errors.expiry_components) %}
                 <span id="exception-expiry-error" class="govuk-error-message">
-                  {{ errors.expiry_date if errors.expiry_date else "" }}
-                  {{ errors.expiry_components if errors.expiry_components else "" }}
+                  {% if errors.expiry_components %}
+                  {% for message in errors.expiry_components %}
+                  <span>{{ message }}</span>
+                  {% endfor %}
+                  {% endif %}
+
+                  {% if errors.expiry_date %}
+                  {% for message in errors.expiry_date %}
+                  <span>{{ message }}</span>
+                  {% endfor %}
+                  {% endif %}
                 </span>
                 {% endif %}
                 <div class="govuk-date-input" id="exception-expiry">
