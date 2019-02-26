@@ -13,7 +13,7 @@
 
               {% if errors.reason %}
               {% for message in errors.reason %}
-              <span id="exception-reason-error-{{loop-counter}}" class="govuk-error-message">
+              <span id="exception-reason-error-{{loop.index}}" class="govuk-error-message">
                   {{ message }}
               </span>
               {% endfor %}
@@ -39,7 +39,7 @@
 
                 {% if errors.expiry_components %}
                 {% for message in errors.expiry_components %}
-                <span id="exception-expiry-components-error-{{loop.counter}}" class="govuk-error-message">
+                <span id="exception-expiry-components-error-{{loop.index}}" class="govuk-error-message">
                     {{ message }}
                 </span>
                 {% endfor %}
@@ -47,7 +47,7 @@
 
                 {% if errors.expiry_date %}
                 {% for message in errors.expiry_date %}
-                <span id="exception-expiry-date-error-{{loop.counter}}" class="govuk-error-message">
+                <span id="exception-expiry-date-error-{{loop.index}}" class="govuk-error-message">
                     {{ message }}
                 </span>
                 {% endfor %}
