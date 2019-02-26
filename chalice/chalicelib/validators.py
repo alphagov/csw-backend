@@ -81,7 +81,7 @@ class FormAddResourceException(Form):
             document["resource_persistent_id"] = data["resource_persistent_id"][0]
             document["criterion_id"] = int(data["criterion_id"][0])
             document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["reason"] = self.flatten_text_input(data.get("expiry-reason",[]))
+            document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
 
@@ -201,6 +201,7 @@ class FormValidator(cerberus.Validator):
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
         """
+        # Check for a non-existent value, empty string and string containing only whitespace
         try:
             if value is None or re.match("^\s*$", value):
                 raise ValueError(f"The {field} field cannot be empty")
