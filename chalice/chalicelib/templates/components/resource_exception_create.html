@@ -10,13 +10,15 @@
                 In general this is a reference for you and your team in the future when reviewing whether to extend or
                   remove this exception.
               </span>
+
               {% if errors.reason %}
-              <span id="exception-reason-error" class="govuk-error-message">
-                  {% for message in errors.reason %}
-                  <span>{{ message }}</span>
-                  {% endfor %}
+              {% for message in errors.reason %}
+              <span id="exception-reason-error-{{loop-counter}}" class="govuk-error-message">
+                  {{ message }}
               </span>
+              {% endfor %}
               {% endif %}
+
               <textarea class="govuk-textarea {{'govuk-textarea--error' if errors.reason }}"
                         id="exception-reason"
                         name="exception-reason"
@@ -34,21 +36,23 @@
                   Expiry should be within 12 months.
                     You can review this and remove an exception or extend the expiry at any time.
                 </span>
-                {% if (errors.expiry_date or errors.expiry_components) %}
-                <span id="exception-expiry-error" class="govuk-error-message">
-                  {% if errors.expiry_components %}
-                  {% for message in errors.expiry_components %}
-                  <span>{{ message }}</span>
-                  {% endfor %}
-                  {% endif %}
 
-                  {% if errors.expiry_date %}
-                  {% for message in errors.expiry_date %}
-                  <span>{{ message }}</span>
-                  {% endfor %}
-                  {% endif %}
+                {% if errors.expiry_components %}
+                {% for message in errors.expiry_components %}
+                <span id="exception-expiry-components-error-{{loop.counter}}" class="govuk-error-message">
+                    {{ message }}
                 </span>
+                {% endfor %}
                 {% endif %}
+
+                {% if errors.expiry_date %}
+                {% for message in errors.expiry_date %}
+                <span id="exception-expiry-date-error-{{loop.counter}}" class="govuk-error-message">
+                    {{ message }}
+                </span>
+                {% endfor %}
+                {% endif %}
+
                 <div class="govuk-date-input" id="exception-expiry">
                   <div class="govuk-date-input__item">
                     <div class="govuk-form-group">
