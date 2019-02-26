@@ -258,3 +258,18 @@ class BaseModel(peewee.Model):
         return [
             item.serialize() for item in items
         ]
+
+    @classmethod
+    def clean(self, data):
+        """
+        Remove any dictionary properties which are not fields in the table schema
+        :param data:
+        :return:
+        """
+        clean_data = {}
+
+        fields = self._meta.get_field_names()
+        for field in fields:
+            clean_data[field] = data.get(field, None)
+
+        return clean_data

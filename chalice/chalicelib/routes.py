@@ -583,6 +583,14 @@ def resource_post_exception(id):
         exception["expiry_month"] = form.data["expiry_components"]["month"]
         exception["expiry_year"] = form.data["expiry_components"]["year"]
 
+        # Save exception
+        if is_valid:
+            exception_data = models.ResourceException.clean(exception)
+
+            # create an audit_resource record
+            resource_exception = models.ResourceException.create(**exception_data)
+
+
         # json = app.utilities.to_json(data, True)
         # response = app.templates.render_authorized_template(
         #     'debug.html',
