@@ -174,7 +174,11 @@ def account_evaluate_criteria(event):
                 for params in requests:
                     try:
                         data = check.get_data(session, **params)
+                        # Set status to true only if data is returned successfully
+                        # AccessDenied remains unprocessed
+                        status = True
                     except ClientError as boto3_error:
+                        # catch access denied type errors from out-of-date policies
                         app.log.error(str(boto3_error))
                         data = None
                     if data is not None:
@@ -208,17 +212,15 @@ def account_evaluate_criteria(event):
                                 resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
                                 evaluated.append(audit_resource_item)
                         summary = check.summarize(evaluated, summary)
-                app.log.debug(app.utilities.to_json(summary))
-                audit_criterion.resources = summary['all']['display_stat']
-                audit_criterion.tested = summary['applicable']['display_stat']
-                audit_criterion.passed = summary['compliant']['display_stat']
-                audit_criterion.failed = summary['non_compliant']['display_stat']
-                audit_criterion.ignored = summary['not_applicable']['display_stat']
-                audit_criterion.regions = summary['regions']['count']
-                audit_criterion.save()
-                # Only update the processed stat if the assume was successful
-
-                status = True
+                        app.log.debug(app.utilities.to_json(summary))
+                        audit_criterion.resources = summary['all']['display_stat']
+                        audit_criterion.tested = summary['applicable']['display_stat']
+                        audit_criterion.passed = summary['compliant']['display_stat']
+                        audit_criterion.failed = summary['non_compliant']['display_stat']
+                        audit_criterion.ignored = summary['not_applicable']['display_stat']
+                        audit_criterion.regions = summary['regions']['count']
+                        audit_criterion.save()
+                        # Only update the processed stat if the assume was successful
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
