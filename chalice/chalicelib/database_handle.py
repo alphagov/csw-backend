@@ -297,5 +297,7 @@ class BaseModel(peewee.Model):
             value = data.get(field, None)
             if isinstance(value, BaseModel):
                 raw_data[field] = value.id
+            else:
+                raw_data[field] = value
 
         return raw_data
