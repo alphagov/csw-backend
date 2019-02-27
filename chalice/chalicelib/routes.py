@@ -580,26 +580,45 @@ def resource_post_exception(id):
 
         is_valid = form.validate(data)
 
+        expiry_date = datetime.date(
+            int(form.data["expiry_components"]["year"]),
+            int(form.data["expiry_components"]["month"]),
+            int(form.data["expiry_components"]["day"])
+        )
+
         exception["reason"] = form.data["reason"]
+        exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
         exception["expiry_day"] = form.data["expiry_components"]["day"]
         exception["expiry_month"] = form.data["expiry_components"]["month"]
         exception["expiry_year"] = form.data["expiry_components"]["year"]
 
         # If authed and valid save the resource_exception
         if is_valid and authed:
-
             try:
 
                 exception_data = models.ResourceException.clean(exception)
-                if exception_data['user_id'] is None:
-                    user_data = app.auth.get_login_data()
-                    user = models.User.find_active_by_email(user_data['email'])
+                if exception_data['id'] is None:
 
-                    exception_data['user_id'] = user.id
+                    if exception_data['user_id'] is None:
+                        user_data = app.auth.get_login_data()
+                        user = models.User.find_active_by_email(user_data['email'])
 
-                app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
-                # create an audit_resource record
-                resource_exception = models.ResourceException.create(**exception_data)
+                        exception_data['user_id'] = user.id
+
+                    app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
+                    # create an audit_resource record
+                    resource_exception = models.ResourceException.create(**exception_data)
+
+
+                else:
+                    exception_id = exception_data['id']
+                    # del exception_data['id']
+                    # query = models.ResourceException.update(**exception_data).where(models.ResourceException.id = exception_id)
+                    # query.execute()
+                    exception_item = models.ResourceException.get_by_id(exception_id)
+                    exception_item.date_expires = exception["date_expires"]
+                    exception_item.reason = exception["reason"]
+                    exception_item.save()
 
                 # retrieve and populate the date components for the template
                 exception = models.ResourceException.find_exception(
