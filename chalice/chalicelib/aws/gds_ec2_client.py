@@ -17,14 +17,14 @@ class GdsEc2Client(GdsAwsClient):
 
     def describe_vpcs(self, session, region_name):
 
-        ec2 = self.get_default_client('ec2', region=region_name)
+        ec2 = self.get_boto3_session_client('ec2', session, region=region_name)
         response = ec2.describe_vpcs()
 
         return response['Vpcs']
 
     def describe_flow_logs(self, session, vpc, region_name):
 
-        ec2 = self.get_default_client('ec2', region=region_name)
+        ec2 = self.get_boto3_session_client('ec2', session, region=region_name)
         response = ec2.describe_flow_logs(Filters=[{'Name': 'resource-id', 'Values': [vpc['VpcId']]}])
 
         return response['FlowLogs']
