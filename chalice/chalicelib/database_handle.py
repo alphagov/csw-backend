@@ -293,7 +293,7 @@ class BaseModel(peewee.Model):
 
         for field in fields:
             value = data.get(field, None)
-            if isinstance(value, BaseModel):
+            if issubclass(value, BaseModel):
                 raw_data[field] = value.id
             else:
                 raw_data[field] = value
