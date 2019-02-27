@@ -278,16 +278,14 @@ class BaseModel(peewee.Model):
 
         return clean_data
 
-    @classmethod
-    def raw(cls, data):
+    def raw(self):
         """
         Replace any ForeignKey Model objects with their
         ids
         :param data:
         :return:
         """
-        if isinstance(data, BaseModel):
-            data = data.serialize()
+        data = self.serialize()
 
         raw_data = {}
 
