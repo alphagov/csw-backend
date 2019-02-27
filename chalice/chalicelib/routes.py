@@ -588,7 +588,7 @@ def resource_post_exception(id):
             try:
                 exception_data = models.ResourceException.clean(exception)
 
-                app.log.debug("CLEANED: " + app.utilities.to_json(exception))
+                app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
                 # create an audit_resource record
                 resource_exception = models.ResourceException.create(**exception_data)
             except Exception as err:
