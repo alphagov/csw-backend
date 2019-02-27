@@ -273,4 +273,7 @@ class BaseModel(peewee.Model):
         for field in fields:
             clean_data[field] = data.get(field, None)
 
+        if clean_data['id'] is None:
+            del clean_data['id']
+
         return clean_data
