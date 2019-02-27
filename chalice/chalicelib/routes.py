@@ -607,6 +607,7 @@ def resource_post_exception(id):
                     resource.resource_persistent_id,
                     account.id
                 )
+
             except Exception as err:
                 app.log.error(app.utilities.get_typed_exception(err))
         else:
@@ -621,7 +622,7 @@ def resource_post_exception(id):
         #         "json": json
         #     }
         # )
-        mode = "review" if is_valid else "create"
+        mode = "create"
 
         response = app.templates.render_authorized_template(
             'resource_exception.html',
