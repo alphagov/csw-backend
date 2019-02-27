@@ -6,6 +6,7 @@ import importlib
 import inspect
 import os
 from chalicelib.validators import *
+from app import app
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -293,8 +294,11 @@ class BaseModel(peewee.Model):
 
         for field in fields:
             value = data.get(field, None)
-            if issubclass(type(value), BaseModel):
-                raw_data[field] = value.id
+            # serialize converts the object instances to dicts so
+            # you have to check if they are dicts rather than
+            # subclasses of BaseModel
+            if isinstance(value, dict):
+                raw_data[field] = value['id']
             else:
                 raw_data[field] = value
 
