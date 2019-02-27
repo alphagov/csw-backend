@@ -825,7 +825,7 @@ class ResourceException(database_handle.BaseModel):
             app.log.debug("Found exception: " + app.utilities.to_json(exception))
 
             expiry = exception['date_expires']
-            app.log.debug("Expiry field type: "+type(expiry))
+            app.log.debug("Expiry field type: "+str(type(expiry)))
             #exception['expiry_day'] = expiry.day
             #exception['expiry_month'] = expiry.month
             #exception['expiry_year'] = expiry.year
