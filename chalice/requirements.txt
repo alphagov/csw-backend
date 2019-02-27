@@ -3,7 +3,7 @@ psycopg2-binary==2.8.2
 peewee==3.9.5
 cerberus==1.2
 httplib2==0.12.3
-google-auth==1.5.1
+google-auth==1.6.3
 google-auth-oauthlib==0.2.0
 jinja2==2.10.1
 webassets==0.12.1
