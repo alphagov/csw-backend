@@ -556,6 +556,8 @@ def resource_post_exception(id):
     load_route_services()
 
     try:
+        authed = app.auth.try_login(app.current_request)
+
         data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
         resource = models.AuditResource.get_by_id(id)
@@ -583,10 +585,17 @@ def resource_post_exception(id):
         exception["expiry_month"] = form.data["expiry_components"]["month"]
         exception["expiry_year"] = form.data["expiry_components"]["year"]
 
-        # Save exception
-        if is_valid:
+        # If authed and valid save the resource_exception
+        if is_valid and authed:
+
             try:
+
                 exception_data = models.ResourceException.clean(exception)
+                if exception_data['user_id'] is None:
+                    user_data = app.auth.get_login_data()
+                    user = models.User.find_active_by_email(user_data['email'])
+
+                    exception_data['user_id'] = user.id
 
                 app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
                 # create an audit_resource record
@@ -594,10 +603,8 @@ def resource_post_exception(id):
             except Exception as err:
                 app.log.error(app.utilities.get_typed_exception(err))
         else:
-            app.log.debug(app.utilities.to_json(form.get_errors()))
-
-
-
+            message = app.utilities.to_json(form.get_errors())
+            app.log.debug(message)
 
         # json = app.utilities.to_json(data, True)
         # response = app.templates.render_authorized_template(
@@ -624,6 +631,7 @@ def resource_post_exception(id):
                 "errors": form.get_errors()
             }
         )
+
     except Exception as err:
         app.log.error("Route: resource error: " + str(err))
         response = app.templates.default_server_error()
