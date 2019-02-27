@@ -597,27 +597,20 @@ def resource_post_exception(id):
             try:
 
                 exception_data = models.ResourceException.clean(exception)
+
+                user_data = app.auth.get_login_data()
+                user = models.User.find_active_by_email(user_data['email'])
+                exception_data['user_id'] = user.id
+
                 if exception_data['id'] is None:
-
-                    if exception_data['user_id'] is None:
-                        user_data = app.auth.get_login_data()
-                        user = models.User.find_active_by_email(user_data['email'])
-
-                        exception_data['user_id'] = user.id
-
-                    app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
-                    # create an audit_resource record
+                    # If the id is not set treat as an insert
                     resource_exception = models.ResourceException.create(**exception_data)
-
-
                 else:
-                    exception_id = exception_data['id']
-                    # del exception_data['id']
-                    # query = models.ResourceException.update(**exception_data).where(models.ResourceException.id = exception_id)
-                    # query.execute()
-                    exception_item = models.ResourceException.get_by_id(exception_id)
+                    # If the id is set then treat as an update
+                    exception_item = models.ResourceException.get_by_id(exception_data['id'])
                     exception_item.date_expires = exception["date_expires"]
                     exception_item.reason = exception["reason"]
+                    exception_item.user_id = user.id
                     exception_item.save()
 
                 # retrieve and populate the date components for the template
