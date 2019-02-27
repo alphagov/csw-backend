@@ -839,8 +839,8 @@ class ResourceException(database_handle.BaseModel):
                 "criterion_id": criterion_id,
                 "account_subscription_id": account_subscription_id,
                 "reason": "",
-                "date_created": now.isoformat(),
-                "date_expires": expiry.isoformat(),
+                "date_created": now,
+                "date_expires": expiry,
                 "expiry_day": expiry.day,
                 "expiry_month": expiry.month,
                 "expiry_year": expiry.year
