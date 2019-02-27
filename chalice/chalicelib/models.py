@@ -821,7 +821,8 @@ class ResourceException(database_handle.BaseModel):
                     ResourceException.account_subscription_id == account_subscription_id
                 )
                 .get()
-            ).serialize()
+            ).raw()
+
             app.log.debug("Found exception: " + app.utilities.to_json(exception))
 
             expiry = exception['date_expires']

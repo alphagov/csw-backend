@@ -277,3 +277,25 @@ class BaseModel(peewee.Model):
             del clean_data['id']
 
         return clean_data
+
+    @classmethod
+    def raw(cls, data):
+        """
+        Replace any ForeignKey Model objects with their
+        ids
+        :param data:
+        :return:
+        """
+        if isinstance(data, BaseModel):
+            data = data.serialize()
+
+        raw_data = {}
+
+        fields = cls._meta.fields.keys()
+
+        for field in fields:
+            value = data.get(field, None)
+            if isinstance(value, BaseModel):
+                raw_data[field] = value.id
+
+        return raw_data
