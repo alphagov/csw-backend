@@ -289,7 +289,7 @@ class BaseModel(peewee.Model):
 
         raw_data = {}
 
-        fields = cls._meta.fields.keys()
+        fields = self._meta.fields.keys()
 
         for field in fields:
             value = data.get(field, None)
