@@ -600,6 +600,13 @@ def resource_post_exception(id):
                 app.log.debug("CLEANED: " + app.utilities.to_json(exception_data))
                 # create an audit_resource record
                 resource_exception = models.ResourceException.create(**exception_data)
+
+                # retrieve and populate the date components for the template
+                exception = models.ResourceException.find_exception(
+                    resource.criterion_id.id,
+                    resource.resource_persistent_id,
+                    account.id
+                )
             except Exception as err:
                 app.log.error(app.utilities.get_typed_exception(err))
         else:
