@@ -115,6 +115,11 @@ class TemplateHandler:
                 "name": "My teams",
                 "link": f"{root_path}/team",
                 "active": re.match("^\/team",route)
+            },
+            {
+                "name": "My exceptions",
+                "link": f"{root_path}/exception",
+                "active": re.match("^\/exception",route)
             }
         ]
 
