@@ -190,7 +190,6 @@ def account_evaluate_criteria(event):
                             app.log.debug(app.utilities.to_json(compliance))
 
                             item_passed = (compliance['status_id'] == 2)
-                            check_passed = (check_passed and item_passed) if is_all else (check_passed or item_passed)
 
                             # for "any" type checks only passed resources need to be recorded
                             # individual failed resources are irrelevant for any checks.
@@ -203,6 +202,19 @@ def account_evaluate_criteria(event):
                                     params = params
                                 )
 
+                                # insert exception handling here so we catch failed exceptions before they
+                                # change the status of the check
+                                # potentially change the item_passed status before updating check_passed
+                                exception = models.ResourceException.has_exception(
+                                    criterion.id,
+                                    audit_resource_item['resource_persistent_id'],
+                                    account_id)
+
+                                if exception is not None:
+                                    item_passed = True
+                                    compliance['status_id'] = 4
+                                    compliance['annotation'] += f"<p>[Passed by exception: {exception['reason']}]</p>"
+
                                 # create an audit_resource record
                                 audit_resource = models.AuditResource.create(**audit_resource_item)
 
@@ -212,6 +224,10 @@ def account_evaluate_criteria(event):
 
                                 resource_compliance = models.ResourceCompliance.create(**compliance)  # TODO: unecessary assignment?
                                 evaluated.append(audit_resource_item)
+
+                            # update check passed status
+                            check_passed = (check_passed and item_passed) if is_all else (check_passed or item_passed)
+
                         summary = check.summarize(evaluated, summary)
                         app.log.debug(app.utilities.to_json(summary))
                         audit_criterion.resources = summary['all']['display_stat']

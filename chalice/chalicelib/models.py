@@ -812,6 +812,27 @@ class ResourceException(database_handle.BaseModel):
         table_name = "resource_exception"
 
     @classmethod
+    def has_active_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+        try:
+            now = datetime.datetime.now()
+            exception = (ResourceException.select()
+                .where(
+                    ResourceException.resource_persistent_id == resource_persistent_id,
+                    ResourceException.criterion_id == criterion_id,
+                    ResourceException.account_subscription_id == account_subscription_id,
+                    ResourceException.date_expires <= now
+                )
+                .get()
+            )
+
+            app.log.debug("Found exception: " + app.utilities.to_json(exception))
+
+        except Exception as err:
+            exception = None
+
+        return exception
+
+    @classmethod
     def find_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
         try:
             exception = (ResourceException.select()

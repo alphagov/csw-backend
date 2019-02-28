@@ -107,17 +107,17 @@ class CriteriaDefault():
         to report on the rule (default DEFAULT_RESOURCE_TYPE)
         annotation -- an annotation to be added to the evaluation (def = None)
         """
-        eval = {}
+        evaluation = {}
         if annotation:
-            eval['annotation'] = annotation
-        eval['resource_type'] = resource_type
-        eval['resource_id'] = resource_id
-        eval['compliance_type'] = compliance_type
-        eval['is_compliant'] = (compliance_type == 'COMPLIANT')
-        eval['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
-        eval['status_id'] = self.get_status(eval)
+            evaluation['annotation'] = annotation
+        evaluation['resource_type'] = resource_type
+        evaluation['resource_id'] = resource_id
+        evaluation['compliance_type'] = compliance_type
+        evaluation['is_compliant'] = (compliance_type == 'COMPLIANT')
+        evaluation['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
+        evaluation['status_id'] = self.get_status(evaluation)
 
-        return eval
+        return evaluation
 
     def get_status(self, eval):
 
