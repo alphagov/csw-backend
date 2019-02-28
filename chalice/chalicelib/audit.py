@@ -205,7 +205,7 @@ def account_evaluate_criteria(event):
                                 # insert exception handling here so we catch failed exceptions before they
                                 # change the status of the check
                                 # potentially change the item_passed status before updating check_passed
-                                exception = models.ResourceException.has_exception(
+                                exception = models.ResourceException.has_active_exception(
                                     criterion.id,
                                     audit_resource_item['resource_persistent_id'],
                                     account_id)
