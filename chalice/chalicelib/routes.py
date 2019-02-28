@@ -726,13 +726,6 @@ def my_exceptions():
     """
     load_route_services()
     try:
-        # criteria_stats = models.ProductTeam.get_criteria_stats(
-        #     models.ProductTeam.select().where(models.ProductTeam.active == True)
-        # )
-        # app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
-
-        # Create empty template_data in case user is not authenticated
-        template_data = {}
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
@@ -745,7 +738,7 @@ def my_exceptions():
             'my_exceptions.html',
             app.current_request,
             {
-                teams: teams
+                "teams": teams
             }
         )
     except Exception as err:
