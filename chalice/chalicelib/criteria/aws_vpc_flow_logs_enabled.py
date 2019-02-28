@@ -29,9 +29,11 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         "Enable flow logs in your VPCs. Flow logs can publish flow log data to Amazon S3 or to CloudWatch logs. "
         "Depends on your choice, see the following AWS documentation: <br />"
         "Publishing Flow Logs to CloudWatch Logs: "
-        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log <br />"
+        "<a href=\"https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log\">"
+        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log</a><br />"
         "Publishing Flow Logs to Amazon S3: "
-        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log"
+        "<a href=\"https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log\">"
+        "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log</a>"
     )
 
     def get_data(self, session, **params):
