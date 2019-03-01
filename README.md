@@ -43,6 +43,23 @@ If tests fail, don't worry, review the reason for the failures.
 It might even be that the test is no longer valid,
 in which case you need to update it or delete it.
 
+## End to end testing 
+
+If you are running the e2e tests for the first time you probably 
+need to do some installs first. 
+```
+brew install geckodriver 
+cd build
+reinstall 
+gulp environment.terraform --env=[env]
+gulp environment.chalice_s3_deploy --env=[env]
+```
+For the e2e tests in addition to your env you need to tell it 
+which user to assume. This is the name part of your email address.   
+```
+gulp environment.e2e --env=[env] --user=[firstname.surname] 
+```
+
 ## Create your AWS environment 
 
 ### Prerequisites 
