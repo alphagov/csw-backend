@@ -4,3 +4,5 @@ flake8==3.5.0
 safety==1.8.4
 sshtunnel==0.1.4
 argparse==1.4.0
+behave==1.2.6
+selenium==3.141.0
