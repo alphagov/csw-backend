@@ -548,10 +548,67 @@ def resource_details(id):
     return Response(**response)
 
 
+@app.route('/resource/{id}/exception')
+def resource_exception(id):
+    """
+    Figure out if data has been posted
+    If posted data is valid
+    Return default populated exception if not
+
+    :param id:
+    :return:
+    """
+    id = int(id)
+    load_route_services()
+
+    try:
+
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
+        # TODO - add check user has access to account team
+
+        compliance = (
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+        ).get()
+
+        exception = models.ResourceException.find_exception(
+            resource.criterion_id.id,
+            resource.resource_persistent_id,
+            account.id
+        )
+
+        response = app.templates.render_authorized_template(
+            'resource_exception.html',
+            app.current_request,
+            {
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "account": account.serialize(),
+                "resource": resource.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "compliance": compliance.serialize(),
+                "exception": exception,
+                "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                "mode": "create",
+                "errors": {}
+            }
+        )
+
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/resource/{id}/exception',
            methods=['POST'],
            content_types=['application/x-www-form-urlencoded'])
 def resource_post_exception(id):
+    """
+    Deals with parsing urlencoded form data handing errors
+    and submitting inserts and updates
+    """
     id = int(id)
     load_route_services()
 
@@ -596,8 +653,10 @@ def resource_post_exception(id):
         if is_valid and authed:
             try:
 
+                # remove extra form fields from the data
                 exception_data = models.ResourceException.clean(exception)
 
+                # get login details for current user
                 user_data = app.auth.get_login_data()
                 user = models.User.find_active_by_email(user_data['email'])
                 exception_data['user_id'] = user.id
@@ -726,59 +785,6 @@ def resource_post_exception(id):
                 "errors": form.get_errors()
             }
         )
-    except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
-        response = app.templates.default_server_error()
-    return Response(**response)
-
-
-@app.route('/resource/{id}/exception')
-def resource_exception(id):
-    """
-    Figure out if data has been posted
-    If posted data is valid
-    Return default populated exception if not
-
-    :param id:
-    :return:
-    """
-    id = int(id)
-    load_route_services()
-
-    try:
-
-        resource = models.AuditResource.get_by_id(id)
-        account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
-        )
-        # TODO - add check user has access to account team
-
-        compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
-        ).get()
-
-        exception = models.ResourceException.find_exception(
-            resource.criterion_id.id,
-            resource.resource_persistent_id,
-            account.id
-        )
-
-        response = app.templates.render_authorized_template(
-            'resource_exception.html',
-            app.current_request,
-            {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
-                "account": account.serialize(),
-                "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
-                "compliance": compliance.serialize(),
-                "exception": exception,
-                "status": models.Status.get_by_id(compliance.status_id).serialize(),
-                "mode": "create",
-                "errors": {}
-            }
-        )
-
     except Exception as err:
         app.log.error("Route: resource error: " + str(err))
         response = app.templates.default_server_error()
