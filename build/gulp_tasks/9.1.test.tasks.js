@@ -14,10 +14,36 @@ const randomstring = require('randomstring');
 const AWS = require('aws-sdk');
 const helpers = require(process.cwd()+"/gulp_helpers/helpers.js");
 
+gulp.task('environment.test_setup', function() {
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+  var user = (args.user == undefined)?'user':args.user;
+  process.env.CSW_USER = user;
+
+  var config = helpers.getConfigLocations(env, tool);
+  console.log(config.files.chalice_deployed)
+  // Load chalice deployment
+  var pipeline = gulp.src(config.files.chalice_deployed)
+  .pipe(modifyFile(function(content, path, file) {
+    var deployed = JSON.parse(content);
+    file.data = deployed;
+    file.data.config = config;
+    return content;
+  }))
+  .pipe(data(function(file) {
+    file.data.resources.forEach(function(resource) {
+      if (resource.name == 'rest_api') {
+        process.env.CSW_URL = resource.rest_api_url;
+        console.log(resource.rest_api_url);
+      }
+    });
+  }));
+  return pipeline;
+});
+
 gulp.task('environment.test_rotate_credentials', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
-
   var config = helpers.getConfigLocations(env, tool);
 
   // Load default settings
@@ -97,8 +123,6 @@ gulp.task('environment.test_disable_credentials', function() {
 gulp.task('environment.test_run_e2e', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
-  var user = (args.user == undefined)?'user':args.user;
-  process.env.CSW_USER = user;
 
   var config = helpers.getConfigLocations(env, tool);
 
@@ -125,6 +149,7 @@ gulp.task('environment.test_run_e2e', function() {
 });
 
 gulp.task('environment.e2e', gulp.series(
+    'environment.test_setup',
     'environment.test_rotate_credentials',
     'environment.test_run_e2e',
     'environment.test_rotate_credentials',
