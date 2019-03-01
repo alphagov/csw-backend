@@ -94,6 +94,10 @@ class FormAddResourceException(Form):
 
 class FormValidator(cerberus.Validator):
 
+    def __init__(self):
+        self.now = datetime.datetime.now()
+        super(FormValidator, self).__init__()
+
     def get_target_date(self, delta):
         target = (self.now + delta).isoformat()
         return target
