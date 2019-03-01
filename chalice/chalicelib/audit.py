@@ -219,6 +219,7 @@ def account_evaluate_criteria(event):
                         audit_criterion.failed = summary['non_compliant']['display_stat']
                         audit_criterion.ignored = summary['not_applicable']['display_stat']
                         audit_criterion.regions = summary['regions']['count']
+                        audit_criterion.processed = status
                         audit_criterion.save()
                         # Only update the processed stat if the assume was successful
 
@@ -252,18 +253,37 @@ def audit_evaluated_metric(event):
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
 
-            if audit_criteria_data['processed']:
-                audit.criteria_processed += 1
+            # retrieve current count of processed criterion rather than incrementing value
+            # protects against parallel processing by multiple lambda instances
+            processed_count = (models.AuditCriterion
+                                .select()
+                                .where(
+                                    models.AuditCriterion.account_audit_id == audit,
+                                    models.AuditCriterion.processed == True
+                                )
+                                .count())
+
+
+            audit.criteria_processed = processed_count
 
             criterion_id = audit_criteria_data["criterion_id"]["id"]
             processed_status = audit_criteria_data['processed']
             app.log.debug(f"Check: {criterion_id} Processed: {processed_status} Audit criteria processed: {audit.criteria_processed}")
 
+            passed_count = (models.AuditCriterion
+                            .select()
+                            .where(
+                                models.AuditCriterion.account_audit_id == audit,
+                                models.AuditCriterion.processed == True,
+                                models.AuditCriterion.failed == 0
+                            )
+                            .count())
+
             # Use check_passed status from evaluate lambda.
             if audit_criteria_data['check_passed']:
-                audit.criteria_passed += 1
+                audit.criteria_passed = passed_count
             else:
-                audit.criteria_failed += 1
+                audit.criteria_failed = (processed_count - passed_count)
                 audit.issues_found += audit_criteria_data['failed']
 
             if audit.criteria_processed == audit.active_criteria:
