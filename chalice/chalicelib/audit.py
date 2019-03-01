@@ -255,6 +255,10 @@ def audit_evaluated_metric(event):
             if audit_criteria_data['processed']:
                 audit.criteria_processed += 1
 
+            criterion_id = audit_criteria_data["criterion_id"]["id"]
+            processed_status = audit_criteria_data['processed']
+            app.log.debug(f"Check: {criterion_id} Processed: {processed_status} Audit criteria processed: {audit.criteria_processed}")
+
             # Use check_passed status from evaluate lambda.
             if audit_criteria_data['check_passed']:
                 audit.criteria_passed += 1
