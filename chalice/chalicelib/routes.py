@@ -630,7 +630,8 @@ def temp_login():
             req = app.current_request
             qs = req.query_params
 
-            if (csw_client == qs.get('client')
+            if (csw_client != '[disabled]'
+                    and csw_client == qs.get('client')
                     and csw_secret == qs.get('secret')):
 
                 user = models.User.find_active_by_email(qs.get('email')).serialize()

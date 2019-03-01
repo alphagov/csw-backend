@@ -57,6 +57,40 @@ gulp.task('environment.test_rotate_credentials', function() {
 
 });
 
+gulp.task('environment.test_disable_credentials', function() {
+  var env = (args.env == undefined)?'test':args.env;
+  var tool = (args.tool == undefined)?'csw':args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load default settings
+  var pipeline = gulp.src(config.files.environment_settings)
+  .pipe(modifyFile(function(content, path, file) {
+    var defaults = JSON.parse(content);
+    file.data = defaults;
+    file.data.config = config;
+    return content;
+  }))
+  // Generate client id for e2e login page
+  .pipe(data(function(file) {
+
+    // create random token secret for JWTs.
+    var client = '[disabled]';
+    process.env.CSW_CLIENT = client;
+    var name = '/'+file.data.tool+'/'+env+'/credentials/tester/client';
+    var property = 'client';
+    var region = file.data.region;
+    return helpers.setParameterInPipelinePromise(name, client, region, file, property);
+
+  }))
+//  .pipe(data(function(file) {
+//    console.log('environment', process.env);
+//    return true;
+//  }));
+  return pipeline;
+
+});
+
 gulp.task('environment.test_run_e2e', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
@@ -88,5 +122,6 @@ gulp.task('environment.test_run_e2e', function() {
 gulp.task('environment.e2e', gulp.series(
     'environment.test_rotate_credentials',
     'environment.test_run_e2e',
-    'environment.test_rotate_credentials'
+    'environment.test_rotate_credentials',
+    'environment.test_disable_credentials'
 ));
