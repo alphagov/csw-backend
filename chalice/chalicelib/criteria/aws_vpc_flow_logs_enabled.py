@@ -3,7 +3,7 @@
 # Checks every VPC in current region to see if flow logs exist for those VPCs
 
 from chalicelib.criteria.criteria_default import CriteriaDefault
-from chalicelib.aws.gds_ec2_client import GdsEc2Client
+from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
 class AwsVpcFlowLogsEnabled(CriteriaDefault):
@@ -12,7 +12,7 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
     is_regional = True
 
-    ClientClass = GdsEc2Client
+    ClientClass = GdsEc2SecurityGroupClient
 
     resource_type = "AWS::EC2::VPC"
 
