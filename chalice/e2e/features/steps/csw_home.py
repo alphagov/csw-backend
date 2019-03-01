@@ -20,7 +20,7 @@ def step(context):
 @when('login post to "{url}"')
 def step(context, url):
     creds = {
-        'email': 'dan.jones@digital.cabinet-office.gov.uk',
+        'email':  os.environ['CSW_USER']+'@digital.cabinet-office.gov.uk',
         'client': os.environ['CSW_CLIENT'],
         'secret': os.environ['CSW_SECRET']
     }

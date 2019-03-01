@@ -1,6 +1,9 @@
 /**
     These tasks generate random secret data and upload to AWS SSM ParameterStore
     as encrypted parameters.
+
+    Usage:
+    gulp environment.e2e --env=dan --user=dan.jones
  */
 const gulp = require('gulp');
 const args = require('yargs').argv;
@@ -94,6 +97,8 @@ gulp.task('environment.test_disable_credentials', function() {
 gulp.task('environment.test_run_e2e', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
+  var user = (args.user == undefined)?'user':args.user;
+  process.env.CSW_USER = user;
 
   var config = helpers.getConfigLocations(env, tool);
 
