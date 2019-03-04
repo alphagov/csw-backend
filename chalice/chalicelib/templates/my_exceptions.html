@@ -3,8 +3,8 @@
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
     {% include "components/breadcrumbs.html" %}
-
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
+      <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">My exceptions</h1>
         <p>
           This view shows any custom rules you have set for the audit of your accounts.
@@ -80,6 +80,7 @@
         {%- set previous_account = exception.account_subscription_id.account_name -%}
         {%- set previous_criterion = exception.criterion_id.criterion_name -%}
         {% endfor %}
+      </div>
     </div>
   </main>
 </div>
