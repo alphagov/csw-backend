@@ -110,7 +110,9 @@ class User(database_handle.BaseModel):
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
-                        .where(ProductTeamUser.user_id == self.id))
+                        .where(ProductTeamUser.user_id == self.id)
+                        .order(ProductTeam.team_name, AccountSubscription.account_name))
+
         except Exception as err:
             app.log.debug("Failed to get exception list for current user: " + str(err))
             exceptions = []
