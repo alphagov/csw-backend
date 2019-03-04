@@ -106,36 +106,22 @@ class User(database_handle.BaseModel):
     def get_my_exceptions(self):
         try:
             exceptions = (ResourceException
-                        .select(
-                            ResourceException.resource_persistent_id,
-                            ResourceException.criterion_id,
-                            ResourceException.reason,
-                            ResourceException.account_subscription_id,
-                            ResourceException.user_id,
-                            ResourceException.date_created,
-                            ResourceException.date_expires,
-                            peewee.fn.MAX(AuditResource.id).alias('audit_reosource_id')
-                        )
+                        .select()
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
-                        .join(
-                            AuditResource,
-                            on=(
-                                ResourceException.resource_persistent_id == AuditResource.resource_persistent_id,
-                                ResourceException.criterion_id == AuditResource.criterion_id
-                            )
-                        )
                         .where(ProductTeamUser.user_id == self.id)
-                        .group_by(
-                            ResourceException.criterion_id,
-                            ResourceException.resource_persistent_id
-                        )
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name,
                             ResourceException.criterion_id
                         ))
+
+            for exception in exceptions:
+                exception.audit_resource_id = (AuditResource
+                                                .select(peewee.fn.MAX(AuditResource.id))
+                                                .where(AuditResource.resource_persistent_id == exception.resource_persistent_id)
+                                                .scalar())
 
         except Exception as err:
             app.log.debug("Failed to get exception list for current user: " + str(err))

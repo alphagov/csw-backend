@@ -37,7 +37,7 @@
     </h4>
     {% endif %}
 
-    <p>Resource: {{ exception.resource_persistent_id }}</p>
+    <p>Resource: {{ exception.resource_persistent_id }} ({{ exception.audit_resource_id }})</p>
     {%- set previous_team = exception.account_subscription_id.product_team_id.team_name -%}
     {%- set previous_account = exception.account_subscription_id.account_name -%}
     {%- set previous_criterion = exception.criterion_id.criterion_name -%}
