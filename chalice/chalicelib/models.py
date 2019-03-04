@@ -106,10 +106,23 @@ class User(database_handle.BaseModel):
     def get_my_exceptions(self):
         try:
             exceptions = (ResourceException
-                        .select()
+                        .select(
+                            ResourceException.resource_persistent_id,
+                            ResourceException.criterion_id,
+                            ResourceException.reason,
+                            ResourceException.account_subscription_id,
+                            ResourceException.user_id,
+                            ResourceException.date_created,
+                            ResourceException.date_expires,
+                            peewee.fn.MAX(AuditResource.id).alias('audit_reosource_id')
+                        )
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
+                        .join(
+                            AuditResource,
+                            on=(ResourceException.resource_persistent_id == AuditResource.resource_persistent_id)
+                        )
                         .where(ProductTeamUser.user_id == self.id)
                         .order_by(
                             ProductTeam.team_name,
