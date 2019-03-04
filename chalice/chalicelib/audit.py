@@ -254,26 +254,6 @@ def audit_evaluated_metric(event):
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
 
-            # retrieve current count of processed criterion rather than incrementing value
-            # protects against parallel processing by multiple lambda instances
-            processed_count = (models.AuditCriterion
-                                .select()
-                                .where(
-                                    models.AuditCriterion.account_audit_id == audit,
-                                    models.AuditCriterion.processed == True
-                                )
-                                .count())
-
-            # cost = Case(None, [(Facility.monthlymaintenance > 100, 'expensive')], 'cheap')
-            # query = Facility.select(Facility.name, cost.alias('cost'))
-            # SELECT
-            # COUNT(*) AS active_criteria,
-            # SUM(CASE WHEN processed THEN 1 ELSE 0 END) AS processed_criteria,
-            # SUM(CASE WHEN failed = 0 THEN 1 ELSE 0 END) AS passed,
-            # SUM(failed) AS failed_resources
-            # FROM audit_criterion
-            # WHERE account_audit_id = 14;
-
             # Count where processed = True
             processed_case = Case(None, [(models.AuditCriterion.processed, 1)], 0)
 
@@ -294,27 +274,10 @@ def audit_evaluated_metric(event):
                            f"Passed: {stats.passed_criteria} "
                            f"Failed: {stats.failed_resources}"))
 
-            audit.criteria_processed = processed_count
-
-            criterion_id = audit_criteria_data["criterion_id"]["id"]
-            processed_status = audit_criteria_data['processed']
-            app.log.debug(f"Check: {criterion_id} Processed: {processed_status} Audit criteria processed: {audit.criteria_processed}")
-
-            passed_count = (models.AuditCriterion
-                            .select()
-                            .where(
-                                models.AuditCriterion.account_audit_id == audit,
-                                models.AuditCriterion.processed == True,
-                                models.AuditCriterion.failed == 0
-                            )
-                            .count())
-
-            # Use check_passed status from evaluate lambda.
-            if audit_criteria_data['check_passed']:
-                audit.criteria_passed = passed_count
-            else:
-                audit.criteria_failed = (processed_count - passed_count)
-                audit.issues_found += audit_criteria_data['failed']
+            audit.criteria_processed = stats.processed_criteria
+            audit.criteria_passed = stats.passed_criteria
+            audit.criteria_failed = (stats.processed_criteria - stats.passed_criteria)
+            audit.issues_found = stats.failed_resources
 
             if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
