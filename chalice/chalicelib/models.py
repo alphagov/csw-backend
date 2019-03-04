@@ -704,6 +704,7 @@ class AuditCriterion(database_handle.BaseModel):
     passed = peewee.IntegerField(default=0)
     failed = peewee.IntegerField(default=0)
     ignored = peewee.IntegerField(default=0)
+    processed = peewee.BooleanField(default=False)
 
     class Meta:
         table_name = "audit_criterion"

@@ -3,6 +3,7 @@ AUDIT LAMBDAS
 """
 import json
 from datetime import datetime
+from peewee import Case, fn
 
 from botocore.exceptions import ClientError
 from chalice import Rate
@@ -219,11 +220,13 @@ def account_evaluate_criteria(event):
                         audit_criterion.failed = summary['non_compliant']['display_stat']
                         audit_criterion.ignored = summary['not_applicable']['display_stat']
                         audit_criterion.regions = summary['regions']['count']
+                        audit_criterion.processed = status
                         audit_criterion.save()
                         # Only update the processed stat if the assume was successful
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
+            app.log.debug(f"Check: {criterion.id} Status: {status}")
             message_data['check_passed'] = check_passed
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role
@@ -251,15 +254,30 @@ def audit_evaluated_metric(event):
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
 
-            if audit_criteria_data['processed']:
-                audit.criteria_processed += 1
+            # Count where processed = True
+            processed_case = Case(None, [(models.AuditCriterion.processed, 1)], 0)
 
-            # Use check_passed status from evaluate lambda.
-            if audit_criteria_data['check_passed']:
-                audit.criteria_passed += 1
-            else:
-                audit.criteria_failed += 1
-                audit.issues_found += audit_criteria_data['failed']
+            # Count where failed resources > 0
+            failed_case = Case(None, [(models.AuditCriterion.failed > 0, 1)], 0)
+
+            # Collate stats from audit criteria records
+            stats = (models.AuditCriterion.select(
+                    fn.COUNT(models.AuditCriterion.id).alias('active_criteria'),
+                    fn.SUM(processed_case).alias('processed_criteria'),
+                    fn.SUM(failed_case).alias('failed_criteria'),
+                    fn.SUM(models.AuditCriterion.failed).alias('failed_resources')
+                )
+                .where(models.AuditCriterion.account_audit_id == audit)
+                .get())
+
+            app.log.debug((f"Processed: {stats.processed_criteria} "
+                           f"Failed checks: {stats.failed_criteria} "
+                           f"Failed resources: {stats.failed_resources}"))
+
+            audit.criteria_processed = stats.processed_criteria
+            audit.criteria_passed = (stats.processed_criteria - stats.failed_criteria)
+            audit.criteria_failed = stats.failed_criteria
+            audit.issues_found = stats.failed_resources
 
             if audit.criteria_processed == audit.active_criteria:
                 audit.date_completed = datetime.now()
