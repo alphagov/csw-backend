@@ -3,6 +3,7 @@ AUDIT LAMBDAS
 """
 import json
 from datetime import datetime
+from peewee import Case, fn
 
 from botocore.exceptions import ClientError
 from chalice import Rate
@@ -263,6 +264,33 @@ def audit_evaluated_metric(event):
                                 )
                                 .count())
 
+            # cost = Case(None, [(Facility.monthlymaintenance > 100, 'expensive')], 'cheap')
+            # query = Facility.select(Facility.name, cost.alias('cost'))
+            # SELECT
+            # COUNT(*) AS active_criteria,
+            # SUM(CASE WHEN processed THEN 1 ELSE 0 END) AS processed_criteria,
+            # SUM(CASE WHEN failed = 0 THEN 1 ELSE 0 END) AS passed,
+            # SUM(failed) AS failed_resources
+            # FROM audit_criterion
+            # WHERE account_audit_id = 14;
+
+            # Count where processed = True
+            processed_case = Case(None, [(models.AuditCriterion.processed, 1)], 0)
+
+            # Count where failed resources = 0
+            passed_case = Case(None, [(models.AuditCriterion.processed and models.AuditCriterion.failed == 0, 1)], 0)
+
+            # Collate stats from audit criteria records
+            stats = (models.AuditCriterion.select(
+                    fn.COUNT(models.AuditCriterion.id).alias('active_criteria'),
+                    fn.SUM(processed_case).alias('processed_criteria'),
+                    fn.SUM(passed_case).alias('passed_criteria'),
+                    fn.SUM(models.AuditCriterion.failed).alias('failed_resources')
+                )
+                .where(models.AuditCriterion.account_audit_id == audit)
+                .get())
+
+            app.log.debug(json.dumps(stats))
 
             audit.criteria_processed = processed_count
 
