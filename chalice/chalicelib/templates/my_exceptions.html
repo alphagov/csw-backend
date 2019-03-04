@@ -21,6 +21,10 @@
 
     {% endfor %}
 
+    {% for exception in exceptions %}
+    <p>{{ exception.resource_persistent_id }}</p>
+    {% endfor %}
+
   </main>
 </div>
 {% endblock %}

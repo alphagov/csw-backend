@@ -102,6 +102,21 @@ class User(database_handle.BaseModel):
             accounts = []
         return accounts
 
+
+    def get_my_exceptions(self):
+        try:
+            exceptions = (ResourceException
+                        .select()
+                        .join(AccountSubscription)
+                        .join(ProductTeam)
+                        .join(ProductTeamUser)
+                        .where(ProductTeamUser.user_id == self.id))
+        except Exception as err:
+            app.log.debug("Failed to get exception list for current user: " + str(err))
+            exceptions = []
+
+        return exceptions
+
     def can_access_team(self, team_id):
         try:
             member = (ProductTeamUser

@@ -732,6 +732,8 @@ def my_exceptions():
             user = models.User.find_active_by_email(user_data['email'])
             teams = user.get_my_teams()
             accounts = user.get_my_accounts()
+            exceptions = user.get_my_exceptions()
+
         else:
             teams = []
 
@@ -740,7 +742,8 @@ def my_exceptions():
             app.current_request,
             {
                 "teams": teams,
-                "accounts": accounts
+                "accounts": accounts,
+                "exceptions": exceptions
             }
         )
     except Exception as err:
