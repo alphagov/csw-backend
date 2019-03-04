@@ -820,6 +820,7 @@ class ResourceException(database_handle.BaseModel):
                     ResourceException.resource_persistent_id == resource_persistent_id,
                     ResourceException.criterion_id == criterion_id,
                     ResourceException.account_subscription_id == account_subscription_id,
+                    ResourceException.date_created <= now,
                     ResourceException.date_expires >= now
                 )
                 .get()
