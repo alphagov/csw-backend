@@ -108,14 +108,13 @@ class User(database_handle.BaseModel):
             exceptions = (ResourceException
                         .select()
                         .join(AccountSubscription)
-                        .join(Criterion)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
                         .where(ProductTeamUser.user_id == self.id)
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name,
-                            Criterion.criterion_name
+                            ResourceException.criterion_id
                         ))
 
         except Exception as err:
