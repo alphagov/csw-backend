@@ -121,9 +121,16 @@ class User(database_handle.BaseModel):
                         .join(ProductTeamUser)
                         .join(
                             AuditResource,
-                            on=(ResourceException.resource_persistent_id == AuditResource.resource_persistent_id)
+                            on=(
+                                ResourceException.resource_persistent_id == AuditResource.resource_persistent_id,
+                                ResourceException.criterion_id == AuditResource.criterion_id
+                            )
                         )
                         .where(ProductTeamUser.user_id == self.id)
+                        .group_by(
+                            ResourceException.criterion_id,
+                            ResourceException.resource_persistent_id
+                        )
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name,
