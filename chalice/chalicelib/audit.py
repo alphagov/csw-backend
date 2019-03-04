@@ -257,26 +257,26 @@ def audit_evaluated_metric(event):
             # Count where processed = True
             processed_case = Case(None, [(models.AuditCriterion.processed, 1)], 0)
 
-            # Count where failed resources = 0
-            passed_case = Case(None, [(models.AuditCriterion.processed and models.AuditCriterion.failed == 0, 1)], 0)
+            # Count where failed resources > 0
+            failed_case = Case(None, [(models.AuditCriterion.failed > 0, 1)], 0)
 
             # Collate stats from audit criteria records
             stats = (models.AuditCriterion.select(
                     fn.COUNT(models.AuditCriterion.id).alias('active_criteria'),
                     fn.SUM(processed_case).alias('processed_criteria'),
-                    fn.SUM(passed_case).alias('passed_criteria'),
+                    fn.SUM(failed_case).alias('failed_criteria'),
                     fn.SUM(models.AuditCriterion.failed).alias('failed_resources')
                 )
                 .where(models.AuditCriterion.account_audit_id == audit)
                 .get())
 
             app.log.debug((f"Processed: {stats.processed_criteria} "
-                           f"Passed: {stats.passed_criteria} "
-                           f"Failed: {stats.failed_resources}"))
+                           f"Failed checks: {stats.failed_criteria} "
+                           f"Failed resources: {stats.failed_resources}"))
 
             audit.criteria_processed = stats.processed_criteria
-            audit.criteria_passed = stats.passed_criteria
-            audit.criteria_failed = (stats.processed_criteria - stats.passed_criteria)
+            audit.criteria_passed = (stats.processed_criteria - stats.failed_criteria)
+            audit.criteria_failed = stats.failed_criteria
             audit.issues_found = stats.failed_resources
 
             if audit.criteria_processed == audit.active_criteria:
