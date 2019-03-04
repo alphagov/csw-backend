@@ -13,6 +13,7 @@
 
     {%- set previous_team = "" -%}
     {%- set previous_account = "" -%}
+    {%- set previous_criterion = "" -%}
 
     {% for exception in exceptions %}
     {% if exception.account_subscription_id.product_team_id.team_name != previous_team %}
@@ -30,10 +31,16 @@
     </h3>
     {% endif %}
 
-    <p>Check: {{ exception.criterion_id.criterion_name }}</p>
+    {% if exception.criterion_id.criterion_name != previous_criterion %}
+    <h4 class="govuk-heading-s">
+      Check: {{ exception.criterion_id.criterion_name }}
+    </h4>
+    {% endif %}
+
     <p>Resource: {{ exception.resource_persistent_id }}</p>
     {%- set previous_team = exception.account_subscription_id.product_team_id.team_name -%}
     {%- set previous_account = exception.account_subscription_id.account_name -%}
+    {%- set previous_criterion = exception.criterion_id.criterion_name -%}
     {% endfor %}
 
   </main>
