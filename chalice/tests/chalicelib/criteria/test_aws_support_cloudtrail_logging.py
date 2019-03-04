@@ -141,6 +141,10 @@ class TestCloudtrailLogNotInRegion(TestCloudtrailLoggingMixin, TestCaseWithAttrA
         super(TestCloudtrailLogNotInRegion, self).setUpClass()
         self.subclass = CloudtrailLogNotInRegion(self.app)
 
+    @unittest.skip('deactivated this check, therefore we are skipping its test __init__')
+    def test_init_state(self):
+        super(TestCloudtrailLogNotInRegion, self).test_init_state()
+
     def test_evaluate_off_in_regions(self):
         """
         Compliant case

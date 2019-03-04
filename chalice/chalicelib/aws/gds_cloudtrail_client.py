@@ -14,4 +14,5 @@ class GdsCloudtrailClient(GdsAwsClient):
         """
         """
         cloudtrail_client = self.get_boto3_session_client('cloudtrail', session)
-        return cloudtrail_client.describe_trails().get('trailList', [])
+        data = cloudtrail_client.describe_trails().get('trailList', [])
+        return data
