@@ -119,9 +119,10 @@ class User(database_handle.BaseModel):
 
             for exception in exceptions:
                 exception.audit_resource_id = (AuditResource
-                                                .select(peewee.fn.MAX(AuditResource.id))
+                                                .select()
                                                 .where(AuditResource.resource_persistent_id == exception.resource_persistent_id)
-                                                .scalar())
+                                                .order_by(AuditResource.id.desc())
+                                                .get())
 
         except Exception as err:
             app.log.debug("Failed to get exception list for current user: " + str(err))
