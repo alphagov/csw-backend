@@ -22,6 +22,12 @@
     {% endfor %}
 
     {% for exception in exceptions %}
+    <h2 class="govuk-heading-m">
+        {{ exception.account_subscription_id.product_team_id.team_name }}: {{ exception.account_subscription_id.account_name }}
+        <span class="govuk-caption-m">
+            {{ exception.account_subscription_id.account_id }}
+        </span>
+    </h2>
     <p>{{ exception.resource_persistent_id }}</p>
     {% endfor %}
 
