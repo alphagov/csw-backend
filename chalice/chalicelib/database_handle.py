@@ -5,6 +5,8 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
+from chalicelib.validators import *
+from app import app
 
 import peewee
 from playhouse import postgres_ext, shortcuts
@@ -209,6 +211,8 @@ class DatabaseHandle():
 
 class BaseModel(peewee.Model):
 
+    validators = []
+
     def serialize(self):
         """
         Returns a model's instance as a python dictionary.
@@ -255,3 +259,47 @@ class BaseModel(peewee.Model):
         return [
             item.serialize() for item in items
         ]
+
+    @classmethod
+    def clean(cls, data):
+        """
+        Remove any dictionary properties which are not fields in the table schema
+        :param data:
+        :return:
+        """
+        clean_data = {}
+
+        fields = cls._meta.fields.keys()
+
+        for field in fields:
+            clean_data[field] = data.get(field, None)
+
+        if clean_data['id'] is None:
+            del clean_data['id']
+
+        return clean_data
+
+    def raw(self):
+        """
+        Replace any ForeignKey Model objects with their
+        ids
+        :param data:
+        :return:
+        """
+        data = self.serialize()
+
+        raw_data = {}
+
+        fields = self._meta.fields.keys()
+
+        for field in fields:
+            value = data.get(field, None)
+            # serialize converts the object instances to dicts so
+            # you have to check if they are dicts rather than
+            # subclasses of BaseModel
+            if isinstance(value, dict):
+                raw_data[field] = value['id']
+            else:
+                raw_data[field] = value
+
+        return raw_data

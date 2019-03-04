@@ -24,12 +24,6 @@
             </tbody>
         </table>
     </div>
-    <div class="govuk-grid-column-one-third">
-        <h2 class="govuk-heading-s">
-            Status:
-            <strong class="govuk-tag__fixed-width--failed">{{ status.status_name }}</strong>
-        </h2>
-    </div>
 </div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -39,38 +33,6 @@
         <h2 class="govuk-heading-s">Reason flagged</h2>
         <p class="govuk-body">{{ compliance.annotation|safe }}</p>
         <p class="govuk-body">{{ criterion.description|safe }}</p>
-
-        <!--
-        <h2 class="govuk-heading-s">How do I fix it?</h2>
-        <p class="govuk-body">{{ criterion.how_do_i_fix_it|safe }}</p>
-        -->
-
-        <details class="govuk-details">
-          <summary class="govuk-details__summary">
-            <span class="govuk-details__summary-text">
-              How do I fix it?
-            </span>
-          </summary>
-          <div class="govuk-details__text">
-            {{ criterion.how_do_i_fix_it|safe }}
-          </div>
-        </details>
-
-        <!--
-        <h2 class="govuk-heading-s">Why is it important?</h2>
-        <p class="govuk-body">{{ criterion.why_is_it_important|safe }}</p>
-        -->
-
-        <details class="govuk-details">
-          <summary class="govuk-details__summary">
-            <span class="govuk-details__summary-text">
-              Why is it important?
-            </span>
-          </summary>
-          <div class="govuk-details__text">
-            {{ criterion.why_is_it_important|safe }}
-          </div>
-        </details>
 
     </div>
 </div>

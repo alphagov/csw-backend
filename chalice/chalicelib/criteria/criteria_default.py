@@ -10,6 +10,17 @@ class CriteriaDefault():
     active = False
 
     """
+    exception_type = "resource" | "allowlist" 
+    You can either record exceptions on a per resource basis 
+    - This resource should be excluded from this check 
+        "this load balancer does not accept web traffic"
+    .. or on an allow-list basis 
+    - This resource should not fail for this reason 
+        "allowed ingress from a specified IP"
+    """
+    exception_type = "resource"
+
+    """
     aggregation_type = "all" | "any"
     All (default) means that all resources have to pass for the check to pass
     and failed resources are recorded as part of the audit results
@@ -96,17 +107,17 @@ class CriteriaDefault():
         to report on the rule (default DEFAULT_RESOURCE_TYPE)
         annotation -- an annotation to be added to the evaluation (def = None)
         """
-        eval = {}
+        evaluation = {}
         if annotation:
-            eval['annotation'] = annotation
-        eval['resource_type'] = resource_type
-        eval['resource_id'] = resource_id
-        eval['compliance_type'] = compliance_type
-        eval['is_compliant'] = (compliance_type == 'COMPLIANT')
-        eval['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
-        eval['status_id'] = self.get_status(eval)
+            evaluation['annotation'] = annotation
+        evaluation['resource_type'] = resource_type
+        evaluation['resource_id'] = resource_id
+        evaluation['compliance_type'] = compliance_type
+        evaluation['is_compliant'] = (compliance_type == 'COMPLIANT')
+        evaluation['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
+        evaluation['status_id'] = self.get_status(evaluation)
 
-        return eval
+        return evaluation
 
     def get_status(self, eval):
 

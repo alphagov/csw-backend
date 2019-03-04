@@ -1,9 +1,16 @@
 import datetime
 
 import peewee
+# peewee has a validator library but it has a max version of 3.1
+# this would mean downgrading our peewee version.
+# essentially it provides some simple validators and then
+# allows you to create custom validators with a standard method signature
+# seemed better to rewrite than downgrade
+# from peewee_validates import ModelValidator
 
 from app import app  # used only for logging
 from chalicelib import database_handle
+from chalicelib.validators import *
 
 
 class User(database_handle.BaseModel):
@@ -803,6 +810,68 @@ class ResourceException(database_handle.BaseModel):
 
     class Meta:
         table_name = "resource_exception"
+
+    @classmethod
+    def has_active_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+        try:
+            now = datetime.datetime.now()
+            exception = (ResourceException.select()
+                .where(
+                    ResourceException.resource_persistent_id == resource_persistent_id,
+                    ResourceException.criterion_id == criterion_id,
+                    ResourceException.account_subscription_id == account_subscription_id,
+                    ResourceException.date_created <= now,
+                    ResourceException.date_expires >= now
+                )
+                .get()
+            )
+
+            app.log.debug("Found exception: " + app.utilities.to_json(exception.serialize()))
+
+        except Exception as err:
+            app.log.debug("Exception not found: " + app.utilities.get_typed_exception(err))
+            exception = None
+
+        return exception
+
+    @classmethod
+    def find_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+        try:
+            exception = (ResourceException.select()
+                .where(
+                    ResourceException.resource_persistent_id == resource_persistent_id,
+                    ResourceException.criterion_id == criterion_id,
+                    ResourceException.account_subscription_id == account_subscription_id
+                )
+                .get()
+            ).raw()
+
+            app.log.debug("Found exception: " + app.utilities.to_json(exception))
+
+            expiry = exception['date_expires']
+            if expiry is not None:
+                exception['expiry_day'] = expiry.day
+                exception['expiry_month'] = expiry.month
+                exception['expiry_year'] = expiry.year
+
+        except Exception as err:
+            app.log.debug(app.utilities.get_typed_exception(err))
+            now = datetime.datetime.now()
+            expiry = now + datetime.timedelta(days=90)
+            exception = {
+                "resource_persistent_id": resource_persistent_id,
+                "criterion_id": criterion_id,
+                "account_subscription_id": account_subscription_id,
+                "reason": "",
+                "date_created": now,
+                "date_expires": expiry,
+                "expiry_day": expiry.day,
+                "expiry_month": expiry.month,
+                "expiry_year": expiry.year
+            }
+
+
+        return exception
 
 
 class AccountSshCidrAllowlist(database_handle.BaseModel):

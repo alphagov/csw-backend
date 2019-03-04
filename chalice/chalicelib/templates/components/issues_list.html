@@ -53,6 +53,28 @@
                     <th class="govuk-table__header">Why is it important?</th>
                     <td class="govuk-table__cell">{{ issue.criterion.why_is_it_important | safe }}</td>
                 </tr>
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">
+                        False positive?
+                    </th>
+                    <td class="govuk-table__cell">
+                        <details class="govuk-details">
+                          <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                              When to make an exception
+                            </span>
+                          </summary>
+                          <div class="govuk-details__text">
+                            Exceptions are for edge-cases where the check rules do not apply for a specific resource.
+                            You should not mark something as an exception if it is an issue which needs fixing but
+                              you don't have time to fix right away.
+                          </div>
+                        </details>
+                        <a href="{{base_path}}/resource/{{ issue.resource.id }}/exception" role="button" class="csw-team-list__cta-button">
+                            Make an exception
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
         <!--a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a-->
