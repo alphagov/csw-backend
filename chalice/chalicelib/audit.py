@@ -208,7 +208,7 @@ def account_evaluate_criteria(event):
                                 exception = models.ResourceException.has_active_exception(
                                     criterion.id,
                                     audit_resource_item['resource_persistent_id'],
-                                    account_id)
+                                    audit.account_subscription_id.id)
 
                                 if exception is not None:
                                     item_passed = True
