@@ -768,7 +768,7 @@ def resource_post_exception(id):
         #         "json": json
         #     }
         # )
-        mode = "review" if is_valid else "create"
+        mode = "create"
 
         response = app.templates.render_authorized_template(
             'resource_exception.html',
