@@ -13,6 +13,7 @@
 
     {%- set previous_team = "" -%}
     {%- set previous_account = "" -%}
+
     {% for exception in exceptions %}
     {% if exception.account_subscription_id.product_team_id.team_name != previous_team %}
     <h2 class="govuk-heading-m">
@@ -22,7 +23,7 @@
 
     {% if exception.account_subscription_id.account_name != previous_account %}
     <h3 class="govuk-heading-m">
-        {{ exception.account_subscription_id.account_name }}
+        Account: {{ exception.account_subscription_id.account_name }}
         <span class="govuk-caption-m">
             {{ exception.account_subscription_id.account_id }}
         </span>
