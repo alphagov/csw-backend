@@ -215,6 +215,7 @@ def account_evaluate_criteria(event):
                                     if exception is not None:
                                         item_passed = True
                                         compliance['status_id'] = 4
+                                        compliance['compliance_type'] = "COMPLIANT"
                                         compliance['annotation'] += f"<p>[Passed by exception: {exception.reason}]</p>"
 
                                 # create an audit_resource record
