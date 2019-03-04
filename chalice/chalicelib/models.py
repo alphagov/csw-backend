@@ -829,7 +829,7 @@ class ResourceException(database_handle.BaseModel):
             app.log.debug("Found exception: " + app.utilities.to_json(exception.serialize()))
 
         except Exception as err:
-            app.log.debug("Exception not found")
+            app.log.debug("Exception not found: " + app.utilities.get_typed_exception(err))
             exception = None
 
         return exception
