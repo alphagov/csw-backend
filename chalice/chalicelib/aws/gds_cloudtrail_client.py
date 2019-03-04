@@ -15,7 +15,4 @@ class GdsCloudtrailClient(GdsAwsClient):
         """
         cloudtrail_client = self.get_boto3_session_client('cloudtrail', session)
         data = cloudtrail_client.describe_trails().get('trailList', [])
-        self.app.log.debug('Multiregional Cloudtrail')
-        self.app.log.debug(type(data))
-        self.app.log.debug(data)
         return data
