@@ -1,11 +1,11 @@
 # AwsSupportRootMfa
 # extends GdsSupportClient
 # implements aws ec2 api queries
-from chalicelib.criteria.criteria_default import CriteriaDefault
+from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
 from chalicelib.aws.gds_support_client import GdsSupportClient
 
 
-class AwsSupportRootMfa(CriteriaDefault):
+class AwsSupportRootMfa(TrustedAdvisorCriterion):
 
     active = True
 
