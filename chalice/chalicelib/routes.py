@@ -661,16 +661,16 @@ def resource_post_exception(id):
                 user = models.User.find_active_by_email(user_data['email'])
                 exception_data['user_id'] = user.id
 
-                if exception_data['id'] is None:
-                    # If the id is not set treat as an insert
-                    resource_exception = models.ResourceException.create(**exception_data)
-                else:
+                if 'id' in exception_data:
                     # If the id is set then treat as an update
                     exception_item = models.ResourceException.get_by_id(exception_data['id'])
                     exception_item.date_expires = exception["date_expires"]
                     exception_item.reason = exception["reason"]
                     exception_item.user_id = user.id
                     exception_item.save()
+                else:
+                    # If the id is not set treat as an insert
+                    resource_exception = models.ResourceException.create(**exception_data)
 
                 # retrieve and populate the date components for the template
                 exception = models.ResourceException.find_exception(
