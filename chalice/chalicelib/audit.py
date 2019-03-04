@@ -202,18 +202,20 @@ def account_evaluate_criteria(event):
                                     params = params
                                 )
 
-                                # insert exception handling here so we catch failed exceptions before they
-                                # change the status of the check
-                                # potentially change the item_passed status before updating check_passed
-                                exception = models.ResourceException.has_active_exception(
-                                    criterion.id,
-                                    audit_resource_item['resource_persistent_id'],
-                                    audit.account_subscription_id.id)
+                                # only check exception status for failed resources
+                                if not item_passed:
+                                    # insert exception handling here so we catch failed exceptions before they
+                                    # change the status of the check
+                                    # potentially change the item_passed status before updating check_passed
+                                    exception = models.ResourceException.has_active_exception(
+                                        criterion.id,
+                                        audit_resource_item['resource_persistent_id'],
+                                        audit.account_subscription_id.id)
 
-                                if exception is not None:
-                                    item_passed = True
-                                    compliance['status_id'] = 4
-                                    compliance['annotation'] += f"<p>[Passed by exception: {exception['reason']}]</p>"
+                                    if exception is not None:
+                                        item_passed = True
+                                        compliance['status_id'] = 4
+                                        compliance['annotation'] += f"<p>[Passed by exception: {exception['reason']}]</p>"
 
                                 # create an audit_resource record
                                 audit_resource = models.AuditResource.create(**audit_resource_item)
