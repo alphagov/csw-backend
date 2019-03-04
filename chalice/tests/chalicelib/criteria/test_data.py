@@ -2226,7 +2226,6 @@ MANAGED_CMK_ROTATION = {
         'KeyRotationEnabled': False,
     },
 }
-<<<<<<< HEAD
 
 CLOUDTRAIL_MULTIREGIONAL = {
     'pass': {
@@ -2250,7 +2249,8 @@ CLOUDTRAIL_MULTIREGIONAL = {
         'LogFileValidationEnabled': True, 
         'HasCustomEventSelectors': False
     }
-=======
+}
+
 VPC_FLOW_LOGS_VPCS = {
     "pass": [
         {
@@ -2279,8 +2279,8 @@ VPC_FLOW_LOGS_VPCS = {
             'VpcId': 'vpc-0123456789abcdef0'
         }
     ]
->>>>>>> get_data unit tests and test data
 }
+
 VPC_FLOW_LOGS_DATA = {
     "pass": [
         {
