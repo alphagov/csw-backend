@@ -290,7 +290,9 @@ def audit_evaluated_metric(event):
                 .where(models.AuditCriterion.account_audit_id == audit)
                 .get())
 
-            app.log.debug(json.dumps(stats.serialize()))
+            app.log.debug((f"Processed: {stats.processed_criteria} "
+                           f"Passed: {stats.passed_criteria} "
+                           f"Failed: {stats.failed_resources}"))
 
             audit.criteria_processed = processed_count
 
