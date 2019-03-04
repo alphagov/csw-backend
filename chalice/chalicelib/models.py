@@ -120,7 +120,10 @@ class User(database_handle.BaseModel):
             for exception in exceptions:
                 exception.audit_resource_id = (AuditResource
                                                 .select()
-                                                .where(AuditResource.resource_persistent_id == exception.resource_persistent_id)
+                                                .where(
+                                                    AuditResource.resource_persistent_id == exception.resource_persistent_id,
+                                                    AuditResource.criterion_id == exception.criterion_id
+                                                )
                                                 .order_by(AuditResource.id.desc())
                                                 .get())
 
