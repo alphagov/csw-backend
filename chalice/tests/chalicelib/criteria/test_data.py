@@ -2250,3 +2250,52 @@ CLOUDTRAIL_MULTIREGIONAL = {
         'HasCustomEventSelectors': False
     }
 }
+
+VPC_FLOW_LOGS_VPCS = {
+    "pass": [
+        {
+            'CidrBlock': '10.0.0.0/16',
+            'CidrBlockAssociationSet': [{'AssociationId': 'vpc-cidr-assoc-0123456789abcdef0',
+                                        'CidrBlock': '10.0.0.0/16',
+                                        'CidrBlockState': {'State': 'associated'}}],
+            'DhcpOptionsId': 'dopt-01234567',
+            'InstanceTenancy': 'default',
+            'IsDefault': False,
+            'State': 'available',
+            'VpcId': 'vpc-0123456789abcdef0'
+        }
+    ],
+    "fail": [
+        {
+            'CidrBlock': '10.0.0.0/16',
+            'CidrBlockAssociationSet': [{'AssociationId': 'vpc-cidr-assoc-0123456789abcdef0',
+                                        'CidrBlock': '10.0.0.0/16',
+                                        'CidrBlockState': {'State': 'associated'}}],
+            'DhcpOptionsId': 'dopt-01234567',
+            'InstanceTenancy': 'default',
+            'IsDefault': False,
+            'State': 'available',
+            'Tags': [{'Key': 'Name', 'Value': 'fail-vpc'}],
+            'VpcId': 'vpc-0123456789abcdef0'
+        }
+    ]
+}
+
+VPC_FLOW_LOGS_DATA = {
+    "pass": [
+        {
+            'CreationTime': datetime.datetime(2015, 1, 1),
+            'DeliverLogsErrorMessage': 'string',
+            'DeliverLogsPermissionArn': 'string',
+            'DeliverLogsStatus': 'string',
+            'FlowLogId': 'string',
+            'FlowLogStatus': 'string',
+            'LogGroupName': 'string',
+            'ResourceId': 'string',
+            'TrafficType': 'ACCEPT',
+            'LogDestinationType': 'cloud-watch-logs',
+            'LogDestination': 'string'
+        },
+    ],
+    "fail": []
+}

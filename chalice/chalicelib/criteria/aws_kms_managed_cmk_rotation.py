@@ -52,7 +52,7 @@ class ManagedCmkRotation(CriteriaDefault):
         'and you cannot change it. '
         'The key rotation status is restored when you enable the CMK or cancel deletion.<br />'
         'For more information and options read the AWS '
-        '<a heref="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html">documentation</a>.'
+        '<a href="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html">documentation</a>.'
     )
 
     def __init__(self, app):
