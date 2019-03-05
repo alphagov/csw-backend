@@ -92,6 +92,66 @@ class FormAddResourceException(Form):
 
 
 
+class FormAddAllowListException(Form):
+
+    schema = {
+        "criterion_id": {"type": "integer"},
+        "account_subscription_id": {"type": "integer"},
+        "values": {
+            "type": "list",
+            "minlength": 1,
+            "required": True,
+            "schema": {
+                "type": "string",
+                "notnull": True,
+                "maxlength": 500,
+                "errorpattern": ""
+            }
+        },
+        "reason": {
+            "type": "string",
+            "notnull": True,
+            "maxlength": 500,
+            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+        },
+        "expiry_components": {
+            "type": "dict",
+            "datecomponents": True
+        },
+        "expiry_date": {
+            "coerce": "datecomponents",
+            "datemin": (datetime.timedelta(days=0).total_seconds()),
+            "datemax": (datetime.timedelta(days=365).total_seconds())
+        }
+    }
+
+    def set_value_pattern(self, pattern):
+        self.schema["values"]["schema"]["errorpattern"] = pattern
+
+    def parse_post_data(self, data):
+
+        try:
+            now = datetime.datetime.now()
+            expiry_date = {
+                "year": int(data.get('exception-expiry-year',[now.year])[0]),
+                "month": int(data.get('exception-expiry-month',[now.month])[0]),
+                "day": int(data.get('exception-expiry-day',[now.day])[0])
+            }
+
+            document = {}
+            document["criterion_id"] = int(data["criterion_id"][0])
+            document["account_subscription_id"] = int(data["account_subscription_id"][0])
+            document["values"] = data.get("exception-values", [])
+            document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
+            document["expiry_components"] = expiry_date
+            document["expiry_date"] = expiry_date
+
+            app.log.debug(json.dumps(document))
+        except Exception as err:
+            app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
+        return document
+
+
 class FormValidator(cerberus.Validator):
 
     def __init__(self):

@@ -53,11 +53,13 @@
                     <th class="govuk-table__header">Why is it important?</th>
                     <td class="govuk-table__cell">{{ issue.criterion.why_is_it_important | safe }}</td>
                 </tr>
+                {% if exception_type != "none" %}
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">
                         False positive?
                     </th>
                     <td class="govuk-table__cell">
+                        {% if exception_type == "resource" %}
                         <details class="govuk-details">
                           <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -73,8 +75,26 @@
                         <a href="{{base_path}}/resource/{{ issue.resource.id }}/exception" role="button" class="csw-team-list__cta-button">
                             Make an exception
                         </a>
+                        {% endif %}
+                        {% if exception_type == "allowlist" %}
+                        <details class="govuk-details">
+                          <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                              When to customise a rule
+                            </span>
+                          </summary>
+                          <div class="govuk-details__text">
+                            Customisations are for creating allowlists for connections or adding valid options to
+                              other rules. You should not add a custom rule for anything that should be fixed.
+                          </div>
+                        </details>
+                        <a href="{{base_path}}/check/{{ audit_check.id }}/allowlist" role="button" class="csw-team-list__cta-button">
+                            Customize valid options
+                        </a>
+                        {% endif %}
                     </td>
                 </tr>
+                {% endif %}
             </tbody>
         </table>
         <!--a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a-->

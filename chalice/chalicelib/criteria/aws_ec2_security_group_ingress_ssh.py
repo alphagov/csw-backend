@@ -13,6 +13,20 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     resource_type = "AWS::EC2::SecurityGroup"
 
+    """
+        exception_type = "resource" | "allowlist" 
+        You can either record exceptions on a per resource basis 
+        - This resource should be excluded from this check 
+            "this load balancer does not accept web traffic"
+        .. or on an allow-list basis 
+        - This resource should not fail for this reason 
+            "allowed ingress from a specified IP"
+        """
+    exception_type = "allowlist"
+    # pattern for a CIDR
+    exception_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+    exception_placeholder = "Enter a CIDR: eg 1.2.3.4/32"
+
     title = "EC2 Security Groups: SSH ingress is restricted to authorised IPs or CIDRs"
 
     description = (
@@ -81,6 +95,9 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
         return evaluation
 
+    def get_valid_ranges(self):
+        return self.valid_ranges
+
     def rule_is_compliant(self, rule):
 
         compliant = True
@@ -91,10 +108,14 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
             cidr = ip_range["CidrIp"]
 
-            if cidr in self.valid_ranges:
+            valid_ranges = self.get_valid_ranges()
+
+            if cidr in valid_ranges:
                 cidr_is_valid = True
             else:
                 cidr_is_valid = self.client.cidr_is_private_network(cidr)
+            # add check for cidr contained within a valid cidr
+            # probably still makes sense to just check for a string match first
 
             compliant &= cidr_is_valid
 

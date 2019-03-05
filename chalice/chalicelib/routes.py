@@ -8,7 +8,7 @@ from chalice import Response, BadRequestError
 
 from app import app, load_route_services, read_asset
 from chalicelib import models
-from chalicelib.validators import FormAddResourceException
+from chalicelib.validators import FormAddResourceException, FormAddAllowListException
 
 
 @app.route('/')
@@ -485,6 +485,10 @@ def check_issues(id):
         team = account.product_team_id
         # TODO - add check user has access to team
 
+        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+
         template_data = {
             "breadcrumbs": [
                 {
@@ -501,7 +505,8 @@ def check_issues(id):
                 }
             ],
             "audit_check": audit_check.serialize(),
-            "issues": issues_list
+            "issues": issues_list,
+            "exception_type": check.exception_type
         }
         response = app.templates.render_authorized_template(
             'check_issues.html',
@@ -742,6 +747,164 @@ def my_exceptions():
                 "exceptions": exceptions
             }
         )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/check/{id}/allowlist')
+def check_allow_list(id):
+    """
+    Allows you to create and update allow list records
+    for checks like SSH ingress where you want to be
+    able to customise the list of acceptable IP/CIDRs
+    """
+    id = int(id)
+
+    try:
+        load_route_services()
+        audit_criterion = models.AuditCriterion.get_by_id(id)
+        data = audit_criterion.serialize()
+
+        CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+        data['exception_type'] = check.exception_type
+        data['exception_pattern'] = check.exception_pattern
+        data['exception_placeholder'] = check.exception_placeholder
+
+        json = app.utilities.to_json(data, True)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": json
+            }
+        )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/check/{id}/allowlist',
+           methods=['POST'],
+           content_types=['application/x-www-form-urlencoded'])
+def check_post_allow_list(id):
+    """
+    Deals with parsing urlencoded form data handing errors
+    and submitting inserts and updates
+    """
+    id = int(id)
+    load_route_services()
+
+    try:
+        authed = app.auth.try_login(app.current_request)
+
+        audit_criterion = models.AuditCriterion.get_by_id(id)
+
+        CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+        data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
+
+        resource = models.AuditResource.get_by_id(id)
+        account = models.AccountSubscription.get_by_id(
+            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+        )
+        # TODO - add check user has access to account team
+
+        compliance = (
+            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+        ).get()
+
+        exception = models.ResourceException.find_exception(
+            resource.criterion_id.id,
+            resource.resource_persistent_id,
+            account.id
+        )
+
+        form = FormAddAllowListException()
+        form.set_schema_value(check.exception_pattern)
+
+        is_valid = form.validate(data)
+
+        expiry_date = datetime.date(
+            int(form.data["expiry_components"]["year"]),
+            int(form.data["expiry_components"]["month"]),
+            int(form.data["expiry_components"]["day"])
+        )
+
+        exception["reason"] = form.data["reason"]
+        exception["cidr"] = form.data["value"]
+        exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
+        exception["expiry_day"] = form.data["expiry_components"]["day"]
+        exception["expiry_month"] = form.data["expiry_components"]["month"]
+        exception["expiry_year"] = form.data["expiry_components"]["year"]
+
+        # If authed and valid save the resource_exception
+        if is_valid and authed:
+            try:
+
+                # remove extra form fields from the data
+                exception_data = models.ResourceException.clean(exception)
+
+                # get login details for current user
+                user_data = app.auth.get_login_data()
+                user = models.User.find_active_by_email(user_data['email'])
+                exception_data['user_id'] = user.id
+
+                if 'id' in exception_data:
+                    # If the id is set then treat as an update
+                    exception_item = models.ResourceException.get_by_id(exception_data['id'])
+                    exception_item.date_expires = exception["date_expires"]
+                    exception_item.reason = exception["reason"]
+                    exception_item.user_id = user.id
+                    exception_item.save()
+                else:
+                    # If the id is not set treat as an insert
+                    resource_exception = models.ResourceException.create(**exception_data)
+
+                # retrieve and populate the date components for the template
+                exception = models.ResourceException.find_exception(
+                    resource.criterion_id.id,
+                    resource.resource_persistent_id,
+                    account.id
+                )
+
+            except Exception as err:
+                app.log.error(app.utilities.get_typed_exception(err))
+        else:
+            message = app.utilities.to_json(form.get_errors())
+            app.log.debug(message)
+
+        # json = app.utilities.to_json(data, True)
+        # response = app.templates.render_authorized_template(
+        #     'debug.html',
+        #     app.current_request,
+        #     {
+        #         "json": json
+        #     }
+        # )
+        mode = "create"
+
+        response = app.templates.render_authorized_template(
+            'resource_exception.html',
+            app.current_request,
+            {
+                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "account": account.serialize(),
+                "resource": resource.serialize(),
+                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "compliance": compliance.serialize(),
+                "exception": exception,
+                "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                "mode": mode,
+                "errors": form.get_errors()
+            }
+        )
+
     except Exception as err:
         app.log.error("Route: resource error: " + str(err))
         response = app.templates.default_server_error()
