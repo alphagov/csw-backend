@@ -1,25 +1,25 @@
 {%- set resource_exceptions_namespace = namespace(previous_team="", previous_account="", previous_criterion="") -%}
 
 {% for exception in exceptions %}
-{% if exception.account_subscription_id.product_team_id.team_name != resource_exceptions_namespaceprevious_team %}
-<h2 class="govuk-heading-m">
+{% if exception.account_subscription_id.product_team_id.team_name != resource_exceptions_namespace.previous_team %}
+<h3 class="govuk-heading-m">
     {{ exception.account_subscription_id.product_team_id.team_name }}
-</h2>
+</h3>
 {% endif %}
 
-{% if exception.account_subscription_id.account_name != resource_exceptions_namespaceprevious_account %}
-<h3 class="govuk-heading-m">
+{% if exception.account_subscription_id.account_name != resource_exceptions_namespace.previous_account %}
+<h4 class="govuk-heading-m">
     Account: {{ exception.account_subscription_id.account_name }}
     <span class="govuk-caption-m">
         {{ exception.account_subscription_id.account_id }}
     </span>
-</h3>
+</h4>
 {% endif %}
 
-{% if exception.criterion_id.criterion_name != resource_exceptions_namespaceprevious_criterion %}
-<h4 class="govuk-heading-s">
+{% if exception.criterion_id.criterion_name != resource_exceptions_namespace.previous_criterion %}
+<h5 class="govuk-heading-s">
   Check: {{ exception.criterion_id.criterion_name }}
-</h4>
+</h5>
 {% endif %}
 
 {%- set resource = exception.audit_resource_id -%}
@@ -60,7 +60,7 @@
     </tbody>
 </table>
 
-{%- set resource_exceptions_namespaceprevious_team = exception.account_subscription_id.product_team_id.team_name -%}
-{%- set resource_exceptions_namespaceprevious_account = exception.account_subscription_id.account_name -%}
-{%- set resource_exceptions_namespaceprevious_criterion = exception.criterion_id.criterion_name -%}
+{%- set resource_exceptions_namespace.previous_team = exception.account_subscription_id.product_team_id.team_name -%}
+{%- set resource_exceptions_namespace.previous_account = exception.account_subscription_id.account_name -%}
+{%- set resource_exceptions_namespace.previous_criterion = exception.criterion_id.criterion_name -%}
 {% endfor %}

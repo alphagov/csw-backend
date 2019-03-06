@@ -1,4 +1,24 @@
 <h3 class="govuk-heading-m">Allowed SSH ingress CIDRS</h3>
+{%- set allowlist_ssh_namespace = namespace(previous_team="", previous_account="") -%}
+
 {% for item in list %}
+{% if item.account_subscription_id.product_team_id.team_name != allowlist_ssh_namespace.previous_team %}
+<h4 class="govuk-heading-m">
+    {{ item.account_subscription_id.product_team_id.team_name }}
+</h4>
+{% endif %}
+
+{% if item.account_subscription_id.account_name != allowlist_ssh_namespace.previous_account %}
+<h5 class="govuk-heading-m">
+    Account: {{ item.account_subscription_id.account_name }}
+    <span class="govuk-caption-m">
+        {{ item.account_subscription_id.account_id }}
+    </span>
+</h5>
+{% endif %}
+
 <p>{{ item.cidr }}</p>
+<p>{{ item.reason }}</p>
+{%- set allowlist_ssh_namespace.previous_team = exception.account_subscription_id.product_team_id.team_name -%}
+{%- set allowlist_ssh_namespace.previous_account = exception.account_subscription_id.account_name -%}
 {% endfor %}
