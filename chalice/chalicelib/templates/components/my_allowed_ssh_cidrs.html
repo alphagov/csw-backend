@@ -17,8 +17,32 @@
 </h5>
 {% endif %}
 
-<p>{{ item.cidr }}</p>
-<p>{{ item.reason }}</p>
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">CIDR</th>
+            <td class="govuk-table__cell">
+                {{ item.cidr }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">Reason</th>
+            <td class="govuk-table__cell">
+                {{ item.reason }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">
+                Edit
+            </th>
+            <td class="govuk-table__cell">
+                <a href="{{base_path}}/resource/{{ resource.id }}/exception" role="button" class="csw-team-list__cta-button">
+                    Edit item
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
 {%- set allowlist_ssh_namespace.previous_team = item.account_subscription_id.product_team_id.team_name -%}
 {%- set allowlist_ssh_namespace.previous_account = item.account_subscription_id.account_name -%}
 {% endfor %}
