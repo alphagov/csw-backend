@@ -3,6 +3,7 @@
 # implements aws ec2 api queries
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
+from chalicelib.models import AccountSshCidrAllowList
 
 
 class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
@@ -12,20 +13,6 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
     ClientClass = GdsEc2SecurityGroupClient
 
     resource_type = "AWS::EC2::SecurityGroup"
-
-    """
-        exception_type = "resource" | "allowlist" 
-        You can either record exceptions on a per resource basis 
-        - This resource should be excluded from this check 
-            "this load balancer does not accept web traffic"
-        .. or on an allow-list basis 
-        - This resource should not fail for this reason 
-            "allowed ingress from a specified IP"
-        """
-    exception_type = "allowlist"
-    # pattern for a CIDR
-    exception_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
-    exception_placeholder = "Enter a CIDR: eg 1.2.3.4/32"
 
     title = "EC2 Security Groups: SSH ingress is restricted to authorised IPs or CIDRs"
 
@@ -96,7 +83,20 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
         return evaluation
 
     def get_valid_ranges(self):
-        return self.valid_ranges
+
+        valid_ranges = self.valid_ranges.copy()
+
+        if self.account_subscription_id is not None:
+            # If the account ID is set retrieve any
+            # allow list rules from the database
+            # and append to valid_ranges
+            allow_list = (AccountSshCidrAllowList
+                          .select()
+                          .where(AccountSshCidrAllowList.account_subscription_id == self.account_subscription_id))
+            for item in allow_list:
+                valid_ranges.append(item.cidr)
+
+        return valid_ranges
 
     def rule_is_compliant(self, rule):
 
@@ -110,12 +110,29 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
             valid_ranges = self.get_valid_ranges()
 
+
             if cidr in valid_ranges:
+                # check for exact cidr match first since it's simpler
+                cidr_is_valid = True
+
+            elif self.client.cidr_is_private_network(cidr):
+                # also check for internal network first since it's simpler
                 cidr_is_valid = True
             else:
-                cidr_is_valid = self.client.cidr_is_private_network(cidr)
-            # add check for cidr contained within a valid cidr
-            # probably still makes sense to just check for a string match first
+                # perform proper cidr comparisons
+                for valid_cidr in valid_ranges:
+                    if self.client.parent_cidr_contains_child_cidr(valid_cidr, cidr):
+                        # check whether cidr is contained by any of the valid cidrs
+                        cidr_is_valid = True
+                        break
+                    elif self.client.cidrs_equivalent(valid_cidr, cidr):
+                        # also check equivalent cidrs
+                        # eg 10.4.3.0/16 is equivalent to 10.4.255.0/16
+                        # since only the first 16 bits (10.4) are matched.
+                        # by convention these should be written as 10.4.0.0/16
+                        # but this may not always be the case
+                        cidr_is_valid = True
+                        break
 
             compliant &= cidr_is_valid
 

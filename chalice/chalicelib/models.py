@@ -917,16 +917,6 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
     class Meta:
         table_name = "account_ssh_cidr_allowlist"
 
-    @classmethod
-    def has_custom_rules(cls, account_subscription_id, criterion_id):
-
-        return []
-
-    @classmethod
-    def find_custom_rules(cls, account_subscription_id, criterion_id):
-
-        return []
-
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
 '''
