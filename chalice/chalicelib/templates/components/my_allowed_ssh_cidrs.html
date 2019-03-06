@@ -1,0 +1,4 @@
+<h3 class="govuk-heading-m">Allowed SSH ingress CIDRS</h3>
+{% for item in list %}
+<p>{{ item.cidr }}</p>
+{% endfor %}

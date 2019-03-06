@@ -133,6 +133,33 @@ class User(database_handle.BaseModel):
 
         return exceptions
 
+    def get_my_allowlists(self):
+        try:
+            allowed_ssh_cidrs = (AccountSshCidrAllowlist
+                        .select()
+                        .join(AccountSubscription)
+                        .join(ProductTeam)
+                        .join(ProductTeamUser)
+                        .where(ProductTeamUser.user_id == self.id)
+                        .order_by(
+                            ProductTeam.team_name,
+                            AccountSubscription.account_name
+                        ))
+
+            allowlists = [
+                {
+                    "type": "ssh_cidrs",
+                    "list": allowed_ssh_cidrs
+                }
+            ]
+
+        except Exception as err:
+            app.log.debug("Failed to get exception list for current user: " + str(err))
+            allowlists = []
+
+        return allowlists
+
+
     def can_access_team(self, team_id):
         try:
             member = (ProductTeamUser

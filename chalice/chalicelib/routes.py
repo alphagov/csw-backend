@@ -736,6 +736,7 @@ def my_exceptions():
             user_data = app.auth.get_login_data()
             user = models.User.find_active_by_email(user_data['email'])
             exceptions = user.get_my_exceptions()
+            allowlists = user.get_my_allowlists()
 
         else:
             teams = []
@@ -744,7 +745,8 @@ def my_exceptions():
             'my_exceptions.html',
             app.current_request,
             {
-                "exceptions": exceptions
+                "exceptions": exceptions,
+                "allowlists": allowlists
             }
         )
     except Exception as err:
