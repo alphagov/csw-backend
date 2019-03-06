@@ -717,6 +717,37 @@ def resource_post_exception(id):
     return Response(**response)
 
 
+@app.route('/exception')
+def my_exceptions():
+    """
+    Page to view list of excepted resources and rule allowlists
+    Should allow a customisation to be expired.
+    :return:
+    """
+    load_route_services()
+    try:
+        authed = app.auth.try_login(app.current_request)
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+            exceptions = user.get_my_exceptions()
+
+        else:
+            teams = []
+
+        response = app.templates.render_authorized_template(
+            'my_exceptions.html',
+            app.current_request,
+            {
+                "exceptions": exceptions
+            }
+        )
+    except Exception as err:
+        app.log.error("Route: resource error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/logout')
 def logout():
     load_route_services()
