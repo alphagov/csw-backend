@@ -642,14 +642,7 @@ def resource_post_exception(id):
 
         is_valid = form.validate(data)
 
-        expiry_date = datetime.date(
-            int(form.data["expiry_components"]["year"]),
-            int(form.data["expiry_components"]["month"]),
-            int(form.data["expiry_components"]["day"])
-        )
-
         exception["reason"] = form.data["reason"]
-        exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
         exception["expiry_day"] = form.data["expiry_components"]["day"]
         exception["expiry_month"] = form.data["expiry_components"]["month"]
         exception["expiry_year"] = form.data["expiry_components"]["year"]
@@ -657,6 +650,13 @@ def resource_post_exception(id):
         # If authed and valid save the resource_exception
         if is_valid and authed:
             try:
+                expiry_date = datetime.date(
+                    int(form.data["expiry_components"]["year"]),
+                    int(form.data["expiry_components"]["month"]),
+                    int(form.data["expiry_components"]["day"])
+                )
+
+                exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
 
                 # remove extra form fields from the data
                 exception_data = models.ResourceException.clean(exception)
