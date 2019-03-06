@@ -19,6 +19,6 @@
 
 <p>{{ item.cidr }}</p>
 <p>{{ item.reason }}</p>
-{%- set allowlist_ssh_namespace.previous_team = exception.account_subscription_id.product_team_id.team_name -%}
-{%- set allowlist_ssh_namespace.previous_account = exception.account_subscription_id.account_name -%}
+{%- set allowlist_ssh_namespace.previous_team = item.account_subscription_id.product_team_id.team_name -%}
+{%- set allowlist_ssh_namespace.previous_account = item.account_subscription_id.account_name -%}
 {% endfor %}
