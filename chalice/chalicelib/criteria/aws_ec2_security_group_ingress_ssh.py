@@ -3,7 +3,7 @@
 # implements aws ec2 api queries
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
-from chalicelib.models import AccountSshCidrAllowList
+from chalicelib.models import AccountSshCidrAllowlist
 
 
 class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
@@ -90,9 +90,9 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
             # If the account ID is set retrieve any
             # allow list rules from the database
             # and append to valid_ranges
-            allow_list = (AccountSshCidrAllowList
+            allow_list = (AccountSshCidrAllowlist
                           .select()
-                          .where(AccountSshCidrAllowList.account_subscription_id == self.account_subscription_id))
+                          .where(AccountSshCidrAllowlist.account_subscription_id == self.account_subscription_id))
             for item in allow_list:
                 valid_ranges.append(item.cidr)
 
