@@ -601,7 +601,7 @@ def resource_exception(id):
         )
 
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: resource exception error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -717,7 +717,7 @@ def resource_post_exception(id):
         )
 
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: resource exception error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -739,7 +739,8 @@ def my_exceptions():
             allowlists = user.get_my_allowlists()
 
         else:
-            teams = []
+            exceptions = []
+            allowlists = []
 
         response = app.templates.render_authorized_template(
             'my_exceptions.html',
@@ -750,7 +751,7 @@ def my_exceptions():
             }
         )
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: exception error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -785,7 +786,7 @@ def check_allow_list(id):
             }
         )
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: check allowlist error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -908,7 +909,7 @@ def check_post_allow_list(id):
         )
 
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: check allowlist error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 

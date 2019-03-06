@@ -154,7 +154,7 @@ class User(database_handle.BaseModel):
             ]
 
         except Exception as err:
-            app.log.debug("Failed to get exception list for current user: " + str(err))
+            app.log.debug("Failed to get allow list for current user: " + str(err))
             allowlists = []
 
         return allowlists
