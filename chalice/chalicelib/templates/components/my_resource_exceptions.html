@@ -1,15 +1,13 @@
-{%- set previous_team = "" -%}
-{%- set previous_account = "" -%}
-{%- set previous_criterion = "" -%}
+{%- set ns = namespace(previous_team="", previous_account="", previous_criterion="") -%}
 
 {% for exception in exceptions %}
-{% if exception.account_subscription_id.product_team_id.team_name != previous_team %}
+{% if exception.account_subscription_id.product_team_id.team_name != ns.previous_team %}
 <h2 class="govuk-heading-m">
     {{ exception.account_subscription_id.product_team_id.team_name }}
 </h2>
 {% endif %}
 
-{% if exception.account_subscription_id.account_name != previous_account %}
+{% if exception.account_subscription_id.account_name != ns.previous_account %}
 <h3 class="govuk-heading-m">
     Account: {{ exception.account_subscription_id.account_name }}
     <span class="govuk-caption-m">
@@ -18,7 +16,7 @@
 </h3>
 {% endif %}
 
-{% if exception.criterion_id.criterion_name != previous_criterion %}
+{% if exception.criterion_id.criterion_name != ns.previous_criterion %}
 <h4 class="govuk-heading-s">
   Check: {{ exception.criterion_id.criterion_name }}
 </h4>
@@ -62,7 +60,7 @@
     </tbody>
 </table>
 
-{%- set previous_team = exception.account_subscription_id.product_team_id.team_name -%}
-{%- set previous_account = exception.account_subscription_id.account_name -%}
-{%- set previous_criterion = exception.criterion_id.criterion_name -%}
+{%- set ns.previous_team = exception.account_subscription_id.product_team_id.team_name -%}
+{%- set ns.previous_account = exception.account_subscription_id.account_name -%}
+{%- set ns.previous_criterion = exception.criterion_id.criterion_name -%}
 {% endfor %}
