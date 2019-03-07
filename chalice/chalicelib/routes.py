@@ -683,12 +683,24 @@ def resource_post_exception(id):
                     resource.resource_persistent_id,
                     account.id
                 )
+                status_message = {
+                    "success": True,
+                    "message": "The exception was successfully created"
+                }
 
             except Exception as err:
                 app.log.error(app.utilities.get_typed_exception(err))
+                status_message = {
+                    "success": False,
+                    "message": "The exception could not be saved. Please try again."
+                }
         else:
             message = app.utilities.to_json(form.get_errors())
             app.log.debug(message)
+            status_message = {
+                "success": False,
+                "message": "Please resolve the below errors."
+            }
 
         # json = app.utilities.to_json(data, True)
         # response = app.templates.render_authorized_template(
@@ -712,7 +724,8 @@ def resource_post_exception(id):
                 "exception": exception,
                 "status": models.Status.get_by_id(compliance.status_id).serialize(),
                 "mode": mode,
-                "errors": form.get_errors()
+                "errors": form.get_errors(),
+                "status_message": status_message
             }
         )
 
@@ -757,7 +770,7 @@ def my_exceptions():
 
 
 @app.route('/check/{id}/allowlist')
-def check_allow_list(id):
+def audit_check_allow_list(id):
     """
     Allows you to create and update allow list records
     for checks like SSH ingress where you want to be
@@ -773,9 +786,14 @@ def check_allow_list(id):
         CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
         check = CheckClass(app)
 
-        data['exception_type'] = check.exception_type
-        data['exception_pattern'] = check.exception_pattern
-        data['exception_placeholder'] = check.exception_placeholder
+        allowlist = (check.AllowlistClass
+                     .select()
+                     .where(
+                        check.AllowlistClass.account_subscription_id == audit_criterion.account_audit_id.account_subscription_id
+                     ))
+
+
+
 
         json = app.utilities.to_json(data, True)
         response = app.templates.render_authorized_template(
@@ -794,7 +812,7 @@ def check_allow_list(id):
 @app.route('/check/{id}/allowlist',
            methods=['POST'],
            content_types=['application/x-www-form-urlencoded'])
-def check_post_allow_list(id):
+def audit_check_post_allow_list(id):
     """
     Deals with parsing urlencoded form data handing errors
     and submitting inserts and updates

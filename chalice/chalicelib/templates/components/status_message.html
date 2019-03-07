@@ -1,0 +1,13 @@
+{% if status_message.success %}
+<div class="govuk-inset-text">
+  {{ status_message.message }}
+</div>
+{% else %}
+<div class="govuk-warning-text">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-warning-text__assistive">Failed</span>
+    {{ status_message.message }}
+  </strong>
+</div>
+{% endif %}

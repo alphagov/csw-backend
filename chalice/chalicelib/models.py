@@ -944,6 +944,12 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
     class Meta:
         table_name = "account_ssh_cidr_allowlist"
 
+    @classmethod
+    def get_validation_schema(cls):
+        # pattern of an IPv4 CIDR
+        allowlist_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+        # check for at least 16 bit subnet mask
+
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
 '''
