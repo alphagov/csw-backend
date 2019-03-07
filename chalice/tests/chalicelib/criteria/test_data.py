@@ -2301,7 +2301,7 @@ VPC_FLOW_LOGS_DATA = {
 }
 
 RDS_ENCRYPTION = {
-    'pass': {u'DBInstances': [{u'AllocatedStorage': 20,
+    'fail': {u'DBInstances': [{u'AllocatedStorage': 20,
                    u'AutoMinorVersionUpgrade': True,
                    u'AvailabilityZone': 'eu-west-1b',
                    u'BackupRetentionPeriod': 1,
@@ -2355,7 +2355,7 @@ RDS_ENCRYPTION = {
                    u'StorageType': 'gp2',
                    u'VpcSecurityGroups': [{u'Status': 'active',
                                            u'VpcSecurityGroupId': 'sg-0af89f4221001e1d4'}]}]},
-    'fail': {u'DBInstances': [{u'AllocatedStorage': 20,
+    'pass': {u'DBInstances': [{u'AllocatedStorage': 20,
                    u'AutoMinorVersionUpgrade': True,
                    u'AvailabilityZone': 'eu-west-1b',
                    u'BackupRetentionPeriod': 1,

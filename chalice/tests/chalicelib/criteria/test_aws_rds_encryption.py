@@ -23,7 +23,7 @@ class TestRdsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
         self.assertIn('describe_db_instances', dir(self.subclass.client))
 
     def test_translate(self):
-        translation = self.subclass.translate(self.test_data['fail'])
+        translation = self.subclass.translate(self.test_data['fail']['DBInstances'][0])
         with self.subTest():
             self.assertIsInstance(
                 translation, dict, 
@@ -69,11 +69,14 @@ class TestRdsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
                 msg="The value of 'resource_name' must be a non-empty string"
             )
 
-    def test_evaluate(self):
-        for key in self.test_data:
-            with self.subTest(key=key):
-                output = self._evaluate_invariant_assertions({}, self.test_data[key], [])
-                if key == 'fail':
-                    self._evaluate_failed_status_assertions(self.test_data['fail'], output)
-                else:
-                    self._evaluate_passed_status_assertions(self.test_data[key], output)
+    def test_evaluate_fail(self):
+        for d in self.test_data['fail']['DBInstances']:
+            with self.subTest(key=d):
+                output = self._evaluate_invariant_assertions({}, d, [])
+                self._evaluate_failed_status_assertions(d, output)
+
+    def test_evaluate_pass(self):
+        for d in self.test_data['pass']['DBInstances']:
+            with self.subTest(key=d):
+                output = self._evaluate_invariant_assertions({}, d, [])
+                self._evaluate_passed_status_assertions(d, output)
