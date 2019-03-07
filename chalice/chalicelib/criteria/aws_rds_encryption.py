@@ -35,12 +35,31 @@ class RdsEncryption(CriteriaDefault):
         '<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_CopySnapshot.html">Copy a Snapshot</a>'
     )
 
-    
     def get_data(self, session, **kwargs):
-        pass
+        try:
+            return self.client.describe_db_instances(session)
+        except Exception as e:
+            self.app.log.error(self.app.utilities.get_typed_exception(e))
+            return []
 
     def translate(self, data={}):
-        pass
+        return {
+            'region': data['AvailabilityZone'],
+            'resource_id': data['DbiResourceId'],
+            'resource_name': data['DBInstanceIdentifier'],
+        }
 
     def evaluate(self, event, item, whitelist=[]):
-        pass
+        if item['StorageEncrypted'] is True:
+            compliance_type = 'COMPLIANT'
+            self.annotation = ''
+        else:
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = f'The database "{item["DBInstanceIdentifier"]}" in region "{item["AvailabilityZone"]}" is not encrypted.'
+        return self.build_evaluation(
+            item['DbiResourceId'],
+            compliance_type,
+            event,
+            self.resource_type,
+            self.annotation
+        )
