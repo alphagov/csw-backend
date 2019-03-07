@@ -685,7 +685,7 @@ def resource_post_exception(id):
                 )
                 status_message = {
                     "success": True,
-                    "message": "The exception was successfully created"
+                    "message": "Your exception was saved successfully"
                 }
 
             except Exception as err:
