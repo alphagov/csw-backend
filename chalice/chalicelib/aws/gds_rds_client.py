@@ -15,7 +15,7 @@ class GdsRdsClient(GdsAwsClient):
         """
         kms_client = self.get_boto3_session_client('rds', session)
         data = kms_client.describe_db_instances().get('DBInstances', [])
-        self.app.log.debug('RDS::get_boto3_session_client')
+        self.app.log.debug('RDS::describe_db_instances')
         self.app.log.debug(type(data))
         self.app.log.debug(data)
         return data

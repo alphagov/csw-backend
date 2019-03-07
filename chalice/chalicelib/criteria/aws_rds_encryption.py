@@ -9,9 +9,9 @@ class RdsEncryption(CriteriaDefault):
     """
     active = True
     ClientClass = GdsRdsClient
-    is_regional = False
+    is_regional = True
     resource_type = 'AWS::RDS::ENCRYPTION'
-    title = 'Relational Database Service: Encryption Enabled'
+    title = 'RDS: Encryption Enabled'
     description = (
         'The data stored on the following RDS resources is not encrypted.'
     )
