@@ -19,9 +19,13 @@
             </th>
             <td class="govuk-table__cell">
                 <form action="./allowlist" method="post">
-                    <a href="{{base_path}}/" role="button" class="csw-team-list__cta-button">
-                        Edit item
-                    </a>
+                    <button type="submit" class="govuk-button" name="mode" value="load">
+                      Edit
+                    </button>
+                    <button type="submit" class="govuk-button" name="mode" value="expire">
+                      Expire
+                    </button>
+                    <input type="hidden" name="id" id="id" value="{{ item.id }}"/>
                 </form>
             </td>
         </tr>
