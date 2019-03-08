@@ -17,8 +17,8 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     title = "EC2 Security Groups: SSH ingress is restricted to authorised IPs or CIDRs"
 
-    #exception_type = "allowlist"
-    exception_type = "resource"
+    exception_type = "allowlist"
+    #exception_type = "resource"
 
     description = (
         'Checks that there are no security groups allowing inbound SSH access from any address or from specified '
