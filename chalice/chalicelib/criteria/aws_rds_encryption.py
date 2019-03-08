@@ -37,7 +37,11 @@ class RdsEncryption(CriteriaDefault):
 
     def get_data(self, session, **kwargs):
         try:
-            return self.client.describe_db_instances(session)
+            home_db_instances = []
+            for db in self.client.describe_db_instances(session)['DBInstances']:
+                if db['AvailabilityZone'].startswith(kwargs['region']):
+                    home_db_instances.append(db)
+            return home_db_instances
         except Exception as e:
             self.app.log.error(self.app.utilities.get_typed_exception(e))
             return []
@@ -55,7 +59,7 @@ class RdsEncryption(CriteriaDefault):
             self.annotation = ''
         else:
             compliance_type = 'NON_COMPLIANT'
-            self.annotation = f'The database "{item["DBInstanceIdentifier"]}" in region "{item["AvailabilityZone"]}" is not encrypted.'
+            self.annotation = 'This database instance is not encrypted.'
         return self.build_evaluation(
             item['DbiResourceId'],
             compliance_type,
