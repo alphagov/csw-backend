@@ -4,11 +4,11 @@ from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
-class RdsEncryption(CriteriaDefault):
+class EbsEncryption(CriteriaDefault):
     """
     """
     active = True
-    ClientClass = GdsRdsClient
+    ClientClass = GdsEc2Client
     is_regional = True
     resource_type = 'AWS::EBS::ENCRYPTION'
     title = 'EBS: Encryption Enabled'
