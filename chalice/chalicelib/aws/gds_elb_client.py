@@ -24,11 +24,11 @@ class GdsElbClient(GdsAwsClient):
         """
         """
         client = self.get_boto3_session_client('elbv2', session)
-        return client.describe_load_balancers().get('Listeners', [])
+        return client.describe_load_balancers().get('LoadBalancers', [])
 
     def get_balancer_attributes(self, session, load_balancer_arn):
         """
         """
-        client = self.get_boto3_session_client('kms', session)
-        return client.describe_load_balancer_attributes(LoadBalancerArn=load_balancer_arn)
+        client = self.get_boto3_session_client('elbv2', session)
+        return client.describe_load_balancer_attributes(LoadBalancerArn=load_balancer_arn).get('Attributes', [])
 
