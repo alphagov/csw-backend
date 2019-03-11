@@ -2410,3 +2410,50 @@ RDS_ENCRYPTION = {
                    u'VpcSecurityGroups': [{u'Status': 'active',
                                            u'VpcSecurityGroupId': 'sg-0af89f4221001e1d4'}]}]},
 }
+
+EBS_ENCRYPTION = [
+    # pass
+    {
+        u'Attachments': [
+            {
+                u'AttachTime': datetime.datetime(2018, 11, 12, 12, 49, 37, tzinfo=tzutc()),
+                u'DeleteOnTermination': True,
+                u'Device': '/dev/xvda',
+                u'InstanceId': 'i-02de6e21def675add',
+                u'State': 'attached',
+                u'VolumeId': 'vol-0687adb8ace063b46'
+            }
+        ],
+        u'AvailabilityZone': 'us-west-2b',
+        u'CreateTime': datetime.datetime(2018, 11, 12, 12, 49, 37, 877000, tzinfo=tzutc()),
+        u'Encrypted': True,
+        u'Iops': 100,
+        u'Size': 8,
+        u'SnapshotId': 'snap-016137d6e1416028c',
+        u'State': 'in-use',
+        u'VolumeId': 'vol-0687adb8ace063b46',
+        u'VolumeType': 'gp2'
+    },
+    # fail
+    {
+        u'Attachments': [
+            {
+                u'AttachTime': datetime.datetime(2018, 11, 12, 12, 49, 37, tzinfo=tzutc()),
+                u'DeleteOnTermination': True,
+                u'Device': '/dev/xvda',
+                u'InstanceId': 'i-02de6e21def675add',
+                u'State': 'attached',
+                u'VolumeId': 'vol-0687adb8ace063b46'
+            }
+        ],
+        u'AvailabilityZone': 'us-west-2b',
+        u'CreateTime': datetime.datetime(2018, 11, 12, 12, 49, 37, 877000, tzinfo=tzutc()),
+        u'Encrypted': False,
+        u'Iops': 100,
+        u'Size': 8,
+        u'SnapshotId': 'snap-016137d6e1416028c',
+        u'State': 'in-use',
+        u'VolumeId': 'vol-0687adb8ace063b46',
+        u'VolumeType': 'gp2'
+        }
+]
