@@ -94,13 +94,9 @@ class TestEbsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
             )
 
     def test_evaluate_fail(self):
-        for d in self.test_data[1]:
-            with self.subTest(key=d):
-                output = self._evaluate_invariant_assertions({}, d, [])
-                self._evaluate_failed_status_assertions(d, output)
+        output = self._evaluate_invariant_assertions({}, self.test_data[1], [])
+        self._evaluate_failed_status_assertions(self.test_data[1], output)
 
     def test_evaluate_pass(self):
-        for d in self.test_data[0]:
-            with self.subTest(key=d):
-                output = self._evaluate_invariant_assertions({}, d, [])
-                self._evaluate_passed_status_assertions(d, output)
+        output = self._evaluate_invariant_assertions({}, self.test_data[0], [])
+        self._evaluate_passed_status_assertions(self.test_data[0], output)

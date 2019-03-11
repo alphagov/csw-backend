@@ -34,15 +34,15 @@ class EbsEncryption(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'region': data['TODO::REGION'],
-            'resource_id': data['TODO::ID'],
-            'resource_name': data['TODO::NAME'],
+            'region': data['AvailabilityZone'],
+            'resource_id': data['VolumeId'],
+            'resource_name': data['VolumeId'],
         }
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = ''
         return self.build_evaluation(
-            'TODO::ID',
+            item['VolumeId'],
             compliance_type,
             event,
             self.resource_type,
