@@ -24,7 +24,7 @@ class TestRdsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
 
     def test_only_origin_region_for_get_data_success(self):
         # overwrite the client.describe_db_instances to return the appropriate test data
-        self.subclass.client.describe_db_instances = lambda session: self.test_data['pass']
+        self.subclass.client.describe_db_instances = lambda session: self.test_data['pass']['DBInstances']
         # output value
         item = self.subclass.get_data(None, region='eu-west-1')
         # must return a dictionary with the three necessary keys
@@ -36,7 +36,7 @@ class TestRdsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
 
     def test_only_origin_region_for_get_data_failure(self):
         # overwrite the client.describe_db_instances to return the appropriate test data
-        self.subclass.client.describe_db_instances = lambda session: self.test_data['pass']
+        self.subclass.client.describe_db_instances = lambda session: self.test_data['pass']['DBInstances']
         # output value
         item = self.subclass.get_data(None, region='eu-west-2')
         # must return a dictionary with the three necessary keys

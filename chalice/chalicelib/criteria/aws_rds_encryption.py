@@ -36,15 +36,14 @@ class RdsEncryption(CriteriaDefault):
     )
 
     def get_data(self, session, **kwargs):
+        home_db_instances = []
         try:
-            home_db_instances = []
-            for db in self.client.describe_db_instances(session)['DBInstances']:
+            for db in self.client.describe_db_instances(session):
                 if db['AvailabilityZone'].startswith(kwargs['region']):
                     home_db_instances.append(db)
-            return home_db_instances
         except Exception as e:
             self.app.log.error(self.app.utilities.get_typed_exception(e))
-            return []
+        return home_db_instances
 
     def translate(self, data={}):
         return {
