@@ -24,21 +24,21 @@ class TestEbsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
 
     def test_only_origin_region_for_get_data_success(self):
         # overwrite the client.describe_db_instances to return the appropriate test data
-        self.subclass.client.describe_volumes = lambda session: self.test_data[0]
+        self.subclass.client.describe_volumes = lambda session: self.test_data
         # output value
-        item = self.subclass.get_data(None, region='eu-west-1')
+        item = self.subclass.get_data(None, region='eu-west-2')
         # must return a dictionary with the three necessary keys
         self.assertEqual(
             len(item), 
-            1, 
+            2, 
             msg='The len of the list must be the volumes with the same AvailabilityZone as the region'
         )
 
     def test_only_origin_region_for_get_data_failure(self):
         # overwrite the client.describe_db_instances to return the appropriate test data
-        self.subclass.client.describe_volumes = lambda session: self.test_data[1]
+        self.subclass.client.describe_volumes = lambda session: self.test_data
         # output value
-        item = self.subclass.get_data(None, region='eu-west-2')
+        item = self.subclass.get_data(None, region='eu-west-1')
         # must return a dictionary with the three necessary keys
         self.assertEqual(
             len(item), 

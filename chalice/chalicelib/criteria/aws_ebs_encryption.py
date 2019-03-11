@@ -23,7 +23,14 @@ class EbsEncryption(CriteriaDefault):
     )
 
     def get_data(self, session, **kwargs):
-        return
+        home_volumes = []
+        try:
+            for vol in self.client.describe_volumes(session):
+                if vol['AvailabilityZone'].startswith(kwargs['region']):
+                    home_volumes.append(vol)
+        except Exception as e:
+            self.app.log.error(self.app.utilities.get_typed_exception(e))
+        return home_volumes
 
     def translate(self, data={}):
         return {
