@@ -40,7 +40,12 @@ class EbsEncryption(CriteriaDefault):
         }
 
     def evaluate(self, event, item, whitelist=[]):
-        compliance_type = ''
+        if item['Encrypted']:
+            compliance_type = 'COMPLIANT'
+            self.annotation = ''
+        else:
+            compliance_type = 'NON_COMPLIANT'
+            self.annotation = 'This EBS volume is not encrypted.'
         return self.build_evaluation(
             item['VolumeId'],
             compliance_type,

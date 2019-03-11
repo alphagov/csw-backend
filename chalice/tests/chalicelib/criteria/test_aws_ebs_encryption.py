@@ -26,7 +26,7 @@ class TestEbsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
         # overwrite the client.describe_db_instances to return the appropriate test data
         self.subclass.client.describe_volumes = lambda session: self.test_data
         # output value
-        item = self.subclass.get_data(None, region='eu-west-2')
+        item = self.subclass.get_data(None, region='us-west-2')
         # must return a dictionary with the three necessary keys
         self.assertEqual(
             len(item), 
