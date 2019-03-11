@@ -168,7 +168,8 @@ class DatabaseHandle():
             'GdsIamClient': 3,
             'GdsS3Client': 4,
             'GdsKmsClient': 5,
-            'GdsCloudtrailClient': 6
+            'GdsCloudtrailClient': 6,
+            'GdsRdsClient': 7,
         }  # values are based in the sequence providers are fed by database_populate
         db = self.get_handle()
         db.connect()

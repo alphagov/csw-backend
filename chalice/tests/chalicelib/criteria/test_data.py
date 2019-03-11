@@ -1708,7 +1708,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'PassRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/PassRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -1733,7 +1733,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'PassRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/PassRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -1756,7 +1756,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'FailRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/FailRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -1780,7 +1780,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'FailRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/FailRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -1805,7 +1805,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'FailRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/FailRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -1828,7 +1828,7 @@ IAM_ROLES_WITH_TRUST_RELATIONSHIP = {
             'RoleName': 'FailRole',
             'RoleId': 'AROAI3ATSTNSJJMPHU5CE',
             'Arn': 'arn:aws:iam::987654321000:role/FailRole',
-            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1, tzinfo=tzutc()),
+            'CreateDate': datetime.datetime(1970, 1, 1, 1, 1, 1),
             'AssumeRolePolicyDocument': {
                 'Version': '2012-10-17',
                 'Statement': [
@@ -2000,31 +2000,31 @@ S3_BUCKET_POLICY_BUCKETS = {
     'fail_no_policy': [
         {
             'Name': 'fail_no_policy_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_no_condition': [
         {
             'Name': 'fail_no_condition_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_no_secure_condition': [
         {
             'Name': 'fail_no_secure_condition_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_only_insecure': [
         {
             'Name': 'fail_only_insecure_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'pass': [
         {
             'Name': 'pass_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ]
 }
@@ -2054,29 +2054,29 @@ S3_VERSIONING_BUCKETS = {
     'pass': [
         {
             'Name': 'pass_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail': [
         {
             'Name': 'fail_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_with_status': [
         {
             'Name': 'fail_with_status_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_then_pass': [
         {
             'Name': 'fail_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         },
         {
             'Name': 'pass_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0, tzinfo=tzutc()),
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ]
 }
@@ -2298,4 +2298,115 @@ VPC_FLOW_LOGS_DATA = {
         },
     ],
     "fail": []
+}
+
+RDS_ENCRYPTION = {
+    'fail': {u'DBInstances': [{u'AllocatedStorage': 20,
+                   u'AutoMinorVersionUpgrade': True,
+                   u'AvailabilityZone': 'eu-west-1b',
+                   u'BackupRetentionPeriod': 1,
+                   u'CACertificateIdentifier': 'rds-ca-2015',
+                   u'CopyTagsToSnapshot': True,
+                   u'DBInstanceArn': 'arn:aws:rds:eu-west-1:489877524855:db:csw-test',
+                   u'DBInstanceClass': 'db.t2.micro',
+                   u'DBInstanceIdentifier': 'csw-test',
+                   u'DBInstanceStatus': 'available',
+                   u'DBParameterGroups': [{u'DBParameterGroupName': 'default.mysql5.6',
+                                           u'ParameterApplyStatus': 'in-sync'}],
+                   u'DBSecurityGroups': [],
+                   u'DBSubnetGroup': {u'DBSubnetGroupDescription': 'default',
+                                      u'DBSubnetGroupName': 'default',
+                                      u'SubnetGroupStatus': 'Complete',
+                                      u'Subnets': [{u'SubnetAvailabilityZone': {u'Name': 'eu-west-1a'},
+                                                    u'SubnetIdentifier': 'subnet-1c701e54',
+                                                    u'SubnetStatus': 'Active'},
+                                                   {u'SubnetAvailabilityZone': {u'Name': 'eu-west-1b'},
+                                                    u'SubnetIdentifier': 'subnet-bcbd65e6',
+                                                    u'SubnetStatus': 'Active'},
+                                                   {u'SubnetAvailabilityZone': {u'Name': 'eu-west-1c'},
+                                                    u'SubnetIdentifier': 'subnet-17099671',
+                                                    u'SubnetStatus': 'Active'}],
+                                      u'VpcId': 'vpc-67436e01'},
+                   u'DbInstancePort': 0,
+                   u'DbiResourceId': 'db-YWARBV5MPOH7ZHLWBLU4MAX72E',
+                   u'DeletionProtection': False,
+                   u'DomainMemberships': [],
+                   u'Endpoint': {u'Address': 'csw-test.c3w9tewylmfu.eu-west-1.rds.amazonaws.com',
+                                 u'HostedZoneId': 'Z29XKXDKYMONMX',
+                                 u'Port': 3306},
+                   u'Engine': 'mysql',
+                   u'EngineVersion': '5.6.40',
+                   u'IAMDatabaseAuthenticationEnabled': False,
+                   u'InstanceCreateTime': datetime.datetime(2019, 2, 19, 14, 41, 37, 970000),
+                   u'LatestRestorableTime': datetime.datetime(2019, 2, 19, 15, 55),
+                   u'LicenseModel': 'general-public-license',
+                   u'MasterUsername': 'csw_9649779461',
+                   u'MonitoringInterval': 0,
+                   u'MultiAZ': False,
+                   u'OptionGroupMemberships': [{u'OptionGroupName': 'default:mysql-5-6',
+                                                u'Status': 'in-sync'}],
+                   u'PendingModifiedValues': {},
+                   u'PerformanceInsightsEnabled': False,
+                   u'PreferredBackupWindow': '01:20-01:50',
+                   u'PreferredMaintenanceWindow': 'mon:00:47-mon:01:17',
+                   u'PubliclyAccessible': False,
+                   u'ReadReplicaDBInstanceIdentifiers': [],
+                   u'StorageEncrypted': False,
+                   u'StorageType': 'gp2',
+                   u'VpcSecurityGroups': [{u'Status': 'active',
+                                           u'VpcSecurityGroupId': 'sg-0af89f4221001e1d4'}]}]},
+    'pass': {u'DBInstances': [{u'AllocatedStorage': 20,
+                   u'AutoMinorVersionUpgrade': True,
+                   u'AvailabilityZone': 'eu-west-1b',
+                   u'BackupRetentionPeriod': 1,
+                   u'CACertificateIdentifier': 'rds-ca-2015',
+                   u'CopyTagsToSnapshot': True,
+                   u'DBInstanceArn': 'arn:aws:rds:eu-west-1:489877524855:db:csw-test',
+                   u'DBInstanceClass': 'db.t2.micro',
+                   u'DBInstanceIdentifier': 'csw-test',
+                   u'DBInstanceStatus': 'available',
+                   u'DBParameterGroups': [{u'DBParameterGroupName': 'default.mysql5.6',
+                                           u'ParameterApplyStatus': 'in-sync'}],
+                   u'DBSecurityGroups': [],
+                   u'DBSubnetGroup': {u'DBSubnetGroupDescription': 'default',
+                                      u'DBSubnetGroupName': 'default',
+                                      u'SubnetGroupStatus': 'Complete',
+                                      u'Subnets': [{u'SubnetAvailabilityZone': {u'Name': 'eu-west-1a'},
+                                                    u'SubnetIdentifier': 'subnet-1c701e54',
+                                                    u'SubnetStatus': 'Active'},
+                                                   {u'SubnetAvailabilityZone': {u'Name': 'eu-west-1b'},
+                                                    u'SubnetIdentifier': 'subnet-bcbd65e6',
+                                                    u'SubnetStatus': 'Active'},
+                                                   {u'SubnetAvailabilityZone': {u'Name': 'eu-west-1c'},
+                                                    u'SubnetIdentifier': 'subnet-17099671',
+                                                    u'SubnetStatus': 'Active'}],
+                                      u'VpcId': 'vpc-67436e01'},
+                   u'DbInstancePort': 0,
+                   u'DbiResourceId': 'db-YWARBV5MPOH7ZHLWBLU4MAX72E',
+                   u'DeletionProtection': False,
+                   u'DomainMemberships': [],
+                   u'Endpoint': {u'Address': 'csw-test.c3w9tewylmfu.eu-west-1.rds.amazonaws.com',
+                                 u'HostedZoneId': 'Z29XKXDKYMONMX',
+                                 u'Port': 3306},
+                   u'Engine': 'mysql',
+                   u'EngineVersion': '5.6.40',
+                   u'IAMDatabaseAuthenticationEnabled': False,
+                   u'InstanceCreateTime': datetime.datetime(2019, 2, 19, 14, 41, 37, 970000),
+                   u'LatestRestorableTime': datetime.datetime(2019, 2, 19, 15, 55),
+                   u'LicenseModel': 'general-public-license',
+                   u'MasterUsername': 'csw_9649779461',
+                   u'MonitoringInterval': 0,
+                   u'MultiAZ': False,
+                   u'OptionGroupMemberships': [{u'OptionGroupName': 'default:mysql-5-6',
+                                                u'Status': 'in-sync'}],
+                   u'PendingModifiedValues': {},
+                   u'PerformanceInsightsEnabled': False,
+                   u'PreferredBackupWindow': '01:20-01:50',
+                   u'PreferredMaintenanceWindow': 'mon:00:47-mon:01:17',
+                   u'PubliclyAccessible': False,
+                   u'ReadReplicaDBInstanceIdentifiers': [],
+                   u'StorageEncrypted': True,
+                   u'StorageType': 'gp2',
+                   u'VpcSecurityGroups': [{u'Status': 'active',
+                                           u'VpcSecurityGroupId': 'sg-0af89f4221001e1d4'}]}]},
 }
