@@ -28,3 +28,9 @@ class GdsEc2Client(GdsAwsClient):
         response = ec2.describe_flow_logs(Filters=[{'Name': 'resource-id', 'Values': [vpc['VpcId']]}])
 
         return response['FlowLogs']
+
+    def describe_volumes(self, session):
+        """
+        """
+        client = self.get_boto3_session_client('ec2', session)
+        return client.describe_volumes().get('Volumes', [])
