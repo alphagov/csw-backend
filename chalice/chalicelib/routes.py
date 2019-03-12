@@ -786,7 +786,7 @@ def audit_check_allow_list(account_id, check_id):
                            .select()
                            .where(
                                 models.AuditCriterion.criterion_id == check_id,
-                                models.AuditCriterion.account_audit_id.account_subscription_id
+                                models.AuditCriterion.account_audit_id.account_subscription_id == account_id
                            )
                            .order_by(models.AuditCriterion.id.desc())
                            .get())
@@ -840,7 +840,7 @@ def audit_check_post_allow_list(account_id, check_id):
                            .select()
                            .where(
                             models.AuditCriterion.criterion_id == check_id,
-                            models.AuditCriterion.account_audit_id.account_subscription_id
+                            models.AuditCriterion.account_audit_id.account_subscription_id == account_id
                            )
                            .order_by(models.AuditCriterion.id.desc())
                            .get())
