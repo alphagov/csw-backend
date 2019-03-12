@@ -784,6 +784,7 @@ def audit_check_allow_list(id, check_id):
         # Get most recent evaluation of criterion for this account
         audit_criterion = (models.AuditCriterion
                            .select()
+                           .join(models.AccountAudit)
                            .where(
                                 models.AuditCriterion.criterion_id == check_id,
                                 models.AuditCriterion.account_audit_id.account_subscription_id == account_id
@@ -838,6 +839,7 @@ def audit_check_post_allow_list(id, check_id):
 
         audit_criterion = (models.AuditCriterion
                            .select()
+                           .join(models.AccountAudit)
                            .where(
                             models.AuditCriterion.criterion_id == check_id,
                             models.AuditCriterion.account_audit_id.account_subscription_id == account_id
