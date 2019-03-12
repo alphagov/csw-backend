@@ -1,6 +1,7 @@
 {% for allowlist in allowlists %}
 {% if allowlist.type == "ssh_cidrs" %}
 {%- set list = allowlist.list -%}
+{%- set check_id = allowlist.check_id -%}
 {% include "components/my_allowed_ssh_cidrs.html" %}
 {% endif %}
 {% endfor %}

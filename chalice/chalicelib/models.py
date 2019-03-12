@@ -146,9 +146,17 @@ class User(database_handle.BaseModel):
                             AccountSubscription.account_name
                         ))
 
+            ssh_check = (Criterion
+                         .select()
+                         .where(
+                            Criterion.invoke_class_name == 'chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh'
+                         )
+                         .get())
+
             allowlists = [
                 {
                     "type": "ssh_cidrs",
+                    "check_id": ssh_check.id,
                     "list": allowed_ssh_cidrs
                 }
             ]
