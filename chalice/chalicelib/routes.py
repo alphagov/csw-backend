@@ -770,7 +770,7 @@ def my_exceptions():
 
 
 @app.route('/account/{id}/check/{check_id}/allowlist')
-def audit_check_allow_list(account_id, check_id):
+def audit_check_allow_list(id, check_id):
     """
     Allows you to create and update allow list records
     for checks like SSH ingress where you want to be
@@ -822,7 +822,7 @@ def audit_check_allow_list(account_id, check_id):
 @app.route('/account/{id}/check/{check_id}/allowlist',
            methods=['POST'],
            content_types=['application/x-www-form-urlencoded'])
-def audit_check_post_allow_list(account_id, check_id):
+def audit_check_post_allow_list(id, check_id):
     """
     Deals with parsing urlencoded form data handing errors
     and submitting inserts and updates
