@@ -12,8 +12,10 @@
     {%- endif -%}
 
     {% include "components/account_check_context.html" %}
+    {%- if allowlist and allowlist|length > 0 -%}
     {%- set list = allowlist -%}
     {% include "components/account_check_allowlist_list.html" %}
+    {%- endif -%}
     {% include "components/account_check_allowlist_form.html" %}
   </main>
 </div>
