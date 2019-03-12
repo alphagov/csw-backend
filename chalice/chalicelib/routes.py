@@ -781,6 +781,12 @@ def audit_check_allow_list(id, check_id):
 
     try:
         load_route_services()
+
+        authed = app.auth.try_login(app.current_request)
+
+        user_data = app.auth.get_login_data()
+        user = models.User.find_active_by_email(user_data['email'])
+
         # Get most recent evaluation of criterion for this account
         audit_criterion = (models.AuditCriterion
                            .select()
@@ -808,9 +814,12 @@ def audit_check_allow_list(id, check_id):
         for item in allowlist:
             allowed.append(item.serialize())
 
+        defaults = check.AllowlistClass.get_defaults(account_id, user.id)
+
         template_data = {
             "audit_criterion": audit_criterion.serialize(),
             "allowlist": allowed,
+            "exception": defaults,
             "errors": {}
         }
         # json = app.utilities.to_json(template_data, True)

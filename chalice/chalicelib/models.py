@@ -958,6 +958,19 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
         allowlist_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
         # check for at least 16 bit subnet mask
 
+    @classmethod
+    def get_defaults(cls, account_subscription_id, user_id):
+        now = datetime.datetime.now()
+        default_expiry = now + datetime.timedelta(days=90)
+        return {
+            "cidr": "",
+            "reason": "",
+            "account_subscription_id": account_subscription_id,
+            "user_id": user_id,
+            "date_created": now,
+            "date_expires": default_expiry
+        }
+
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
 '''
