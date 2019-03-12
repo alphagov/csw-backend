@@ -27,9 +27,9 @@ class ElbLogging(CriteriaDefault):
 
     def translate(self, data={}):
         return {
-            'region': data['TODO'],
-            'resource_id': data['TODO'],
-            'resource_name': data['TODO'],
+            'region': data['LoadBalancerArn'].split(':')[3],
+            'resource_id': data['LoadBalancerArn'],
+            'resource_name': data['LoadBalancerName'],
         }
 
     def evaluate(self, event, item, whitelist=[]):
