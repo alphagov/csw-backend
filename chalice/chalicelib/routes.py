@@ -769,14 +769,14 @@ def my_exceptions():
     return Response(**response)
 
 
-@app.route('/account/{account_id}/check/{check_id}/allowlist')
+@app.route('/account/{id}/check/{check_id}/allowlist')
 def audit_check_allow_list(account_id, check_id):
     """
     Allows you to create and update allow list records
     for checks like SSH ingress where you want to be
     able to customise the list of acceptable IP/CIDRs
     """
-    account_id = int(account_id)
+    account_id = int(id)
     check_id = int(check_id)
 
     try:
@@ -819,7 +819,7 @@ def audit_check_allow_list(account_id, check_id):
     return Response(**response)
 
 
-@app.route('/account/{account_id}/check/{check_id}/allowlist',
+@app.route('/account/{id}/check/{check_id}/allowlist',
            methods=['POST'],
            content_types=['application/x-www-form-urlencoded'])
 def audit_check_post_allow_list(account_id, check_id):
@@ -827,7 +827,7 @@ def audit_check_post_allow_list(account_id, check_id):
     Deals with parsing urlencoded form data handing errors
     and submitting inserts and updates
     """
-    account_id = int(account_id)
+    account_id = int(id)
     check_id = int(check_id)
     load_route_services()
     # populate form with existing
