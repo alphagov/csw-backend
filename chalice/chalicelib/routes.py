@@ -792,12 +792,12 @@ def audit_check_allow_list(id, check_id):
                            .order_by(models.AuditCriterion.id.desc())
                            .get())
 
-        data = audit_criterion.serialize()
+        audit_criterion.serialize()
 
         CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
         check = CheckClass(app)
-        allowlist_class_name = check.AllowlistClass.__name__
-        app.log.debug(f"Getting allowlist from class: {allowlist_class_name}")
+        # allowlist_class_name = check.AllowlistClass.__name__
+        # app.log.debug(f"Getting allowlist from class: {allowlist_class_name}")
 
         allowlist = (check.AllowlistClass
                      .select()
@@ -808,16 +808,15 @@ def audit_check_allow_list(id, check_id):
         for item in allowlist:
             allowed.append(item.serialize())
 
-        json = app.utilities.to_json({
-            "criterion": data,
+        template_data = {
+            "audit_criterion": audit_criterion.serialize(),
             "allowlist": allowed
-        }, True)
+        }
+        # json = app.utilities.to_json(template_data, True)
         response = app.templates.render_authorized_template(
-            'debug.html',
+            'account_check_allowlist.html',
             app.current_request,
-            {
-                "json": json
-            }
+            template_data
         )
     except Exception as err:
         app.log.error("Route: check allowlist error: " + str(err))
@@ -937,21 +936,21 @@ def audit_check_post_allow_list(id, check_id):
         )
         mode = "create"
 
-        response = app.templates.render_authorized_template(
-            'resource_exception.html',
-            app.current_request,
-            {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
-                "account": account.serialize(),
-                "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
-                "compliance": compliance.serialize(),
-                "exception": exception,
-                "status": models.Status.get_by_id(compliance.status_id).serialize(),
-                "mode": mode,
-                "errors": form.get_errors()
-            }
-        )
+        # response = app.templates.render_authorized_template(
+        #     'resource_exception.html',
+        #     app.current_request,
+        #     {
+        #         "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+        #         "account": account.serialize(),
+        #         "resource": resource.serialize(),
+        #         "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+        #         "compliance": compliance.serialize(),
+        #         "exception": exception,
+        #         "status": models.Status.get_by_id(compliance.status_id).serialize(),
+        #         "mode": mode,
+        #         "errors": form.get_errors()
+        #     }
+        # )
 
     except Exception as err:
         app.log.error("Route: check allowlist error: " + str(err))
