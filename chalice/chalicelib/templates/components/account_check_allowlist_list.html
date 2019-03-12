@@ -3,20 +3,16 @@
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
             <th class="govuk-table__header">CIDR</th>
-            <td class="govuk-table__cell">
-                {{ item.cidr }}
-            </td>
+            <th class="govuk-table__header">Reason</th>
+            <th class="govuk-table__header">Actions</th>
         </tr>
         <tr class="govuk-table__row">
-            <th class="govuk-table__header">Reason</th>
             <td class="govuk-table__cell">
                 {{ item.reason }}
             </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th class="govuk-table__header">
-                Edit
-            </th>
+            <td class="govuk-table__cell">
+                {{ item.cidr }}
+            </td>
             <td class="govuk-table__cell">
                 <form action="./allowlist" method="post">
                     <button type="submit" class="govuk-button" name="mode" value="load">
