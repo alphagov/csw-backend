@@ -769,18 +769,28 @@ def my_exceptions():
     return Response(**response)
 
 
-@app.route('/check/{id}/allowlist')
-def audit_check_allow_list(id):
+@app.route('/account/{account_id}/check/{check_id}/allowlist')
+def audit_check_allow_list(account_id, check_id):
     """
     Allows you to create and update allow list records
     for checks like SSH ingress where you want to be
     able to customise the list of acceptable IP/CIDRs
     """
-    id = int(id)
+    account_id = int(account_id)
+    check_id = int(check_id)
 
     try:
         load_route_services()
-        audit_criterion = models.AuditCriterion.get_by_id(id)
+        # Get most recent evaluation of criterion for this account
+        audit_criterion = (models.AuditCriterion
+                           .select()
+                           .where(
+                                models.AuditCriterion.criterion_id == check_id,
+                                models.AuditCriterion.account_audit_id.account_subscription_id
+                           )
+                           .order_by(models.AuditCriterion.id.desc())
+                           .get())
+
         data = audit_criterion.serialize()
 
         CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
@@ -792,10 +802,10 @@ def audit_check_allow_list(id):
                         check.AllowlistClass.account_subscription_id == audit_criterion.account_audit_id.account_subscription_id
                      ))
 
-
-
-
-        json = app.utilities.to_json(data, True)
+        json = app.utilities.to_json({
+            "criterion": data,
+            "allowlist": allowlist
+        }, True)
         response = app.templates.render_authorized_template(
             'debug.html',
             app.current_request,
@@ -809,15 +819,16 @@ def audit_check_allow_list(id):
     return Response(**response)
 
 
-@app.route('/check/{id}/allowlist',
+@app.route('/account/{account_id}/check/{check_id}/allowlist',
            methods=['POST'],
            content_types=['application/x-www-form-urlencoded'])
-def audit_check_post_allow_list(id):
+def audit_check_post_allow_list(account_id, check_id):
     """
     Deals with parsing urlencoded form data handing errors
     and submitting inserts and updates
     """
-    id = int(id)
+    account_id = int(account_id)
+    check_id = int(check_id)
     load_route_services()
     # populate form with existing
     # post form
@@ -825,7 +836,14 @@ def audit_check_post_allow_list(id):
     try:
         authed = app.auth.try_login(app.current_request)
 
-        audit_criterion = models.AuditCriterion.get_by_id(id)
+        audit_criterion = (models.AuditCriterion
+                           .select()
+                           .where(
+                            models.AuditCriterion.criterion_id == check_id,
+                            models.AuditCriterion.account_audit_id.account_subscription_id
+                           )
+                           .order_by(models.AuditCriterion.id.desc())
+                           .get())
 
         CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
         check = CheckClass(app)
