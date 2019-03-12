@@ -12,7 +12,8 @@
     {%- endif -%}
 
     {% include "components/account_check_context.html" %}
-    {% include "components/account_check_allowlist_context.html" %}
+    {%- set list = allowlist -%}
+    {% include "components/account_check_allowlist_list.html" %}
     {% include "components/account_check_allowlist_form.html" %}
   </main>
 </div>

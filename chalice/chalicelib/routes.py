@@ -810,7 +810,8 @@ def audit_check_allow_list(id, check_id):
 
         template_data = {
             "audit_criterion": audit_criterion.serialize(),
-            "allowlist": allowed
+            "allowlist": allowed,
+            "errors": {}
         }
         # json = app.utilities.to_json(template_data, True)
         response = app.templates.render_authorized_template(
