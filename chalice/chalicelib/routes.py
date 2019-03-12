@@ -796,7 +796,7 @@ def audit_check_allow_list(id, check_id):
 
         CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
         check = CheckClass(app)
-        allowlist_class_name = check.AllowlistClass.__class__.__name__
+        allowlist_class_name = check.AllowlistClass.__name__
         app.log.debug(f"Getting allowlist from class: {allowlist_class_name}")
 
         allowlist = (check.AllowlistClass
