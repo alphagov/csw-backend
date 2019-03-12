@@ -804,10 +804,13 @@ def audit_check_allow_list(id, check_id):
                      .where(
                         check.AllowlistClass.account_subscription_id == audit_criterion.account_audit_id.account_subscription_id
                      ))
+        allowed = []
+        for item in allowlist:
+            allowed.append(item.serialize())
 
         json = app.utilities.to_json({
             "criterion": data,
-            "allowlist": allowlist
+            "allowlist": allowed
         }, True)
         response = app.templates.render_authorized_template(
             'debug.html',
