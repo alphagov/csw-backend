@@ -783,51 +783,59 @@ def audit_check_allow_list(id, check_id):
         load_route_services()
 
         authed = app.auth.try_login(app.current_request)
+        if authed:
 
-        user_data = app.auth.get_login_data()
-        user = models.User.find_active_by_email(user_data['email'])
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
 
-        # Get most recent evaluation of criterion for this account
-        audit_criterion = (models.AuditCriterion
-                           .select()
-                           .join(models.AccountAudit)
-                           .where(
-                                models.AuditCriterion.criterion_id == check_id,
-                                models.AuditCriterion.account_audit_id.account_subscription_id == account_id
-                           )
-                           .order_by(models.AuditCriterion.id.desc())
-                           .get())
+            # Get most recent evaluation of criterion for this account
+            audit_criterion = (models.AuditCriterion
+                               .select()
+                               .join(models.AccountAudit)
+                               .where(
+                                    models.AuditCriterion.criterion_id == check_id,
+                                    models.AuditCriterion.account_audit_id.account_subscription_id == account_id
+                               )
+                               .order_by(models.AuditCriterion.id.desc())
+                               .get())
 
-        audit_criterion.serialize()
+            audit_criterion.serialize()
 
-        CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
-        check = CheckClass(app)
-        # allowlist_class_name = check.AllowlistClass.__name__
-        # app.log.debug(f"Getting allowlist from class: {allowlist_class_name}")
+            CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
+            check = CheckClass(app)
+            # allowlist_class_name = check.AllowlistClass.__name__
+            # app.log.debug(f"Getting allowlist from class: {allowlist_class_name}")
 
-        allowlist = (check.AllowlistClass
-                     .select()
-                     .where(
-                        check.AllowlistClass.account_subscription_id == audit_criterion.account_audit_id.account_subscription_id
-                     ))
-        allowed = []
-        for item in allowlist:
-            allowed.append(item.serialize())
+            allowlist = (check.AllowlistClass
+                         .select()
+                         .where(
+                            check.AllowlistClass.account_subscription_id == audit_criterion.account_audit_id.account_subscription_id
+                         ))
+            allowed = []
+            for item in allowlist:
+                allowed.append(item.serialize())
 
-        defaults = check.AllowlistClass.get_defaults(account_id, user.id)
+            defaults = check.AllowlistClass.get_defaults(account_id, user.id)
 
-        template_data = {
-            "audit_criterion": audit_criterion.serialize(),
-            "allowlist": allowed,
-            "exception": defaults,
-            "errors": {}
-        }
-        # json = app.utilities.to_json(template_data, True)
-        response = app.templates.render_authorized_template(
-            'account_check_allowlist.html',
-            app.current_request,
-            template_data
-        )
+            template_data = {
+                "audit_criterion": audit_criterion.serialize(),
+                "allowlist": allowed,
+                "exception": defaults,
+                "errors": {}
+            }
+            # json = app.utilities.to_json(template_data, True)
+            response = app.templates.render_authorized_template(
+                'account_check_allowlist.html',
+                app.current_request,
+                template_data
+            )
+
+        else:
+            response = app.templates.render_authorized_template(
+                'denied.html',
+                app.current_request
+            )
+
     except Exception as err:
         app.log.error("Route: check allowlist error: " + str(err))
         response = app.templates.default_server_error()

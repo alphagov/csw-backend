@@ -21,20 +21,16 @@
     <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
             <th class="govuk-table__header">CIDR</th>
+            <th class="govuk-table__header">Reason</th>
+            <th class="govuk-table__header">Actions</th>
+        </tr>
+        <tr class="govuk-table__row">
             <td class="govuk-table__cell">
                 {{ item.cidr }}
             </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th class="govuk-table__header">Reason</th>
             <td class="govuk-table__cell">
                 {{ item.reason }}
             </td>
-        </tr>
-        <tr class="govuk-table__row">
-            <th class="govuk-table__header">
-                Edit
-            </th>
             <td class="govuk-table__cell">
                 <a href="{{base_path}}/account/{{item.account_subscription_id}}/check/{{check_id}}/allowlist" role="button" class="csw-team-list__cta-button">
                     Edit item
