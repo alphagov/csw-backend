@@ -5,7 +5,6 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
-from chalicelib.validators import *
 from app import app
 
 import peewee
