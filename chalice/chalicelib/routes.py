@@ -886,7 +886,7 @@ def audit_check_post_allow_list(id, check_id):
                 exception = form.item
                 status_message = {
                     "success": False,
-                    "message": "Please resolve the below errors."
+                    "message": "Please resolve the errors highlighted below."
                 }
 
             exception = form.append_form_fields(exception)
