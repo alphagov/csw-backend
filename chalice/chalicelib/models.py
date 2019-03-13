@@ -10,7 +10,6 @@ import peewee
 
 from app import app  # used only for logging
 from chalicelib import database_handle
-from chalicelib.validators import *
 
 
 class User(database_handle.BaseModel):
