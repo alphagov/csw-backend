@@ -133,11 +133,8 @@
                 </button>
               </div>
             </div>
-            {% if exception.id %}
-            <input type="hidden" name="id" value="{{exception.id}}"/>
-            {% endif %}
-            <input type="hidden" name="mode" value="create"/>
-            <input type="hidden" name="criterion_id" value="{{exception.criterion_id}}"/>
+            <input type="hidden" name="id" value="{{ exception.id if exception.id else 0 }}"/>
+            <input type="hidden" name="mode" value="{{ 'update' if exception.id else 'insert' }}"/>
             <input type="hidden" name="account_subscription_id" value="{{exception.account_subscription_id}}"/>
             <input type="hidden" name="resource_persistent_id" value="{{exception.resource_persistent_id}}"/>
         </form>

@@ -3,6 +3,7 @@ import cerberus
 import json
 import re
 from app import app
+import models
 
 class Form():
     """
@@ -17,6 +18,9 @@ class Form():
     # document = {'name': 'Little Joe', 'age': 5}
     # v.validate(document, schema)
     schema = {}
+    item = {}
+    data = None
+    processed_status = {}
     def __init__(self):
         self.form_validator = FormValidator()
 
@@ -44,8 +48,86 @@ class Form():
     def get_errors(self):
         return self.form_validator.errors
 
+    def get_date_from_components(self, components):
+
+        expiry_date = datetime.date(
+            int(self.data[components]["year"]),
+            int(self.data[components]["month"]),
+            int(self.data[components]["day"])
+        )
+
+        date_field = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
+        return date_field
+
+    def process(self, mode):
+        output = {}
+        try:
+            if mode == "load":
+                output = self.process_load()
+            elif mode == "create":
+                output = self.process_create()
+            elif mode == "update":
+                output = self.process_update()
+            elif mode == "expire":
+                output = self.process_expire()
+            elif mode == "activate":
+                output = self.process_active(True)
+            elif mode == "deactivate":
+                output = self.process_active(False)
+            else:
+                app.log.error(f"Form process mode: {mode} not recognised")
+                output = self.data
+        except Exception as err:
+            message = app.utilities.get_typed_exception(err)
+            self.processed_status = {
+                "success": False,
+                "message": f"Form {mode} failed: {message}"
+            }
+
+        return output
+
+    def set_user(self, user):
+        self.user = user
+
+    def build_model(self):
+        return self._Model.clean(self.data)
+
+    def process_load(self):
+        self.item = self._Model.get_by_id(self.data["id"])
+        return self.item
+
+    def process_create(self):
+        model_data = self.build_model()
+        self.item = self._Model.create(**model_data)
+        return self.item
+
+    def process_update(self):
+        self.item = self._Model.get_by_id(self.data["id"])
+        model_data = self.build_model()
+        for field, value in model_data.items():
+            setattr(self.item, field, value)
+        self.item.save()
+        return self.item
+
+    def process_expire(self):
+        now = datetime.datetime.now()
+        self.item = self._Model.get_by_id(self.data["id"])
+        self.item.date_expires = now
+        self.item.save()
+        return self.item
+
+    def process_active(self, state):
+        self.item = self._Model.get_by_id(self.data["id"])
+        self.item.active = state
+        self.item.save()
+        return self.item
+
+    def append_form_fields(self, item):
+        return item.raw()
+
 class FormAddResourceException(Form):
 
+    _Model = models.ResourceException
     schema = {
         "resource_persistent_id": {"type": "string"},
         "criterion_id": {"type": "integer"},
@@ -90,23 +172,42 @@ class FormAddResourceException(Form):
             app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
         return document
 
+    def get_model_defaults(self, account_subscription_id):
+        exception = self._Model.get_defaults(account_subscription_id, self.user.id)
+        return exception
+
+    def build_model(self):
+        exception = self._Model.get_defaults(self.data["account_subscription_id"], self.user.id)
+        exception["date_expires"] = self.get_date_from_components("expiry_components")
+        exception["reason"] = self.data["reason"]
+        exception["user_id"] = self.user.id
+        exception_data = self._Model.clean(exception)
+        return exception_data
+
+    def append_form_fields(self, item):
+        # turn model instance into a dict using .raw if necessary
+        if type(item) is dict:
+            item_data = item
+        else:
+            item_data = item.raw()
+
+        item_data["expiry_day"] = self.data["expiry_components"]["day"]
+        item_data["expiry_month"] = self.data["expiry_components"]["month"]
+        item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        return item_data
 
 
 class FormAddAllowListException(Form):
 
+    _Model = models.AccountSshCidrAllowlist
     schema = {
         "criterion_id": {"type": "integer"},
         "account_subscription_id": {"type": "integer"},
-        "values": {
-            "type": "list",
-            "minlength": 1,
-            "required": True,
-            "schema": {
-                "type": "string",
-                "notnull": True,
-                "maxlength": 500,
-                "errorpattern": ""
-            }
+        "value": {
+            "type": "string",
+            "notnull": True,
+            "maxlength": 20,
+            "errorpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
         },
         "reason": {
             "type": "string",
@@ -125,9 +226,6 @@ class FormAddAllowListException(Form):
         }
     }
 
-    def set_value_pattern(self, pattern):
-        self.schema["values"]["schema"]["errorpattern"] = pattern
-
     def parse_post_data(self, data):
 
         try:
@@ -139,9 +237,11 @@ class FormAddAllowListException(Form):
             }
 
             document = {}
+            document["mode"] = data["mode"][0]
+            document["id"] = int(data["id"][0])
             document["criterion_id"] = int(data["criterion_id"][0])
             document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["values"] = data.get("exception-values", [])
+            document["value"] = data.get("exception-value", [])
             document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
@@ -150,6 +250,47 @@ class FormAddAllowListException(Form):
         except Exception as err:
             app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
         return document
+
+    def process_load(self):
+        exception = self._Model.get_by_id(self.data["id"])
+        exception = exception.serialize()
+        status_message = {
+            "success": True,
+            "message": "You can update the entry from the form below"
+        }
+        return {
+            "exception": exception,
+            "status_messaage": status_message
+        }
+
+    def build_model(self):
+        exception = self._Model.get_defaults(self.data["account_subscription_id"], self.user.id)
+
+        exception["date_expires"] = self.get_date_from_components("expiry_components")
+        exception["reason"] = self.data["reason"]
+        exception["cidr"] = self.data["value"]
+        exception["user_id"] = self.user.id
+        exception_data = self._Model.clean(exception)
+        return exception_data
+
+    def append_form_fields(self, item):
+        item_data = item.raw()
+        item_data["expiry_day"] = self.data["expiry_components"]["day"]
+        item_data["expiry_month"] = self.data["expiry_components"]["month"]
+        item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        return item_data
+
+    def get_allowlist(self, account_subscription_id):
+        allowlist = (self._Model
+            .select()
+            .where(
+            self._Model.account_subscription_id == account_subscription_id
+        ))
+        allowed = []
+        for item in allowlist:
+            allowed.append(item.serialize())
+
+        return allowed
 
 
 class FormValidator(cerberus.Validator):

@@ -957,6 +957,7 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
         # pattern of an IPv4 CIDR
         allowlist_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
         # check for at least 16 bit subnet mask
+        return allowlist_pattern
 
     @classmethod
     def get_defaults(cls, account_subscription_id, user_id):
