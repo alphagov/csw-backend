@@ -123,7 +123,12 @@ class Form():
         return self.item
 
     def append_form_fields(self, item):
-        return item.raw()
+        # turn model instance into a dict using .raw if necessary
+        if type(item) is dict:
+            item_data = item
+        else:
+            item_data = item.raw()
+        return item_data
 
 class FormAddResourceException(Form):
 
@@ -186,10 +191,7 @@ class FormAddResourceException(Form):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        if type(item) is dict:
-            item_data = item
-        else:
-            item_data = item.raw()
+        item_data = super(FormAddAllowListException, self).append_form_fields(item)
 
         item_data["expiry_day"] = self.data["expiry_components"]["day"]
         item_data["expiry_month"] = self.data["expiry_components"]["month"]
@@ -274,7 +276,9 @@ class FormAddAllowListException(Form):
         return exception_data
 
     def append_form_fields(self, item):
-        item_data = item.raw()
+        # turn model instance into a dict using .raw if necessary
+        item_data = super(FormAddAllowListException, self).append_form_fields(item)
+
         item_data["expiry_day"] = self.data["expiry_components"]["day"]
         item_data["expiry_month"] = self.data["expiry_components"]["month"]
         item_data["expiry_year"] = self.data["expiry_components"]["year"]
