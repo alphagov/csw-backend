@@ -3,7 +3,7 @@ import cerberus
 import json
 import re
 from app import app
-import models
+from chalicelib import models
 
 class Form():
     """
