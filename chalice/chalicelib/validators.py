@@ -3,7 +3,7 @@ import cerberus
 import json
 import re
 from app import app
-from chalicelib import models
+# from chalicelib import models
 
 class Form():
     """
@@ -77,6 +77,11 @@ class Form():
             else:
                 app.log.error(f"Form process mode: {mode} not recognised")
                 output = self.data
+                self.processed_status = {
+                    "success": False,
+                    "message": f"Form requested action ({mode}) not recognised"
+                }
+
         except Exception as err:
             message = app.utilities.get_typed_exception(err)
             self.processed_status = {
@@ -94,11 +99,19 @@ class Form():
 
     def process_load(self):
         self.item = self._Model.get_by_id(self.data["id"])
+        self.processed_status = {
+            "success": True,
+            "message": f"The entry can be edited in the form below"
+        }
         return self.item
 
     def process_create(self):
         model_data = self.build_model()
         self.item = self._Model.create(**model_data)
+        self.processed_status = {
+            "success": True,
+            "message": "The record was created successfully"
+        }
         return self.item
 
     def process_update(self):
@@ -107,6 +120,10 @@ class Form():
         for field, value in model_data.items():
             setattr(self.item, field, value)
         self.item.save()
+        self.processed_status = {
+            "success": True,
+            "message": f"The record was updated successfully"
+        }
         return self.item
 
     def process_expire(self):
@@ -114,12 +131,21 @@ class Form():
         self.item = self._Model.get_by_id(self.data["id"])
         self.item.date_expires = now
         self.item.save()
+        self.processed_status = {
+            "success": True,
+            "message": "The record was set to expired"
+        }
         return self.item
 
     def process_active(self, state):
         self.item = self._Model.get_by_id(self.data["id"])
         self.item.active = state
         self.item.save()
+        status = "Active" if state else "Inactive"
+        self.processed_status = {
+            "success": True,
+            "message": f"The record state was set to :{status}"
+        }
         return self.item
 
     def append_form_fields(self, item):
