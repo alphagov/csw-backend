@@ -234,29 +234,27 @@ class FormAddAllowListException(Form):
 
     _Model = models.AccountSshCidrAllowlist
     schema = {
-        {
-            "account_subscription_id": {"type": "integer"},
-            "value": {
-                "type": "string",
-                "notnull": True,
-                "maxlength": 20,
-                "matchpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
-            },
-            "reason": {
-                "type": "string",
-                "notnull": True,
-                "maxlength": 500,
-                "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
-            },
-            "expiry_components": {
-                "type": "dict",
-                "datecomponents": True
-            },
-            "expiry_date": {
-                "coerce": "datecomponents",
-                "datemin": (datetime.timedelta(days=0).total_seconds()),
-                "datemax": (datetime.timedelta(days=365).total_seconds())
-            }
+        "account_subscription_id": {"type": "integer"},
+        "value": {
+            "type": "string",
+            "notnull": True,
+            "maxlength": 20,
+            "matchpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+        },
+        "reason": {
+            "type": "string",
+            "notnull": True,
+            "maxlength": 500,
+            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+        },
+        "expiry_components": {
+            "type": "dict",
+            "datecomponents": True
+        },
+        "expiry_date": {
+            "coerce": "datecomponents",
+            "datemin": (datetime.timedelta(days=0).total_seconds()),
+            "datemax": (datetime.timedelta(days=365).total_seconds())
         }
     }
 
