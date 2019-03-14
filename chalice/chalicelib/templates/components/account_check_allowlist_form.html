@@ -133,9 +133,9 @@
                 </button>
               </div>
             </div>
-            <input type="hidden" name="id" value="{{ exception.id if exception.id else 0 }}"/>
-            <input type="hidden" name="mode" value="{{ 'update' if exception.id else 'create' }}"/>
-            <input type="hidden" name="account_subscription_id" value="{{exception.account_subscription_id}}"/>
+            <input type="hidden" name="id" id="id" value="{{ exception.id if exception.id else 0 }}"/>
+            <input type="hidden" name="mode" id="mode" value="{{ 'update' if exception.id else 'create' }}"/>
+            <input type="hidden" name="account_subscription_id" id="account_subscription_id" value="{{exception.account_subscription_id}}"/>
         </form>
     </div>
 </div>

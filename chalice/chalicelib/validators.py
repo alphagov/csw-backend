@@ -282,18 +282,6 @@ class FormAddAllowListException(Form):
             app.log.error("Failed to parse post data: " + app.utilities.get_typed_exception(err))
         return document
 
-    def process_load(self):
-        exception = self._Model.get_by_id(self.data["id"])
-        exception = exception.serialize()
-        status_message = {
-            "success": True,
-            "message": "You can update the entry from the form below"
-        }
-        return {
-            "exception": exception,
-            "status_messaage": status_message
-        }
-
     def get_model_defaults(self, **kwargs):
         exception = self._Model.get_defaults(kwargs["account_subscription_id"], self.user.id)
         return exception
