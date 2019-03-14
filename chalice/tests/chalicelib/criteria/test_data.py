@@ -2410,3 +2410,121 @@ RDS_ENCRYPTION = {
                    u'VpcSecurityGroups': [{u'Status': 'active',
                                            u'VpcSecurityGroupId': 'sg-0af89f4221001e1d4'}]}]},
 }
+
+EBS_ENCRYPTION = [
+    # pass
+    {
+        u'Attachments': [
+            {
+                u'AttachTime': datetime.datetime(2018, 11, 12, 12, 49, 37, tzinfo=tzutc()),
+                u'DeleteOnTermination': True,
+                u'Device': '/dev/xvda',
+                u'InstanceId': 'i-02de6e21def675add',
+                u'State': 'attached',
+                u'VolumeId': 'vol-0687adb8ace063b46'
+            }
+        ],
+        u'AvailabilityZone': 'us-west-2b',
+        u'CreateTime': datetime.datetime(2018, 11, 12, 12, 49, 37, 877000, tzinfo=tzutc()),
+        u'Encrypted': True,
+        u'Iops': 100,
+        u'Size': 8,
+        u'SnapshotId': 'snap-016137d6e1416028c',
+        u'State': 'in-use',
+        u'VolumeId': 'vol-0687adb8ace063b46',
+        u'VolumeType': 'gp2'
+    },
+    # fail
+    {
+        u'Attachments': [
+            {
+                u'AttachTime': datetime.datetime(2018, 11, 12, 12, 49, 37, tzinfo=tzutc()),
+                u'DeleteOnTermination': True,
+                u'Device': '/dev/xvda',
+                u'InstanceId': 'i-02de6e21def675add',
+                u'State': 'attached',
+                u'VolumeId': 'vol-0687adb8ace063b46'
+            }
+        ],
+        u'AvailabilityZone': 'us-west-2b',
+        u'CreateTime': datetime.datetime(2018, 11, 12, 12, 49, 37, 877000, tzinfo=tzutc()),
+        u'Encrypted': False,
+        u'Iops': 100,
+        u'Size': 8,
+        u'SnapshotId': 'snap-016137d6e1416028c',
+        u'State': 'in-use',
+        u'VolumeId': 'vol-0687adb8ace063b46',
+        u'VolumeType': 'gp2'
+        }
+]
+
+ELB_LOGGING = [
+    # pass
+    {
+        "LoadBalancerArn": "arn:aws:elasticloadbalancing:eu-west-1:489877524855:loadbalancer/app/elb-test/d514780537057146",
+        "DNSName": "internal-elb-test-1643317301.eu-west-1.elb.amazonaws.com",
+        "CanonicalHostedZoneId": "Z32O12XQLNTSW2",
+        "CreatedTime": "2019-02-14 17:17:12.580000+00:00",
+        "LoadBalancerName": "elb-test",
+        "Scheme": "internal",
+        "VpcId": "vpc-67436e01",
+        "State": {
+            "Code": "active"
+        },
+        "Type": "application",
+        "AvailabilityZones": [
+            {
+                "ZoneName": "eu-west-1a",
+                "SubnetId": "subnet-1c701e54"
+            },
+            {
+                "ZoneName": "eu-west-1b",
+                "SubnetId": "subnet-bcbd65e6"
+            }
+        ],
+        "SecurityGroups": [
+            "sg-0577b57b"
+        ],
+        "IpAddressType": "ipv4",
+        "access_logs.s3.enabled": "true",
+        "access_logs.s3.bucket": "elb-csw",
+        "access_logs.s3.prefix": "",
+        "idle_timeout.timeout_seconds": "60",
+        "deletion_protection.enabled": "false",
+        "routing.http2.enabled": "true"
+    },
+     # fail
+    {
+        "LoadBalancerArn": "arn:aws:elasticloadbalancing:eu-west-1:489877524855:loadbalancer/app/elb-test/d514780537057146",
+        "DNSName": "internal-elb-test-1643317301.eu-west-1.elb.amazonaws.com",
+        "CanonicalHostedZoneId": "Z32O12XQLNTSW2",
+        "CreatedTime": "2019-02-14 17:17:12.580000+00:00",
+        "LoadBalancerName": "elb-test",
+        "Scheme": "internal",
+        "VpcId": "vpc-67436e01",
+        "State": {
+            "Code": "active"
+        },
+        "Type": "application",
+        "AvailabilityZones": [
+            {
+                "ZoneName": "eu-west-1a",
+                "SubnetId": "subnet-1c701e54"
+            },
+            {
+                "ZoneName": "eu-west-1b",
+                "SubnetId": "subnet-bcbd65e6"
+            }
+        ],
+        "SecurityGroups": [
+            "sg-0577b57b"
+        ],
+        "IpAddressType": "ipv4",
+        "access_logs.s3.enabled": "false",
+        "access_logs.s3.bucket": "",
+        "access_logs.s3.prefix": "",
+        "idle_timeout.timeout_seconds": "60",
+        "deletion_protection.enabled": "false",
+        "routing.http2.enabled": "true"
+    }
+]
