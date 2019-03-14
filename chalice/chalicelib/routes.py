@@ -877,19 +877,11 @@ def audit_check_post_allow_list(id, check_id):
             audit_criterion.serialize()
 
             form = FormAddAllowListException()
+            form.set_post_data(data)
             form.set_user(user)
 
-            is_valid = form.validate(data)
-
-            if is_valid:
-                exception = form.process(form.data["mode"])
-                status_message = form.processed_status
-            else:
-                exception = form.item
-                status_message = {
-                    "success": False,
-                    "message": "Please resolve the errors highlighted below."
-                }
+            exception = form.process()
+            status_message = form.processed_status
 
             exception = form.append_form_fields(exception)
 

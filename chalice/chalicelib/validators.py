@@ -12,6 +12,9 @@ class Form():
 
     The encoded post data is submitted as arrays for some reason so
     the parse_post_data method strips that into a simpler data model
+
+    This is basically like an API controller but because we don't have
+    a REST verb we've got a mode field in the form which sets the verb
     """
     # Cerberus example implementation
     # schema = {'name': {'type': 'string'}, 'age': {'type': 'integer', 'min': 10}}
@@ -23,6 +26,17 @@ class Form():
     processed_status = {}
     def __init__(self):
         self.form_validator = FormValidator()
+
+    def set_post_data(self, data):
+        self.post_data = data
+
+    def get_mode(self):
+        self.mode = self.post_data["mode"][0]
+        return self.mode
+
+    def get_item_id(self):
+        self.item_id = int(self.post_data["id"][0])
+        return self.item_id
 
     def parse_post_data(self, data):
         """
@@ -59,7 +73,8 @@ class Form():
         date_field = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
         return date_field
 
-    def process(self, mode):
+    def process(self):
+        mode = self.mode
         output = {}
         try:
             if mode == "load":
@@ -94,11 +109,14 @@ class Form():
     def set_user(self, user):
         self.user = user
 
+    def set_item(self, id):
+        self.item = self._Model.get_by_id(id)
+
     def build_model(self):
         return self._Model.clean(self.data)
 
     def process_load(self):
-        self.item = self._Model.get_by_id(self.data["id"])
+        self.item = self._Model.get_by_id(self.get_item_id())
         self.processed_status = {
             "success": True,
             "message": f"The entry can be edited in the form below"
@@ -106,29 +124,47 @@ class Form():
         return self.item
 
     def process_create(self):
-        model_data = self.build_model()
-        self.item = self._Model.create(**model_data)
-        self.processed_status = {
-            "success": True,
-            "message": "The record was created successfully"
-        }
+        is_valid = self.validate(self.post_data)
+
+        if is_valid:
+            model_data = self.build_model()
+            self.item = self._Model.create(**model_data)
+            self.processed_status = {
+                "success": True,
+                "message": "The record was created successfully"
+            }
+        else:
+            self.processed_status = {
+                "success": False,
+                "message": "The record was not created successfully"
+            }
+
         return self.item
 
     def process_update(self):
-        self.item = self._Model.get_by_id(self.data["id"])
-        model_data = self.build_model()
-        for field, value in model_data.items():
-            setattr(self.item, field, value)
-        self.item.save()
-        self.processed_status = {
-            "success": True,
-            "message": f"The record was updated successfully"
-        }
+
+        is_valid = self.validate(self.post_data)
+
+        if is_valid:
+            self.item = self._Model.get_by_id(self.item_id)
+            model_data = self.build_model()
+            for field, value in model_data.items():
+                setattr(self.item, field, value)
+            self.item.save()
+            self.processed_status = {
+                "success": True,
+                "message": "The record was updated successfully"
+            }
+        else:
+            self.processed_status = {
+                "success": False,
+                "message": "The record was not updated successfully"
+            }
         return self.item
 
     def process_expire(self):
         now = datetime.datetime.now()
-        self.item = self._Model.get_by_id(self.data["id"])
+        self.item = self._Model.get_by_id(self.item_id)
         self.item.date_expires = now
         self.item.save()
         self.processed_status = {
@@ -138,7 +174,7 @@ class Form():
         return self.item
 
     def process_active(self, state):
-        self.item = self._Model.get_by_id(self.data["id"])
+        self.item = self._Model.get_by_id(self.item_id)
         self.item.active = state
         self.item.save()
         status = "Active" if state else "Inactive"
@@ -229,11 +265,12 @@ class FormAddResourceException(Form):
         item_data["expiry_year"] = self.data["expiry_components"]["year"]
         return item_data
 
-
 class FormAddAllowListException(Form):
 
     _Model = models.AccountSshCidrAllowlist
     schema = {
+        "mode": {"type": "string"},
+        "id": {"type": "integer"},
         "account_subscription_id": {"type": "integer"},
         "value": {
             "type": "string",
