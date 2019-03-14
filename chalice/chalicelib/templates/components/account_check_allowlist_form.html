@@ -25,7 +25,7 @@
                         name="exception-value"
                         aria-describedby="exception-value-hint"
                         placeholder="Enter a value"
-                        value="{{exception.reason}}"/>
+                        value="{{exception.value}}"/>
             </div>
 
             <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason }}">
@@ -136,7 +136,6 @@
             <input type="hidden" name="id" value="{{ exception.id if exception.id else 0 }}"/>
             <input type="hidden" name="mode" value="{{ 'update' if exception.id else 'insert' }}"/>
             <input type="hidden" name="account_subscription_id" value="{{exception.account_subscription_id}}"/>
-            <input type="hidden" name="resource_persistent_id" value="{{exception.resource_persistent_id}}"/>
         </form>
     </div>
 </div>

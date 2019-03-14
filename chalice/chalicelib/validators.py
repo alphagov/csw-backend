@@ -234,28 +234,29 @@ class FormAddAllowListException(Form):
 
     _Model = models.AccountSshCidrAllowlist
     schema = {
-        "criterion_id": {"type": "integer"},
-        "account_subscription_id": {"type": "integer"},
-        "value": {
-            "type": "string",
-            "notnull": True,
-            "maxlength": 20,
-            "errorpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
-        },
-        "reason": {
-            "type": "string",
-            "notnull": True,
-            "maxlength": 500,
-            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
-        },
-        "expiry_components": {
-            "type": "dict",
-            "datecomponents": True
-        },
-        "expiry_date": {
-            "coerce": "datecomponents",
-            "datemin": (datetime.timedelta(days=0).total_seconds()),
-            "datemax": (datetime.timedelta(days=365).total_seconds())
+        {
+            "account_subscription_id": {"type": "integer"},
+            "value": {
+                "type": "string",
+                "notnull": True,
+                "maxlength": 20,
+                "matchpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+            },
+            "reason": {
+                "type": "string",
+                "notnull": True,
+                "maxlength": 500,
+                "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            },
+            "expiry_components": {
+                "type": "dict",
+                "datecomponents": True
+            },
+            "expiry_date": {
+                "coerce": "datecomponents",
+                "datemin": (datetime.timedelta(days=0).total_seconds()),
+                "datemax": (datetime.timedelta(days=365).total_seconds())
+            }
         }
     }
 
@@ -422,6 +423,20 @@ class FormValidator(cerberus.Validator):
 
         if datemax and not self.before_max(value, delta):
             self._error(field, self.get_after_message(delta))
+
+    def _validate_matchpattern(self, matchpattern, field, value):
+        """ Test that a datetime falls after now + delta
+
+        The rule's arguments are validated against this schema:
+        {'type': 'string'}
+        """
+        try:
+            # invalid_chars = "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            pattern = re.compile(matchpattern)
+            if not pattern.match(value):
+                raise ValueError("Value does not match the CIDR pattern eg 112.123.134.0/24")
+        except Exception as err:
+            self._error(field, str(err))
 
     def _validate_errorpattern(self, errorpattern, field, value):
         """ Test that a datetime falls after now + delta
