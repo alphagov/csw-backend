@@ -12,8 +12,8 @@
                   remove this condition.
               </span>
 
-              {% if errors.reason %}
-              {% for message in errors.reason %}
+              {% if errors.value %}
+              {% for message in errors.value %}
               <span id="exception-value-error-{{loop.index}}" class="govuk-error-message">
                   {{ message }}
               </span>
