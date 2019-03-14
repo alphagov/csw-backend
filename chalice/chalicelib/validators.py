@@ -272,7 +272,7 @@ class FormAddAllowListException(Form):
             document["mode"] = data["mode"][0]
             document["id"] = int(data["id"][0])
             document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["value"] = data.get("exception-value", [])
+            document["value"] = self.flatten_text_input(data.get("exception-value", []))
             document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
