@@ -272,7 +272,6 @@ class FormAddAllowListException(Form):
             document = {}
             document["mode"] = data["mode"][0]
             document["id"] = int(data["id"][0])
-            document["criterion_id"] = int(data["criterion_id"][0])
             document["account_subscription_id"] = int(data["account_subscription_id"][0])
             document["value"] = data.get("exception-value", [])
             document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
@@ -281,7 +280,7 @@ class FormAddAllowListException(Form):
 
             app.log.debug(json.dumps(document))
         except Exception as err:
-            app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
+            app.log.error("Failed to parse post data: " + app.utilities.get_typed_exception(err))
         return document
 
     def process_load(self):
