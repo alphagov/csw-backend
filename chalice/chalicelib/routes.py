@@ -807,7 +807,9 @@ def audit_check_allow_list(id, check_id):
 
             form = FormAddAllowListException()
             form.set_user(user)
-            defaults = form.get_model_defaults(audit_criterion.account_audit_id.account_subscription_id)
+            defaults = form.get_model_defaults(
+                account_subscription_id = audit_criterion.account_audit_id.account_subscription_id
+            )
             allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
 
             # defaults = check.AllowlistClass.get_defaults(account_id, user.id)

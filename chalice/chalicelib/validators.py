@@ -203,8 +203,13 @@ class FormAddResourceException(Form):
             app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
         return document
 
-    def get_model_defaults(self, account_subscription_id):
-        exception = self._Model.get_defaults(account_subscription_id, self.user.id)
+    def get_model_defaults(self, **kwargs):
+        # exception = self._Model.get_defaults(kwargs["account_subscription_id"], self.user.id)
+        exception = self._Model.find_exception(
+            kwargs["criterion_id"],
+            kwargs["resource_persistent_id"],
+            kwargs["account_subscription_id"]
+        )
         return exception
 
     def build_model(self):
@@ -290,6 +295,10 @@ class FormAddAllowListException(Form):
             "exception": exception,
             "status_messaage": status_message
         }
+
+    def get_model_defaults(self, **kwargs):
+        exception = self._Model.get_defaults(kwargs["account_subscription_id"], self.user.id)
+        return exception
 
     def build_model(self):
         exception = self._Model.get_defaults(self.data["account_subscription_id"], self.user.id)
