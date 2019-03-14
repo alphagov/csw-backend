@@ -1,0 +1,2 @@
+ALTER TABLE riterion 
+ADD COLUMN severity INTEGER DEFAULT 1;
