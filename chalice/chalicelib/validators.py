@@ -23,6 +23,7 @@ class Form():
     schema = {}
     item = {}
     data = None
+    mode = None
     processed_status = {}
     def __init__(self):
         self.form_validator = FormValidator()
@@ -74,7 +75,7 @@ class Form():
         return date_field
 
     def process(self):
-        mode = self.mode
+        mode = self.get_mode()
         output = {}
         try:
             if mode == "load":
