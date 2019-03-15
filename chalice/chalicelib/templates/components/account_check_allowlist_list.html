@@ -11,10 +11,10 @@
                 {% for item in list %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                        {{ item.reason }}
+                        {{ item.cidr }}
                     </td>
                     <td class="govuk-table__cell">
-                        {{ item.cidr }}
+                        {{ item.reason }}
                     </td>
                     <td class="govuk-table__cell">
                         <form action="./allowlist" method="post">
