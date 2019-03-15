@@ -1,6 +1,7 @@
 # GdsEc2Client
 # extends GdsAwsClient
 # implements aws ec2 api queries
+import datetime
 from chalicelib.criteria.criteria_default import CriteriaDefault
 from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 from chalicelib.models import AccountSshCidrAllowlist
@@ -89,6 +90,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
     def get_valid_ranges(self):
 
         valid_ranges = self.valid_ranges.copy()
+        now = datetime.datetime.now()
 
         if self.account_subscription_id is not None:
             # If the account ID is set retrieve any
@@ -96,7 +98,10 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
             # and append to valid_ranges
             allow_list = (AccountSshCidrAllowlist
                           .select()
-                          .where(AccountSshCidrAllowlist.account_subscription_id == self.account_subscription_id))
+                          .where(
+                            AccountSshCidrAllowlist.account_subscription_id == self.account_subscription_id,
+                            AccountSshCidrAllowlist.date_expires > now
+                          ))
             for item in allow_list:
                 valid_ranges.append(item.cidr)
 
