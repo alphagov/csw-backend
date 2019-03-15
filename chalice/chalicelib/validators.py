@@ -185,13 +185,18 @@ class Form():
         }
         return self.item
 
-    def append_form_fields(self, item):
+    def convert_model_to_dict(self, item):
         # turn model instance into a dict using .raw if necessary
         if type(item) is dict:
             item_data = item
+            app.log.debug("Model item is already a dict")
         else:
+            app.log.debug("Convert item model to dict")
             item_data = item.raw()
         return item_data
+
+    def append_form_fields(self, item):
+        return self.convert_model_to_dict(item)
 
 class FormAddResourceException(Form):
 
@@ -259,7 +264,7 @@ class FormAddResourceException(Form):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        item_data = super(FormAddAllowListException, self).append_form_fields(item)
+        item_data = super(FormAddResourceException, self).append_form_fields(item)
 
         item_data["expiry_day"] = self.data["expiry_components"]["day"]
         item_data["expiry_month"] = self.data["expiry_components"]["month"]
