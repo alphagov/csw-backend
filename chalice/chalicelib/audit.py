@@ -168,7 +168,6 @@ def account_evaluate_criteria(event):
                     requests.append(params)
                 summary = None
 
-
                 # check passed is set to true and and-equalsed for all
                 # or false and or-equalsed for any
                 check_passed = (check.aggregation_type == "all")
@@ -247,7 +246,6 @@ def account_evaluate_criteria(event):
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
-            app.log.debug(f"Check: {criterion.id} Status: {status}")
             message_data['check_passed'] = check_passed
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role
