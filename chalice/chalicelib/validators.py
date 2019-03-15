@@ -165,7 +165,7 @@ class Form():
 
     def process_expire(self):
         now = datetime.datetime.now()
-        self.item = self._Model.get_by_id(self.item_id)
+        self.item = self._Model.get_by_id(self.get_item_id())
         self.item.date_expires = now
         self.item.save()
         self.processed_status = {
@@ -175,7 +175,7 @@ class Form():
         return self.item
 
     def process_active(self, state):
-        self.item = self._Model.get_by_id(self.item_id)
+        self.item = self._Model.get_by_id(self.get_item_id())
         self.item.active = state
         self.item.save()
         status = "Active" if state else "Inactive"
