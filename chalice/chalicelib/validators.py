@@ -364,11 +364,13 @@ class FormAddAllowListException(Form):
         return item_data
 
     def get_allowlist(self, account_subscription_id):
+        now = datetime.datetime.now()
         allowlist = (self._Model
             .select()
             .where(
-            self._Model.account_subscription_id == account_subscription_id
-        ))
+                self._Model.account_subscription_id == account_subscription_id,
+                self._Model.date_expires > now
+            ))
         allowed = []
         for item in allowlist:
             allowed.append(item.serialize())
