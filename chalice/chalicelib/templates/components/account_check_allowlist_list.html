@@ -15,6 +15,7 @@
                     </td>
                     <td class="govuk-table__cell">
                         {{ item.reason }}
+                        <br/>Until: {{ item.date_expires | date }}
                     </td>
                     <td class="govuk-table__cell">
                         <form action="./allowlist" method="post">
