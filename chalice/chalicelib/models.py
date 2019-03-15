@@ -104,12 +104,16 @@ class User(database_handle.BaseModel):
 
     def get_my_exceptions(self):
         try:
+            now = datetime.datetime.now()
             exceptions = (ResourceException
                         .select()
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
-                        .where(ProductTeamUser.user_id == self.id)
+                        .where(
+                            ProductTeamUser.user_id == self.id,
+                            ResourceException.date_expires > now
+                        )
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name,
@@ -134,12 +138,16 @@ class User(database_handle.BaseModel):
 
     def get_my_allowlists(self):
         try:
+            now = datetime.datetime.now()
             allowed_ssh_cidrs = (AccountSshCidrAllowlist
                         .select()
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
-                        .where(ProductTeamUser.user_id == self.id)
+                        .where(
+                            ProductTeamUser.user_id == self.id,
+                            AccountSshCidrAllowlist > now
+                        )
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name
