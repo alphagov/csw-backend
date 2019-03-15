@@ -620,115 +620,67 @@ def resource_post_exception(id):
     try:
         authed = app.auth.try_login(app.current_request)
 
-        data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
 
-        resource = models.AuditResource.get_by_id(id)
-        account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
-        )
-        # TODO - add check user has access to account team
+            data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
-        compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
-        ).get()
+            resource = models.AuditResource.get_by_id(id)
+            account = models.AccountSubscription.get_by_id(
+                models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+            )
+            # TODO - add check user has access to account team
 
-        exception = models.ResourceException.find_exception(
-            resource.criterion_id.id,
-            resource.resource_persistent_id,
-            account.id
-        )
+            compliance = (
+                models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+            ).get()
 
-        form = FormAddResourceException()
+            form = FormAddResourceException()
+            form.set_post_data(data)
+            form.set_user(user)
 
-        is_valid = form.validate(data)
+            exception = form.process()
+            status_message = form.processed_status
 
-        exception["reason"] = form.data["reason"]
-        exception["expiry_day"] = form.data["expiry_components"]["day"]
-        exception["expiry_month"] = form.data["expiry_components"]["month"]
-        exception["expiry_year"] = form.data["expiry_components"]["year"]
+            app.log.debug(app.utilities.to_json(status_message))
 
-        # If authed and valid save the resource_exception
-        if is_valid and authed:
-            try:
-                # expiry_date = datetime.date(
-                #     int(form.data["expiry_components"]["year"]),
-                #     int(form.data["expiry_components"]["month"]),
-                #     int(form.data["expiry_components"]["day"])
-                # )
-                #
-                # exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
-                exception["date_expires"] = form.get_date_from_components("expiry_components")
+            exception = form.append_form_fields(exception)
 
-                # remove extra form fields from the data
-                exception_data = models.ResourceException.clean(exception)
+            app.log.debug(app.utilities.to_json(exception))
 
-                # get login details for current user
-                user_data = app.auth.get_login_data()
-                user = models.User.find_active_by_email(user_data['email'])
-                exception_data['user_id'] = user.id
+            # json = app.utilities.to_json(data, True)
+            # response = app.templates.render_authorized_template(
+            #     'debug.html',
+            #     app.current_request,
+            #     {
+            #         "json": json
+            #     }
+            # )
+            mode = "create"
 
-                if 'id' in exception_data:
-                    # If the id is set then treat as an update
-                    exception_item = models.ResourceException.get_by_id(exception_data['id'])
-                    exception_item.date_expires = exception["date_expires"]
-                    exception_item.reason = exception["reason"]
-                    exception_item.user_id = user.id
-                    exception_item.save()
-                else:
-                    # If the id is not set treat as an insert
-                    resource_exception = models.ResourceException.create(**exception_data)
-
-                # retrieve and populate the date components for the template
-                exception = models.ResourceException.find_exception(
-                    resource.criterion_id.id,
-                    resource.resource_persistent_id,
-                    account.id
-                )
-                status_message = {
-                    "success": True,
-                    "message": "Your exception was saved successfully"
+            response = app.templates.render_authorized_template(
+                'resource_exception.html',
+                app.current_request,
+                {
+                    "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                    "account": account.serialize(),
+                    "resource": resource.serialize(),
+                    "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                    "compliance": compliance.serialize(),
+                    "exception": exception,
+                    "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                    "mode": mode,
+                    "errors": form.get_errors(),
+                    "status_message": status_message
                 }
+            )
 
-            except Exception as err:
-                app.log.error(app.utilities.get_typed_exception(err))
-                status_message = {
-                    "success": False,
-                    "message": "The exception could not be saved. Please try again."
-                }
         else:
-            message = app.utilities.to_json(form.get_errors())
-            app.log.debug(message)
-            status_message = {
-                "success": False,
-                "message": "Please resolve the below errors."
-            }
-
-        # json = app.utilities.to_json(data, True)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": json
-        #     }
-        # )
-        mode = "create"
-
-        response = app.templates.render_authorized_template(
-            'resource_exception.html',
-            app.current_request,
-            {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
-                "account": account.serialize(),
-                "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
-                "compliance": compliance.serialize(),
-                "exception": exception,
-                "status": models.Status.get_by_id(compliance.status_id).serialize(),
-                "mode": mode,
-                "errors": form.get_errors(),
-                "status_message": status_message
-            }
-        )
+            response = app.templates.render_authorized_template(
+                'denied.html',
+                app.current_request
+            )
 
     except Exception as err:
         app.log.error("Route: resource exception error: " + str(err))
@@ -882,6 +834,12 @@ def audit_check_post_allow_list(id, check_id):
 
             exception = form.process()
             status_message = form.processed_status
+
+            if status_message["success"]:
+                # blank the form after create/update
+                exception = form.get_model_defaults(
+                    account_subscription_id=audit_criterion.account_audit_id.account_subscription_id
+                )
 
             app.log.debug(app.utilities.to_json(status_message))
 

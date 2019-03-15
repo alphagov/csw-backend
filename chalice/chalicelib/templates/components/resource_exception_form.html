@@ -102,7 +102,7 @@
 
             <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.expiry_has_error }}">
               <div class="govuk-form-group govuk-!-margin-top-3">
-                <button type="submit" class="govuk-button" name="mode" value="submit">
+                <button type="submit" class="govuk-button" name="mode" value="{{ 'update' if exception.id else 'create' }}">
                   {{ "Update exception" if exception.id else "Create exception" }}
                 </button>
                 {% if exception.id %}
@@ -112,9 +112,7 @@
                 {% endif %}
               </div>
             </div>
-            {% if exception.id %}
-            <input type="hidden" name="id" value="{{exception.id}}"/>
-            {% endif %}
+            <input type="hidden" name="id" value="{{ exception.id if exception.id else 0 }}"/>
             <input type="hidden" name="criterion_id" value="{{exception.criterion_id}}"/>
             <input type="hidden" name="account_subscription_id" value="{{exception.account_subscription_id}}"/>
             <input type="hidden" name="resource_persistent_id" value="{{exception.resource_persistent_id}}"/>
