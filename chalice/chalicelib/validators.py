@@ -256,7 +256,12 @@ class FormAddResourceException(Form):
         return exception
 
     def build_model(self):
-        exception = self._Model.get_defaults(self.data["account_subscription_id"], self.user.id)
+        exception = self.get_model_defaults(
+            criterion_id = self.data["criterion_id"],
+            resource_persistent_id = self.data["resource_persistent_id"],
+            account_subscription_id = self.data["account_subscription_id"]
+        )
+
         exception["date_expires"] = self.get_date_from_components("expiry_components")
         exception["reason"] = self.data["reason"]
         exception["user_id"] = self.user.id
