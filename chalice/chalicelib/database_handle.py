@@ -304,4 +304,6 @@ class BaseModel(peewee.Model):
             else:
                 raw_data[field] = value
 
+        app.log.debug(app.utilities.to_json(raw_data))
+
         return raw_data
