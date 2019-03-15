@@ -883,9 +883,16 @@ def audit_check_post_allow_list(id, check_id):
             exception = form.process()
             status_message = form.processed_status
 
+            app.log.debug(app.utilities.to_json(status_message))
+
             exception = form.append_form_fields(exception)
 
+            app.log.debug(app.utilities.to_json(exception))
+
             allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
+            num_items = len(allowed)
+
+            app.log.debug(f"Retrieved {num_items} for current allowlist")
 
             template_data = {
                 "audit_criterion": audit_criterion.serialize(),
