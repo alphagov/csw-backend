@@ -348,9 +348,12 @@ class FormAddAllowListException(Form):
         # turn model instance into a dict using .raw if necessary
         item_data = super(FormAddAllowListException, self).append_form_fields(item)
 
-        item_data["expiry_day"] = self.data["expiry_components"]["day"]
-        item_data["expiry_month"] = self.data["expiry_components"]["month"]
-        item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        # item_data["expiry_day"] = self.data["expiry_components"]["day"]
+        # item_data["expiry_month"] = self.data["expiry_components"]["month"]
+        # item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        item_data["expiry_day"] = item_data["date_expires"].day
+        item_data["expiry_month"] = item_data["date_expires"].month
+        item_data["expiry_year"] = item_data["date_expires"].year
 
         app.log.debug(app.utilities.to_json(item_data))
         return item_data
