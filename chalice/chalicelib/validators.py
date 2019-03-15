@@ -127,14 +127,15 @@ class Form():
     def process_create(self):
         is_valid = self.validate(self.post_data)
 
+        model_data = self.build_model()
         if is_valid:
-            model_data = self.build_model()
             self.item = self._Model.create(**model_data)
             self.processed_status = {
                 "success": True,
                 "message": "The record was created successfully"
             }
         else:
+            self.item = model_data
             self.processed_status = {
                 "success": False,
                 "message": "The record was not created successfully"
@@ -146,9 +147,9 @@ class Form():
 
         is_valid = self.validate(self.post_data)
 
+        model_data = self.build_model()
         if is_valid:
             self.item = self._Model.get_by_id(self.item_id)
-            model_data = self.build_model()
             for field, value in model_data.items():
                 setattr(self.item, field, value)
             self.item.save()
@@ -157,6 +158,7 @@ class Form():
                 "message": "The record was updated successfully"
             }
         else:
+            self.item = model_data
             self.processed_status = {
                 "success": False,
                 "message": "The record was not updated successfully"
@@ -267,12 +269,14 @@ class FormAddResourceException(Form):
         item_data = super(FormAddResourceException, self).append_form_fields(item)
 
         app.log.debug("item_data is an instance of "+type(item_data))
-        # item_data["expiry_day"] = self.data["expiry_components"]["day"]
-        # item_data["expiry_month"] = self.data["expiry_components"]["month"]
-        # item_data["expiry_year"] = self.data["expiry_components"]["year"]
-        item_data["expiry_day"] = item_data["date_expires"].day
-        item_data["expiry_month"] = item_data["date_expires"].month
-        item_data["expiry_year"] = item_data["date_expires"].year
+        if self.data and self.data["expiry_components"]:
+            item_data["expiry_day"] = self.data["expiry_components"]["day"]
+            item_data["expiry_month"] = self.data["expiry_components"]["month"]
+            item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        else:
+            item_data["expiry_day"] = item_data["date_expires"].day
+            item_data["expiry_month"] = item_data["date_expires"].month
+            item_data["expiry_year"] = item_data["date_expires"].year
 
         return item_data
 
@@ -348,12 +352,14 @@ class FormAddAllowListException(Form):
         # turn model instance into a dict using .raw if necessary
         item_data = super(FormAddAllowListException, self).append_form_fields(item)
 
-        # item_data["expiry_day"] = self.data["expiry_components"]["day"]
-        # item_data["expiry_month"] = self.data["expiry_components"]["month"]
-        # item_data["expiry_year"] = self.data["expiry_components"]["year"]
-        item_data["expiry_day"] = item_data["date_expires"].day
-        item_data["expiry_month"] = item_data["date_expires"].month
-        item_data["expiry_year"] = item_data["date_expires"].year
+        if self.data and self.data["expiry_components"]:
+            item_data["expiry_day"] = self.data["expiry_components"]["day"]
+            item_data["expiry_month"] = self.data["expiry_components"]["month"]
+            item_data["expiry_year"] = self.data["expiry_components"]["year"]
+        else:
+            item_data["expiry_day"] = item_data["date_expires"].day
+            item_data["expiry_month"] = item_data["date_expires"].month
+            item_data["expiry_year"] = item_data["date_expires"].year
 
         app.log.debug(app.utilities.to_json(item_data))
         return item_data
