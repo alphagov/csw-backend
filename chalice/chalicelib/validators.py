@@ -266,6 +266,7 @@ class FormAddResourceException(Form):
         # turn model instance into a dict using .raw if necessary
         item_data = super(FormAddResourceException, self).append_form_fields(item)
 
+        app.log.debug("item_data is an instance of "+type(item_data))
         # item_data["expiry_day"] = self.data["expiry_components"]["day"]
         # item_data["expiry_month"] = self.data["expiry_components"]["month"]
         # item_data["expiry_year"] = self.data["expiry_components"]["year"]
