@@ -835,7 +835,7 @@ def audit_check_post_allow_list(id, check_id):
             exception = form.process()
             status_message = form.processed_status
 
-            if form.get_mode() != 'edit':
+            if form.get_mode() != 'load':
                 # blank the form after create/update
                 exception = form.get_model_defaults(
                     account_subscription_id=audit_criterion.account_audit_id.account_subscription_id
