@@ -287,7 +287,7 @@ class FormAddAllowListException(Form):
         "mode": {"type": "string"},
         "id": {"type": "integer"},
         "account_subscription_id": {"type": "integer"},
-        "value": {
+        "cidr": {
             "type": "string",
             "notnull": True,
             "maxlength": 20,
@@ -324,7 +324,7 @@ class FormAddAllowListException(Form):
             document["mode"] = data["mode"][0]
             document["id"] = int(data["id"][0])
             document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["value"] = self.flatten_text_input(data.get("exception-value", []))
+            document["cidr"] = self.flatten_text_input(data.get("exception-cidr", []))
             document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
@@ -343,7 +343,7 @@ class FormAddAllowListException(Form):
 
         exception["date_expires"] = self.get_date_from_components("expiry_components")
         exception["reason"] = self.data["reason"]
-        exception["cidr"] = self.data["value"]
+        exception["cidr"] = self.data["cidr"]
         exception["user_id"] = self.user.id
         exception_data = self._Model.clean(exception)
         return exception_data

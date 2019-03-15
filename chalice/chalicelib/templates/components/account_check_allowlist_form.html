@@ -3,29 +3,28 @@
     <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Add an exception</h2>
         <form action="./allowlist" method="post">
-            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.value }}">
-              <label class="govuk-label" for="exception-value">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.cidr }}">
+              <label class="govuk-label" for="exception-cidr">
                   Why do you need to extend the check rules for this resource?
               </label>
-              <span id="exception-value-hint" class="govuk-hint">
-                In general this is a reference for you and your team in the future when reviewing whether to extend or
-                  remove this condition.
+              <span id="exception-cidr-hint" class="govuk-hint">
+                You should make the CIDR as specific as possible. This should not be used to allow /0 traffic.
               </span>
 
-              {% if errors.value %}
-              {% for message in errors.value %}
-              <span id="exception-value-error-{{loop.index}}" class="govuk-error-message">
+              {% if errors.cidr %}
+              {% for message in errors.cidr %}
+              <span id="exception-cidr-error-{{loop.index}}" class="govuk-error-message">
                   {{ message }}
               </span>
               {% endfor %}
               {% endif %}
 
-              <input class="govuk-input {{'govuk-input--error' if errors.value }}"
-                        id="exception-value"
-                        name="exception-value"
-                        aria-describedby="exception-value-hint"
-                        placeholder="Enter a value"
-                        value="{{exception.value}}"/>
+              <input class="govuk-input {{'govuk-input--error' if errors.cidr }}"
+                        id="exception-cidr"
+                        name="exception-cidr"
+                        aria-describedby="exception-cidr-hint"
+                        placeholder="Enter a valid CIDR"
+                        value="{{exception.cidr}}"/>
             </div>
 
             <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason }}">
