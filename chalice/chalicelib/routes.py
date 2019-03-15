@@ -683,7 +683,7 @@ def resource_post_exception(id):
             )
 
     except Exception as err:
-        app.log.error("Route: resource exception error: " + str(err))
+        app.log.error("Route: resource exception error: " + app.utilities.get_typed_exception(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
