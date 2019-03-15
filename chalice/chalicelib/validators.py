@@ -146,10 +146,9 @@ class Form():
     def process_update(self):
 
         is_valid = self.validate(self.post_data)
-
         model_data = self.build_model()
         if is_valid:
-            self.item = self._Model.get_by_id(self.item_id)
+            self.item = self._Model.get_by_id(self.get_item_id())
             for field, value in model_data.items():
                 setattr(self.item, field, value)
             self.item.save()
