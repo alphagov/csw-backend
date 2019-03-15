@@ -191,7 +191,7 @@ class Form():
             item_data = item
             app.log.debug("Model item is already a dict")
         else:
-            app.log.debug("Convert item model to dict")
+            app.log.debug("Convert item model to dict from " + str(type(item)) )
             item_data = item.raw()
         return item_data
 
