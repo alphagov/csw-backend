@@ -8,7 +8,7 @@ from chalice import Response, BadRequestError
 
 from app import app, load_route_services, read_asset
 from chalicelib import models
-from chalicelib.validators import FormAddResourceException, FormAddAllowListException
+from chalicelib.controllers import FormControllerAddResourceException, FormControllerAddAllowListException
 
 
 @app.route('/')
@@ -636,7 +636,7 @@ def resource_post_exception(id):
                 models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
             ).get()
 
-            form = FormAddResourceException()
+            form = FormControllerAddResourceException()
             form.set_post_data(data)
             form.set_user(user)
 
@@ -757,7 +757,7 @@ def audit_check_allow_list(id, check_id):
             # CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
             # check = CheckClass(app)
 
-            form = FormAddAllowListException()
+            form = FormControllerAddAllowListException()
             form.set_user(user)
             defaults = form.get_model_defaults(
                 account_subscription_id = audit_criterion.account_audit_id.account_subscription_id
@@ -828,7 +828,7 @@ def audit_check_post_allow_list(id, check_id):
 
             audit_criterion.serialize()
 
-            form = FormAddAllowListException()
+            form = FormControllerAddAllowListException()
             form.set_post_data(data)
             form.set_user(user)
 
