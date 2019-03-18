@@ -271,7 +271,7 @@ class FormControllerAddResourceException(FormController):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        item_data = super(FormAddResourceException, self).append_form_fields(item)
+        item_data = super(FormControllerAddResourceException, self).append_form_fields(item)
 
         app.log.debug("item_data is an instance of "+str(type(item_data)))
         if self.data and self.data["expiry_components"]:
