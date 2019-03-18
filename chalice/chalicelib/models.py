@@ -661,6 +661,7 @@ class Criterion(database_handle.BaseModel):
     how_do_i_fix_it = peewee.TextField()
     active = peewee.BooleanField(default=True)
     is_regional = peewee.BooleanField(default=True)
+    severity = peewee.IntegerField(default=1)
 
     class Meta:
         table_name = "criterion"

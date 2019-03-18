@@ -2246,7 +2246,7 @@ CLOUDTRAIL_MULTIREGIONAL = {
         'IsMultiRegionTrail': False, 
         'HomeRegion': 'eu-west-2', 
         'TrailARN': 'arn:aws:cloudtrail:eu-west-2:988997429095:trail/gds-org', 
-        'LogFileValidationEnabled': True, 
+        'LogFileValidationEnabled': False, 
         'HasCustomEventSelectors': False
     }
 }
