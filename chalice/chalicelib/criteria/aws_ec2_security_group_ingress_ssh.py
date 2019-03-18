@@ -119,6 +119,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
             valid_ranges = self.get_valid_ranges()
 
+            cidr_is_valid = False
 
             if cidr in valid_ranges:
                 # check for exact cidr match first since it's simpler
