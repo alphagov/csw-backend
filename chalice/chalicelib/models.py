@@ -146,7 +146,7 @@ class User(database_handle.BaseModel):
                         .join(ProductTeamUser)
                         .where(
                             ProductTeamUser.user_id == self.id,
-                            AccountSshCidrAllowlist > now
+                            AccountSshCidrAllowlist.date_expires > now
                         )
                         .order_by(
                             ProductTeam.team_name,
