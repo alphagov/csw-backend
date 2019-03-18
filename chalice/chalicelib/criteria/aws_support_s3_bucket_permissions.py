@@ -57,7 +57,7 @@ class S3BucketReadAll(S3BucketPermissions):
         compliance_type = 'NON_COMPLIANT'
         if item["metadata"][3] == 'Yes':
             self.annotation = (
-                f'Bucket policy allows "everyone" '
+                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy allows "everyone" '
                 f'or "any authenticated AWS user" to list its contents.'
             )
         else:
@@ -101,7 +101,7 @@ class S3BucketOpenAccess(S3BucketPermissions):
         compliance_type = 'NON_COMPLIANT'
         if item["metadata"][6] == 'Yes':
             self.annotation = (
-                f'Bucket policy has open access.'
+                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy has open access.'
             )
         else:
             compliance_type = 'COMPLIANT'
@@ -145,7 +145,7 @@ class S3BucketWriteAll(S3BucketPermissions):
         compliance_type = 'NON_COMPLIANT'
         if item["metadata"][4] == 'Yes':
             self.annotation = (
-                f'Bucket policy allows "everyone" '
+                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy allows "everyone" '
                 f'or "any authenticated AWS user" to update/delete its contents.'
             )
         else:

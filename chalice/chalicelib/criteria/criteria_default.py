@@ -86,7 +86,7 @@ class CriteriaDefault():
         """
 
         # aim to use the resource name but fall back to the id if not defined
-        if 'resource_name' in item:
+        if 'resource_name' in item and item['resource_name'] is not None:
             name = item.get('resource_name', '')
         else:
             name = item.get('resource_id', '')
