@@ -355,7 +355,7 @@ class FormControllerAddAllowListException(FormController):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        item_data = super(FormAddAllowListException, self).append_form_fields(item)
+        item_data = super(FormControllerAddAllowListException, self).append_form_fields(item)
 
         if self.data and self.data["expiry_components"]:
             item_data["expiry_day"] = self.data["expiry_components"]["day"]
