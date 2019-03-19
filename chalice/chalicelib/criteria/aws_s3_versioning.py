@@ -34,10 +34,7 @@ class AwsS3Versioning(CriteriaDefault):
         buckets = self.client.get_bucket_list(session)
         for bucket in buckets:
             # Mutating items as I'm iterating over them again... Sorry
-            bucket_name = bucket["Name"] if bucket["Name"] is not None else "none"
-            self.app.log.debug(f"Get bucket versioning for ({bucket_name})")
-            if bucket_name is not None and bucket_name != "":
-                bucket["Versioning"] = self.client.get_bucket_versioning(session, bucket["Name"])
+            bucket["Versioning"] = self.client.get_bucket_versioning(session, bucket["Name"])
 
         return buckets
 
