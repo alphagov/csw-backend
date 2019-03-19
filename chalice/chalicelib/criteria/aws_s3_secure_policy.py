@@ -78,13 +78,6 @@ class AwsS3SecurePolicy(CriteriaDefault):
                     break
                 else:
                     secure = statement['Condition'].get('Bool', {}).get('aws:SecureTransport')
-                    if secure == "false":  # secure is either "true", "false", or None if it didn't exist
-                        # Failure: HTTPS is specifically disallowed
-                        log_string = "Bucket's policy condition explicitly disallows HTTPS"
-                        compliance_type = "NOT_COMPLIANT"
-                        self.annotation = ("This bucket's policy explicitly disallows HTTPS."
-                                           "Make sure that the aws:SecureTransport condition is set to 'true'.")
-                        break
                     if not secure:  # testing if secure is None
                         # Failure: no secure transport condition
                         log_string = "Bucket does not disallow insecure connections"
