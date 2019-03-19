@@ -2015,12 +2015,6 @@ S3_BUCKET_POLICY_BUCKETS = {
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
-    'fail_only_insecure': [
-        {
-            'Name': 'fail_only_insecure_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
-        }
-    ],
     'pass': [
         {
             'Name': 'pass_bucket',
@@ -2040,10 +2034,6 @@ S3_BUCKET_POLICIES = {
                                  '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
                                  '{"StringLike": {"aws:Referer": ["http://www.example.com/*", '
                                  '"http://example.com/*"]}}}]}'),
-    'fail_only_insecure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
-                           '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
-                           '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
-                           '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
     'pass': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
              '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
              '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
