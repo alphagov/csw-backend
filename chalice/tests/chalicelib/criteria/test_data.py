@@ -2600,3 +2600,12 @@ ELB_LOGGING = [
         "routing.http2.enabled": "true"
     }
 ]
+
+S3_BUCKET_ENCRYPTION = {
+    "pass": {
+
+    },
+    "fail": {
+
+    }
+}
