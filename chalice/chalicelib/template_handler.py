@@ -329,6 +329,7 @@ class TemplateHandler:
             # Don't populate back link if it links to the current page.
             # For forms which post to themselves
             if "referer" in req.headers and req.headers['referer'] != route:
+                self.app.log.debug("Backlink: " + req.headers['referer'] + " <> " + route)
                 data["back_link"] = req.headers['referer']
 
             response_body = self.render_template(template_file, data)
