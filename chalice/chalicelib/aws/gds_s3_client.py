@@ -42,6 +42,6 @@ class GdsS3Client(GdsAwsClient):
             if bucket_name is not None and bucket_name != "":
                 versioning = s3.get_bucket_versioning(Bucket=bucket_name)
         except Exception as err:
-            self.app.log.debug(self.app.utilities.get_typed_exception(err)
+            self.app.log.debug(self.app.utilities.get_typed_exception(err))
 
         return versioning
