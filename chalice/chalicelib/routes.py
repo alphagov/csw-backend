@@ -8,7 +8,7 @@ from chalice import Response, BadRequestError
 
 from app import app, load_route_services, read_asset
 from chalicelib import models
-from chalicelib.validators import FormAddResourceException
+from chalicelib.controllers import FormControllerAddResourceException, FormControllerAddAllowListException
 
 
 @app.route('/')
@@ -485,6 +485,10 @@ def check_issues(id):
         team = account.product_team_id
         # TODO - add check user has access to team
 
+        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+
         template_data = {
             "breadcrumbs": [
                 {
@@ -501,7 +505,8 @@ def check_issues(id):
                 }
             ],
             "audit_check": audit_check.serialize(),
-            "issues": issues_list
+            "issues": issues_list,
+            "exception_type": check.exception_type
         }
         response = app.templates.render_authorized_template(
             'check_issues.html',
@@ -596,7 +601,7 @@ def resource_exception(id):
         )
 
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: resource exception error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -615,104 +620,70 @@ def resource_post_exception(id):
     try:
         authed = app.auth.try_login(app.current_request)
 
-        data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
+        if authed:
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
 
-        resource = models.AuditResource.get_by_id(id)
-        account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
-        )
-        # TODO - add check user has access to account team
+            data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
-        compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
-        ).get()
+            resource = models.AuditResource.get_by_id(id)
+            account = models.AccountSubscription.get_by_id(
+                models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+            )
+            # TODO - add check user has access to account team
 
-        exception = models.ResourceException.find_exception(
-            resource.criterion_id.id,
-            resource.resource_persistent_id,
-            account.id
-        )
+            compliance = (
+                models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+            ).get()
 
-        form = FormAddResourceException()
+            form = FormControllerAddResourceException()
+            form.set_post_data(data)
+            form.set_user(user)
 
-        is_valid = form.validate(data)
+            exception = form.process()
+            status_message = form.processed_status
 
-        expiry_date = datetime.date(
-            int(form.data["expiry_components"]["year"]),
-            int(form.data["expiry_components"]["month"]),
-            int(form.data["expiry_components"]["day"])
-        )
+            app.log.debug(app.utilities.to_json(status_message))
 
-        exception["reason"] = form.data["reason"]
-        exception["date_expires"] = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
-        exception["expiry_day"] = form.data["expiry_components"]["day"]
-        exception["expiry_month"] = form.data["expiry_components"]["month"]
-        exception["expiry_year"] = form.data["expiry_components"]["year"]
+            exception = form.append_form_fields(exception)
 
-        # If authed and valid save the resource_exception
-        if is_valid and authed:
-            try:
+            app.log.debug(app.utilities.to_json(exception))
 
-                # remove extra form fields from the data
-                exception_data = models.ResourceException.clean(exception)
+            # json = app.utilities.to_json(data, True)
+            # response = app.templates.render_authorized_template(
+            #     'debug.html',
+            #     app.current_request,
+            #     {
+            #         "json": json
+            #     }
+            # )
+            mode = "create"
 
-                # get login details for current user
-                user_data = app.auth.get_login_data()
-                user = models.User.find_active_by_email(user_data['email'])
-                exception_data['user_id'] = user.id
+            response = app.templates.render_authorized_template(
+                'resource_exception.html',
+                app.current_request,
+                {
+                    "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                    "account": account.serialize(),
+                    "resource": resource.serialize(),
+                    "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                    "compliance": compliance.serialize(),
+                    "exception": exception,
+                    "status": models.Status.get_by_id(compliance.status_id).serialize(),
+                    "mode": mode,
+                    "errors": form.get_errors(),
+                    "status_message": status_message
+                }
+            )
 
-                if 'id' in exception_data:
-                    # If the id is set then treat as an update
-                    exception_item = models.ResourceException.get_by_id(exception_data['id'])
-                    exception_item.date_expires = exception["date_expires"]
-                    exception_item.reason = exception["reason"]
-                    exception_item.user_id = user.id
-                    exception_item.save()
-                else:
-                    # If the id is not set treat as an insert
-                    resource_exception = models.ResourceException.create(**exception_data)
-
-                # retrieve and populate the date components for the template
-                exception = models.ResourceException.find_exception(
-                    resource.criterion_id.id,
-                    resource.resource_persistent_id,
-                    account.id
-                )
-
-            except Exception as err:
-                app.log.error(app.utilities.get_typed_exception(err))
         else:
-            message = app.utilities.to_json(form.get_errors())
-            app.log.debug(message)
-
-        # json = app.utilities.to_json(data, True)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": json
-        #     }
-        # )
-        mode = "create"
-
-        response = app.templates.render_authorized_template(
-            'resource_exception.html',
-            app.current_request,
-            {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
-                "account": account.serialize(),
-                "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
-                "compliance": compliance.serialize(),
-                "exception": exception,
-                "status": models.Status.get_by_id(compliance.status_id).serialize(),
-                "mode": mode,
-                "errors": form.get_errors()
-            }
-        )
+            response = app.templates.render_authorized_template(
+                'denied.html',
+                app.current_request
+            )
 
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: resource exception error: " + app.utilities.get_typed_exception(err))
         response = app.templates.default_server_error()
     return Response(**response)
 
@@ -731,19 +702,178 @@ def my_exceptions():
             user_data = app.auth.get_login_data()
             user = models.User.find_active_by_email(user_data['email'])
             exceptions = user.get_my_exceptions()
+            allowlists = user.get_my_allowlists()
 
         else:
-            teams = []
+            exceptions = []
+            allowlists = []
 
         response = app.templates.render_authorized_template(
             'my_exceptions.html',
             app.current_request,
             {
-                "exceptions": exceptions
+                "exceptions": exceptions,
+                "allowlists": allowlists
             }
         )
     except Exception as err:
-        app.log.error("Route: resource error: " + str(err))
+        app.log.error("Route: exception error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/account/{id}/check/{check_id}/allowlist')
+def audit_check_allow_list(id, check_id):
+    """
+    Allows you to create and update allow list records
+    for checks like SSH ingress where you want to be
+    able to customise the list of acceptable IP/CIDRs
+    """
+    account_id = int(id)
+    check_id = int(check_id)
+
+    try:
+        load_route_services()
+
+        authed = app.auth.try_login(app.current_request)
+        if authed:
+
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+
+            # Get most recent evaluation of criterion for this account
+            audit_criterion = (models.AuditCriterion
+                               .select()
+                               .join(models.AccountAudit)
+                               .where(
+                                    models.AuditCriterion.criterion_id == check_id,
+                                    models.AuditCriterion.account_audit_id.account_subscription_id == account_id
+                               )
+                               .order_by(models.AuditCriterion.id.desc())
+                               .get())
+
+            audit_criterion.serialize()
+
+            # CheckClass = app.utilities.get_class_by_name(audit_criterion.criterion_id.invoke_class_name)
+            # check = CheckClass(app)
+
+            form = FormControllerAddAllowListException()
+            form.set_user(user)
+            defaults = form.get_model_defaults(
+                account_subscription_id = audit_criterion.account_audit_id.account_subscription_id
+            )
+            allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
+
+            # defaults = check.AllowlistClass.get_defaults(account_id, user.id)
+
+            template_data = {
+                "audit_criterion": audit_criterion.serialize(),
+                "allowlist": allowed,
+                "exception": defaults,
+                "errors": {}
+            }
+            # json = app.utilities.to_json(template_data, True)
+            response = app.templates.render_authorized_template(
+                'account_check_allowlist.html',
+                app.current_request,
+                template_data
+            )
+
+        else:
+            response = app.templates.render_authorized_template(
+                'denied.html',
+                app.current_request
+            )
+
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route('/account/{id}/check/{check_id}/allowlist',
+           methods=['POST'],
+           content_types=['application/x-www-form-urlencoded'])
+def audit_check_post_allow_list(id, check_id):
+    """
+    Deals with parsing urlencoded form data handing errors
+    and submitting inserts and updates
+    """
+    account_id = int(id)
+    check_id = int(check_id)
+    load_route_services()
+    # populate form with existing
+    # post form
+    #
+    try:
+        authed = app.auth.try_login(app.current_request)
+
+        if authed:
+
+            user_data = app.auth.get_login_data()
+            user = models.User.find_active_by_email(user_data['email'])
+
+            data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
+
+            # Get most recent evaluation of criterion for this account
+            audit_criterion = (models.AuditCriterion
+                               .select()
+                               .join(models.AccountAudit)
+                               .where(
+                                    models.AuditCriterion.criterion_id == check_id,
+                                    models.AuditCriterion.account_audit_id.account_subscription_id == account_id
+                               )
+                               .order_by(models.AuditCriterion.id.desc())
+                               .get())
+
+            audit_criterion.serialize()
+
+            form = FormControllerAddAllowListException()
+            form.set_post_data(data)
+            form.set_user(user)
+
+            exception = form.process()
+            status_message = form.processed_status
+
+            if form.get_mode() != 'load':
+                # blank the form after create/update
+                exception = form.get_model_defaults(
+                    account_subscription_id=audit_criterion.account_audit_id.account_subscription_id
+                )
+
+            app.log.debug(app.utilities.to_json(status_message))
+
+            exception = form.append_form_fields(exception)
+
+            app.log.debug(app.utilities.to_json(exception))
+
+            allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
+            num_items = len(allowed)
+
+            app.log.debug(f"Retrieved {num_items} for current allowlist")
+
+            template_data = {
+                "audit_criterion": audit_criterion.serialize(),
+                "allowlist": allowed,
+                "exception": exception,
+                "errors": form.get_errors(),
+                "status_message": status_message
+            }
+            # json = app.utilities.to_json(template_data, True)
+            response = app.templates.render_authorized_template(
+                'account_check_allowlist.html',
+                app.current_request,
+                template_data
+            )
+
+        else:
+            response = app.templates.render_authorized_template(
+                'denied.html',
+                app.current_request
+            )
+
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
         response = app.templates.default_server_error()
     return Response(**response)
 

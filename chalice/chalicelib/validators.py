@@ -2,94 +2,8 @@ import datetime
 import cerberus
 import json
 import re
+from chalicelib import models
 from app import app
-
-class Form():
-    """
-    Implements the validation from "application/x-www-form-urlencoded"
-    post data using cerberus with some custom rules
-
-    The encoded post data is submitted as arrays for some reason so
-    the parse_post_data method strips that into a simpler data model
-    """
-    # Cerberus example implementation
-    # schema = {'name': {'type': 'string'}, 'age': {'type': 'integer', 'min': 10}}
-    # document = {'name': 'Little Joe', 'age': 5}
-    # v.validate(document, schema)
-    schema = {}
-    def __init__(self):
-        self.form_validator = FormValidator()
-
-    def parse_post_data(self, data):
-        """
-        Remove unnecessary array indices from the post data
-        :param data:
-        :return:
-        """
-        document = {}
-        return document
-
-    def flatten_text_input(self, field):
-        return re.sub("\s+", " ", " ".join(field))
-
-    def validate(self, post_data):
-        """
-        Call the cerberus validator against the self.schema
-        :param post_data:
-        :return:
-        """
-        self.data = self.parse_post_data(post_data)
-        return self.form_validator.validate(self.data, self.schema)
-
-    def get_errors(self):
-        return self.form_validator.errors
-
-class FormAddResourceException(Form):
-
-    schema = {
-        "resource_persistent_id": {"type": "string"},
-        "criterion_id": {"type": "integer"},
-        "account_subscription_id": {"type": "integer"},
-        "reason": {
-            "type": "string",
-            "notnull": True,
-            "maxlength": 500,
-            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
-        },
-        "expiry_components": {
-            "type": "dict",
-            "datecomponents": True
-        },
-        "expiry_date": {
-            "coerce": "datecomponents",
-            "datemin": (datetime.timedelta(days=0).total_seconds()),
-            "datemax": (datetime.timedelta(days=365).total_seconds())
-        }
-    }
-
-    def parse_post_data(self, data):
-
-        try:
-            now = datetime.datetime.now()
-            expiry_date = {
-                "year": int(data.get('exception-expiry-year',[now.year])[0]),
-                "month": int(data.get('exception-expiry-month',[now.month])[0]),
-                "day": int(data.get('exception-expiry-day',[now.day])[0])
-            }
-
-            document = {}
-            document["resource_persistent_id"] = data["resource_persistent_id"][0]
-            document["criterion_id"] = int(data["criterion_id"][0])
-            document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
-            document["expiry_components"] = expiry_date
-            document["expiry_date"] = expiry_date
-
-            app.log.debug(json.dumps(document))
-        except Exception as err:
-            app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
-        return document
-
 
 
 class FormValidator(cerberus.Validator):
@@ -183,6 +97,20 @@ class FormValidator(cerberus.Validator):
 
         if datemax and not self.before_max(value, delta):
             self._error(field, self.get_after_message(delta))
+
+    def _validate_matchpattern(self, matchpattern, field, value):
+        """ Test that a datetime falls after now + delta
+
+        The rule's arguments are validated against this schema:
+        {'type': 'string'}
+        """
+        try:
+            # invalid_chars = "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            pattern = re.compile(matchpattern)
+            if not pattern.match(value):
+                raise ValueError("Value does not match the CIDR pattern eg 112.123.134.0/24")
+        except Exception as err:
+            self._error(field, str(err))
 
     def _validate_errorpattern(self, errorpattern, field, value):
         """ Test that a datetime falls after now + delta

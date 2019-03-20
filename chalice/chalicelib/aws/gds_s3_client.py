@@ -30,6 +30,18 @@ class GdsS3Client(GdsAwsClient):
         return policy
 
     def get_bucket_versioning(self, session, bucket_name):
-
         s3 = self.get_boto3_session_client('s3', session)
-        return s3.get_bucket_versioning(Bucket=bucket_name)
+        # If the trusted advisor check result has not been recently refreshed
+        # you can get a list of buckets including buckets that no longer exist.
+        # This try catch traps the exception if you try to call get_bucket_versioning
+        # for a bucket that doesn't exist.
+        versioning = None
+        try:
+            self.app.log.debug(f"Get bucket versioning for ({bucket_name})")
+            # Don't try to get versioning without a name
+            if bucket_name is not None and bucket_name != "":
+                versioning = s3.get_bucket_versioning(Bucket=bucket_name)
+        except Exception as err:
+            self.app.log.debug(self.app.utilities.get_typed_exception(err))
+
+        return versioning

@@ -6,80 +6,38 @@
     <div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">My exceptions</h1>
+
         <p>
           This view shows any custom rules you have set for the audit of your accounts.
             Those can be excluding a specified resource from a particular check or adding
             allowlists to broaden the valid options
         </p>
+        <div class="govuk-tabs" data-module="tabs">
+          <h2 class="govuk-tabs__title">
+            Exeption types
+          </h2>
+          <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#my-resource-exceptions">
+                Resource exceptions
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#my-allow-lists">
+                Custom allow lists
+              </a>
+            </li>
+          </ul>
 
-        {%- set previous_team = "" -%}
-        {%- set previous_account = "" -%}
-        {%- set previous_criterion = "" -%}
-
-        {% for exception in exceptions %}
-        {% if exception.account_subscription_id.product_team_id.team_name != previous_team %}
-        <h2 class="govuk-heading-m">
-            {{ exception.account_subscription_id.product_team_id.team_name }}
-        </h2>
-        {% endif %}
-
-        {% if exception.account_subscription_id.account_name != previous_account %}
-        <h3 class="govuk-heading-m">
-            Account: {{ exception.account_subscription_id.account_name }}
-            <span class="govuk-caption-m">
-                {{ exception.account_subscription_id.account_id }}
-            </span>
-        </h3>
-        {% endif %}
-
-        {% if exception.criterion_id.criterion_name != previous_criterion %}
-        <h4 class="govuk-heading-s">
-          Check: {{ exception.criterion_id.criterion_name }}
-        </h4>
-        {% endif %}
-
-        {%- set resource = exception.audit_resource_id -%}
-        <table class="govuk-table">
-            <tbody class="govuk-table__body">
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Resource</th>
-                    <td class="govuk-table__cell">
-                        {{ resource.resource_name }}
-                    </td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">ID</th>
-                    <td class="govuk-table__cell">
-                        {% if resource.resource_name != resource.resource_id %}
-                        {{ resource.resource_id }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Region</th>
-                    <td class="govuk-table__cell">{{ resource.region }}</td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">Reason</th>
-                    <td class="govuk-table__cell">{{ exception.reason }}</td>
-                </tr>
-                <tr class="govuk-table__row">
-                    <th class="govuk-table__header">
-                        Edit
-                    </th>
-                    <td class="govuk-table__cell">
-                        <a href="{{base_path}}/resource/{{ resource.id }}/exception" role="button" class="csw-team-list__cta-button">
-                            Edit exception
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        {%- set previous_team = exception.account_subscription_id.product_team_id.team_name -%}
-        {%- set previous_account = exception.account_subscription_id.account_name -%}
-        {%- set previous_criterion = exception.criterion_id.criterion_name -%}
-        {% endfor %}
+          <section class="govuk-tabs__panel" id="my-resource-exceptions">
+            <h2 class="govuk-heading-m">Resource exceptions</h2>
+            {% include "components/my_resource_exceptions.html" %}
+          </section>
+          <section class="govuk-tabs__panel" id="my-allow-lists">
+            <h2 class="govuk-heading-m">Custom allow lists</h2>
+            {% include "components/my_allow_lists.html" %}
+          </section>
+        </div>
       </div>
     </div>
   </main>

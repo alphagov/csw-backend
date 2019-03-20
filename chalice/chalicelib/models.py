@@ -10,7 +10,6 @@ import peewee
 
 from app import app  # used only for logging
 from chalicelib import database_handle
-from chalicelib.validators import *
 
 
 class User(database_handle.BaseModel):
@@ -105,12 +104,16 @@ class User(database_handle.BaseModel):
 
     def get_my_exceptions(self):
         try:
+            now = datetime.datetime.now()
             exceptions = (ResourceException
                         .select()
                         .join(AccountSubscription)
                         .join(ProductTeam)
                         .join(ProductTeamUser)
-                        .where(ProductTeamUser.user_id == self.id)
+                        .where(
+                            ProductTeamUser.user_id == self.id,
+                            ResourceException.date_expires > now
+                        )
                         .order_by(
                             ProductTeam.team_name,
                             AccountSubscription.account_name,
@@ -132,6 +135,45 @@ class User(database_handle.BaseModel):
             exceptions = []
 
         return exceptions
+
+    def get_my_allowlists(self):
+        try:
+            now = datetime.datetime.now()
+            allowed_ssh_cidrs = (AccountSshCidrAllowlist
+                        .select()
+                        .join(AccountSubscription)
+                        .join(ProductTeam)
+                        .join(ProductTeamUser)
+                        .where(
+                            ProductTeamUser.user_id == self.id,
+                            AccountSshCidrAllowlist.date_expires > now
+                        )
+                        .order_by(
+                            ProductTeam.team_name,
+                            AccountSubscription.account_name
+                        ))
+
+            ssh_check = (Criterion
+                         .select()
+                         .where(
+                            Criterion.invoke_class_name == 'chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh'
+                         )
+                         .get())
+
+            allowlists = [
+                {
+                    "type": "ssh_cidrs",
+                    "check_id": ssh_check.id,
+                    "list": allowed_ssh_cidrs
+                }
+            ]
+
+        except Exception as err:
+            app.log.debug("Failed to get allow list for current user: " + str(err))
+            allowlists = []
+
+        return allowlists
+
 
     def can_access_team(self, team_id):
         try:
@@ -917,6 +959,25 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
     class Meta:
         table_name = "account_ssh_cidr_allowlist"
 
+    @classmethod
+    def get_validation_schema(cls):
+        # pattern of an IPv4 CIDR
+        allowlist_pattern = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+        # check for at least 16 bit subnet mask
+        return allowlist_pattern
+
+    @classmethod
+    def get_defaults(cls, account_subscription_id, user_id):
+        now = datetime.datetime.now()
+        default_expiry = now + datetime.timedelta(days=90)
+        return {
+            "cidr": "",
+            "reason": "",
+            "account_subscription_id": account_subscription_id,
+            "user_id": user_id,
+            "date_created": now,
+            "date_expires": default_expiry
+        }
 
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later

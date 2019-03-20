@@ -30,6 +30,10 @@ class CriteriaDefault():
     """
     aggregation_type = "all"
 
+    # Set default account_subscription_id which should be set in the
+    # audit lambda by calling the set_account_subscription_id() method
+    account_subscription_id = None
+
     resources = dict()
 
     resource_type = "AWS::*::*"
@@ -82,7 +86,7 @@ class CriteriaDefault():
         """
 
         # aim to use the resource name but fall back to the id if not defined
-        if 'resource_name' in item:
+        if 'resource_name' in item and item['resource_name'] is not None:
             name = item.get('resource_name', '')
         else:
             name = item.get('resource_id', '')
@@ -247,6 +251,8 @@ class CriteriaDefault():
 
         return item
 
+    def set_account_subscription_id(self, account_subscription_id):
+        self.account_subscription_id = account_subscription_id
 
 
 class TrustedAdvisorCriterion(CriteriaDefault):

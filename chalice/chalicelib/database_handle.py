@@ -5,7 +5,6 @@ Module for reusable classes extending and easing chalice and peewee functionalit
 import importlib
 import inspect
 import os
-from chalicelib.validators import *
 from app import app
 
 import peewee
@@ -304,5 +303,7 @@ class BaseModel(peewee.Model):
                 raw_data[field] = value['id']
             else:
                 raw_data[field] = value
+
+        app.log.debug(app.utilities.to_json(raw_data))
 
         return raw_data

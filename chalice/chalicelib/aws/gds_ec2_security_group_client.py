@@ -121,7 +121,7 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
     def cidrs_equivalent(self, cidr_a, cidr_b):
 
-        a_in_b = self.parent_cidr_contains_chlid_cidr(self, cidr_a, cidr_b)
-        b_in_a = self.parent_cidr_contains_chlid_cidr(self, cidr_b, cidr_a)
+        a_in_b = self.parent_cidr_contains_child_cidr(cidr_a, cidr_b)
+        b_in_a = self.parent_cidr_contains_child_cidr(cidr_b, cidr_a)
 
         return (a_in_b and b_in_a)

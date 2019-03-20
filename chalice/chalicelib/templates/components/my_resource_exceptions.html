@@ -1,0 +1,70 @@
+{%- set resource_exceptions_namespace = namespace(previous_team="", previous_account="", previous_criterion="") -%}
+
+{% for exception in exceptions %}
+{% if exception.account_subscription_id.product_team_id.team_name != resource_exceptions_namespace.previous_team %}
+<h3 class="govuk-heading-m">
+    {{ exception.account_subscription_id.product_team_id.team_name }}
+</h3>
+{% endif %}
+
+{% if exception.account_subscription_id.account_name != resource_exceptions_namespace.previous_account %}
+<h4 class="govuk-heading-m">
+    Account: {{ exception.account_subscription_id.account_name }}
+    <span class="govuk-caption-m">
+        {{ exception.account_subscription_id.account_id }}
+    </span>
+</h4>
+{% endif %}
+
+{% if exception.criterion_id.criterion_name != resource_exceptions_namespace.previous_criterion %}
+<h5 class="govuk-heading-s">
+  Check: {{ exception.criterion_id.criterion_name }}
+</h5>
+{% endif %}
+
+{%- set resource = exception.audit_resource_id -%}
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">Resource</th>
+            <td class="govuk-table__cell">
+                {{ resource.resource_name }}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">ID</th>
+            <td class="govuk-table__cell">
+                {% if resource.resource_name != resource.resource_id %}
+                {{ resource.resource_id }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">Region</th>
+            <td class="govuk-table__cell">{{ resource.region }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">Reason</th>
+            <td class="govuk-table__cell">{{ exception.reason }}</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">
+                Edit
+            </th>
+            <td class="govuk-table__cell">
+                <a href="{{base_path}}/resource/{{ resource.id }}/exception" role="button" class="csw-team-list__cta-button">
+                    Edit exception
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+{%- set resource_exceptions_namespace.previous_team = exception.account_subscription_id.product_team_id.team_name -%}
+{%- set resource_exceptions_namespace.previous_account = exception.account_subscription_id.account_name -%}
+{%- set resource_exceptions_namespace.previous_criterion = exception.criterion_id.criterion_name -%}
+{% endfor %}
+
+{% if exceptions|length == 0 %}
+You do not currently have any active resource exceptions.
+{% endif %}

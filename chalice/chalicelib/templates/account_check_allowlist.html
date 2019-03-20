@@ -6,13 +6,17 @@
     <a href="{{ back_link }}" class="govuk-back-link">Back</a>
     {% endif %}
 
-    <h1 class="govuk-heading-l">Resource exception</h1>
+    <h1 class="govuk-heading-l">Allow list exception</h1>
     {%- if status_message is defined -%}
     {% include "components/status_message.html" %}
     {%- endif -%}
 
-    {% include "components/resource_context.html" %}
-    {% include "components/resource_exception_form.html" %}
+    {% include "components/account_check_context.html" %}
+    {%- if allowlist and allowlist|length > 0 -%}
+    {%- set list = allowlist -%}
+    {% include "components/account_check_allowlist_list.html" %}
+    {%- endif -%}
+    {% include "components/account_check_allowlist_form.html" %}
   </main>
 </div>
 {% endblock %}

@@ -1,0 +1,48 @@
+<h3 class="govuk-heading-m">Allowed SSH ingress CIDRs</h3>
+{%- set allowlist_ssh_namespace = namespace(previous_team="", previous_account="") -%}
+
+{% for item in list %}
+{% if item.account_subscription_id.product_team_id.team_name != allowlist_ssh_namespace.previous_team %}
+<h4 class="govuk-heading-m">
+    {{ item.account_subscription_id.product_team_id.team_name }}
+</h4>
+{% endif %}
+
+{% if item.account_subscription_id.account_name != allowlist_ssh_namespace.previous_account %}
+<h5 class="govuk-heading-m">
+    Account: {{ item.account_subscription_id.account_name }}
+    <span class="govuk-caption-m">
+        {{ item.account_subscription_id.account_id }}
+    </span>
+</h5>
+{% endif %}
+
+<table class="govuk-table">
+    <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">CIDR</th>
+            <th class="govuk-table__header">Reason</th>
+            <th class="govuk-table__header">Actions</th>
+        </tr>
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+                {{ item.cidr }}
+            </td>
+            <td class="govuk-table__cell">
+                {{ item.reason }}
+            </td>
+            <td class="govuk-table__cell">
+                <a href="{{base_path}}/account/{{item.account_subscription_id}}/check/{{check_id}}/allowlist" role="button" class="csw-team-list__cta-button">
+                    Edit item
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{%- set allowlist_ssh_namespace.previous_team = item.account_subscription_id.product_team_id.team_name -%}
+{%- set allowlist_ssh_namespace.previous_account = item.account_subscription_id.account_name -%}
+{% endfor %}
+
+{% if list|length == 0 %}
+You do not currently have any custom allow list settings.
+{% endif %}

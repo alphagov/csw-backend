@@ -1,14 +1,40 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-m">Add an exception</h2>
+        <h2 class="govuk-heading-m">Add a custom valid option</h2>
         <form action="./exception" method="post">
+            <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.values }}">
+              <label class="govuk-label" for="exception-values">
+                  Why do you need to allow this option?
+              </label>
+              <span id="exception-values-hint" class="govuk-hint">
+                In general this is a reference for you and your team in the future when reviewing whether to extend or
+                  remove the customisation.
+                Enter multiple values on new lines.
+              </span>
+
+              {% if errors.reason %}
+              {% for message in errors.reason %}
+              <span id="exception-values-error-{{loop.index}}" class="govuk-error-message">
+                  {{ message }}
+              </span>
+              {% endfor %}
+              {% endif %}
+
+              <textarea class="govuk-textarea {{'govuk-textarea--error' if errors.reason }}"
+                        id="exception-values"
+                        name="exception-values"
+                        rows="3"
+                        aria-describedby="exception-values-hint"
+                        placeholder="{{exception_placeholder}}">{{exception.values}}</textarea>
+            </div>
+
             <div class="govuk-form-group {{ 'govuk-form-group--error' if errors.reason }}">
               <label class="govuk-label" for="exception-reason">
-                  Why does this check not apply to this resource?
+                  Why do you need to allow this option?
               </label>
               <span id="exception-reason-hint" class="govuk-hint">
                 In general this is a reference for you and your team in the future when reviewing whether to extend or
-                  remove this exception.
+                  remove the customisation.
               </span>
 
               {% if errors.reason %}
@@ -30,7 +56,7 @@
             <div class="govuk-form-group {{ 'govuk-form-group--error' if (errors.expiry_components or errors.expiry_date) }}">
               <fieldset class="govuk-fieldset" aria-describedby="exception-expiry-hint" role="group">
                 <legend class="govuk-label">
-                  When should the exception expire?
+                  When should the customisation expire?
                 </legend>
                 <span id="exception-expiry-hint" class="govuk-hint">
                   Expiry should be within 12 months.

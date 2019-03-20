@@ -48,7 +48,11 @@ class AwsS3Versioning(CriteriaDefault):
 
     def evaluate(self, event, bucket, whitelist=[]):
         log_string = ""
-        if "Status" in bucket["Versioning"]:
+        if bucket["Versioning"] is None:
+            compliance_type = "NON_COMPLIANT"
+            self.annotation = "Unable to retrieve versioning status for this bucket."
+            log_string = "The call to get bucket versioning failed."
+        elif "Status" in bucket["Versioning"]:
             if bucket["Versioning"]["Status"] == "Enabled":
                 self.annotation = ""
                 compliance_type = "COMPLIANT"

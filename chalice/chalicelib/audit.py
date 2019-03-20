@@ -142,6 +142,7 @@ def account_evaluate_criteria(event):
             CheckClass = app.utilities.get_class_by_name(criterion.invoke_class_name)
             check = CheckClass(app)
             account_id = audit.account_subscription_id.account_id
+            check.set_account_subscription_id(audit.account_subscription_id.id)
             session = check.get_session(account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole")
 
             # check passed is set to true and and-equalsed for all
@@ -166,7 +167,6 @@ def account_evaluate_criteria(event):
                 else:
                     requests.append(params)
                 summary = None
-
 
                 # check passed is set to true and and-equalsed for all
                 # or false and or-equalsed for any
@@ -246,7 +246,6 @@ def account_evaluate_criteria(event):
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
-            app.log.debug(f"Check: {criterion.id} Status: {status}")
             message_data['check_passed'] = check_passed
             # It may be worth adding a field to the model
             # to record where a check failed because of a failed assume role

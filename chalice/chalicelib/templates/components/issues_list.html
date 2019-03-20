@@ -53,11 +53,13 @@
                     <th class="govuk-table__header">Why is it important?</th>
                     <td class="govuk-table__cell">{{ issue.criterion.why_is_it_important | safe }}</td>
                 </tr>
+                {% if exception_type != "none" %}
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">
                         False positive?
                     </th>
                     <td class="govuk-table__cell">
+                        {% if exception_type == "resource" %}
                         <details class="govuk-details">
                           <summary class="govuk-details__summary">
                             <span class="govuk-details__summary-text">
@@ -73,8 +75,27 @@
                         <a href="{{base_path}}/resource/{{ issue.resource.id }}/exception" role="button" class="csw-team-list__cta-button">
                             Make an exception
                         </a>
+                        {% endif %}
+                        {% if exception_type == "allowlist" %}
+                        <details class="govuk-details">
+                          <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">
+                               When to add an allow-list
+                            </span>
+                          </summary>
+                          <div class="govuk-details__text">
+                            An allow-list is not the same an an exception. An allow list lets you add an entry to the
+                                valid options for a check. An exception will pass this resource. An allow list will
+                                pass any resource which currently fails for the same reason.
+                          </div>
+                        </details>
+                        <a href="{{base_path}}/account/{{ issue.resource.account_audit_id.account_subscription_id.id }}/check/{{ issue.criterion.id }}/allowlist" role="button" class="csw-team-list__cta-button">
+                            Add an allow-list
+                        </a>
+                        {% endif %}
                     </td>
                 </tr>
+                {% endif %}
             </tbody>
         </table>
         <!--a href="{{ base_path }}/resource/{{ issue.resource.id }}" role="button" class="govuk-button">View details</a-->
