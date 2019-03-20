@@ -45,3 +45,11 @@ class GdsS3Client(GdsAwsClient):
             self.app.log.debug(self.app.utilities.get_typed_exception(err))
 
         return versioning
+
+    def get_bucket_encryption(self, session, bucket_name):
+
+        s3 = self.get_boto3_session_client('s3', session)
+        try:
+            return s3.get_bucket_encryption(Bucket=bucket_name)
+        except Exception as e:
+            return str(e)  # If bucket not encrypted, the above method raises an exception, so use that instead
