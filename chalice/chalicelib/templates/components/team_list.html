@@ -18,7 +18,11 @@
                 {%- set team = team_stats.team -%}
                 {%- set team_data = team_stats.summary.all -%}
                 <tr class="govuk-table__row">
-                    <th class="govuk-table__header">{{ team.team_name }}</th>
+                    <th class="govuk-table__header">
+                        <a href="{{base_path}}/team/{{ team.id }}/status" role="button" class="csw-team-list__cta-button">
+                            {{ team.team_name }}
+                        </a>
+                    </th>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         <strong class="{{ 'govuk-tag__fixed-width--passed' if team_data.accounts_failed == 0 else 'govuk-tag__fixed-width--failed' }}">
                             {{ "Pass" if team_data.accounts_failed == 0 else "Fail" }}
@@ -26,17 +30,10 @@
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if team_data.accounts_failed > 0 -%}
-                        <a href="{{base_path}}/team/{{team.id}}/issues">
-                            {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "issues" }}
-                        </a>
+                        {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "issues" }}
                         {%- else -%}
                         0 issues
                         {%- endif -%}
-                    </td>
-                    <td class="govuk-table__cell">
-                        <a href="{{base_path}}/team/{{ team.id }}/status" role="button" class="csw-team-list__cta-button">
-                            View details
-                        </a>
                     </td>
                 </tr>
                 {% endfor %}
