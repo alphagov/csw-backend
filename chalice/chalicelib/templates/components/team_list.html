@@ -1,5 +1,5 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
+    <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Product Teams</h1>
         <p>
             The following teams have been setup to have their AWS accounts monitored.
@@ -15,8 +15,8 @@
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
                     <th class="govuk-table__header--tag-fixed-centred">Issues</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -30,16 +30,16 @@
                         </a>
                     </th>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        <strong class="{{ 'govuk-tag__fixed-width--passed' if team_data.accounts_failed == 0 else 'govuk-tag__fixed-width--failed' }}">
-                            {{ "Pass" if team_data.accounts_failed == 0 else "Fail" }}
-                        </strong>
-                    </td>
-                    <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if team_data.accounts_failed > 0 -%}
                         {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "issues" }}
                         {%- else -%}
                         0 issues
                         {%- endif -%}
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <strong class="{{ 'govuk-tag__fixed-width--passed' if team_data.accounts_failed == 0 else 'govuk-tag__fixed-width--failed' }}">
+                            {{ "Pass" if team_data.accounts_failed == 0 else "Fail" }}
+                        </strong>
                     </td>
                 </tr>
                 {% endfor %}
