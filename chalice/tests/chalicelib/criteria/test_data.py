@@ -1999,25 +1999,43 @@ RDS_SECURITY_GROUPS = {'ResponseMetadata': {'HTTPHeaders': {'content-length': '2
 S3_BUCKET_POLICY_BUCKETS = {
     'fail_no_policy': [
         {
-            'Name': 'fail_no_policy_bucket',
+            'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_no_condition': [
         {
-            'Name': 'fail_no_condition_bucket',
+            'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
     'fail_no_secure_condition': [
         {
-            'Name': 'fail_no_secure_condition_bucket',
+            'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ],
-    'pass': [
+    'fail_secure_transport_false': [
         {
-            'Name': 'pass_bucket',
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+        }
+    ],
+    'fail_secure_transport_true': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+        }
+    ],
+    'pass_secure_transport_false': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+        }
+    ],
+    'pass_secure_transport_true': [
+        {
+            'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
         }
     ]
@@ -2034,10 +2052,22 @@ S3_BUCKET_POLICIES = {
                                  '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
                                  '{"StringLike": {"aws:Referer": ["http://www.example.com/*", '
                                  '"http://example.com/*"]}}}]}'),
-    'pass': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
-             '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
-             '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
-             '{"Bool": {"aws:SecureTransport": "true"}}}]}')
+    'fail_secure_transport_true': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                    '"AddPerm", "Effect": "Deny", "Principal": {"AWS": "*"}, "Action": '
+                                    '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                    '{"Bool": {"aws:SecureTransport": "true"}}}]}'),
+    'fail_secure_transport_false': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                    '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                                    '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                    '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
+    'pass_secure_transport_true': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                   '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                                   '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                   '{"Bool": {"aws:SecureTransport": "true"}}}]}'),
+    'pass_secure_transport_false': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                   '"AddPerm", "Effect": "Deny", "Principal": {"AWS": "*"}, "Action": '
+                                   '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                   '{"Bool": {"aws:SecureTransport": "false"}}}]}')
 }
 
 S3_VERSIONING_BUCKETS = {
