@@ -4,20 +4,32 @@
         <p>
             The following teams have been setup to have their AWS accounts monitored.
         </p>
-        <h2 class="govuk-heading-s">What is a team?</h2>
-        <p>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+               What is a team?
+            </span>
+          </summary>
+          <div class="govuk-details__text">
             AWS accounts are assigned to teams and users are assigned to teams.
             Users can then see all the AWS accounts of all the teams they are assigned to.
             This can be used to manage permissions to separate access to production accounts
             or to separate people working on different projects.
-        </p>
-        <h2 class="govuk-heading-s">What is a resource?</h2>
-        <p>
+          </div>
+        </details>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+               What is a resource?
+            </span>
+          </summary>
+          <div class="govuk-details__text">
             A resource might be a VPC security group, RDS instance, S3 bucket.
             Checks target AWS resource types. So a check typically evaluates
             each resource of that type. So even if only 1 check fails it may have
             failed because there are multiple non-compliant resources.
-        </p>
+          </div>
+        </details>
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
