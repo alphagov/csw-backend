@@ -11,11 +11,18 @@
             This can be used to manage permissions to separate access to production accounts
             or to separate people working on different projects.
         </p>
+        <h2 class="govuk-heading-s">What is a resource?</h2>
+        <p>
+            A resource might be a VPC security group, RDS instance, S3 bucket.
+            Checks target AWS resource types. So a check typically evaluates
+            each resource of that type. So even if only 1 check fails it may have
+            failed because there are multiple non-compliant resources.
+        </p>
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Issues</th>
+                    <th class="govuk-table__header--tag-fixed-centred">Failed resources</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
                 </tr>
             </thead>
@@ -31,9 +38,9 @@
                     </th>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if team_data.accounts_failed > 0 -%}
-                        {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "issues" }}
+                        {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "failed resources" }}
                         {%- else -%}
-                        0 issues
+                        0 failed resources
                         {%- endif -%}
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
