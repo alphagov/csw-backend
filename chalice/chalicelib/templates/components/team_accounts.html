@@ -21,8 +21,7 @@
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
-                            {{ account_audit.account.account_name }}
-                            <br/>( {{ account_audit.account.account_id }} )
+                            {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
                         </a>
                         <br/>Date of last audit: {{ item.date_completed | datetime }}
                     </td>
@@ -43,8 +42,7 @@
                 {% for account_audit in team_summary.unaudited_accounts %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                        {{ account_audit.account.account_name }}
-                        <br/>( {{ account_audit.account.account_id }} )
+                        {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
                         <br/>Date of last audit: None
                     </td>
                     <td class="govuk-table__cell"/>
