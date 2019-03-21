@@ -1,2 +1,11 @@
 {%- set stats = status %}
-{% include "components/5_column_status.html" %}
+{# include "components/5_column_status.html" #}
+<p>
+    There are currently {{team_stats.all.accounts_passed }} accounts passing.
+</p>
+<p>
+    There are currently a total of {{ team_stats.all.issues_found }} failed resources
+    from {{ team_stats.all.accounts_failed }} failing accounts
+    with {{ team_stats.all.accounts_unaudited }} unaudited
+    and {{ team_stats.all.accounts_inactive }} switched off.
+</p>
