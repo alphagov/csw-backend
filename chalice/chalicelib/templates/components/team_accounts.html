@@ -26,16 +26,16 @@
                         <br/>Date of last audit: {{ item.date_completed | datetime }}
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
-                        <strong class="{{ 'govuk-tag__fixed-width--passed' if account_audit.passed else 'govuk-tag__fixed-width--failed' }}">
-                            {{ "Pass" if account_audit.passed else "Fail" }}
-                        </strong>
-                    </td>
-                    <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.issues_found > 0 -%}
                         {{ item.issues_found }} {{ "failed resource" if (item.issues_found == 1) else "failed resources" }}
                         {%- else -%}
                         0 failed resources
                         {%- endif -%}
+                    </td>
+                    <td class="govuk-table__cell--tag-fixed-centred">
+                        <strong class="{{ 'govuk-tag__fixed-width--passed' if account_audit.passed else 'govuk-tag__fixed-width--failed' }}">
+                            {{ "Pass" if account_audit.passed else "Fail" }}
+                        </strong>
                     </td>
                 </tr>
                 {% endfor %}
