@@ -11,19 +11,21 @@
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
-                    <th class="govuk-table__header">Date Audited</th>
+                    <th class="govuk-table__header">Failures</th>
                     <th class="govuk-table__header--tag-fixed-centred">Status</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Issues</th>
-                    <th class="govuk-table__header">Details</th>
-                    <th class="govuk-table__header">History</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
                 {% for account_audit in team_summary.accounts %}
                 {%- set item = account_audit.stats -%}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
-                    <td class="govuk-table__cell">{{ item.date_completed | datetime }}</td>
+                    <td class="govuk-table__cell">
+                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
+                            {{ account_audit.account.account_name }}
+                            <br/>( {{ account_audit.account.account_id }} )
+                        </a>
+                        <br/>Date of last audit: {{ item.date_completed | datetime }}
+                    </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         <strong class="{{ 'govuk-tag__fixed-width--passed' if account_audit.passed else 'govuk-tag__fixed-width--failed' }}">
                             {{ "Pass" if account_audit.passed else "Fail" }}
@@ -31,31 +33,20 @@
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.issues_found > 0 -%}
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/issues">
-                            {{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}
-                        </a>
+                        {{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}
                         {%- else -%}
                         0 issues
                         {%- endif -%}
-                    </td>
-                    <td class="govuk-table__cell">
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
-                            View current audit
-                        </a>
-                    </td>
-                    <td class="govuk-table__cell">
-                        <a href="{{base_path}}/account/{{account_audit.account.id}}/history">
-                            View history
-                        </a>
                     </td>
                 </tr>
                 {% endfor %}
                 {% for account_audit in team_summary.unaudited_accounts %}
                 <tr class="govuk-table__row">
-                    <td class="govuk-table__cell">{{ account_audit.account.account_name }}</td>
-                    <td class="govuk-table__cell">None</td>
-                    <td class="govuk-table__cell"/>
-                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell">
+                        {{ account_audit.account.account_name }}
+                        <br/>( {{ account_audit.account.account_id }} )
+                        <br/>Date of last audit: None
+                    </td>
                     <td class="govuk-table__cell"/>
                     <td class="govuk-table__cell"/>
                 </tr>
