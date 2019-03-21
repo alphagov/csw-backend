@@ -32,9 +32,9 @@
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.issues_found > 0 -%}
-                        {{ item.issues_found }} {{ "issue" if (item.issues_found == 1) else "issues" }}
+                        {{ item.issues_found }} {{ "failed resource" if (item.issues_found == 1) else "failed resources" }}
                         {%- else -%}
-                        0 issues
+                        0 failed resources
                         {%- endif -%}
                     </td>
                 </tr>
