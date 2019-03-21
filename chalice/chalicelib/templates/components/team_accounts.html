@@ -43,20 +43,22 @@
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
-                        <br/>Date of last audit: None
                     </td>
                     <td class="govuk-table__cell"/>
-                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell">
+                        Unaudited
+                    </td>
                 </tr>
                 {% endfor %}
                 {% for account_audit in team_summary.inactive_accounts %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
-                        <br/>Date of last audit: Switched off
                     </td>
                     <td class="govuk-table__cell"/>
-                    <td class="govuk-table__cell"/>
+                    <td class="govuk-table__cell">
+                        Switched off
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
