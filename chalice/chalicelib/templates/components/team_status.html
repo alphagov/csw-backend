@@ -10,7 +10,13 @@
     and {{ team_summary.all.accounts_inactive }} switched off.
 </p>
 
-<div class="govuk-details__text">
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+       What do the different account statuses mean?
+    </span>
+  </summary>
+  <div class="govuk-details__text">
     <ul class="govuk-list govuk-list--bullet">
       <li>Passed - The audit ran successfully and no checks failed</li>
       <li>Failed - The audit ran successfully and at least 1 check failed</li>
@@ -19,4 +25,5 @@
       This is typically during the on-boarding process where the role has been setup to audit
       some team accounts but not others</li>
     </ul>
-</div>
+  </div>
+</details>
