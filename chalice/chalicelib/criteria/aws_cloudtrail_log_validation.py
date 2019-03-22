@@ -1,5 +1,3 @@
-#Path file: /Users/sergionavarrovalverde/csw-backend/chalice/chalicelib/criteria/aws_cloudtrail_log_validation.py
-
 from chalicelib.aws.gds_cloudtrail_client import GdsCloudtrailClient
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
