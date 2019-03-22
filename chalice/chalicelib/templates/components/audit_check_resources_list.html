@@ -21,7 +21,7 @@
                 {%- endif -%}
                 {%- if required_status == 'failed' -%}
                 {%- set item_count = item.failed -%}
-                {%- endif -}
+                {%- endif -%}
                 {%- if item_count > 0 -%}
                 <a href="{{base_path}}/check/{{item.id}}/{{required_status}}">{{ item_count }} {{ "resource" if (item_count == 1) else "resources" }}</a>
                 {%- else -%}
