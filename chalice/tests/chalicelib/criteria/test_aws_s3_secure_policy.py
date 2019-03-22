@@ -103,6 +103,7 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
 
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)
 
     def test_evaluate_fail_secure_transport_false(self):
         event = {}
@@ -113,6 +114,7 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
 
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)
 
     def test_evaluate_fail_no_policy(self):
         event = {}
