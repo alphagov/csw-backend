@@ -1,0 +1,17 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/breadcrumbs.html" %}
+
+    {%- set audit = audit_check.account_audit_id -%}
+    {% include "components/audit_header.html" %}
+
+    {%- set check = audit_check.criterion_id -%}
+    {% include "components/check_header.html" %}
+
+    {% include "components/audit_check_status.html" %}
+
+  </main>
+</div>
+{% endblock %}
