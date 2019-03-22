@@ -5,12 +5,12 @@
   <ul class="govuk-tabs__list">
     <li class="govuk-tabs__list-item">
       <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#passed">
-        Passed
+        Passed ({{ audit_stats.all.passed + audit_stats.all.ignored }})
       </a>
     </li>
     <li class="govuk-tabs__list-item">
       <a class="govuk-tabs__tab" href="#failed">
-        Failed
+        Failed ({{ audit_stats.all.failed }})
       </a>
     </li>
   </ul>
