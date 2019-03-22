@@ -1,2 +1,22 @@
 {%- set stats = status %}
-{% include "components/5_column_status.html" %}
+{# include "components/5_column_status.html" #}
+
+{% if audit_stats.all.failed == 0 %}
+<div class="govuk-panel govuk-panel--confirmation">
+  <h2 class="govuk-panel__title">
+    Everything passed
+  </h2>
+  <div class="govuk-panel__body">
+    There are no currently failed resources in any checks for this account.
+  </div>
+</div>
+{% else %}
+<div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="error-summary">
+  <h2 class="govuk-error-summary__title" id="error-summary-title">
+    Some checks failed
+  </h2>
+  <div class="govuk-error-summary__body">
+    There are failed resources for some checks. You can review the details below.
+  </div>
+</div>
+{% endif %}
