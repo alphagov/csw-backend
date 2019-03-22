@@ -1,7 +1,7 @@
 <h1 class="govuk-heading-l">
-    Account: {{ audit.account_subscription_id.account_name }}
+    Account: {{ audit.account_subscription_id.account_id | aws_account_id }}
     <span class="govuk-caption-l">
-        {{ audit.account_subscription_id.account_id }}
+        {{ audit.account_subscription_id.account_name }}
     </span>
 
 </h1>
