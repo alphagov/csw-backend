@@ -16,8 +16,12 @@
                     In the database resources are recorded as ignored if the check rules do not apply but these
                     treated as passed on screen.
                  #}
-                {%- if required_status == 'passed' set item_count = (item.passed + item.ignored)  -%}
-                {%- if required_status == 'failed' set item_count = item.failed -%}
+                {%- if required_status == 'passed' -%}
+                {%- set item_count = (item.passed + item.ignored)  -%}
+                {%- endif -%}
+                {%- if required_status == 'failed' -%}
+                {%- set item_count = item.failed -%}
+                {%- endif -}
                 {%- if item_count > 0 -%}
                 <a href="{{base_path}}/check/{{item.id}}/{{required_status}}">{{ item_count }} {{ "resource" if (item_count == 1) else "resources" }}</a>
                 {%- else -%}
