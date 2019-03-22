@@ -2056,6 +2056,12 @@ S3_BUCKET_POLICY_BUCKETS = {
             'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
+    ],
+    'fail_overridden_statement': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
     ]
 }
 
@@ -2107,7 +2113,13 @@ S3_BUCKET_POLICIES = {
     'fail_only_partly_secure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": "AddPerm", '
                                 '"Effect": "Allow", "Principal": {"AWS": "*"}, "Action": "s3:GetObject", "Resource": '
                                 '"arn:aws:s3:::my_bucket/some_folder/*", "Condition": {"Bool": {"aws:SecureTransport": '
-                                '"true"}}}]}')
+                                '"true"}}}]}'),
+    'fail_overridden_statement': ('{"Version":"2012-10-17","Id":"some_policy","Statement":[{"Sid":"AddPerm","Effect":'
+                                  '"Deny","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::my_bucket/*"'
+                                  ',"Condition":{"Bool":{"aws:SecureTransport":"false"}}},{"Sid":'
+                                  '"OverridingPreviousStatement","Effect":"Allow","Principal":"*","Action":'
+                                  '"s3:GetObject","Resource":"arn:aws:s3:::my_bucket/some_folder/*","Condition":{"Bool"'
+                                  ':{"aws:SecureTransport":"false"}}}]}')
 }
 
 S3_VERSIONING_BUCKETS = {

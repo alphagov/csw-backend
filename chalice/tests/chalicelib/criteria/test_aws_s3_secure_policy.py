@@ -159,3 +159,14 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("all items in", self.subclass.annotation)
+
+    def test_evaluate_fail_overridden_statement(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_overridden_statement']:
+            policy = self.test_data_policies['fail_overridden_statement']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)
