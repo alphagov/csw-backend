@@ -1,0 +1,25 @@
+<h2 class="govuk-heading-m">
+    {{ check.title }}
+</h2>
+<p>{{ check.description }}</p>
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+       Why is it important?
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+    {{ check.why_is_it_important }}
+  </div>
+</details>
+
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+       How do I fix it?
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+    {{ check.how_do_i_fix_it }}
+  </div>
+</details>

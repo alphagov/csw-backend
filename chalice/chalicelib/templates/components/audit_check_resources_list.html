@@ -1,0 +1,24 @@
+<table class="govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th class="govuk-table__header">Check</th>
+            <th class="govuk-table__header--tag-fixed-centred">Resources</th>
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        {% for item in audit_stats.criteria|sort(attribute='criterion_id.criterion_name') %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+                {{ item.criterion_id.criterion_name }}
+            </td>
+            <td class="govuk-table__cell--tag-fixed-centred">
+                {%- if item.failed > 0 -%}
+                <a href="{{base_path}}/check/{{item.id}}/issues">{{ item.failed }} {{ "issue" if (item.failed == 1) else "issues" }}</a>
+                {%- else -%}
+                0 issues
+                {%- endif -%}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

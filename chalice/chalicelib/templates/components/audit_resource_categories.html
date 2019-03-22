@@ -1,0 +1,42 @@
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-tabs" data-module="tabs">
+      <h2 class="govuk-tabs__title">
+        Check results
+      </h2>
+      <ul class="govuk-tabs__list">
+        <li class="govuk-tabs__list-item">
+          <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#passed">
+            Passed
+          </a>
+        </li>
+        <li class="govuk-tabs__list-item">
+          <a class="govuk-tabs__tab" href="#failed">
+            Failed
+          </a>
+        </li>
+        <li class="govuk-tabs__list-item">
+          <a class="govuk-tabs__tab" href="#exceptions">
+            Exceptions
+          </a>
+        </li>
+      </ul>
+
+      <section class="govuk-tabs__panel" id="passed">
+        <h2 class="govuk-heading-m">Passed resources</h2>
+        {%- set required_status = 2 -%}
+        {% include "components/audit_check_resources_list.html" %}
+      </section>
+      <section class="govuk-tabs__panel" id="failed">
+        <h2 class="govuk-heading-m">Failed resources</h2>
+        {%- set required_status = 3 -%}
+        {% include "components/audit_check_resources_list.html" %}
+      </section>
+      <section class="govuk-tabs__panel" id="exceptions">
+        <h2 class="govuk-heading-m">Failed resources</h2>
+        {%- set required_status = 4 -%}
+        {% include "components/audit_check_resources_list.html" %}
+      </section>
+    </div>
+  </div>
+</div>

@@ -521,6 +521,55 @@ def check_issues(id):
     return Response(**response)
 
 
+@app.route('/check/{check_id}/status/{status}/resources')
+def check_status_resources(check_id, status_id):
+    try:
+        load_route_services()
+        check_id = int(check_id)
+        status_id = int(status_id)
+        audit_check = models.AuditCriterion.get_by_id(check_id)
+        issues_list = audit_check.get_status_resources_list(status_id)
+        audit = audit_check.account_audit_id
+        account = audit.account_subscription_id
+        team = account.product_team_id
+        # TODO - add check user has access to team
+
+        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+
+        template_data = {
+            "breadcrumbs": [
+                {
+                    "title": "My teams",
+                    "link": "/team"
+                },
+                {
+                    "title": team.team_name,
+                    "link": f"/team/{team.id}/status"
+                },
+                {
+                    "title": account.account_name,
+                    "link": f"/account/{account.id}/status"
+                }
+            ],
+            "audit_check": audit_check.serialize(),
+            "issues": issues_list,
+            "exception_type": check.exception_type
+        }
+        response = app.templates.render_authorized_template(
+            'check_issues.html',
+            app.current_request,
+            template_data,
+            [account]
+        )
+
+    except Exception as err:
+        app.log.error("Route: account issues error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
 @app.route('/resource/{id}')
 def resource_details(id):
     id = int(id)
