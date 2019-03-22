@@ -70,11 +70,11 @@ class AwsS3SecurePolicy(CriteriaDefault):
             compliance_type = "NOT_COMPLIANT"
             self.annotation = "This bucket has no policy attached."
         else:
-        #  We loop over the statements in the bucket policies. The main issue is making sure that SecureTransport
-        #  applies to the entire bucket. If we find a statement that applies the SecureTransport condition correctly to
-        #  the entire bucket, on subsequent iterations we can ignore most of the cases that would otherwise cause a fail
-        #  (like a statement not having a SecureTransport condition). So we can keep track of if we haven't encountered
-        #  a "secure" policy statement yet.
+            # We loop over the statements in the bucket policies. The aim is to make sure that SecureTransport applies
+            # to the entire bucket. If we find a statement that applies the SecureTransport condition correctly to the
+            # entire bucket, on subsequent iterations we can ignore most of the cases that would otherwise cause a fail
+            # (like a statement not having a SecureTransport condition). So we can keep track of if we haven't
+            # encountered a "secure" policy statement yet.
             not_passed = True
             for statement in bucket['Policy']['Statement']:
                 if not_passed and 'Condition' not in statement:  # Failure: No condition
@@ -83,7 +83,7 @@ class AwsS3SecurePolicy(CriteriaDefault):
                     self.annotation = "This bucket's policy does not have a condition."
                 else:
                     secure = statement['Condition'].get('Bool', {}).get('aws:SecureTransport')
-                    if not_passed and not secure:  # testing if secure is None
+                    if not_passed and not secure:  # checking to see if SecureTransport condition does not exist
                         # Failure: no secure transport condition
                         log_string = "Bucket does not disallow insecure connections"
                         compliance_type = "NOT_COMPLIANT"
@@ -100,13 +100,18 @@ class AwsS3SecurePolicy(CriteriaDefault):
                                 self.annotation = ("This bucket doesn't enforce HTTPS connections for all items in the "
                                                    "bucket. Check the Resource key in the relevant statement of the "
                                                    "bucket policy.")
-                                break  # This failure makes it certain that the SecureTransport condition isn't applied
-                                       # to the whole bucket, so we can stop iterating over the policy statements
+                                # This failure makes it certain that the SecureTransport condition isn't applied
+                                # to the whole bucket, so we can stop iterating over the policy statements, break
+                                break
                             else:
                                 not_passed = False  # See above
                                 compliance_type = "COMPLIANT"
+                                self.annotation = ""  # Overwrite any existing annotations from previous statements
                                 log_string = "Bucket is compliant"
-                        else:
+
+                        elif secure:
+                            # The above is so that we only trigger if SecureTransport *is* defined, for the case that a
+                            # previous statement passed the check, and not_passed was set to False
                             log_string = "SecureTransport configured incorrectly (deny access to HTTPS or vice versa)"
                             compliance_type = "NOT_COMPLIANT"
                             self.annotation = ("This bucket's policy refers to HTTPS connections using the "
