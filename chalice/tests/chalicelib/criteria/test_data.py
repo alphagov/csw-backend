@@ -2602,10 +2602,43 @@ ELB_LOGGING = [
 ]
 
 S3_BUCKET_ENCRYPTION = {
-    "pass": {
-
-    },
-    "fail": {
-
-    }
+    "pass": [
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Encryption': {
+                'ResponseMetadata': {
+                    'HTTPHeaders': {
+                        'date': 'Fri, 22 Mar 2019 16:53:19 GMT',
+                        'server': 'AmazonS3',
+                        'transfer-encoding': 'chunked',
+                        'x-amz-id-2': 'SSU6Eo7ghyqA3XpUiDdos5MPciIk2Cas7A0gM0PXDa/QuxwTNSYQaf6abNdvGEeM2s5XFGA3B8c=',
+                        'x-amz-request-id': 'EDDD53C268C26108'
+                    },
+                    'HTTPStatusCode': 200, 'HostId':
+                    'SSU6Eo7ghyqA3XpUiDdos5MPciIk2Cas7A0gM0PXDa/QuxwTNSYQaf6abNdvGEeM2s5XFGA3B8c=',
+                    'RequestId': 'EDDD53C268C26108',
+                    'RetryAttempts': 0
+                },
+                'ServerSideEncryptionConfiguration': {
+                    'Rules': [
+                        {
+                            'ApplyServerSideEncryptionByDefault': {
+                                'SSEAlgorithm': 'AES256'
+                            }
+                        }
+                    ]
+                }
+            }
+        } 
+    ],
+    "fail": [
+        {
+            'Name': 'pass_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Encryption': ('An error occurred (ServerSideEncryptionConfigurationNotFoundError) when calling the '
+                           'GetBucketEncryption operation: The server side encryption configuration was not '
+                           'found')
+        }
+    ]
 }
