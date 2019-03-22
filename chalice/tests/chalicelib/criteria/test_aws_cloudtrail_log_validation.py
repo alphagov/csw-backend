@@ -1,5 +1,3 @@
-#Path file: /Users/sergionavarrovalverde/csw-backend/chalice/tests/chalicelib/criteria/test_aws_cloudtrail_log_validation.py
-
 from chalicelib.criteria.aws_cloudtrail_log_validation import CloudTrailFileValidation
 
 from tests.chalicelib.criteria.test_criteria_default import (
