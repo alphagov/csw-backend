@@ -270,12 +270,12 @@ class TemplateHandler:
                         self.app.log.debug(f"Redirect to target: {target}")
                         status_code = 302
                         headers["Location"] = root_path + target
-                    # elif "default_redirect" in data:
-                    #     # Redirect to default after login target
-                    #     target = data["default_redirect"]
-                    #     self.app.log.debug(f"Redirect to target: {target}")
-                    #     status_code = 302
-                    #     headers["Location"] = root_path + target
+                    elif "default_redirect" in data and data["default_redirect"] != route:
+                        # Redirect to default after login target
+                        target = data["default_redirect"]
+                        self.app.log.debug(f"Redirect to target: {target}")
+                        status_code = 302
+                        headers["Location"] = root_path + target
 
                     # Unset redirect cookie
                     if (redirect_status["action"] == "complete"):
