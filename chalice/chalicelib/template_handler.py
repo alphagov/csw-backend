@@ -77,7 +77,7 @@ class TemplateHandler:
             return render_as
 
         def format_aws_account_id(value):
-            return str(value).zfill(14)
+            return str(value).zfill(12)
 
         self.env.filters['datetime'] = format_datetime
         self.env.filters['aws_account_id'] = format_aws_account_id
