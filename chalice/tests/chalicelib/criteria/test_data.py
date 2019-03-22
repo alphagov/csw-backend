@@ -2050,6 +2050,12 @@ S3_BUCKET_POLICY_BUCKETS = {
             'Name': 'my_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
+    ],
+    'fail_only_partly_secure': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
     ]
 }
 
@@ -2097,7 +2103,11 @@ S3_BUCKET_POLICIES = {
                                  '"arn:aws:s3:::my_bucket/*", "Condition": { "Bool": { "aws:SecureTransport": "false" }'
                                  ' } }, { "Sid": "YetAnotherStatement", "Effect": "Allow", "Principal": "*", "Action": '
                                  '[ "s3:PutObject", "s3:PutObjectAcl" ], "Resource": [ "arn:aws:s3:::examplebucket/*" '
-                                 '], "Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } } ] }')
+                                 '], "Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } } ] }'),
+    'fail_only_partly_secure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": "AddPerm", '
+                                '"Effect": "Allow", "Principal": {"AWS": "*"}, "Action": "s3:GetObject", "Resource": '
+                                '"arn:aws:s3:::my_bucket/some_folder/*", "Condition": {"Bool": {"aws:SecureTransport": '
+                                '"true"}}}]}')
 }
 
 S3_VERSIONING_BUCKETS = {
