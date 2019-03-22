@@ -74,6 +74,26 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
+    def test_evaluate_pass_multiple_statements(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass_multiple_statements']:
+            policy = self.test_data_policies['pass_multiple_statements']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail_multiple_statements(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_multiple_statements']:
+            policy = self.test_data_policies['fail_multiple_statements']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+
     def test_evaluate_fail_secure_transport_true(self):
         event = {}
         whitelist = []
