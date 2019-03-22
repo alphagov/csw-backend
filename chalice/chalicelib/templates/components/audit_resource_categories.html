@@ -15,26 +15,16 @@
             Failed
           </a>
         </li>
-        <li class="govuk-tabs__list-item">
-          <a class="govuk-tabs__tab" href="#exceptions">
-            Exceptions
-          </a>
-        </li>
       </ul>
 
       <section class="govuk-tabs__panel" id="passed">
         <h2 class="govuk-heading-m">Passed resources</h2>
-        {%- set required_status = 2 -%}
+        {%- set required_status = 'passed' -%}
         {% include "components/audit_check_resources_list.html" %}
       </section>
       <section class="govuk-tabs__panel" id="failed">
         <h2 class="govuk-heading-m">Failed resources</h2>
-        {%- set required_status = 3 -%}
-        {% include "components/audit_check_resources_list.html" %}
-      </section>
-      <section class="govuk-tabs__panel" id="exceptions">
-        <h2 class="govuk-heading-m">Failed resources</h2>
-        {%- set required_status = 4 -%}
+        {%- set required_status = 'failed' -%}
         {% include "components/audit_check_resources_list.html" %}
       </section>
     </div>

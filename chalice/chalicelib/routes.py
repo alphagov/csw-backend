@@ -521,12 +521,12 @@ def check_issues(id):
     return Response(**response)
 
 
-@app.route('/check/{check_id}/status/{status}/resources')
-def check_status_resources(check_id, status_id):
+@app.route('/check/{check_id}/{status}')
+def check_status_resources(check_id, status):
     try:
         load_route_services()
         check_id = int(check_id)
-        status_id = int(status_id)
+        status_id = 1 if status == 'passed' else 2
         audit_check = models.AuditCriterion.get_by_id(check_id)
         issues_list = audit_check.get_status_resources_list(status_id)
         audit = audit_check.account_audit_id
@@ -536,7 +536,6 @@ def check_status_resources(check_id, status_id):
 
         CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
         check = CheckClass(app)
-
 
         template_data = {
             "breadcrumbs": [
