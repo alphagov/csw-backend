@@ -10,11 +10,12 @@
 <div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
     <div class="govuk-grid-column-full">
         {%- for resource in resources -%}
+        <h3 class="govuk-heading-m">
+            Item: #{{ loop.index }}
+        </h3>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">
-            <h3 class="govuk-heading-s">
-                Item: #{{ loop.index }}
-            </h3>
             <dl class="govuk-summary-list">
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
