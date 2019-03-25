@@ -526,7 +526,7 @@ def check_status_resources(id, status):
     try:
         load_route_services()
         check_id = int(id)
-        status_id = 1 if status == 'passed' else 2
+        status_id = 2 if status == 'passed' else 3
         audit_check = models.AuditCriterion.get_by_id(check_id)
         resource_list = audit_check.get_status_resources_list(status_id)
         status = models.Status.get_by_id(status_id)
