@@ -12,7 +12,7 @@ class TestFormValidator(unittest.TestCase):
     def setUp(self):
         """
         """
-        self.now = now = datetime.datetime.now()
+        self.now = datetime.datetime.now()
         self.form_validator = FormValidator()
 
     def test_init_success(self):
@@ -73,11 +73,10 @@ class TestFormValidator(unittest.TestCase):
 
     def test_get_target_date(self):
 
-        delta = datetime.timedelta(years=1)
+        delta = datetime.timedelta(days=365)
 
-        start_date = self.now.isoformat()
-        calc_date = str(int(start_date[0:4])+1) + start_date[4:]
-        target_date = self.form_validator.get_target_date(delta)
+        calc_date = (self.now + delta).isoformat()[0:16]
+        target_date = self.form_validator.get_target_date(delta)[0:16]
         print (f"{calc_date} =? {target_date}")
         self.assertTrue(calc_date == target_date)
 
