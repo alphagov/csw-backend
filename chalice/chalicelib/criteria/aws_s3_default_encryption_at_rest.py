@@ -32,6 +32,15 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
             bucket['Encryption'] = self.client.get_bucket_policy(session, bucket['Name'])
         return buckets
 
+    def translate(self, data):
+
+        item = {
+            "resource_id": 'arn:aws:s3:::' + data.get('Name', ''),
+            "resource_name": data.get('Name', '')
+        }
+
+        return item
+
     def evaluate(self, event, bucket, whitelist=[]):
         self.app.log.debug(f"Evaluating bucket with name {bucket['Name']}")
         if isinstance(bucket['Encryption'], dict):
