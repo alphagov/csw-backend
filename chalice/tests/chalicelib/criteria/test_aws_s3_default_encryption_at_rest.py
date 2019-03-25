@@ -42,4 +42,4 @@ class TestAwsS3DefaultEncryptionAtRest(CriteriaSubclassTestCaseMixin, TestCaseWi
         for item in self.test_data['fail']:
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
-            self.assertIn('encrypted', self.subclass.annotation)
+            self.assertIn('encryption', self.subclass.annotation)

@@ -33,8 +33,15 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
         return buckets
 
     def evaluate(self, event, bucket, whitelist=[]):
-        self.annotation = ""
-        compliance_type = ""
+        self.app.log.debug(f"Evaluating bucket with name {bucket['Name']}")
+        if isinstance(bucket['Encryption'], dict):
+            compliance_type = "COMPLIANT"
+            self.app.log.debug("Bucket found compliant")
+        else:
+            compliance_type = "NOT_COMPLIANT"
+            self.annotation = "The S3 bucket does not have encryption at rest enabled."
+            self.app.log.debug("Bucket is found to be not compliant")
+
         evaluation = self.build_evaluation(
             ('arn:aws:s3:::' + bucket['Name']),
             compliance_type,
