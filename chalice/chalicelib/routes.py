@@ -528,7 +528,8 @@ def check_status_resources(check_id, status):
         check_id = int(id)
         status_id = 1 if status == 'passed' else 2
         audit_check = models.AuditCriterion.get_by_id(check_id)
-        issues_list = audit_check.get_status_resources_list(status_id)
+        resource_list = audit_check.get_status_resources_list(status_id)
+        status = models.Status.get_by_id(status_id)
         audit = audit_check.account_audit_id
         account = audit.account_subscription_id
         team = account.product_team_id
@@ -553,7 +554,8 @@ def check_status_resources(check_id, status):
                 }
             ],
             "audit_check": audit_check.serialize(),
-            "issues": issues_list,
+            "resources": resource_list,
+            "status": status,
             "exception_type": check.exception_type
         }
         response = app.templates.render_authorized_template(
