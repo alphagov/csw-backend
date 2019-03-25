@@ -559,7 +559,7 @@ def check_status_resources(id, status):
             "exception_type": check.exception_type
         }
         response = app.templates.render_authorized_template(
-            'check_issues.html',
+            'check_status_resources.html',
             app.current_request,
             template_data,
             [account]
