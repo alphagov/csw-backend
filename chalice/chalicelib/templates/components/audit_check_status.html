@@ -12,15 +12,10 @@
         {%- for resource in resources -%}
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">
+            <h3 class="gov-uk-heading-s">
+                Item: #{{ loop.index }}
+            </h3>
             <dl class="govuk-summary-list">
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                  Item number
-                </dt>
-                <dd class="govuk-summary-list__value">
-                  {{ loop.index }}
-                </dd>
-              </div>
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                   Resource name
