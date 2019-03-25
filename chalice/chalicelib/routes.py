@@ -522,7 +522,7 @@ def check_issues(id):
 
 
 @app.route('/check/{id}/{status}')
-def check_status_resources(check_id, status):
+def check_status_resources(id, status):
     try:
         load_route_services()
         check_id = int(id)
