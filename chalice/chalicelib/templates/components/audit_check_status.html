@@ -1,6 +1,10 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-m">Resources ({{status.status_name}})</h2>
+        <h2 class="govuk-heading-m">Resources
+            <strong class="{{ 'govuk-tag__fixed-width--failed' if status.status_name == 'Fail' else 'govuk-tag__fixed-width--passed' }}">
+                {{status.status_name}}
+            </strong>
+        </h2>
     </div>
 </div>
 <div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
