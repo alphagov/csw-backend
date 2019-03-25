@@ -29,7 +29,7 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
         buckets = self.client.get_bucket_list(session)
         self.app.log.debug("Adding an 'Encryption' key to these buckets")
         for bucket in buckets:
-            bucket['Encryption'] = self.client.get_bucket_policy(session, bucket['Name'])
+            bucket['Encryption'] = self.client.get_bucket_encryption(session, bucket['Name'])
         return buckets
 
     def translate(self, data):
