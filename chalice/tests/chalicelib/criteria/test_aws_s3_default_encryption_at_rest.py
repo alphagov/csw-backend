@@ -29,6 +29,26 @@ class TestAwsS3DefaultEncryptionAtRest(CriteriaSubclassTestCaseMixin, TestCaseWi
                 self.assertIsInstance(item, list, msg=msg)
                 self.assertIn('Encryption', item[0], msg='The dictionary must have an encryption key')
 
+    def test_translate(self):
+        for bucket in self.test_data.values():
+            with self.subTest():
+                translation = self.subclass.translate(bucket[0])
+                self.assertIsInstance(translation, dict, msg="The output of the translate method should be a dict")
+                self.assertIn("resource_id", translation, msg="The key 'resource_id' was not in "
+                                                              "the output of the translate method.")
+                self.assertIn("resource_name", translation, msg="The key 'resource_name' was not in "
+                                                                "the output of the translate method.")
+                self.assertEqual(
+                    translation['resource_id'],
+                    "arn:aws:s3:::" + bucket[0]['Name'],
+                    msg="resource_id does not match the bucket ARN"
+                )
+                self.assertEqual(
+                    translation['resource_name'],
+                    bucket[0]['Name'],
+                    msg="resource_name does not match the bucket name"
+                )
+
     def test_evaluate_pass(self):
         event = {}
         whitelist = []
