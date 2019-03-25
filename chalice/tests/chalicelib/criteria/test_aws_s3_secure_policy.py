@@ -54,22 +54,74 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
                     msg="resource_name does not match the bucket name"
                 )
 
-    def test_evaluate_pass(self):
+    def test_evaluate_pass_secure_transport_true(self):
         event = {}
         whitelist = []
-        for item in self.test_data['pass']:
-            policy = self.test_data_policies['pass']
+        for item in self.test_data['pass_secure_transport_true']:
+            policy = self.test_data_policies['pass_secure_transport_true']
             item['Policy'] = json.loads(policy)
 
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_pass_secure_transport_false(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass_secure_transport_false']:
+            policy = self.test_data_policies['pass_secure_transport_false']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_pass_multiple_statements(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['pass_multiple_statements']:
+            policy = self.test_data_policies['pass_multiple_statements']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_status_assertions(item, output)
+
+    def test_evaluate_fail_multiple_statements(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_multiple_statements']:
+            policy = self.test_data_policies['fail_multiple_statements']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+
+    def test_evaluate_fail_secure_transport_true(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_secure_transport_true']:
+            policy = self.test_data_policies['fail_secure_transport_true']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)
+
+    def test_evaluate_fail_secure_transport_false(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_secure_transport_false']:
+            policy = self.test_data_policies['fail_secure_transport_false']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)
 
     def test_evaluate_fail_no_policy(self):
         event = {}
         whitelist = []
         for item in self.test_data['fail_no_policy']:
             policy = self.test_data_policies['fail_no_policy']
-            item['Policy'] = policy  # The policy isn't valid JSON in this case
+            item['Policy'] = policy  # The policy isn't valid JSON in this case
 
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
@@ -97,12 +149,24 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
             self._evaluate_failed_status_assertions(item, output)
             self.assertIn("no SecureTransport", self.subclass.annotation)
 
-    def test_evaluate_fail_only_insecure(self):
+    def test_evaluate_fail_only_partly_secure(self):
         event = {}
         whitelist = []
-        for item in self.test_data['fail_only_insecure']:
-            policy = self.test_data_policies['fail_only_insecure']
+        for item in self.test_data['fail_only_partly_secure']:
+            policy = self.test_data_policies['fail_only_partly_secure']
             item['Policy'] = json.loads(policy)
+
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("explicitly disallows HTTPS", self.subclass.annotation)
+            self.assertIn("all items in", self.subclass.annotation)
+
+    def test_evaluate_fail_overridden_statement(self):
+        event = {}
+        whitelist = []
+        for item in self.test_data['fail_overridden_statement']:
+            policy = self.test_data_policies['fail_overridden_statement']
+            item['Policy'] = json.loads(policy)
+
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_failed_status_assertions(item, output)
+            self.assertIn("misconfigured", self.subclass.annotation)

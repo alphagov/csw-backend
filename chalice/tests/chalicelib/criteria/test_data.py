@@ -1999,32 +1999,68 @@ RDS_SECURITY_GROUPS = {'ResponseMetadata': {'HTTPHeaders': {'content-length': '2
 S3_BUCKET_POLICY_BUCKETS = {
     'fail_no_policy': [
         {
-            'Name': 'fail_no_policy_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
     ],
     'fail_no_condition': [
         {
-            'Name': 'fail_no_condition_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
     ],
     'fail_no_secure_condition': [
         {
-            'Name': 'fail_no_secure_condition_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
     ],
-    'fail_only_insecure': [
+    'fail_secure_transport_false': [
         {
-            'Name': 'fail_only_insecure_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
     ],
-    'pass': [
+    'fail_secure_transport_true': [
         {
-            'Name': 'pass_bucket',
-            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'pass_secure_transport_false': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'pass_secure_transport_true': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'pass_multiple_statements': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'fail_multiple_statements': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'fail_only_partly_secure': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
+        }
+    ],
+    'fail_overridden_statement': [
+        {
+            'Name': 'my_bucket',
+            'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0)
         }
     ]
 }
@@ -2040,14 +2076,50 @@ S3_BUCKET_POLICIES = {
                                  '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
                                  '{"StringLike": {"aws:Referer": ["http://www.example.com/*", '
                                  '"http://example.com/*"]}}}]}'),
-    'fail_only_insecure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
-                           '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
-                           '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
-                           '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
-    'pass': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
-             '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
-             '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
-             '{"Bool": {"aws:SecureTransport": "true"}}}]}')
+    'fail_secure_transport_true': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                    '"AddPerm", "Effect": "Deny", "Principal": {"AWS": "*"}, "Action": '
+                                    '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                    '{"Bool": {"aws:SecureTransport": "true"}}}]}'),
+    'fail_secure_transport_false': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                    '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                                    '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                    '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
+    'pass_secure_transport_true': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                   '"AddPerm", "Effect": "Allow", "Principal": {"AWS": "*"}, "Action": '
+                                   '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                   '{"Bool": {"aws:SecureTransport": "true"}}}]}'),
+    'pass_secure_transport_false': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": '
+                                   '"AddPerm", "Effect": "Deny", "Principal": {"AWS": "*"}, "Action": '
+                                   '"s3:GetObject", "Resource": "arn:aws:s3:::my_bucket/*", "Condition": '
+                                   '{"Bool": {"aws:SecureTransport": "false"}}}]}'),
+    'pass_multiple_statements': ('{ "Version": "2012-10-17", "Id": "some_policy", "Statement": [ { "Sid": '
+                                 '"SomeOtherStatement", "Effect": "Allow", "Principal": "*", "Action": [ '
+                                 '"s3:PutObject", "s3:PutObjectAcl" ], "Resource": [ "arn:aws:s3:::examplebucket/*" ], '
+                                 '"Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } }, { "Sid": '
+                                 '"AddPerm", "Effect": "Deny", "Principal": "*", "Action": "s3:GetObject", "Resource": '
+                                 '"arn:aws:s3:::my_bucket/*", "Condition": { "Bool": { "aws:SecureTransport": "false" }'
+                                 ' } }, { "Sid": "YetAnotherStatement", "Effect": "Allow", "Principal": "*", "Action": '
+                                 '[ "s3:PutObject", "s3:PutObjectAcl" ], "Resource": [ "arn:aws:s3:::examplebucket/*" '
+                                 '], "Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } } ] }'),
+    'fail_multiple_statements': ('{ "Version": "2012-10-17", "Id": "some_policy", "Statement": [ { "Sid": '
+                                 '"SomeOtherStatement", "Effect": "Allow", "Principal": "*", "Action": [ '
+                                 '"s3:PutObject", "s3:PutObjectAcl" ], "Resource": [ "arn:aws:s3:::examplebucket/*" ], '
+                                 '"Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } }, { "Sid": '
+                                 '"AddPerm", "Effect": "Allow", "Principal": "*", "Action": "s3:GetObject", "Resource": '
+                                 '"arn:aws:s3:::my_bucket/*", "Condition": { "Bool": { "aws:SecureTransport": "false" }'
+                                 ' } }, { "Sid": "YetAnotherStatement", "Effect": "Allow", "Principal": "*", "Action": '
+                                 '[ "s3:PutObject", "s3:PutObjectAcl" ], "Resource": [ "arn:aws:s3:::examplebucket/*" '
+                                 '], "Condition": { "StringEquals": { "s3:x-amz-acl": [ "public-read" ] } } } ] }'),
+    'fail_only_partly_secure': ('{"Version": "2008-10-17", "Id": "some_policy", "Statement": [{"Sid": "AddPerm", '
+                                '"Effect": "Allow", "Principal": {"AWS": "*"}, "Action": "s3:GetObject", "Resource": '
+                                '"arn:aws:s3:::my_bucket/some_folder/*", "Condition": {"Bool": {"aws:SecureTransport": '
+                                '"true"}}}]}'),
+    'fail_overridden_statement': ('{"Version":"2012-10-17","Id":"some_policy","Statement":[{"Sid":"AddPerm","Effect":'
+                                  '"Deny","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::my_bucket/*"'
+                                  ',"Condition":{"Bool":{"aws:SecureTransport":"false"}}},{"Sid":'
+                                  '"OverridingPreviousStatement","Effect":"Allow","Principal":"*","Action":'
+                                  '"s3:GetObject","Resource":"arn:aws:s3:::my_bucket/some_folder/*","Condition":{"Bool"'
+                                  ':{"aws:SecureTransport":"false"}}}]}')
 }
 
 S3_VERSIONING_BUCKETS = {
