@@ -24,6 +24,7 @@ class TestAwsS3DefaultEncryptionAtRest(CriteriaSubclassTestCaseMixin, TestCaseWi
         for key in self.test_data:
             with self.subTest(key=key):
                 self.subclass.client.get_bucket_list = lambda session: self.test_data[key]
+                self.subclass.client.get_bucket_encryption = lambda session, name: self.test_data[key][0]['Encryption']
                 item = self.subclass.get_data(None)
                 msg = 'get_data should return a list of dictionaries'
                 self.assertIsInstance(item, list, msg=msg)
