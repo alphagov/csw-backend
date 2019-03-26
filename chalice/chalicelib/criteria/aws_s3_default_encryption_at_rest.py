@@ -11,7 +11,7 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
 
     resource_type = "AWS::S3::Bucket"
 
-    title = "S3: Bucket Encryption Enabled at Rest"
+    title = "S3 Buckets: Encryption Enabled at Rest"
 
     description = ("The S3 bucket does have encryption enabled at rest to automatically encrypt all objects when "
                    "stored in Amazon S3")
