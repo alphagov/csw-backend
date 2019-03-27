@@ -29,7 +29,7 @@ class AwsS3SecurePolicy(CriteriaDefault):
 
     how_do_i_fix_it = ("Define an access policy that will enforce SSL-only (encrypted) access to your S3 data, "
                        "especially when dealing with sensitive or private data. Then, set the condition "
-                       "'aws:SecureTransports3bucket' in your S3 policy to enforce HTTPS requests to your buckets. An "
+                       "'aws:SecureTransport' in your S3 policy to enforce HTTPS requests to your buckets. An "
                        "example of a S3 policy can be found in the AWS blog below:<br />"
                        "<a href='https://aws.amazon.com/blogs/security/how-to-use-bucket-policies-and-apply-defense-in-"
                        "depth-to-help-secure-your-amazon-s3-data/'>https://aws.amazon.com/blogs/security/how-to-use-buc"
