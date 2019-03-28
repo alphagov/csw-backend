@@ -278,7 +278,7 @@ def account_status(id):
                     "audit_completed": {
                         "display_stat": ("Yes" if (latest.active_criteria == latest.criteria_processed) else "No"),
                         "category": "Audit complete",
-                        "modifier_class": "passed" if (latest.date_completed is not None) else "failed"
+                        "modifier_class": "passed" if (latest.active_criteria == latest.criteria_processed) else "failed"
                     },
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
@@ -432,9 +432,9 @@ def account_status(id, audit_id):
                 "audit": audit.serialize(),
                 "status": {
                     "audit_completed": {
-                        "display_stat": ("Yes" if (audit.date_completed is not None) else "No"),
+                        "display_stat": ("Yes" if (audit.active_criteria == audit.criteria_processed) else "No"),
                         "category": "Audit complete",
-                        "modifier_class": "passed" if (audit.date_completed is not None) else "failed"
+                        "modifier_class": "passed" if (audit.active_criteria == audit.criteria_processed) else "failed"
                     },
                     "checks_passed": {
                         "display_stat": audit.criteria_passed,
