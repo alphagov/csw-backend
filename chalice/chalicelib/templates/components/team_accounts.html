@@ -7,7 +7,8 @@
 </div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-       <table class="govuk-table">
+        <h3  class="govuk-heading-m">Active accounts</h3>
+        <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
@@ -50,14 +51,24 @@
                     </td>
                 </tr>
                 {% endfor %}
+            </tbody>
+       </table>
+    </div>
+
+    <div class="govuk-grid-column-full">
+        <h3  class="govuk-heading-m">Switched off accounts</h3>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Name</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+
                 {% for account_audit in team_summary.inactive_accounts %}
                 <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
-                    </td>
-                    <td class="govuk-table__cell"/>
-                    <td class="govuk-table__cell">
-                        Switched off
                     </td>
                 </tr>
                 {% endfor %}
