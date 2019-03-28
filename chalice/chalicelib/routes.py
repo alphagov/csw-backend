@@ -276,7 +276,7 @@ def account_status(id):
                 "audit": latest.serialize(),
                 "status": {
                     "audit_completed": {
-                        "display_stat": ("Yes" if (latest.date_completed is not None) else "No"),
+                        "display_stat": ("Yes" if (latest.active_criteria == latest.criteria_processed) else "No"),
                         "category": "Audit complete",
                         "modifier_class": "passed" if (latest.date_completed is not None) else "failed"
                     },

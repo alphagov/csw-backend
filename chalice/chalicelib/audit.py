@@ -246,8 +246,10 @@ def account_evaluate_criteria(event):
                         audit_criterion.ignored = summary['not_applicable']['display_stat']
                         audit_criterion.regions = summary['regions']['count']
                         audit_criterion.processed = status
-                        audit_criterion.save()
                         # Only update the processed stat if the assume was successful
+
+            # Set the attempted status even if the criterion was not processed
+            audit_criterion.save()
 
             message_data = audit_criterion.serialize()
             message_data['processed'] = status
