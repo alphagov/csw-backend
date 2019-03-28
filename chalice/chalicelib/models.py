@@ -606,6 +606,7 @@ class AccountAudit(database_handle.BaseModel):
     criteria_passed = peewee.IntegerField(default=0)
     criteria_failed = peewee.IntegerField(default=0)
     issues_found = peewee.IntegerField(default=0)
+    finished = peewee.BooleanField(default=False)
 
     class Meta:
         table_name = "account_audit"
@@ -786,6 +787,7 @@ class AuditCriterion(database_handle.BaseModel):
     failed = peewee.IntegerField(default=0)
     ignored = peewee.IntegerField(default=0)
     processed = peewee.BooleanField(default=False)
+    attempted = peewee.BooleanField(default=False)
 
     class Meta:
         table_name = "audit_criterion"
