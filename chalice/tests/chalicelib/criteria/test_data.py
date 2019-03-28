@@ -2636,9 +2636,7 @@ S3_BUCKET_ENCRYPTION = {
         {
             'Name': 'pass_bucket',
             'CreationDate': datetime.datetime(2000, 1,  1,  1,  0,  0),
-            'Encryption': ('An error occurred (ServerSideEncryptionConfigurationNotFoundError) when calling the '
-                           'GetBucketEncryption operation: The server side encryption configuration was not '
-                           'found')
+            'Encryption': None
         }
     ]
 }
