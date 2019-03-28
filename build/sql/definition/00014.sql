@@ -1,0 +1,3 @@
+ALTER TABLE audit_criterion ADD COLUMN attempted BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE account_audit ADD COLUMN finished BOOLEAN DEFAULT FALSE;

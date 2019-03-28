@@ -148,7 +148,12 @@ def account_evaluate_criteria(event):
             # check passed is set to true and and-equalsed for all
             # or false and or-equalsed for any
             check_passed = (check.aggregation_type == "all")
-            is_all = (check_passed)
+
+            # Mark audit_criterion record as attempted regardless of successful processing
+            # This means that we can tell when an audit is finished even if it did not complete
+            # Finished = every check was attempted
+            # Complete = every check was successfully processed (pass or fail)
+            audit_criterion.attempted = True
 
             if session is not None:
                 params = {}
@@ -273,8 +278,11 @@ def audit_evaluated_metric(event):
             audit_criteria_data = json.loads(message.body)
             audit = models.AccountAudit.get_by_id(audit_criteria_data["account_audit_id"]["id"])
 
-            # Count where processed = True
+            # Processed = count where processed = True
             processed_case = Case(None, [(models.AuditCriterion.processed, 1)], 0)
+
+            # Attempted = count where attempted = True
+            attempted_case = Case(None, [(models.AuditCriterion.attempted, 1)], 0)
 
             # Count where failed resources > 0
             failed_case = Case(None, [(models.AuditCriterion.failed > 0, 1)], 0)
@@ -282,6 +290,7 @@ def audit_evaluated_metric(event):
             # Collate stats from audit criteria records
             stats = (models.AuditCriterion.select(
                     fn.COUNT(models.AuditCriterion.id).alias('active_criteria'),
+                    fn.SUM(attempted_case).alias('attempted_criteria'),
                     fn.SUM(processed_case).alias('processed_criteria'),
                     fn.SUM(failed_case).alias('failed_criteria'),
                     fn.SUM(models.AuditCriterion.failed).alias('failed_resources')
@@ -297,8 +306,9 @@ def audit_evaluated_metric(event):
             audit.criteria_passed = (stats.processed_criteria - stats.failed_criteria)
             audit.criteria_failed = stats.failed_criteria
             audit.issues_found = stats.failed_resources
+            audit.finished = stats.active_criteria == stats.attempted_criteria
 
-            if audit.criteria_processed == audit.active_criteria:
+            if audit.finished:
                 audit.date_completed = datetime.now()
                 message_data = audit.serialize()
                 audit_criteria = models.AuditCriterion.select().join(models.AccountAudit).where(
