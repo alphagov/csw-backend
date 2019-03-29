@@ -8,7 +8,9 @@ from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClie
 
 class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
-    active = True
+    # This can be switched on when the client role has been iterated.
+    # At present the permissions are not in the role
+    active = False
 
     is_regional = True
 
