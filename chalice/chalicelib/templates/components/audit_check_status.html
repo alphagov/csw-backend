@@ -1,10 +1,6 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-m">Resources
-            <strong class="govuk-tag__fixed-width--{{ 'failed' if status.status_name == 'Fail' else 'passed' }}">
-                {{status.status_name}}
-            </strong>
-        </h2>
+        <h2 class="govuk-heading-m">Resources</h2>
     </div>
 </div>
 <div class="govuk-grid-row govuk-!-margin-top-3 govuk-!-margin-bottom-6">
@@ -16,6 +12,16 @@
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">
             <dl class="govuk-summary-list">
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                  Status
+                </dt>
+                <dd class="govuk-summary-list__value">
+                  <strong class="govuk-tag__fixed-width--{{ 'failed' if resource.status.status_name == 'Fail' else 'passed' }}">
+                    {{ resource.status.status_name | truncate(4) }}
+                  </strong>
+                </dd>
+              </div>
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                   Resource name
