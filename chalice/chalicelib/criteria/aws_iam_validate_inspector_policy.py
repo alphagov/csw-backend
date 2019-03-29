@@ -12,6 +12,8 @@ class AwsIamValidateInspectorPolicy(CriteriaDefault):
 
     active = True
 
+    is_regional = False
+
     ClientClass = GdsIamClient
 
     resource_type = "AWS::IAM::Policy"
