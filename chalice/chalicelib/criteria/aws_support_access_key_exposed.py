@@ -87,6 +87,8 @@ class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
             )
         elif item['metadata'][2] == 'Suspected':
             compliance_type = 'COMPLIANT'
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
         else:
             self.annotation = (
                 'Potentially compromised - AWS has identified an access key ID and corresponding secret access key '
@@ -128,6 +130,8 @@ class AwsIamSuspectedExposedAccessKey(AwsIamExposedAccessKey):
             )
         else:
             compliance_type = 'COMPLIANT'
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
         return self.build_evaluation(
             item['resourceId'],
             compliance_type,

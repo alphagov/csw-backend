@@ -112,6 +112,9 @@ class AwsIamAccessKeyRotationRed(AwsIamAccessKeyRotationBase):
         support API method called describe_trusted_advisor_check_result.
         """
         compliance_type = 'COMPLIANT'
+        # Remove any previous annotation if instance is reused
+        self.annotation = ''
+
         if item['status'] == 'error':
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (

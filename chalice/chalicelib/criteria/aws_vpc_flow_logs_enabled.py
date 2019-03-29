@@ -76,6 +76,8 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
             log_string = "VPC does not have a flow log"
         else:  # If the FlowLog key has anything in it, it means that the flow log exists
             compliance_type = "COMPLIANT"
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
             log_string = "VPC has a flow log"
 
         evaluation = self.build_evaluation(

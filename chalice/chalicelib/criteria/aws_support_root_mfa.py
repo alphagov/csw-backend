@@ -55,6 +55,9 @@ class AwsSupportRootMfa(TrustedAdvisorCriterion):
 
     def evaluate(self, event, item, whitelist=[]):
 
+        # Remove any previous annotation if instance is reused
+        self.annotation = ''
+
         if item['status'] == 'ok':
             compliance_type = "COMPLIANT"
         else:

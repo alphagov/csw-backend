@@ -45,6 +45,8 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
         self.app.log.debug(f"Evaluating bucket with name {bucket['Name']}")
         if isinstance(bucket['Encryption'], dict):
             compliance_type = "COMPLIANT"
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
             self.app.log.debug("Bucket found compliant")
         else:
             compliance_type = "NOT_COMPLIANT"
