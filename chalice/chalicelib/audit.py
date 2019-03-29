@@ -97,6 +97,7 @@ def account_audit_criteria(event):
             app.log.debug(message.body)
             audit = models.AccountAudit.get_by_id(audit_data['id'])
             audit.active_criteria = len(list(active_criteria))
+            audit.save()
             for criterion in active_criteria:
                 audit_criterion = models.AuditCriterion.create(
                     account_audit_id=audit,
