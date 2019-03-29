@@ -73,7 +73,7 @@
               </div>
             </details>
             <a href="{{base_path}}/resource/{{ resource.resource.id }}/exception" role="button" class="csw-team-list__cta-button">
-                Make an exception
+                {{ 'Edit exception' if resource.status.status_name == 'Excepted' else 'Make an exception' }}
             </a>
             {% endif %}
             {% if exception_type == "allowlist" %}
