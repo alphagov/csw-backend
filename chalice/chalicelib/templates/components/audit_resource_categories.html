@@ -4,7 +4,7 @@
   </h2>
   <ul class="govuk-tabs__list">
     <li class="govuk-tabs__list-item">
-      <a class="govuk-tabs__tab" href="#failed">
+      <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#failed">
         Failed
         <strong class="govuk-tag__fixed-width--{{'failed' if audit_stats.all.failed > 0 else 'passed' }}">
           {{ audit_stats.all.failed }}
@@ -12,7 +12,7 @@
       </a>
     </li>
     <li class="govuk-tabs__list-item">
-      <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#passed">
+      <a class="govuk-tabs__tab" href="#passed">
         Passed
         <strong class="govuk-tag__fixed-width--passed">
           {{ audit_stats.all.passed + audit_stats.all.ignored }}
