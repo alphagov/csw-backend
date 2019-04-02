@@ -10,6 +10,8 @@ class CriteriaDefault:
     active = False
     severity = 1
 
+    is_regional = True
+
     """
     exception_type = "resource" | "allowlist" 
     You can either record exceptions on a per resource basis 
