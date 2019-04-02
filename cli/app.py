@@ -5,6 +5,9 @@ from classes.divider import Divider
 
 app = AwsAudit()
 
+# def caller():
+#   caller = app.get_caller()
+#  print(app.utilities.to_json(caller))
 
 def audit():
 
@@ -12,13 +15,17 @@ def audit():
   session = app.get_session()
   divider = Divider()
 
+  app.start_audit()
+  check_counter = 0
+
   for criterion_class in criteria:
       #print(criterion_class)
       check = app.get_check_instance(criterion_class)
 
       if check and check.title:
+        check_counter += 1
         divider.line()
-        print(check.title)
+        print(str(check_counter) + " of " + str(len(criteria)) + ": " + check.title)
         calls = 0
         summary = None
         progress = ProgressBar()
@@ -27,6 +34,7 @@ def audit():
         check_passed = (check.aggregation_type == "all")
         is_all = (check_passed)
 
+        check.resources = []
         for request in requests:
           evaluated = []
           calls += 1
@@ -47,10 +55,15 @@ def audit():
           # print(app.utilities.to_json(data))
           progress.update(100*calls/len(requests))
           summary = check.summarize(evaluated, summary)
+          check.resources += evaluated
 
         progress.end()
         #print(app.utilities.to_json(summary))
         app.show_check_summary(summary)
+        check.summary = summary
+        app.add_check_results(check)
+
+  app.complete_audit()
 
 if __name__ == '__main__':
   fire.Fire()

@@ -20,11 +20,40 @@ class AwsAudit:
     self.caller = None
     self.regions = None
 
+  def start_audit(self):
+    """
+    Create a default audit object and set the start time
+    """
+    now = datetime.now()
+    caller = self.get_caller()
+    self.audit = {
+      "account": str(caller["Account"]),
+      "started": now.isoformat(),
+      "checks": []
+    }
+
+  def add_check_results(self, check):
+    self.audit["checks"].append(check)
+
+  def complete_audit(self):
+      now = datetime.now()
+      iso = now.isoformat()
+      date_folder = iso[0:19]
+      self.audit["completed"] = iso
+      caller = self.get_caller()
+      account = str(caller["Account"])
+      path = f"results/{account}/{date_folder}/audit.json"
+      os.makedirs(os.path.dirname(path), exist_ok=True)
+      with open(path, 'w') as file:
+        file.write(self.utilities.to_json(self.audit))
+        file.close()
+
+
   def get_criteria(self,parent_module_name='chalicelib.criteria'):
     """
-        A helper function returning a set with all classes in the chalicelib.criteria submodules
-        having a class attribute named active with value True.
-        """
+    A helper function returning a set with all classes in the chalicelib.criteria submodules
+    having a class attribute named active with value True.
+    """
     parent_module = importlib.import_module(parent_module_name)
     active_criteria = []
     for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
@@ -40,6 +69,10 @@ class AwsAudit:
     return active_criteria
 
   def get_check_instance(self, class_path):
+    """
+    The inspector policy check is only relevant when running in lambda chalice mode
+    For the CLI version the assume is handled outside the script.
+    """
     ignore_check_classes = [
       "AwsIamValidateInspectorPolicy"
     ]

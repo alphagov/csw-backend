@@ -130,3 +130,6 @@ build/csw-infra
 # Ignore private config repo
 configuration/
 build/sql/population
+
+cli/results/*
+!cli/results/ReadMe.md
