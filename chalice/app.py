@@ -20,6 +20,7 @@ class CloudSecurityWatch(Chalice):
     overload any method, add new ones (as well as class/instance vars),
     and use mixin classes, e.g. for auth, templating and logging.
     """
+    mode = 'chalice'
 
     def __call__(self, event, context):
         """
