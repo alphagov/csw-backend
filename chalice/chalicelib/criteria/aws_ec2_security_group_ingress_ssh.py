@@ -41,7 +41,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
         "213.86.153.235/32",
         "213.86.153.236/32",
         "213.86.153.237/32",
-        "85.133.67.244/32",
+        "85.133.67.244/32"
     ]
 
     def get_data(self, session, **kwargs):
@@ -49,7 +49,10 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     def translate(self, data):
 
-        item = {"resource_id": data["GroupId"], "resource_name": data["GroupName"]}
+        item = {
+            "resource_id": data['GroupId'],
+            "resource_name": data['GroupName'],
+        }
 
         return item
 
@@ -91,21 +94,50 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
         return evaluation
 
     def get_valid_ranges(self):
+        """
+        Wrapper method: In chalice mode the allow list exceptions are stored in the database
+        In CLI mode they are stored in a local JSON file
+        """
+        if self.app.mode == 'chalice' and self.account_subscription_id is not None:
+            valid_ranges = self.get_chalice_valid_ranges()
+        elif self.app.mode == 'cli':
+            valid_ranges = self.get_cli_valid_ranges()
+        return valid_ranges
 
+    def get_chalice_valid_ranges(self):
+        """
+        Append the standard valid ranges with any custom exceptions from the databases
+        """
         valid_ranges = self.valid_ranges.copy()
         now = datetime.datetime.now()
+        # If the account ID is set retrieve any
+        # allow list rules from the database
+        # and append to valid_ranges
+        allow_list = (AccountSshCidrAllowlist
+            .select()
+            .where(
+            AccountSshCidrAllowlist.account_subscription_id == self.account_subscription_id,
+            AccountSshCidrAllowlist.date_expires > now
+        ))
+        for item in allow_list:
+            valid_ranges.append(item.cidr)
+        return valid_ranges
 
-        if self.account_subscription_id is not None:
-            # If the account ID is set retrieve any
-            # allow list rules from the database
-            # and append to valid_ranges
-            allow_list = AccountSshCidrAllowlist.select().where(
-                AccountSshCidrAllowlist.account_subscription_id
-                == self.account_subscription_id,
-                AccountSshCidrAllowlist.date_expires > now,
-            )
-            for item in allow_list:
-                valid_ranges.append(item.cidr)
+    def get_cli_valid_ranges(self):
+        try:
+            valid_ranges = self.valid_ranges.copy()
+            now = datetime.datetime.now()
+            allowlist_json = self.app.utilities.read_file("config/allowlist.json")
+            allowlist = self.app.utilities.from_json(allowlist_json)
+            if allowlist is not None:
+                for entry in allowlist:
+                    expires = self.app.utilities.parse_datetime(entry["date_expires"])
+                    if expires > now and self.app.audit["account"] == entry["account"]:
+                        valid_ranges.append(entry["cidr"])
+        except Exception as err:
+            # The JSON file is git ignored so if there are no exceptions then there
+            # will most likely not be a JSON file to read
+            self.app.log.error("Allowlist error: "+ self.app.utilities.get_typed_exception(err))
 
         return valid_ranges
 

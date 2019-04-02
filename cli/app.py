@@ -11,7 +11,7 @@ app = AwsAudit()
 
 def audit():
 
-  criteria = app.get_criteria()
+  criteria = app.get_active_criteria()
   session = app.get_session()
   divider = Divider()
 
@@ -25,7 +25,7 @@ def audit():
       if check and check.title:
         check_counter += 1
         divider.line()
-        print(str(check_counter) + " of " + str(len(criteria)) + ": " + check.title)
+        print("[" + str(check_counter) + " of " + str(len(criteria)) + "] " + check.title)
         calls = 0
         summary = None
         progress = ProgressBar()
@@ -34,7 +34,7 @@ def audit():
         check_passed = (check.aggregation_type == "all")
         is_all = (check_passed)
 
-        check.resources = []
+        resources = []
         for request in requests:
           evaluated = []
           calls += 1
@@ -55,13 +55,17 @@ def audit():
           # print(app.utilities.to_json(data))
           progress.update(100*calls/len(requests))
           summary = check.summarize(evaluated, summary)
-          check.resources += evaluated
+          resources += evaluated
 
         progress.end()
         #print(app.utilities.to_json(summary))
         app.show_check_summary(summary)
         check.summary = summary
-        app.add_check_results(check)
+        app.add_check_results({
+          "title": check.title,
+          "resources": resources,
+          "summary": summary
+        })
 
   app.complete_audit()
 

@@ -133,3 +133,5 @@ build/sql/population
 
 cli/results/*
 !cli/results/ReadMe.md
+cli/config/*
+!cli/config/ReadMe.md

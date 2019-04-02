@@ -20,15 +20,21 @@ class AwsAudit:
     self.caller = None
     self.regions = None
 
+  def get_datetime(self):
+    now = datetime.now()
+    iso = now.isoformat()
+    date_string = iso[0:19]
+    return date_string
+
   def start_audit(self):
     """
     Create a default audit object and set the start time
     """
-    now = datetime.now()
+    now = self.get_datetime()
     caller = self.get_caller()
     self.audit = {
       "account": str(caller["Account"]),
-      "started": now.isoformat(),
+      "started": now,
       "checks": []
     }
 
@@ -36,18 +42,13 @@ class AwsAudit:
     self.audit["checks"].append(check)
 
   def complete_audit(self):
-      now = datetime.now()
-      iso = now.isoformat()
-      date_folder = iso[0:19]
-      self.audit["completed"] = iso
-      caller = self.get_caller()
-      account = str(caller["Account"])
-      path = f"results/{account}/{date_folder}/audit.json"
-      os.makedirs(os.path.dirname(path), exist_ok=True)
-      with open(path, 'w') as file:
-        file.write(self.utilities.to_json(self.audit))
-        file.close()
-
+    now = self.get_datetime()
+    self.audit["completed"] = now
+    caller = self.get_caller()
+    account = str(caller["Account"])
+    path = f"results/{account}/{now}/audit.json"
+    data = self.utilities.to_json(self.audit, True)
+    self.utilities.write_file(path, data)
 
   def get_criteria(self,parent_module_name='chalicelib.criteria'):
     """
@@ -55,18 +56,26 @@ class AwsAudit:
     having a class attribute named active with value True.
     """
     parent_module = importlib.import_module(parent_module_name)
-    active_criteria = []
+    criteria = []
+    ignore_check_classes = [
+        "AwsIamValidateInspectorPolicy"
+    ]
     for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
       for name, cls in inspect.getmembers(importlib.import_module(f'{parent_module.__name__}.{module_name}')):
-        if (  # is a class
-                inspect.isclass(cls)
-                # ) and (  # has the class attribute active set to True
-                #     getattr(cls, 'active', False)
-        ) and (  # is a subclass of the base criterion
-                'CriteriaDefault' in [supercls.__name__ for supercls in inspect.getmro(cls)]
-        ):
-          active_criteria.append(f'{parent_module.__name__}.{module_name}.{name}')
-    return active_criteria
+        is_class = inspect.isclass(cls)
+        is_criterion = is_class and 'CriteriaDefault' in [supercls.__name__ for supercls in inspect.getmro(cls)]
+        if is_criterion:
+          criteria.append(f'{parent_module.__name__}.{module_name}.{name}')
+    return criteria
+
+  def get_active_criteria(self):
+    criteria = self.get_criteria()
+    active = []
+    for criterion in criteria:
+        instance = self.get_check_instance(criterion)
+        if instance is not None and instance.active and instance.title:
+            active.append(criterion)
+    return active
 
   def get_check_instance(self, class_path):
     """
@@ -132,7 +141,7 @@ class AwsAudit:
 
       item = check.translate(api_item)
       # store original API resource data
-      item["resource_data"] = self.utilities.to_json(api_item)
+      item["resource_data"] = api_item
 
       # populate foreign keys
       item["criterion_id"] = check
@@ -149,9 +158,20 @@ class AwsAudit:
           # item_raw["region"] = params["region"]
 
       # populate the resource_identifier field
-      # item['resource_persistent_id'] = self.get_resource_persistent_id(item, audit)
+      item['resource_persistent_id'] = self.get_resource_persistent_id(check, item)
 
       return item
+
+  def get_resource_persistent_id(self, check, item):
+    if 'resource_name' in item and item['resource_name'] is not None:
+      name = item.get('resource_name', '')
+    else:
+      name = item.get('resource_id', '')
+
+    return (check.resource_type + "::"
+            + item.get('region', '') + "::"
+            + str(self.audit["account"]) + "::"
+            + name)
 
   def show_check_summary(self, summary):
       for key in summary:
@@ -160,3 +180,5 @@ class AwsAudit:
           elif "display_stat" in summary[key]:
               print(f"{key}: " + str(summary[key]["display_stat"]))
 
+  def has_exception(self, check, resource_id):
+      return True
