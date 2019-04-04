@@ -408,13 +408,14 @@ class AuthHandler:
                         self.token = self.user_jwt
 
                         self.logged_in = True
+                        self.login_data["default_redirect"] = "/team"
 
             if self.logged_in:
 
                 # self.login_data.update(self.user)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
-                self.login_data["default_redirect"] = "/team"
+
 
         except Exception as err:
 

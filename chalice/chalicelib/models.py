@@ -798,7 +798,7 @@ class AuditCriterion(database_handle.BaseModel):
     class Meta:
         table_name = "audit_criterion"
 
-    def get_failed_resources(self):
+    def get_resources_by_status(self, status_id):
         account_audit_id = self.account_audit_id
 
         try:
@@ -807,23 +807,44 @@ class AuditCriterion(database_handle.BaseModel):
             return (ResourceCompliance.select()
                 .join(AuditResource)
                 .where(
-                    AuditResource.criterion_id == criterion.id,
-                    AuditResource.account_audit_id == account_audit_id,
-                    ResourceCompliance.status_id == 3
-                )
+                AuditResource.criterion_id == criterion.id,
+                AuditResource.account_audit_id == account_audit_id,
+                ResourceCompliance.status_id == status_id
+            )
             )
         except Exception as err:
-            self.app.log.error("Failed to get audit failed resources: " + str(err))
+            self.app.log.error("Failed to get audit resources: " + str(err))
             return []
 
+    def get_failed_resources(self):
+        # Kept method definition in case it's used elsewhere
+        return self.get_resources_by_status(3)
+
     def get_issues_list(self):
-        account_issues = self.get_failed_resources()
+        account_issues = self.get_resources_by_status(3)
         issues_list = []
         if len(account_issues) > 0:
             for compliance in account_issues:
                 audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
                 criterion = Criterion.get_by_id(audit_resource.criterion_id)
                 status = Status.get_by_id(compliance.status_id)
+                issues_list.append({
+                    "compliance": compliance.serialize(),
+                    "resource": audit_resource.serialize(),
+                    "criterion": criterion.serialize(),
+                    "status": status.serialize()
+                })
+
+        return issues_list
+
+    def get_status_resources_list(self, status_id):
+        account_issues = self.get_resources_by_status(status_id)
+        issues_list = []
+        if len(account_issues) > 0:
+            status = Status.get_by_id(status_id)
+            for compliance in account_issues:
+                audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                criterion = Criterion.get_by_id(audit_resource.criterion_id)
                 issues_list.append({
                     "compliance": compliance.serialize(),
                     "resource": audit_resource.serialize(),

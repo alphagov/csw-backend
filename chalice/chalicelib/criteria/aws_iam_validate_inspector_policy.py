@@ -83,6 +83,8 @@ class AwsIamValidateInspectorPolicy(CriteriaDefault):
         required = json.dumps(item['PolicyRequired'])
         if applied == required:
             compliance_type = "COMPLIANT"
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
         else:
             compliance_type = "NON_COMPLIANT"
             role_name = item['RoleName']

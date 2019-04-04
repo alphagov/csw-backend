@@ -2,19 +2,19 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-    {% include "components/breadcrumbs.html" %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% include "components/breadcrumbs.html" %}
 
-    {% include "components/audit_header.html" %}
+        {% include "components/audit_header.html" %}
 
-    <p>
-      Generally if everything's green - everything's good. You might want to check that the total number of things
-      defined in your accounts hasn't changed unexpectedly.
-    </p>
+        {% include "components/audit_status.html" %}
 
-    {% include "components/audit_status.html" %}
+        {# include "components/audit_checks.html" #}
 
-    {% include "components/audit_checks.html" %}
-
+        {% include "components/audit_resource_categories.html" %}
+      </div>
+    </div>
   </main>
 </div>
 {% endblock %}

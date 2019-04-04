@@ -521,6 +521,68 @@ def check_issues(id):
     return Response(**response)
 
 
+@app.route('/check/{id}/{status}')
+def check_status_resources(id, status):
+    try:
+        load_route_services()
+        check_id = int(id)
+        audit_check = models.AuditCriterion.get_by_id(check_id)
+        audit = audit_check.account_audit_id
+        account = audit.account_subscription_id
+        team = account.product_team_id
+        # TODO - add check user has access to team
+
+        # TODO - Might be better to keep exceptions separate
+        # I've not done that because they're not identified separately in the audit_criterion stats.
+        if status == 'passed':
+            statuses = [2,4]
+            status = models.Status.get_by_id(2)
+        elif status == 'failed':
+            statuses = [3]
+            status = models.Status.get_by_id(3)
+        else:
+            raise Exception(f"Requested status {status} is not valid")
+
+        resource_list = []
+        for status_id in statuses:
+            status_list = audit_check.get_status_resources_list(status_id)
+            resource_list = resource_list + status_list
+
+        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        check = CheckClass(app)
+
+        template_data = {
+            "breadcrumbs": [
+                {
+                    "title": "My teams",
+                    "link": "/team"
+                },
+                {
+                    "title": team.team_name,
+                    "link": f"/team/{team.id}/status"
+                },
+                {
+                    "title": account.account_name,
+                    "link": f"/account/{account.id}/status"
+                }
+            ],
+            "audit_check": audit_check.serialize(),
+            "resources": resource_list,
+            "status": status,
+            "exception_type": check.exception_type
+        }
+        response = app.templates.render_authorized_template(
+            'check_status_resources.html',
+            app.current_request,
+            template_data,
+            [account]
+        )
+
+    except Exception as err:
+        app.log.error("Route: account issues error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
 @app.route('/resource/{id}')
 def resource_details(id):
     id = int(id)

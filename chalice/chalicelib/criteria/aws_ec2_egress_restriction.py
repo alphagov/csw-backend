@@ -46,6 +46,8 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
         """
         """
         compliance_type = 'COMPLIANT'
+        # Remove any previous annotation if instance is reused
+        self.annotation = ''
         for egress_permission in item['IpPermissionsEgress']:
             if egress_permission['IpProtocol'] == '-1':
                 for ip_range in egress_permission['IpRanges']:

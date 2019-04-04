@@ -43,6 +43,9 @@ class EBSPublicSnapshot(TrustedAdvisorCriterion):
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = 'COMPLIANT'
+        # Remove any previous annotation if instance is reused
+        self.annotation = ''
+
         if item['status'] == 'error':
             compliance_type = 'NON_COMPLIANT'
             self.annotation = (

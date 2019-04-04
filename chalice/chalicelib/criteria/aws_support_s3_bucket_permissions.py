@@ -62,6 +62,8 @@ class S3BucketReadAll(S3BucketPermissions):
             )
         else:
             compliance_type = 'COMPLIANT'
+            # Remove any previous annotation if instance is reused
+            self.annotation = ''
         return self.build_evaluation(
             item['resourceId'],
             compliance_type,

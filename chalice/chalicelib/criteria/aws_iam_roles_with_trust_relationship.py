@@ -100,6 +100,8 @@ class AwsIamRolesWithTrustRelationship(CriteriaDefault):
                         break  # don't need to loop over the rest, we've got an IAM user matched
                 else:   # There must be at least 1 User from the self.user_account, with none that match other accounts
                     compliance_type = "COMPLIANT"
+                    # Remove any previous annotation if instance is reused
+                    self.annotation = ''
                     self.app.log.debug(f"Role: {role['RoleName']} is found to be compliant")
 
         else:
