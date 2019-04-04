@@ -11,14 +11,16 @@ heartbeat = {
     keepAlive: function(server) {
         schedule.scheduleJob('0 */1 * * * *', function(fireDate){
             let sts = new AWS.STS();
+            let now = new Date();
+            let dateString = now.toLocaleString('en-GB');
             sts.getCallerIdentity({}, function(err, data) {
                 if (err) {
                     //console.log(err, err.stack); // an error occurred
-                    console.log('Heartbeat failed: Exiting');
+                    console.log(`Heartbeat failed: Exiting`);
                     server.close();
                 } else {
                     let account = data["Account"];
-                    console.log('Heartbeat: Refreshed session for account: '+ account);
+                    console.log(`Heartbeat: Refreshed session for account: ${account} at: ${dateString}`);
                 };
 
             });
