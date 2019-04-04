@@ -414,6 +414,7 @@ class AuthHandler:
                 # self.login_data.update(self.user)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
+                self.login_data["default_redirect"] = "/team"
 
         except Exception as err:
 

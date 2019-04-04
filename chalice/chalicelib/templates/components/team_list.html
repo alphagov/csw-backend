@@ -1,16 +1,42 @@
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
+    <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Product Teams</h1>
         <p>
             The following teams have been setup to have their AWS accounts monitored.
+            You are only able to see teams your user has been granted access to.
         </p>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+               What is a team?
+            </span>
+          </summary>
+          <div class="govuk-details__text">
+            AWS accounts are assigned to teams and users are assigned to teams.
+            Users can then see all the AWS accounts of all the teams they are assigned to.
+            This can be used to manage permissions to separate access to production accounts
+            or to separate people working on different projects.
+          </div>
+        </details>
+        <details class="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+               What is a resource?
+            </span>
+          </summary>
+          <div class="govuk-details__text">
+            A resource might be a VPC security group, RDS instance, S3 bucket.
+            Checks target AWS resource types. So a check typically evaluates
+            each resource of that type. So even if only 1 check fails it may have
+            failed because there are multiple non-compliant resources.
+          </div>
+        </details>
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header">Name</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Status</th>
-                    <th class="govuk-table__header--tag-fixed-centred">Issues</th>
-                    <th class="govuk-table__header">Details</th>
+                    <th class="govuk-table__header">Findings</th>
+                    <th class="govuk-table__header govuk-table__header--tag-fixed-centred">Status</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -18,25 +44,22 @@
                 {%- set team = team_stats.team -%}
                 {%- set team_data = team_stats.summary.all -%}
                 <tr class="govuk-table__row">
-                    <th class="govuk-table__header">{{ team.team_name }}</th>
-                    <td class="govuk-table__cell--tag-fixed-centred">
+                    <th class="govuk-table__header">
+                        <a href="{{base_path}}/team/{{ team.id }}/status">
+                            {{ team.team_name }}
+                        </a>
+                    </th>
+                    <td class="govuk-table__cell">
+                        {%- if team_data.accounts_failed > 0 -%}
+                        {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "failed resources" }}
+                        {%- else -%}
+                        0 failed resources
+                        {%- endif -%}
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell--tag-fixed-centred">
                         <strong class="{{ 'govuk-tag__fixed-width--passed' if team_data.accounts_failed == 0 else 'govuk-tag__fixed-width--failed' }}">
                             {{ "Pass" if team_data.accounts_failed == 0 else "Fail" }}
                         </strong>
-                    </td>
-                    <td class="govuk-table__cell--tag-fixed-centred">
-                        {%- if team_data.accounts_failed > 0 -%}
-                        <a href="{{base_path}}/team/{{team.id}}/issues">
-                            {{ team_data.issues_found }} {{ "issue" if (team_data.issues_found == 1) else "issues" }}
-                        </a>
-                        {%- else -%}
-                        0 issues
-                        {%- endif -%}
-                    </td>
-                    <td class="govuk-table__cell">
-                        <a href="{{base_path}}/team/{{ team.id }}/status" role="button" class="csw-team-list__cta-button">
-                            View details
-                        </a>
                     </td>
                 </tr>
                 {% endfor %}
