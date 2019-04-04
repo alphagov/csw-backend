@@ -29,15 +29,17 @@ class Utilities:
         data = json.loads(json_data)
         return data
 
-    def read_file(self, path):
-        with open(path, 'r') as file:
+    def read_file(self, path, binary=False):
+        mode = 'rb' if binary else 'r'
+        with open(path, mode) as file:
             data = file.read()
             file.close()
         return data
 
-    def write_file(self, path, data):
+    def write_file(self, path, data, binary=False):
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w') as file:
+        mode = 'wb' if binary else 'w'
+        with open(path, mode) as file:
             file.write(data)
             file.close()
 
