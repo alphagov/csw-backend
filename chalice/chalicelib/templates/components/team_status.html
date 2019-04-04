@@ -1,2 +1,41 @@
 {%- set stats = status %}
-{% include "components/5_column_status.html" %}
+{# include "components/5_column_status.html" #}
+{%- if team_summary.all.accounts_passed > 0 -%}
+<p>
+    There are currently {{team_summary.all.accounts_passed }} accounts passing.
+</p>
+{%- endif -%}
+{%- if team_summary.all.accounts_failed > 0 -%}
+<p>
+    There are currently a total of {{ team_summary.all.issues_found }} failed resources
+    from {{ team_summary.all.accounts_failed }} accounts.
+</p>
+{%- endif -%}
+{%- if team_summary.all.accounts_unaudited > 0 -%}
+<p>
+    {{ team_summary.all.accounts_unaudited }} accounts are unaudited.
+</p>
+{%- endif -%}
+{%- if team_summary.all.accounts_inactive > 0 -%}
+<p>
+    {{ team_summary.all.accounts_inactive }} accounts are switched off.
+</p>
+{%- endif -%}
+
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+       What do the different account statuses mean?
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Passed - The audit ran successfully and no checks failed</li>
+      <li>Failed - The audit ran successfully and at least 1 check failed</li>
+      <li>Unaudited - We have not successfully run an audit for this account</li>
+      <li>Switched off - The account is defined but deactivated so that audits are not attempted.
+      This is typically during the on-boarding process where the role has been setup to audit
+      some team accounts but not others</li>
+    </ul>
+  </div>
+</details>

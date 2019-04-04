@@ -350,6 +350,7 @@ class ProductTeam(database_handle.BaseModel):
         app.log.debug(f"Get team dashboard for team: {self.team_name}  ({ team_id })")
         team_accounts = AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id)
         unaudited_accounts = []
+        inactive_accounts = []
         for account in team_accounts:
             app.log.debug(account.account_name)
         account_stats = {
@@ -398,13 +399,18 @@ class ProductTeam(database_handle.BaseModel):
                     })
             else:
                 account_stats["accounts_inactive"] += 1
+                inactive_accounts.append({
+                    "account": account.serialize()
+                })
+
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
         # add account stats to team stats dictionary
         team_stats.update(account_stats)
         return {
             "all": team_stats,
             "accounts": account_audits,
-            "unaudited_accounts": unaudited_accounts
+            "unaudited_accounts": unaudited_accounts,
+            "inactive_accounts": inactive_accounts
         }
 
     def get_active_accounts(self):
