@@ -97,6 +97,9 @@ def audit():
             check.summary = summary
             app.add_check_results({
                 "title": check.title,
+                "description": check.description,
+                "why_is_it_important": check.why_is_it_important,
+                "how_do_i_fix_it": check.how_do_i_fix_it,
                 "resources": resources,
                 "summary": summary
             })

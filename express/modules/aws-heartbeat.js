@@ -8,11 +8,25 @@ const schedule = require('node-schedule');
     It doesn't work if you have an intermittent internet connection
  */
 heartbeat = {
+    credentials: null,
     keepAlive: function(server) {
         schedule.scheduleJob('0 */1 * * * *', function(fireDate){
-            let sts = new AWS.STS();
+            let sts = new AWS.STS({correctClockSkew: true});
             let now = new Date();
-            let dateString = now.toLocaleString('en-GB');
+            let dateString = now.toLocaleString('en-GB', { hour12:false });
+            if (!this.credentials) {
+                let creds = {
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    sessionToken: process.env.AWS_SESSION_TOKEN
+                };
+                this.credentials = new AWS.Credentials(creds);
+            } else {
+                this.credentials.refresh(function(err, data) {
+                    if (err) console.log(err);
+                    else console.log('Refreshed credentials')
+                });
+            }
             sts.getCallerIdentity({}, function(err, data) {
                 if (err) {
                     //console.log(err, err.stack); // an error occurred

@@ -7,6 +7,7 @@ AWS.config.update({region:'eu-west-1'});
 
 const encrypter = require('./modules/kms-encrypter');
 const heartbeat = require('./modules/aws-heartbeat');
+const templater = require('./modules/csw-template-data');
 const app = express();
 const port = 3000;
 
@@ -29,6 +30,12 @@ env.addFilter('datetime', function(str) {
     };
     return dateObject.toLocaleString("en-GB", options);
 });
+
+env.addFilter('aws_account_id', function(account) {
+    if (account) account = account.padStart(12, '0');
+    return account;
+});
+
 app.set('view engine', 'html');
 
 app.use('/assets', express.static('assets'));
@@ -75,6 +82,8 @@ app.get('/', async (req, res) => {
                 }
                 audits.sort(function(a, b){return b>a});
                 res.render('cli_audit_list.html', {
+                    mode: 'express',
+                    hide_login: true,
                     title: 'Acoount audits: Cloud Security Watch',
                     asset_path:'/assets',
                     account: account,
@@ -82,9 +91,7 @@ app.get('/', async (req, res) => {
                 });
             });
         };
-
     });
-
 });
 
 app.get('/accounts/:account/audit/:audit', async (req, res) => {
@@ -94,28 +101,48 @@ app.get('/accounts/:account/audit/:audit', async (req, res) => {
     console.log(filePath);
     let auditData = await encrypter.fileDecrypt(account, filePath);
     let audit = await encrypter.jsonParse(auditData);
-    res.send(auditData);
-//    res.render('cli_audit_list.html', {
-//        title: 'Acoount audits: Cloud Security Watch',
-//        asset_path:'/assets',
-//        account: account,
-//        audits: audits
-//    });
-    /*
-        //console.log(content);
-        let audit = JSON.parse(content);
-        console.log("Audit", audit);
-        res.send(content);
-    //    res.render('cli_audit_list.html', {
-    //        title: 'Acoount audits: Cloud Security Watch',
-    //        asset_path:'/assets',
-    //        account: account,
-    //        audits: audits
-    //    });
-    });
-    */
+    //res.send(auditData);
+    let data = {
+        mode: 'express',
+        hide_login: true,
+        title: 'Account audits: Cloud Security Watch',
+        base_path: '/accounts/'+account+'/audit/'+auditDate,
+        asset_path: '/assets',
+        account: account,
+        audit: audit
+    };
+    let templateData = templater.audit_status(data);
 
+    res.render('audit_status.html', templateData);
 });
+
+app.get('/accounts/:account/audit/:audit/check/:checkId/:status', async (req, res) => {
+    let account = req.params.account;
+    let auditDate = req.params.audit;
+    let checkId = req.params.checkId;
+    let status = req.params.status;
+    let filePath = path.join(__dirname, '../cli/results/'+account, auditDate, 'audit.enc');
+    console.log(filePath);
+    let auditData = await encrypter.fileDecrypt(account, filePath);
+    let audit = await encrypter.jsonParse(auditData);
+    //res.send(auditData);
+    let data = {
+        mode: 'express',
+        hide_login: true,
+        title: 'Account audits: Cloud Security Watch',
+        base_path: '/accounts/'+account+'/audit/'+auditDate,
+        asset_path: '/assets',
+        account: account,
+        audit: audit,
+        checkId: checkId,
+        statusName: status
+    };
+    let templateData = templater.check_status_resources(data);
+
+    res.render('check_status_resources.html', templateData);
+});
+
+
 
 app.get('/test/decrypt', async (req, res) => {
     try {
