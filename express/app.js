@@ -98,11 +98,37 @@ app.get('/accounts/:account/audit/:audit', async (req, res) => {
         base_path: '/accounts/'+account+'/audit/'+auditDate,
         asset_path: '/assets',
         account: account,
+        audit_date: auditDate,
         audit: audit
     };
     let templateData = templater.audit_status(data);
 
     res.render('audit_status.html', templateData);
+});
+
+app.get('/accounts/:account/audit/:audit/raw', async (req, res) => {
+    let account = req.params.account;
+    let auditDate = req.params.audit;
+    let filePath = path.join(__dirname, '../cli/results/'+account, auditDate, 'audit.enc');
+    console.log(filePath);
+    let auditData = await encrypter.fileDecrypt(account, filePath);
+    let audit = await encrypter.jsonParse(auditData);
+    //res.send(auditData);
+    /*
+    let data = {
+        mode: 'express',
+        hide_login: true,
+        title: 'Account audits: Cloud Security Watch',
+        base_path: '/accounts/'+account+'/audit/'+auditDate,
+        asset_path: '/assets',
+        account: account,
+        audit: audit,
+        audit_date: auditDate
+    };
+    let templateData = templater.audit_status(data);
+    res.render('cli_audit_raw.html', templateData);
+    */
+    res.json(audit);
 });
 
 app.get('/accounts/:account/audit/:audit/check/:checkId/:status', async (req, res) => {

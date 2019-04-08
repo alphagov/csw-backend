@@ -81,8 +81,18 @@ def audit():
                         check=check,
                         params=request
                     )
-                    audit_item["resource_compliance"] = compliance
                     item_passed = (compliance['status_id'] == 2)
+
+                    # check for exception
+                    if not item_passed:
+                        is_excepted = app.has_exception(check, audit_item)
+                        if is_excepted:
+                            item_passed = True
+                            compliance['status_id'] = 4
+                            compliance['annotation'] += '<p>This resource has been passed by exception.</p>'
+
+                    audit_item["resource_compliance"] = compliance
+
                     evaluated.append(audit_item)
 
                     check_passed = (check_passed and item_passed) if is_all else (check_passed or item_passed)

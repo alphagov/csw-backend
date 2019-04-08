@@ -124,6 +124,20 @@ const templater = {
         ];
         return template;
     },
+    audit_raw: function(data) {
+        template = extend({}, data);
+        template.breadcrumbs = [
+            {
+                title: "Audit list",
+                link: "/../../../../../.."
+            },
+            {
+                title: "Audit: " + this.format_date_string(data.audit_date),
+                link: "/."
+            }
+        ];
+        return template
+    },
     check_status_resources: function(data) {
         template = extend({}, data);
         let statusId = (data.status_name == 'passed')?2:3;

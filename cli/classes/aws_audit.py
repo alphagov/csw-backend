@@ -21,6 +21,7 @@ class AwsAudit:
         self.utilities = Utilities()
         self.caller = None
         self.regions = None
+        self.load_exceptions()
 
     def get_datetime(self):
         now = datetime.now()
@@ -218,5 +219,32 @@ class AwsAudit:
             elif "display_stat" in summary[key]:
                 print(f"{key}: " + str(summary[key]["display_stat"]))
 
-    def has_exception(self, check, resource_id):
-        return True
+    def load_exceptions(self):
+        exceptions_json = self.utilities.read_file("config/exceptions.json")
+        self.exceptions = self.utilities.from_json(exceptions_json)
+
+    def has_exception(self, check, resource):
+        now = datetime.now()
+        exceptions = self.exceptions
+        is_excepted = False
+        if exceptions is not None:
+            for entry in exceptions:
+                # does resource match
+                expires = self.utilities.parse_datetime(entry["date_expires"])
+                entry_persistent_id = (entry["resource_type"] + "::"
+                                       + entry["region"] + "::"
+                                       + str(entry["account"]) + "::"
+                                       + entry["resource_name"])
+
+                in_date = expires > now
+                is_this_account = self.audit["account"] == entry["account"]
+                is_this_check = entry["check"] == check.title
+                is_this_resource = entry_persistent_id == resource["resource_persistent_id"]
+                if (in_date
+                        and is_this_account
+                        and is_this_check
+                        and is_this_resource):
+                    # do something
+                    is_excepted = True
+
+        return is_excepted

@@ -7,7 +7,10 @@
         <h2  class="govuk-heading-l">Account: {{ account }}</h2>
         <ul class="govuk-list govuk-list--bullet">
           {% for audit in audits %}
-          <li><a href="/accounts/{{account}}/audit/{{audit}}">{{ audit | datetime }}</a></li>
+          <li>
+            <a href="/accounts/{{account}}/audit/{{audit}}">{{ audit | datetime }}</a> |
+            <a href="/accounts/{{account}}/audit/{{audit}}/raw">raw</a>
+          </li>
           {% endfor %}
         </ul>
       </div>
