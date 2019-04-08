@@ -22,14 +22,13 @@ heartbeat = {
                 };
                 this.credentials = new AWS.Credentials(creds);
             } else {
-                let self = this;
-                this.credentials.refresh(function(err, data) {
+                let awsCreds = this.credentials;
+                this.credentials.refreshPromise()
+                .then(function(err) {
                     if (err) console.log(err);
                     else {
-                        console.log('Refreshed credentials')
-                        self.credentials.get(function(creds) {
-                            process.env.AWS_SESSION_TOKEN = creds.sessionToken;
-                        });
+                        console.log('Refreshed credentials');
+                        process.env.AWS_SESSION_TOKEN = this.sessionToken;
                     }
                 });
             }

@@ -173,7 +173,7 @@ app.get('/test/decrypt', async (req, res) => {
 
 });
 
-let server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+let server = app.listen(port, () => console.log(`CSW listening on port ${port}!`));
 
 /**
     When running a local dev server through AWS vault the session can expire
