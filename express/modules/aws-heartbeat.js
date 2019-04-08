@@ -22,9 +22,14 @@ heartbeat = {
                 };
                 this.credentials = new AWS.Credentials(creds);
             } else {
+                let self = this;
                 this.credentials.refresh(function(err, data) {
                     if (err) console.log(err);
-                    else console.log('Refreshed credentials')
+                    else {
+                        console.log('Refreshed credentials')
+                        let creds = self.credentials.get();
+                        process.env.AWS_SESSION_TOKEN = creds.sessionToken;
+                    }
                 });
             }
             sts.getCallerIdentity({}, function(err, data) {

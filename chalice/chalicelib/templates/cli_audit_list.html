@@ -9,7 +9,7 @@
           {% for audit in audits %}
           <li>
             <a href="/accounts/{{account}}/audit/{{audit}}">{{ audit | datetime }}</a> |
-            <a href="/accounts/{{account}}/audit/{{audit}}/raw">raw</a>
+            <a href="/accounts/{{account}}/audit/{{audit}}/raw">json</a>
           </li>
           {% endfor %}
         </ul>
