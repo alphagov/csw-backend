@@ -17,18 +17,7 @@ const env = nunjucks.configure('templates', {
 });
 
 env.addFilter('datetime', function(str) {
-    let match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(str);
-    let dateObject = new Date(match[1], match[2]-1, match[3], match[4], match[5], match[6]);
-    let options = {
-        hour12: false,
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    };
-    return dateObject.toLocaleString("en-GB", options);
+    return templater.format_date_string(str);
 });
 
 env.addFilter('aws_account_id', function(account) {
@@ -134,8 +123,9 @@ app.get('/accounts/:account/audit/:audit/check/:checkId/:status', async (req, re
         asset_path: '/assets',
         account: account,
         audit: audit,
-        checkId: checkId,
-        statusName: status
+        audit_date: auditDate,
+        check_id: checkId,
+        status_name: status
     };
     let templateData = templater.check_status_resources(data);
 

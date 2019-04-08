@@ -1,5 +1,19 @@
 const extend = require('util')._extend;
 const templater = {
+    format_date_string: function(str) {
+        let match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(str);
+        let dateObject = new Date(match[1], match[2]-1, match[3], match[4], match[5], match[6]);
+        let options = {
+            hour12: false,
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
+        return dateObject.toLocaleString("en-GB", options);
+    },
     reference_aliases: function() {
         let aliases = {
             compliant: "passed",
@@ -102,14 +116,20 @@ const templater = {
             all: data.audit.summary,
             criteria: check_stats
         };
+        template.breadcrumbs = [
+            {
+                title: "Audit list",
+                link: "/../../../.."
+            }
+        ];
         return template;
     },
     check_status_resources: function(data) {
         template = extend({}, data);
-        let statusId = (data.statusName == 'passed')?2:3;
-        let statusIds = (data.statusName == 'passed')?[2,4]:[3];
+        let statusId = (data.status_name == 'passed')?2:3;
+        let statusIds = (data.status_name == 'passed')?[2,4]:[3];
         let status = this.find_status_by_id(statusId);
-        let check = this.find_check_by_id(data.audit.checks, data.checkId);
+        let check = this.find_check_by_id(data.audit.checks, data.check_id);
         data.status = status;
         template.audit.account_subscription_id = {
             account_id: data.account,
@@ -121,6 +141,17 @@ const templater = {
         let i = 0;
         let template_resources = this.find_resources_by_status(check.resources, statusIds);
         template.resources = template_resources;
+        template.breadcrumbs = [
+            {
+                title: "Audit list",
+                link: "/../../../../../.."
+            },
+            {
+                title: "Audit: " + this.format_date_string(data.audit_date),
+                //link: "/accounts/"+data.account+"/audit/"+data.audit_date
+                link: "/."
+            }
+        ];
         return template;
     }
 }
