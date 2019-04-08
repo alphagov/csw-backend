@@ -27,8 +27,9 @@ heartbeat = {
                     if (err) console.log(err);
                     else {
                         console.log('Refreshed credentials')
-                        let creds = self.credentials.get();
-                        process.env.AWS_SESSION_TOKEN = creds.sessionToken;
+                        self.credentials.get(function(creds) {
+                            process.env.AWS_SESSION_TOKEN = creds.sessionToken;
+                        });
                     }
                 });
             }
