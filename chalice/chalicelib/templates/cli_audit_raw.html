@@ -1,0 +1,14 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    {% include "components/breadcrumbs.html" %}
+
+    {% include "components/audit_header.html" %}
+    <pre>
+        {{ audit | dump(4) }}
+    </pre>
+
+  </main>
+</div>
+{% endblock %}
