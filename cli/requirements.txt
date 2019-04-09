@@ -1,1 +1,2 @@
+-r ../chalice/requirements-dev.txt
 fire==0.1.3
