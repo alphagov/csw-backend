@@ -6,7 +6,9 @@ infrastructure created by [alphagov/csw-infra](https://github.com/alphagov/csw-i
 
 
 
-## Create your virtual env
+## Prerequisites 
+
+### Create your virtual env
 
 **TODO - switch to venv** 
 
@@ -30,45 +32,11 @@ The requirements file is not stored in the repository root
 since the requirements need to be packaged by chalice as part 
 of the chalice deploy
 
-## Unit Tests
-
-Now you can run the unit tests.
-
-```
-python -m unittest discover -v
-```
-
-Run the command above before adding/commiting.
-If tests fail, don't worry, review the reason for the failures.
-It might even be that the test is no longer valid,
-in which case you need to update it or delete it.
-
-## End to end testing 
-
-If you are running the e2e tests for the first time you probably 
-need to do some installs first. 
-```
-brew install geckodriver 
-cd build
-reinstall 
-gulp environment.terraform --env=[env]
-gulp environment.chalice_s3_deploy --env=[env]
-```
-For the e2e tests in addition to your env you need to tell it 
-which user to assume. This is the name part of your email address.   
-```
-gulp environment.e2e --env=[env] --user=[firstname.surname] 
-```
-
-## Create your AWS environment 
-
-### Prerequisites 
-
-#### Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
-You will only need to do this in an AWS 
-account where this has not already been set up. 
-
-####Create an [SSH key](https://www.ssh.com/ssh/keygen/). 
+### Create an [SSH key](https://www.ssh.com/ssh/keygen/).
+Currently you need a PEM encoded RSA key without a password to make this
+work so you should specify `ssh-keygen -m PEM -t RSA` and leave the 
+password fields blank.
+ 
 The build script uses ssh to tunnel to the RDS instance and create 
 the database. It also creates a box which can 
 be used for deploying chalice when working 
@@ -83,18 +51,35 @@ private and public key file names should be:
     * private=`/path/to/[keyname]` 
     * public=`/path/to/[keyname].pub`
     
-#### Install gulp-cli globally 
+### Install gulp-cli globally 
 `sudo npm install -g gulp-cli`
 
 Gulp is a task runner used to run various build tasks.
 
-#### Install npm-reinstall globally
+### Install npm-reinstall globally
 `sudo npm install -g npm-reinstall`
 
 Does a complete reinstall of npm dependencies not via 
 the cache. Important for picking up github code changes 
 if you're installing a branch rather than a tagged 
 release and want the current commit on that branch.
+
+### Install the build dependencies 
+
+All the build tasks are run from the build directory 
+
+```build-folder
+cd /path/to/csw-backend/build
+```
+
+NPM install installs;
+* [alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) and its dependencies
+* [gulp](https://gulpjs.com/) and some modules for running buid tasks
+* [alphagov/csw-infra](https://github.com/alphagov/csw-infra) to terraform the infrastructure
+  
+```install-dependencies
+npm install
+```
  
 ### AWS vault
 
@@ -121,24 +106,30 @@ From here onwards `aws-vault exec [profile]` has been left out
 but it's assumed that any `gulp` task should be preceded 
 with an appropriate `aws-vault` profile.   
 
-### Building your environment 
+### Setup the csw-configuration repository
 
-All the build tasks are run from the build directory 
+The database schema is managed by this repository but populating it 
+with teams, users and accounts is not. You can deploy these 
+automatically by creating a set of population scripts. 
 
-```build-folder
-cd /path/to/csw-backend/build
-```
+Along-side the csw-backend repository you need a second folder or repo 
+called csw-configuration which should contain 
+`environments/[your env name]/sql/population`. 
 
-NPM install installs;
-* [alphagov/govuk-frontend](https://github.com/alphagov/govuk-frontend) and its dependencies
-* [gulp](https://gulpjs.com/) and some modules for running buid tasks
-* [alphagov/csw-infra](https://github.com/alphagov/csw-infra) to terraform the infrastructure
-  
-```install-dependencies
-npm install
-```
+This folder should contain numberered sql scripts starting from `00001.sql`
+containing any database inserts, updates, deletes required to set up 
+your teams, accounts and users. 
+ 
+## Setup your AWS account
+These tasks are to be done once per AWS account. If you're creating an 
+additional environment in a shared account you don't need to do these 
+steps. 
 
-#### Upload shared parameters
+### Create a [Google Cloud Console](https://console.cloud.google.com) credentials file. 
+You will only need to do this in an AWS 
+account where this has not already been set up. 
+
+### Upload shared parameters
  
 Create shared credentials in parameter store.
 These are the Google API OAuth credentials and the 
@@ -152,10 +143,6 @@ deployed to the live account. So credentials are
 shared by test environments but different 
 credentials are used in production.
 
-If you're creating a new environment in an account 
-that is already running an existing environment you 
-can skip this step.
-
 ```load-params
 gulp parameters.shared
 ```
@@ -163,6 +150,17 @@ gulp parameters.shared
 Environments can be test stages or named for 
 individual developers. Names should be short, 
 lower case with no spaces.
+
+## Create your AWS environment 
+
+All the commands to build and deploy environments are wrapped in gulp 
+series tasks which wrap up a set of operations into a single task. 
+
+The following are the key tasks you need to run to build and maintain 
+your environment. The tasks are defined in 
+[9.build.tasks.js](build/gulp_tasks/9.build.tasks.js). If you need to 
+tidy up you can run individual tasks from any of the scripts in the 
+[gulp_tasks](build/gulp_tasks) folder. 
 
 ### environment.build 
 
@@ -210,6 +208,11 @@ an empty file.
       
 It then generates some random passwords for 
 RDS and uploads them to AWS parameter store.
+
+**At the moment you should be careful not to run this multiple times 
+for the same environment. Running it multiple times currently changes 
+the credentials in Parameter Store but not on the RDS instance so you 
+end up locked out of RDS.**
 
 #### environment.tfvars 
 
@@ -287,4 +290,37 @@ gulp environment.chalice_deploy --env=[env]
 ```destroy-env
 gulp environment.cleanup --env=[env]
 ```
+
+## Testing
+
+### Unit Tests
+
+Now you can run the unit tests.
+
+```
+python -m unittest discover -v
+```
+
+Run the command above before adding/commiting.
+If tests fail, don't worry, review the reason for the failures.
+It might even be that the test is no longer valid,
+in which case you need to update it or delete it.
+
+### End to end testing 
+
+If you are running the e2e tests for the first time you probably 
+need to do some installs first. 
+```
+brew install geckodriver 
+cd build
+reinstall 
+gulp environment.terraform --env=[env]
+gulp environment.chalice_s3_deploy --env=[env]
+```
+For the e2e tests in addition to your env you need to tell it 
+which user to assume. This is the name part of your email address.   
+```
+gulp environment.e2e --env=[env] --user=[firstname.surname] 
+```
+
 
