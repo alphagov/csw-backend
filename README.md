@@ -51,6 +51,25 @@ private and public key file names should be:
     * private=`/path/to/[keyname]` 
     * public=`/path/to/[keyname].pub`
     
+### Set your node version 
+At present we need node version 10.12.0 
+
+You can switch node versions easily with the `n` package. 
+```
+sudo npm install -g n
+sudo n 10.12.0 
+node -v 
+```
+
+### Make sure your local AWS CLI is working
+
+Ensure you've got the AWS CLI available inside your venv 
+and install if not.  
+```
+aws -v
+pip install --upgrade awscli 
+```   
+ 
 ### Install gulp-cli globally 
 `sudo npm install -g gulp-cli`
 
