@@ -129,6 +129,12 @@ steps.
 You will only need to do this in an AWS 
 account where this has not already been set up. 
 
+If you are creating a new environment in an already setup AWS account you 
+will need to add your URLs to the Google Cloud Console once your Chalice 
+app has been deployed.
+
+**TODO - Add instructions for this** 
+
 ### Upload shared parameters
  
 Create shared credentials in parameter store.
