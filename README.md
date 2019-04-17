@@ -33,9 +33,9 @@ since the requirements need to be packaged by chalice as part
 of the chalice deploy
 
 ### Create an [SSH key](https://www.ssh.com/ssh/keygen/).
-Currently you need a PEM encoded RSA key without a password to make this
+**Currently you need a PEM encoded RSA key without a password to make this
 work so you should specify `ssh-keygen -m PEM -t RSA` and leave the 
-password fields blank.
+password fields blank.**
  
 The build script uses ssh to tunnel to the RDS instance and create 
 the database. It also creates a box which can 
@@ -52,7 +52,7 @@ private and public key file names should be:
     * public=`/path/to/[keyname].pub`
     
 ### Set your node version 
-At present we need node version 10.12.0 
+At present we need node version **10.12.0** 
 
 You can switch node versions easily with the `n` package. 
 ```
