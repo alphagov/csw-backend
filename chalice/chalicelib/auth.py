@@ -147,9 +147,7 @@ class AuthHandler:
 
         # Set default header for the case where X-Forwarded-Proto header is missing
         # Assume https
-        protocol = 'https'
-        if 'X-Forwarded-Proto' in request.headers:
-            protocol = request.headers['X-Forwarded-Proto']
+        protocol = request.headers.get('X-Forwarded-Proto', 'https')
         return protocol + "://" + request.headers['Host'] + "/app"
 
     def get_user_token(self, request):
