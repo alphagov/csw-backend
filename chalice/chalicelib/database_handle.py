@@ -74,7 +74,8 @@ class DatabaseHandle():
             )
             db.connect()
             for command in commands:
-                status &= db.execute_sql(command)
+                cursor = db.execute_sql(command)
+                status &= (cursor is not None)
         except Exception as err:
             self.app.log.error("Failed to execute commands: " + str(err))
             db.rollback()
