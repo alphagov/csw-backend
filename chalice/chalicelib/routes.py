@@ -946,18 +946,72 @@ def logout():
     return Response(**app.templates.render_authorized_template('logged_out.html', app.current_request))
 
 
-@app.route('/audit')
-def audit_list():
+# These were originally test routes which should no longer be available
+# @app.route('/audit')
+# def audit_list():
+#     load_route_services()
+#     # TODO: Base template needs anchor to this route
+#     return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
+#
+#
+# @app.route('/audit/{id}')
+# def audit_report(id):
+#     load_route_services()
+#     return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
+
+
+@app.route('/statistics')
+def statistics_route():
     load_route_services()
-    # TODO: Base template needs anchor to this route
-    return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
+    try:
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
 
+        # response = app.templates.render_authorized_template(
+        #     'denied.html',
+        #     app.current_request
+        # )
+        template_data = {}
+        template_data['current'] = {}
+        template_data['current']['summary'] = models.CurrentSummaryStats.select()
+        template_data['current']['account'] = models.CurrentAccountStats.select()
+        template_data['daily'] = {}
+        template_data['daily']['summary'] = (models.DailySummaryStats
+                                             .select()
+                                             .where(models.DailySummaryStats.audit_date > days_ago)
+                                             .order_by(models.DailySummaryStats.audit_date.desc()))
+        template_data['daily']['delta'] = (models.DailyDeltaStats
+                                             .select()
+                                             .where(models.DailyDeltaStats.audit_date > days_ago)
+                                             .order_by(models.DailyDeltaStats.audit_date.desc()))
+        template_data['monthly'] = {}
+        template_data['monthly']['summary'] = (models.MonthlySummaryStats
+                                               .select()
+                                               .order_by(
+                                                 models.MonthlySummaryStats.audit_year.desc(),
+                                                 models.MonthlySummaryStats.audit_month.desc()
+                                               ))
+        template_data['monthly']['delta'] = (models.MonthlyDeltaStats
+                                             .select()
+                                             .order_by(
+                                                models.MonthlyDeltaStats.audit_year.desc(),
+                                                models.MonthlyDeltaStats.audit_month.desc()
+                                             ))
 
-@app.route('/audit/{id}')
-def audit_report(id):
-    load_route_services()
-    return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
+        data = app.utilities.to_json(template_data, True)
+        response = app.templates.render_authorized_template(
+            'debug.html',
+            app.current_request,
+            {
+                "json": data
+            }
+        )
 
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
 
 # ASSET RENDERERS
 # TODO This doesn't work for binary file types
