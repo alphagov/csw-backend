@@ -1036,8 +1036,7 @@ class DailyAccountStats(database_handle.BaseModel):
     audit_date = peewee.DateField()
     account_id = peewee.ForeignKeyField(AccountSubscription,
                                         field='account_id',
-                                        backref='current_stats',
-                                        lazy_load=False)
+                                        backref='current_stats')
     resources  = peewee.IntegerField()
     failed     = peewee.IntegerField()
     ratio      = peewee.FloatField()
