@@ -1,8 +1,8 @@
 
 -- Current
-DROP TABLE IF EXISTS public._current_account_stats;
+DROP TABLE IF EXISTS _current_account_stats;
 
-CREATE TABLE public._current_account_stats AS
+CREATE TABLE _current_account_stats AS
 SELECT
     DATE(aud.date_completed) AS audit_date,
     sub.account_id,
@@ -10,41 +10,41 @@ SELECT
     SUM(achk.resources) AS resources,
     SUM(achk.failed) AS failed,
     CAST(SUM(achk.failed) AS FLOAT)/SUM(achk.resources) AS ratio
-FROM public.account_latest_audit AS lat
-INNER JOIN public.account_subscription AS sub
+FROM account_latest_audit AS lat
+INNER JOIN account_subscription AS sub
 ON lat.account_subscription_id = sub.id
-INNER JOIN public.account_audit AS aud
+INNER JOIN account_audit AS aud
 ON lat.account_audit_id = aud.id
-LEFT JOIN public.audit_criterion AS achk
+LEFT JOIN audit_criterion AS achk
 ON aud.id = achk.account_audit_id
 GROUP BY DATE(aud.date_completed),sub.account_id,aud.id
 HAVING DATE(aud.date_completed) IS NOT NULL AND SUM(achk.resources) > 0;
 
-CREATE INDEX current_account_stats__audit_date_index ON public._current_account_stats (audit_date);
-CREATE INDEX current_account_stats__account_id_index ON public._current_account_stats (account_id);
-CREATE INDEX current_account_stats__id_index ON public._current_account_stats (id);
+CREATE INDEX current_account_stats__audit_date_index ON _current_account_stats (audit_date);
+CREATE INDEX current_account_stats__account_id_index ON _current_account_stats (account_id);
+CREATE INDEX current_account_stats__id_index ON _current_account_stats (id);
 
 -- Most recent account audit per day
-DROP TABLE IF EXISTS public._daily_account_audits;
+DROP TABLE IF EXISTS _daily_account_audits;
 
-CREATE TABLE public._daily_account_audits AS
+CREATE TABLE _daily_account_audits AS
 SELECT
     aud.account_subscription_id,
     DATE(aud.date_completed) AS audit_date,
     MAX(aud.id) AS id
-FROM public.account_audit AS aud
+FROM account_audit AS aud
 GROUP BY DATE(aud.date_completed),aud.account_subscription_id
 HAVING DATE(aud.date_completed) IS NOT NULL
 ORDER BY aud.account_subscription_id,DATE(aud.date_completed) DESC;
 
-CREATE INDEX daily_account_audits__account_subscription_id ON public._daily_account_audits (account_subscription_id);
-CREATE INDEX daily_account_audits__audit_date ON public._daily_account_audits (audit_date);
-CREATE INDEX daily_account_audits__id ON public._daily_account_audits (id);
+CREATE INDEX daily_account_audits__account_subscription_id ON _daily_account_audits (account_subscription_id);
+CREATE INDEX daily_account_audits__audit_date ON _daily_account_audits (audit_date);
+CREATE INDEX daily_account_audits__id ON _daily_account_audits (id);
 
 -- Daily stats per account
-DROP TABLE IF EXISTS public._daily_account_stats;
+DROP TABLE IF EXISTS _daily_account_stats;
 
-CREATE TABLE public._daily_account_stats AS
+CREATE TABLE _daily_account_stats AS
 SELECT
     DATE(aud.audit_date) AS audit_date,
     sub.account_id,
@@ -52,21 +52,21 @@ SELECT
     SUM(achk.resources) AS resources,
     SUM(achk.failed) AS failed,
     CAST(SUM(achk.failed) AS FLOAT)/SUM(achk.resources) AS ratio
-FROM public._daily_account_audits AS aud
-INNER JOIN public.account_subscription AS sub
+FROM _daily_account_audits AS aud
+INNER JOIN account_subscription AS sub
 ON sub.id = aud.account_subscription_id
-LEFT JOIN public.audit_criterion AS achk
+LEFT JOIN audit_criterion AS achk
 ON aud.id = achk.account_audit_id
 GROUP BY DATE(aud.audit_date),sub.account_id,aud.id
 HAVING aud.audit_date IS NOT NULL AND SUM(achk.resources) > 0
 ORDER BY sub.account_id, DATE(aud.audit_date) DESC;
 
-CREATE INDEX daily_account_stats__account_id ON public._daily_account_stats (account_id);
-CREATE INDEX daily_account_stats__audit_date ON public._daily_account_stats (audit_date);
+CREATE INDEX daily_account_stats__account_id ON _daily_account_stats (account_id);
+CREATE INDEX daily_account_stats__audit_date ON _daily_account_stats (audit_date);
 
 -- Current aggregated
-DROP TABLE IF EXISTS public._current_summary_stats;
-CREATE TABLE public._current_summary_stats AS
+DROP TABLE IF EXISTS _current_summary_stats;
+CREATE TABLE _current_summary_stats AS
 SELECT
     SUM(resources) AS total_resources,
     SUM(failed) AS total_failures,
@@ -75,12 +75,12 @@ SELECT
     AVG(ratio) AS avg_percent_fails_per_account,
     COUNT(account_id) AS accounts_audited,
     CAST(COUNT(account_id) AS FLOAT)/80 AS percent_accounts_audited
-FROM public._current_account_stats;
+FROM _current_account_stats;
 
 
 -- Daily aggregated
-DROP TABLE IF EXISTS public._daily_summary_stats;
-CREATE TABLE public._daily_summary_stats AS
+DROP TABLE IF EXISTS _daily_summary_stats;
+CREATE TABLE _daily_summary_stats AS
 SELECT
     audit_date,
     SUM(resources) AS total_resources,
@@ -90,15 +90,15 @@ SELECT
     AVG(ratio) AS avg_percent_fails_per_account,
     COUNT(DISTINCT account_id) AS accounts_audited,
     CAST(COUNT(account_id) AS FLOAT)/80 AS percent_accounts_audited
-FROM public._daily_account_stats
+FROM _daily_account_stats
 GROUP BY audit_date
 ORDER BY audit_date DESC;
 
-CREATE INDEX daily_summary_stats__audit_date ON public._daily_summary_stats (audit_date);
+CREATE INDEX daily_summary_stats__audit_date ON _daily_summary_stats (audit_date);
 
 -- Daily delta
-DROP TABLE IF EXISTS public._daily_delta_stats;
-CREATE TABLE public._daily_delta_stats AS
+DROP TABLE IF EXISTS _daily_delta_stats;
+CREATE TABLE _daily_delta_stats AS
 SELECT
     today.audit_date AS audit_date,
     today.total_resources - yesterday.total_resources AS resources_delta,
@@ -107,16 +107,16 @@ SELECT
     today.avg_fails_per_account - yesterday.avg_fails_per_account AS avg_fails_delta,
     today.avg_percent_fails_per_account - yesterday.avg_percent_fails_per_account AS avg_percent_fails_delta,
     today.accounts_audited - yesterday.accounts_audited as accounts_audited_delta
-FROM public._daily_summary_stats AS today
-INNER JOIN public._daily_summary_stats AS yesterday
+FROM _daily_summary_stats AS today
+INNER JOIN _daily_summary_stats AS yesterday
 ON today.audit_date = (yesterday.audit_date + 1);
 
-CREATE INDEX daily_delta_stats__audit_date ON public._daily_delta_stats (audit_date);
+CREATE INDEX daily_delta_stats__audit_date ON _daily_delta_stats (audit_date);
 
 
 -- Monthly aggregated
-DROP TABLE IF EXISTS public._monthly_summary_stats;
-CREATE TABLE public._monthly_summary_stats AS
+DROP TABLE IF EXISTS _monthly_summary_stats;
+CREATE TABLE _monthly_summary_stats AS
 SELECT
     CAST(date_part('YEAR', audit_date) AS INTEGER) AS audit_year,
     CAST(date_part('MONTH', audit_date) AS INTEGER) AS audit_month,
@@ -127,16 +127,16 @@ SELECT
     AVG(ratio) AS avg_percent_fails_per_account,
     COUNT(DISTINCT account_id) AS accounts_audited,
     CAST(COUNT(account_id) AS FLOAT)/80 AS percent_accounts_audited
-FROM public._daily_account_stats
+FROM _daily_account_stats
 GROUP BY  date_part('YEAR', audit_date),date_part('MONTH', audit_date)
 ORDER BY date_part('YEAR', audit_date) DESC,date_part('MONTH', audit_date) DESC;
 
-CREATE INDEX monthly_summary_stats__audit_year ON public._monthly_summary_stats (audit_year);
-CREATE INDEX monthly_summary_stats__audit_month ON public._monthly_summary_stats (audit_month);
+CREATE INDEX monthly_summary_stats__audit_year ON _monthly_summary_stats (audit_year);
+CREATE INDEX monthly_summary_stats__audit_month ON _monthly_summary_stats (audit_month);
 
 -- Monthly delta
-DROP TABLE IF EXISTS public._monthly_delta_stats;
-CREATE TABLE public._monthly_delta_stats AS
+DROP TABLE IF EXISTS _monthly_delta_stats;
+CREATE TABLE _monthly_delta_stats AS
 SELECT
     tm.audit_year,
     tm.audit_month,
@@ -146,11 +146,11 @@ SELECT
     tm.avg_fails_per_account - lm.avg_fails_per_account AS avg_fails_delta,
     tm.avg_percent_fails_per_account - lm.avg_percent_fails_per_account AS avg_percent_fails_delta,
     tm.accounts_audited - lm.accounts_audited as accounts_audited_delta
-FROM public._monthly_summary_stats AS tm
-INNER JOIN public._monthly_summary_stats AS lm
+FROM _monthly_summary_stats AS tm
+INNER JOIN _monthly_summary_stats AS lm
 ON ((tm.audit_year*12)+(tm.audit_month)) = ((lm.audit_year*12)+(lm.audit_month)+1);
 
-CREATE INDEX monthly_delta_stats__audit_year ON public._monthly_delta_stats (audit_year);
-CREATE INDEX monthly_delta_stats__audit_month ON public._monthly_delta_stats (audit_month);
+CREATE INDEX monthly_delta_stats__audit_year ON _monthly_delta_stats (audit_year);
+CREATE INDEX monthly_delta_stats__audit_month ON _monthly_delta_stats (audit_month);
 
 
