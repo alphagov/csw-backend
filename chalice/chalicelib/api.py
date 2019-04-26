@@ -7,13 +7,16 @@ import json
 from datetime import datetime
 # from peewee import Case, fn
 # from botocore.exceptions import ClientError
-# from chalice import Rate
+from chalice import Rate
 
 from app import app
 from chalicelib.database_handle import DatabaseHandle
 
 
 def read_script(script_path):
+    """
+    Read a script of SQL and parse into discrete commands by separating at the semi colons.
+    """
     try:
         commands = []
         abs_path = os.path.join(os.getcwd(), script_path)
@@ -47,6 +50,13 @@ def read_script(script_path):
 
 
 def execute_update_stats_tables(event, context):
+    """
+    The summary stats are produced daily as static tables.
+    These could be rendered as views or materialized views but since the data is not changing that frequently
+    that adds significant processing load for little benefit.
+    By regenerating the stats on a schedule we can make the interface much faster and keep the database
+    processing load lighter.
+    """
     status = 0
     commands = []
     try:
@@ -63,7 +73,22 @@ def execute_update_stats_tables(event, context):
     }
 
 
-# @app.schedule(Rate(24, unit=Rate.HOURS))
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def scheduled_update_stats_tables(event):
+    """
+    The default behaviour is that the stats are generated automatically once every 24 hours
+    """
+    return execute_update_stats_tables(event, {})
+
 @app.lambda_function()
 def update_stats_tables(event, context):
+    """
+    For the purposes of testing we can manually regenerate the stats summary tables on demand
+    """
     return execute_update_stats_tables(event, context)
+
+# TODO provide a number of GET only routes
+# TODO API authentication | whitelisting?
+# /api/[ health | prometheus]/... - for health
+# /api/dashboardify/... - for the big screens
+# /api/stats/... - for raw json data
