@@ -17,6 +17,7 @@ def read_script(script_path):
     try:
         commands = []
         abs_path = os.path.join(os.getcwd(), script_path)
+        app.log.debug(os.getcwd())
         print(abs_path)
         with open(abs_path,'r') as script:
             command = ""
