@@ -49,11 +49,8 @@ def execute_update_stats_tables(event, context):
     status = 0
     try:
         dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
         commands = read_script('api/sql/summary_stats.sql')
-        for command in commands:
-            db.execute_sql(command)
-            app.log.debug(f"Running: {command}")
+        dbh.execute_commands(commands)
         status = 1
     except Exception as err:
         app.log.error("Update stats tables error: " + app.utilities.to_json(data))
