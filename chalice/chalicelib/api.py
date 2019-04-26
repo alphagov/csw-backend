@@ -61,5 +61,5 @@ def execute_update_stats_tables(event, context):
 
 # @app.schedule(Rate(24, unit=Rate.HOURS))
 @app.lambda_function()
-def update_stats_tables(event):
-    return execute_update_stats_tables(event, {})
+def update_stats_tables(event, context):
+    return execute_update_stats_tables(event, context)
