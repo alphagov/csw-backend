@@ -53,7 +53,7 @@ def execute_update_stats_tables(event, context):
         dbh = DatabaseHandle(app)
         commands = read_script('chalicelib/api/sql/summary_stats.sql')
         app.log.debug(json.dumps(commands))
-        dbh.execute_commands(commands)
+        dbh.execute_commands(commands, 'csw')
         status = 1
     except Exception as err:
         app.log.error("Update stats tables error: " + app.utilities.to_json(data))
