@@ -974,30 +974,41 @@ def statistics_route():
         # )
         template_data = {}
         template_data['current'] = {}
-        template_data['current']['summary'] = models.CurrentSummaryStats.select()
-        template_data['current']['account'] = models.CurrentAccountStats.select()
+        current_summary = models.CurrentSummaryStats.select()
+        template_data['current']['summary'] = models.CurrentSummaryStats.serialize_list(current_summary)
+        current_accounts = models.CurrentAccountStats.select()
+        template_data['current']['account'] = models.CurrentAccountStats.serialize_list(current_accounts)
         template_data['daily'] = {}
-        template_data['daily']['summary'] = (models.DailySummaryStats
-                                             .select()
-                                             .where(models.DailySummaryStats.audit_date > days_ago)
-                                             .order_by(models.DailySummaryStats.audit_date.desc()))
-        template_data['daily']['delta'] = (models.DailyDeltaStats
-                                             .select()
-                                             .where(models.DailyDeltaStats.audit_date > days_ago)
-                                             .order_by(models.DailyDeltaStats.audit_date.desc()))
+        daily_summary = (models.DailySummaryStats
+            .select()
+            .where(models.DailySummaryStats.audit_date > days_ago)
+            .order_by(models.DailySummaryStats.audit_date.desc())
+        )
+        template_data['daily']['summary'] = models.DailySummaryStats.serialize_list(daily_summary)
+        daily_deltas = (models.DailyDeltaStats
+            .select()
+            .where(models.DailyDeltaStats.audit_date > days_ago)
+            .order_by(models.DailyDeltaStats.audit_date.desc())
+        )
+        template_data['daily']['deltas'] = models.DailyDeltaStats.serialize_list(daily_deltas)
+
         template_data['monthly'] = {}
-        template_data['monthly']['summary'] = (models.MonthlySummaryStats
-                                               .select()
-                                               .order_by(
-                                                 models.MonthlySummaryStats.audit_year.desc(),
-                                                 models.MonthlySummaryStats.audit_month.desc()
-                                               ))
-        template_data['monthly']['delta'] = (models.MonthlyDeltaStats
-                                             .select()
-                                             .order_by(
-                                                models.MonthlyDeltaStats.audit_year.desc(),
-                                                models.MonthlyDeltaStats.audit_month.desc()
-                                             ))
+        monthly_summary = (models.MonthlySummaryStats
+            .select()
+            .order_by(
+                models.MonthlySummaryStats.audit_year.desc(),
+                models.MonthlySummaryStats.audit_month.desc()
+            )
+        )
+        template_data['monthly']['summary'] = models.MonthlySummaryStats.serialize_list(monthly_summary)
+        monthly_deltas = (models.MonthlyDeltaStats
+            .select()
+            .order_by(
+                models.MonthlyDeltaStats.audit_year.desc(),
+                models.MonthlyDeltaStats.audit_month.desc()
+            )
+        )
+        template_data['monthly']['delta'] =  models.MonthlyDeltaStats.serialize_list(monthly_deltas)
 
         data = app.utilities.to_json(template_data, True)
         response = app.templates.render_authorized_template(
