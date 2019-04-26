@@ -51,7 +51,7 @@ def execute_update_stats_tables(event, context):
     commands = []
     try:
         dbh = DatabaseHandle(app)
-        commands = read_script('api/sql/summary_stats.sql')
+        commands = read_script('chalicelib/api/sql/summary_stats.sql')
         app.log.debug(json.dumps(commands))
         dbh.execute_commands(commands)
         status = 1
