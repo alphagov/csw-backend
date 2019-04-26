@@ -2,7 +2,41 @@
 {% block content %}
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper " id="main-content" role="main">
-      <h1 class="govuk-heading-l">Statistics</h1>
+      <div class="govuk-tabs" data-module="tabs">
+          <h1 class="govuk-tabs__title">
+            Statistics
+          </h1>
+          <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#current">
+                Current
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#daily">
+                Daily
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#monthly">
+                Monthly
+              </a>
+            </li>
+          </ul>
+
+          <section class="govuk-tabs__panel" id="current">
+            <h2 class="govuk-heading-m">Current</h2>
+
+          </section>
+          <section class="govuk-tabs__panel" id="daily">
+            <h2 class="govuk-heading-m">Daily</h2>
+
+          </section>
+          <section class="govuk-tabs__panel" id="monthly">
+            <h2 class="govuk-heading-m">Monthly</h2>
+
+          </section>
+      </div>
   </main>
 </div>
 {% endblock %}
