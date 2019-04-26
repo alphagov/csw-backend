@@ -1010,7 +1010,7 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
 
 
 class CurrentAccountStats(database_handle.BaseModel):
-    audit_date = peewee.DateField()
+    audit_date = peewee.DateField(primary_key=True)
     account_id = peewee.ForeignKeyField(AccountSubscription, field='account_id', backref='current_stats')
     resources  = peewee.IntegerField()
     failed     = peewee.IntegerField()
@@ -1030,10 +1030,11 @@ class CurrentSummaryStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_current_summary_stats"
+        primary_key = peewee.CompositeKey('avg_resources_per_account','avg_fails_per_account','accounts_audited')
 
 
 class DailyAccountStats(database_handle.BaseModel):
-    audit_date = peewee.DateField()
+    audit_date = peewee.DateField(primary_key=True)
     account_id = peewee.ForeignKeyField(AccountSubscription,
                                         field='account_id',
                                         backref='current_stats')
@@ -1046,7 +1047,7 @@ class DailyAccountStats(database_handle.BaseModel):
 
 
 class DailySummaryStats(database_handle.BaseModel):
-    audit_date = peewee.DateField()
+    audit_date = peewee.DateField(primary_key=True)
     total_resources = peewee.FloatField()
     total_failures = peewee.FloatField()
     avg_resources_per_account = peewee.FloatField()
@@ -1059,7 +1060,7 @@ class DailySummaryStats(database_handle.BaseModel):
 
 
 class DailyDeltaStats(database_handle.BaseModel):
-    audit_date = peewee.DateField()
+    audit_date = peewee.DateField(primary_key=True)
     resources_delta = peewee.FloatField()
     failures_delta = peewee.FloatField()
     avg_resources_delta = peewee.FloatField()
@@ -1083,6 +1084,7 @@ class MonthlySummaryStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_monthly_summary_stats"
+        primary_key = peewee.CompositeKey('audit_year','audit_month')
 
 
 class MonthlyDeltaStats(database_handle.BaseModel):
@@ -1097,6 +1099,7 @@ class MonthlyDeltaStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_monthly_delta_stats"
+        primary_key = peewee.CompositeKey('audit_year', 'audit_month')
 
 
 '''
