@@ -1,7 +1,7 @@
 import os
 import json
 import importlib
-from datetime import datetime
+from datetime import datetime, date
 
 
 class Utilities():
@@ -15,6 +15,8 @@ class Utilities():
 
     def to_json_type_convert(self, item):
         if isinstance(item, datetime):
+            return item.__str__()
+        elif isinstance(item, date):
             return item.__str__()
 
     def get_mime_type(self, file):
