@@ -968,10 +968,6 @@ def statistics_route():
         now = datetime.datetime.now()
         days_ago = now - datetime.timedelta(days=days)
 
-        # response = app.templates.render_authorized_template(
-        #     'denied.html',
-        #     app.current_request
-        # )
         template_data = {}
         template_data['current'] = {}
         current_summary = models.CurrentSummaryStats.select()
@@ -1012,12 +1008,17 @@ def statistics_route():
 
         data = app.utilities.to_json(template_data, True)
         response = app.templates.render_authorized_template(
-            'debug.html',
+            'stats.html',
             app.current_request,
-            {
-                "json": data
-            }
+            template_data
         )
+        # response = app.templates.render_authorized_template(
+        #     'debug.html',
+        #     app.current_request,
+        #     {
+        #         "json": data
+        #     }
+        # )
 
     except Exception as err:
         app.log.error("Route: check allowlist error: " + str(err))
