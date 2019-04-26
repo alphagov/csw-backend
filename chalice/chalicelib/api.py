@@ -47,15 +47,18 @@ def read_script(script_path):
 
 def execute_update_stats_tables(event, context):
     status = 0
+    commands = []
     try:
         dbh = DatabaseHandle(app)
         commands = read_script('api/sql/summary_stats.sql')
+        app.log.debug(json.dumps(commands))
         dbh.execute_commands(commands)
         status = 1
     except Exception as err:
         app.log.error("Update stats tables error: " + app.utilities.to_json(data))
     return {
-        "status": status
+        "status": status,
+        "commands": commands
     }
 
 
