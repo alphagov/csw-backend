@@ -1006,12 +1006,12 @@ def statistics_route():
         )
         template_data['monthly']['delta'] =  models.MonthlyDeltaStats.serialize_list(monthly_deltas)
 
-        data = app.utilities.to_json(template_data, True)
         response = app.templates.render_authorized_template(
             'stats.html',
             app.current_request,
             template_data
         )
+        # data = app.utilities.to_json(template_data, True)
         # response = app.templates.render_authorized_template(
         #     'debug.html',
         #     app.current_request,
