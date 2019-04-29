@@ -41,7 +41,7 @@
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
                                     <th class="govuk-table__header">
-                                        Average failed resources
+                                        Average failed resources (%)
                                     </th>
                                 </tr>
                             </thead>
@@ -49,7 +49,7 @@
                                 <tr class="govuk-table__row">
                                     {% for summary in current.summary %}
                                     <td class="govuk-table__cell">
-                                        {{ summary.avg_percent_fails_per_account * 100 | round(1,'floor') }}%
+                                        {{ summary.avg_percent_fails_per_account * 100 | round(1) }}
                                     </td>
                                     {% endfor %}
                                 </tr>
