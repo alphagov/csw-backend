@@ -23,8 +23,8 @@ gulp.task('concat.js', function() {
         './node_modules/c3/c3.min.js',
         './node_modules/vue/dist/vue.js',
         './node_modules/govuk-frontend/all.js',
-        './node_modules/pe-charts/lib/js/app.js',
-        './node_modules/pe-charts/lib/js/table-chart.js'
+        './node_modules/pe-charts/lib/js/table-chart.js',
+        './node_modules/pe-charts/lib/js/app.js'
     ])
     .pipe(concat('dist.js'))
     .pipe(gulp.dest('../chalice/chalicelib/assets'));
