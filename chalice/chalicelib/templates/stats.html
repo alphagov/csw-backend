@@ -26,15 +26,15 @@
 
           <section class="govuk-tabs__panel" id="current">
             <h2 class="govuk-heading-m">Current</h2>
-
+            <pre>{{ current | json(4) }}</pre>
           </section>
           <section class="govuk-tabs__panel" id="daily">
             <h2 class="govuk-heading-m">Daily</h2>
-
+            <pre>{{ daily | json(4) }}</pre>
           </section>
           <section class="govuk-tabs__panel" id="monthly">
             <h2 class="govuk-heading-m">Monthly</h2>
-
+            <pre>{{ monthly | json(4) }}</pre>
           </section>
       </div>
   </main>
