@@ -9,7 +9,7 @@ from datetime import datetime
 # from botocore.exceptions import ClientError
 from chalice import Rate, Response, BadRequestError
 
-from app import app
+from app import app, load_route_services
 from chalicelib.database_handle import DatabaseHandle
 from chalicelib import models
 
