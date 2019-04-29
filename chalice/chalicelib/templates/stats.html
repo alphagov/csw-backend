@@ -31,9 +31,9 @@
                     <div class="chart-wrapper"
                          type="gauge"
                          series="rows"
-                         x-axis=""
-                         y-axis=""
-                         above="true"
+                         x-axis="x"
+                         y-axis="y"
+                         above="false"
                          ismultiple="false"
                     >
                         <table class="govuk-table">
@@ -51,10 +51,10 @@
                                 <tr class="govuk-table__row">
                                     {% for summary in current.summary %}
                                     <th class="govuk-table__header">
-                                        Average failed resources (%)
+                                        Percent failed resources
                                     </th>
                                     <td class="govuk-table__cell">
-                                        {{ (summary.avg_percent_fails_per_account * 100) | round(1) }}
+                                        {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'floor') }}
                                     </td>
                                     {% endfor %}
                                 </tr>
