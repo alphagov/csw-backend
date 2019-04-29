@@ -106,7 +106,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# chalice config 
+# chalice config
 .chalice
 
 # environments
@@ -116,6 +116,7 @@ environments/*
 
 # npm
 build/node_modules
+node_modules
 
 # chalice package compiles
 build/packages
