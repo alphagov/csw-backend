@@ -126,191 +126,191 @@ def route_api_current_summary():
     return Response(**response)
 
 
-    @app.route('/api/current/accounts')
-    def route_api_current_accounts():
-        """
-        Per account summary of latest audit results
-        """
-        try:
-            load_route_services()
-            authed = app.auth.try_login(app.current_request)
+@app.route('/api/current/accounts')
+def route_api_current_accounts():
+    """
+    Per account summary of latest audit results
+    """
+    try:
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
 
-            if authed:
-                current_accounts = models.CurrentAccountStats.select()
-                items = models.CurrentAccountStats.serialize_list(current_accounts)
-                data = {
-                    "status": "ok",
-                    "items": items
-                }
-            else:
-                raise Exception("Unauthorised")
-        except Exception as err:
+        if authed:
+            current_accounts = models.CurrentAccountStats.select()
+            items = models.CurrentAccountStats.serialize_list(current_accounts)
             data = {
-                "status": "failed",
-                "message": str(err)
+                "status": "ok",
+                "items": items
             }
-        json = app.utilities.to_json(data, True)
-        response = {
-            "body": json,
-            "status_code": 200,
-            "headers": {"Content-Type": "application/json"}
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        data = {
+            "status": "failed",
+            "message": str(err)
         }
-        return Response(**response)
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": 200,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
 
 
-    @app.route('/api/daily/summary')
-    def route_api_daily_summary():
-        """
-        Last 2 weeks summary across all accounts day by day to identify short-term trends
-        """
-        try:
-            days = 14
-            now = datetime.datetime.now()
-            days_ago = now - datetime.timedelta(days=days)
-            load_route_services()
-            authed = app.auth.try_login(app.current_request)
+@app.route('/api/daily/summary')
+def route_api_daily_summary():
+    """
+    Last 2 weeks summary across all accounts day by day to identify short-term trends
+    """
+    try:
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
 
-            if authed:
-                daily_summary = (models.DailySummaryStats
-                                  .select()
-                                  .where(models.DailySummaryStats.audit_date > days_ago)
-                                  .order_by(models.DailySummaryStats.audit_date.desc())
-                                  )
-                items = models.DailySummaryStats.serialize_list(daily_summary)
+        if authed:
+            daily_summary = (models.DailySummaryStats
+                              .select()
+                              .where(models.DailySummaryStats.audit_date > days_ago)
+                              .order_by(models.DailySummaryStats.audit_date.desc())
+                              )
+            items = models.DailySummaryStats.serialize_list(daily_summary)
 
-                data = {
-                    "status": "ok",
-                    "items": items
-                }
-            else:
-                raise Exception("Unauthorised")
-        except Exception as err:
             data = {
-                "status": "failed",
-                "message": str(err)
+                "status": "ok",
+                "items": items
             }
-        json = app.utilities.to_json(data, True)
-        response = {
-            "body": json,
-            "status_code": 200,
-            "headers": {"Content-Type": "application/json"}
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        data = {
+            "status": "failed",
+            "message": str(err)
         }
-        return Response(**response)
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": 200,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
 
 
-    @app.route('/api/daily/delta')
-    def route_api_daily_delta():
-        """
-        Comparison yesterday to today looking for what's changed
-        """
-        try:
-            days = 14
-            now = datetime.datetime.now()
-            days_ago = now - datetime.timedelta(days=days)
-            load_route_services()
-            authed = app.auth.try_login(app.current_request)
+@app.route('/api/daily/delta')
+def route_api_daily_delta():
+    """
+    Comparison yesterday to today looking for what's changed
+    """
+    try:
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
 
-            if authed:
-                daily_summary = (models.DailyDeltaStats
-                                 .select()
-                                 .where(models.DailyDeltaStats.audit_date > days_ago)
-                                 .order_by(models.DailyDeltaStats.audit_date.desc())
-                                 )
-                items = models.DailyDeltaStats.serialize_list(daily_summary)
+        if authed:
+            daily_summary = (models.DailyDeltaStats
+                             .select()
+                             .where(models.DailyDeltaStats.audit_date > days_ago)
+                             .order_by(models.DailyDeltaStats.audit_date.desc())
+                             )
+            items = models.DailyDeltaStats.serialize_list(daily_summary)
 
-                data = {
-                    "status": "ok",
-                    "items": items
-                }
-            else:
-                raise Exception("Unauthorised")
-        except Exception as err:
             data = {
-                "status": "failed",
-                "message": str(err)
+                "status": "ok",
+                "items": items
             }
-        json = app.utilities.to_json(data, True)
-        response = {
-            "body": json,
-            "status_code": 200,
-            "headers": {"Content-Type": "application/json"}
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        data = {
+            "status": "failed",
+            "message": str(err)
         }
-        return Response(**response)
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": 200,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
 
 
-    @app.route('/api/monthly/summary')
-    def route_api_monthly_summary():
-        """
-        Average monthly summary to identify longer term trends
-        """
-        try:
-            load_route_services()
-            authed = app.auth.try_login(app.current_request)
+@app.route('/api/monthly/summary')
+def route_api_monthly_summary():
+    """
+    Average monthly summary to identify longer term trends
+    """
+    try:
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
 
-            if authed:
-                monthly_summary = (models.MonthlySummaryStats
-                    .select()
-                    .order_by(
-                        models.MonthlySummaryStats.audit_year.desc(),
-                        models.MonthlySummaryStats.audit_month.desc()
-                    )
+        if authed:
+            monthly_summary = (models.MonthlySummaryStats
+                .select()
+                .order_by(
+                    models.MonthlySummaryStats.audit_year.desc(),
+                    models.MonthlySummaryStats.audit_month.desc()
                 )
-                items = models.MonthlySummaryStats.serialize_list(monthly_summary)
+            )
+            items = models.MonthlySummaryStats.serialize_list(monthly_summary)
 
-                data = {
-                    "status": "ok",
-                    "items": items
-                }
-            else:
-                raise Exception("Unauthorised")
-        except Exception as err:
             data = {
-                "status": "failed",
-                "message": str(err)
+                "status": "ok",
+                "items": items
             }
-        json = app.utilities.to_json(data, True)
-        response = {
-            "body": json,
-            "status_code": 200,
-            "headers": {"Content-Type": "application/json"}
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        data = {
+            "status": "failed",
+            "message": str(err)
         }
-        return Response(**response)
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": 200,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
 
 
-    @app.route('/api/monthly/delta')
-    def route_api_monthly_delta():
-        """
-        Comparison last month vs this month to show change over time
-        """
-        try:
-            load_route_services()
-            authed = app.auth.try_login(app.current_request)
+@app.route('/api/monthly/delta')
+def route_api_monthly_delta():
+    """
+    Comparison last month vs this month to show change over time
+    """
+    try:
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
 
-            if authed:
-                monthly_deltas = (models.MonthlyDeltaStats
-                    .select()
-                    .order_by(
-                        models.MonthlyDeltaStats.audit_year.desc(),
-                        models.MonthlyDeltaStats.audit_month.desc()
-                    )
+        if authed:
+            monthly_deltas = (models.MonthlyDeltaStats
+                .select()
+                .order_by(
+                    models.MonthlyDeltaStats.audit_year.desc(),
+                    models.MonthlyDeltaStats.audit_month.desc()
                 )
-                items = models.MonthlySummaryStats.serialize_list(monthly_deltas)
+            )
+            items = models.MonthlySummaryStats.serialize_list(monthly_deltas)
 
-                data = {
-                    "status": "ok",
-                    "items": items
-                }
-            else:
-                raise Exception("Unauthorised")
-        except Exception as err:
             data = {
-                "status": "failed",
-                "message": str(err)
+                "status": "ok",
+                "items": items
             }
-        json = app.utilities.to_json(data, True)
-        response = {
-            "body": json,
-            "status_code": 200,
-            "headers": {"Content-Type": "application/json"}
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        data = {
+            "status": "failed",
+            "message": str(err)
         }
-        return Response(**response)
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": 200,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
