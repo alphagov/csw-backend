@@ -1,0 +1,52 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+        <div class="grid-row legal-content">
+            <div class="column-two-thirds">
+                <header class="page-heading">
+                    <h1>
+                        Cookies
+                    </h1>
+                </header>
+                <p>
+                    The Digital Marketplace service puts small files (known as &lsquo;cookies&rsquo;) on to your computer.
+                </p>
+
+                <p>
+                    These cookies are used to:
+                    <ul class="list-bullet">
+                        <li>Link your browser session to your login</li>
+                    </ul>
+                </p>
+                <div class="application-notice info-notice">
+                <p>Digital Marketplace cookies aren’t used to identify you personally.</p>
+                </div>
+                <p>Find out <a href="http://www.aboutcookies.org/" rel="external">how to manage cookies</a>.</p>
+
+                <h2>How cookies are used on the Digital Marketplace</h2>
+
+                <h3>Session cookies</h3>
+
+                <p>
+                    We store session cookies on your computer to help keep your information secure while you use the service.
+                </p>
+                <table class="content-table">
+                    <tbody>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Purpose</th>
+                        <th scope="col">Expires</th>
+                    </tr>
+                    <tr>
+                        <td>session</td>
+                        <td>Stores encrypted session data</td>
+                        <td>When you close your browser</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+  </main>
+</div>
+{% endblock %}

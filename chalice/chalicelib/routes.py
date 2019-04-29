@@ -18,6 +18,13 @@ def index():
     return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
 
 
+@app.route('/cookies')
+def index():
+    load_route_services()
+    app.log.debug('INDEX CONTEXT = ' + str(app.lambda_context))
+    return Response(**app.templates.render_authorized_template('cookies.html', app.current_request))
+
+
 @app.route('/denied')
 def index():
     load_route_services()
