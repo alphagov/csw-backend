@@ -22,7 +22,6 @@ gulp.task('concat.js.head', function() {
         './node_modules/d3/dist/d3.min.js',
         './node_modules/c3/c3.min.js',
         './node_modules/vue/dist/vue.js',
-        './node_modules/govuk-frontend/all.js',
         './node_modules/pe-charts/lib/js/table-chart.js'
     ])
     .pipe(concat('dist.head.js'))
@@ -31,6 +30,7 @@ gulp.task('concat.js.head', function() {
 
 gulp.task('concat.js.body', function() {
     return gulp.src([
+        './node_modules/govuk-frontend/all.js',
         './node_modules/pe-charts/lib/js/app.js'
     ])
     .pipe(concat('dist.body.js'))
