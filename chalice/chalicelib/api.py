@@ -124,14 +124,43 @@ def route_api_current_summary():
     }
     return Response(**response)
 
+    @app.route('/api/current/accounts')
+    def route_api_current_accounts():
+        """
+
+        """
+        try:
+            load_route_services()
+            authed = app.auth.try_login(app.current_request)
+
+            if authed:
+                current_accounts = models.CurrentAccountStats.select()
+                items = models.CurrentAccountStats.serialize_list(current_accounts)
+                data = {
+                    "status": "ok",
+                    "items": items
+                }
+            else:
+                raise Exception("Unauthorised")
+        except Exception as err:
+            data = {
+                "status": "failed",
+                "message": str(err)
+            }
+        json = app.utilities.to_json(data, True)
+        response = {
+            "body": json,
+            "status_code": 200,
+            "headers": {"Content-Type": "application/json"}
+        }
+        return Response(**response)
+
     # days = 14
     # now = datetime.datetime.now()
     # days_ago = now - datetime.timedelta(days=days)
     #
     # template_data = {}
     # template_data['current'] = {}
-    # current_summary = models.CurrentSummaryStats.select()
-    # template_data['current']['summary'] = models.CurrentSummaryStats.serialize_list(current_summary)
     # current_accounts = models.CurrentAccountStats.select()
     # template_data['current']['account'] = models.CurrentAccountStats.serialize_list(current_accounts)
     # template_data['daily'] = {}
