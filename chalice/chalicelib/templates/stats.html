@@ -30,23 +30,19 @@
                 <div class="govuk-grid-column-one-half">
                     <div class="chart-wrapper"
                          type="gauge"
-                         series="cols"
+                         series="rows"
                          x-axis=""
                          y-axis=""
                          above="true"
                          ismultiple="false"
                     >
                         <table class="govuk-table">
-                            <thead class="govuk-table__head">
-                                <tr class="govuk-table__row">
-                                    <th class="govuk-table__header">
-                                        Average failed resources (%)
-                                    </th>
-                                </tr>
-                            </thead>
                             <tbody class="govuk-table__body">
                                 <tr class="govuk-table__row">
                                     {% for summary in current.summary %}
+                                    <th class="govuk-table__header">
+                                        Average failed resources (%)
+                                    </th>
                                     <td class="govuk-table__cell">
                                         {{ (summary.avg_percent_fails_per_account * 100) | round(1) }}
                                     </td>
