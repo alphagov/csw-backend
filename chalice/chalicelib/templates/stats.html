@@ -37,6 +37,7 @@
                          ismultiple="false"
                     >
                         <table class="govuk-table">
+                            <caption class="govuk-table__caption">Average failed resources</caption>
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
                                     <th class="govuk-table__header">
@@ -51,7 +52,7 @@
                                 <tr class="govuk-table__row">
                                     {% for summary in current.summary %}
                                     <th class="govuk-table__header">
-                                        Percent failed resources
+                                        Percent
                                     </th>
                                     <td class="govuk-table__cell">
                                         {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'floor') }}
