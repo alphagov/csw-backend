@@ -31,7 +31,6 @@ gulp.task('concat.js.head', function() {
 
 gulp.task('concat.js.body', function() {
     return gulp.src([
-        './js/govuk-init.js',
         './node_modules/pe-charts/lib/js/app.js'
     ])
     .pipe(concat('dist.body.js'))
