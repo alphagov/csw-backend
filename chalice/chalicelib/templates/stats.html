@@ -100,6 +100,44 @@
                     </div>
                 </div>
             </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-row-full">
+                    <div class="chart-wrapper"
+                         type="bar"
+                         series="rows"
+                         x-axis="x"
+                         y-axis="y"
+                         above="false"
+                         ismultiple="false"
+                    >
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption">Account summary</caption>
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">
+                                        Account
+                                    </th>
+                                    <th class="govuk-table__header govuk-table__header--numeric">
+                                        Percent failed
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for account in current.account %}
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">
+                                        Fail rate
+                                    </th>
+                                    <td class="govuk-table__cell--numeric">
+                                        {{ (account.ratio * 100) | round(1) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
           </section>
           <section class="govuk-tabs__panel" id="daily">
             <h2 class="govuk-heading-m">Daily</h2>
