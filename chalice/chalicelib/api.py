@@ -97,7 +97,7 @@ def update_stats_tables(event, context):
 @app.route('/api/current/summary')
 def route_api_current_summary():
     """
-
+    Overall stats of the results of the latest audit across all teams and accounts
     """
     try:
         load_route_services()
@@ -129,7 +129,7 @@ def route_api_current_summary():
     @app.route('/api/current/accounts')
     def route_api_current_accounts():
         """
-
+        Per account summary of latest audit results
         """
         try:
             load_route_services()
@@ -161,7 +161,7 @@ def route_api_current_summary():
     @app.route('/api/daily/summary')
     def route_api_daily_summary():
         """
-
+        Last 2 weeks summary across all accounts day by day to identify short-term trends
         """
         try:
             days = 14
@@ -201,7 +201,7 @@ def route_api_current_summary():
     @app.route('/api/daily/delta')
     def route_api_daily_delta():
         """
-
+        Comparison yesterday to today looking for what's changed
         """
         try:
             days = 14
@@ -238,26 +238,79 @@ def route_api_current_summary():
         return Response(**response)
 
 
-    # days = 14
-    # now = datetime.datetime.now()
-    # days_ago = now - datetime.timedelta(days=days)
-    #
-    # template_data = {}
-    # template_data['current'] = {}
-    # template_data['daily'] = {}
-    # template_data['monthly'] = {}
-    # monthly_summary = (models.MonthlySummaryStats
-    #     .select()
-    #     .order_by(
-    #     models.MonthlySummaryStats.audit_year.desc(),
-    #     models.MonthlySummaryStats.audit_month.desc()
-    # )
-    # )
-    # template_data['monthly']['summary'] = models.MonthlySummaryStats.serialize_list(monthly_summary)
-    # monthly_deltas = (models.MonthlyDeltaStats
-    #     .select()
-    #     .order_by(
-    #     models.MonthlyDeltaStats.audit_year.desc(),
-    #     models.MonthlyDeltaStats.audit_month.desc()
-    # )
-    # )
+    @app.route('/api/monthly/summary')
+    def route_api_monthly_summary():
+        """
+        Average monthly summary to identify longer term trends
+        """
+        try:
+            load_route_services()
+            authed = app.auth.try_login(app.current_request)
+
+            if authed:
+                monthly_summary = (models.MonthlySummaryStats
+                    .select()
+                    .order_by(
+                        models.MonthlySummaryStats.audit_year.desc(),
+                        models.MonthlySummaryStats.audit_month.desc()
+                    )
+                )
+                items = models.MonthlySummaryStats.serialize_list(monthly_summary)
+
+                data = {
+                    "status": "ok",
+                    "items": items
+                }
+            else:
+                raise Exception("Unauthorised")
+        except Exception as err:
+            data = {
+                "status": "failed",
+                "message": str(err)
+            }
+        json = app.utilities.to_json(data, True)
+        response = {
+            "body": json,
+            "status_code": 200,
+            "headers": {"Content-Type": "application/json"}
+        }
+        return Response(**response)
+
+
+    @app.route('/api/monthly/delta')
+    def route_api_monthly_delta():
+        """
+        Comparison last month vs this month to show change over time
+        """
+        try:
+            load_route_services()
+            authed = app.auth.try_login(app.current_request)
+
+            if authed:
+                monthly_deltas = (models.MonthlyDeltaStats
+                    .select()
+                    .order_by(
+                        models.MonthlyDeltaStats.audit_year.desc(),
+                        models.MonthlyDeltaStats.audit_month.desc()
+                    )
+                )
+                items = models.MonthlySummaryStats.serialize_list(monthly_deltas)
+
+                data = {
+                    "status": "ok",
+                    "items": items
+                }
+            else:
+                raise Exception("Unauthorised")
+        except Exception as err:
+            data = {
+                "status": "failed",
+                "message": str(err)
+            }
+        json = app.utilities.to_json(data, True)
+        response = {
+            "body": json,
+            "status_code": 200,
+            "headers": {"Content-Type": "application/json"}
+        }
+        return Response(**response)
