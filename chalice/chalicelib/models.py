@@ -1025,6 +1025,7 @@ class CurrentSummaryStats(database_handle.BaseModel):
     total_failures = peewee.FloatField()
     avg_resources_per_account = peewee.FloatField()
     avg_fails_per_account = peewee.FloatField()
+    avg_percent_fails_per_account = peewee.FloatField()
     accounts_audited = peewee.IntegerField()
     percent_accounts_audited = peewee.FloatField()
 
