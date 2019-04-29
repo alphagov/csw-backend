@@ -3,7 +3,31 @@
 <div class="govuk-width-container" id="app">
   <main class="govuk-main-wrapper " id="main-content" role="main">
 
-      <div class="govuk-grid-row">
+      <div class="govuk-tabs" data-module="tabs">
+          <h1 class="govuk-tabs__title">
+            Statistics
+          </h1>
+          <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#current">
+                Current
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#daily">
+                Daily
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#monthly">
+                Monthly
+              </a>
+            </li>
+          </ul>
+
+          <section class="govuk-tabs__panel" id="current">
+            <h2 class="govuk-heading-m">Current</h2>
+            <div class="govuk-grid-row">
                 <div class="govuk-grid-column-one-half">
                     <div class="chart-wrapper"
                          type="donut"
@@ -12,7 +36,7 @@
                          y-axis="y"
                          above="false"
                          ismultiple="false"
-                         palette='["#85994b","#b10e1e"]'
+                         palette='["#b1d581","#b10e1e"]'
                     >
                         <table class="govuk-table">
                             <caption class="govuk-table__caption">Average failed resources</caption>
@@ -56,7 +80,7 @@
                          y-axis="y"
                          above="false"
                          ismultiple="false"
-                         palette='["#85994b","#b10e1e"]'
+                         palette='["#b1d581","#b10e1e"]'
                     >
                         <table class="govuk-table">
                             <caption class="govuk-table__caption">Accounts audited</caption>
@@ -85,32 +109,6 @@
                     </div>
                 </div>
             </div>
-
-      <div class="govuk-tabs" data-module="tabs">
-          <h1 class="govuk-tabs__title">
-            Statistics
-          </h1>
-          <ul class="govuk-tabs__list">
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#current">
-                Current
-              </a>
-            </li>
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab" href="#daily">
-                Daily
-              </a>
-            </li>
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab" href="#monthly">
-                Monthly
-              </a>
-            </li>
-          </ul>
-
-          <section class="govuk-tabs__panel" id="current">
-            <h2 class="govuk-heading-m">Current</h2>
-
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     <div class="chart-wrapper"
