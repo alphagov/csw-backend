@@ -105,8 +105,8 @@
                     <div class="chart-wrapper"
                          type="bar"
                          series="rows"
-                         x-axis="x"
-                         y-axis="y"
+                         x-axis="Accounts"
+                         y-axis="Failure rate"
                          above="false"
                          ismultiple="false"
                     >
@@ -126,7 +126,9 @@
                                 {% for account in current.account %}
                                 <tr class="govuk-table__row">
                                     <th class="govuk-table__header">
-                                        Fail rate
+                                        {{ account.account_id.account_id }}
+                                        ({{ account.account_id.product_team_id.team_name }}:
+                                         {{ account.account_id.account_name }})
                                     </th>
                                     <td class="govuk-table__cell govuk-table__cell--numeric">
                                         {{ (account.ratio * 100) | round(1) }}
