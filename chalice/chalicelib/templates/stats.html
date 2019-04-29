@@ -125,9 +125,7 @@
                             <caption class="govuk-table__caption">Account summary</caption>
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
-                                    <th class="govuk-table__header">Account number</th>
-                                    <th class="govuk-table__header">Account name</th>
-                                    <th class="govuk-table__header">Team</th>
+                                    <th class="govuk-table__header">Account</th>
                                     <th class="govuk-table__header govuk-table__header--numeric">Percent failed</th>
                                 </tr>
                             </thead>
@@ -135,13 +133,7 @@
                                 {% for account in current.account %}
                                 <tr class="govuk-table__row">
                                     <th class="govuk-table__header">
-                                        {{ account.account_id.account_id }}
-                                    </th>
-                                    <th class="govuk-table__header">
-                                         {{ account.account_id.account_name }}
-                                    </th>
-                                    <th class="govuk-table__header">
-                                        {{ account.account_id.product_team_id.team_name }}
+                                        {{ account.account_id.account_id }}: {{ account.account_id.account_name }}
                                     </th>
                                     <td class="govuk-table__cell govuk-table__cell--numeric">
                                         {{ (account.ratio * 100) | round(1) }}
