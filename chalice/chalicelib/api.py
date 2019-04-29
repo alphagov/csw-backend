@@ -93,6 +93,7 @@ def update_stats_tables(event, context):
 # /api/dashboardify/... - for the big screens
 # /api/stats/... - for raw json data
 
+
 @app.route('/api/current/summary')
 def route_api_current_summary():
     """
@@ -123,6 +124,7 @@ def route_api_current_summary():
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
+
 
     @app.route('/api/current/accounts')
     def route_api_current_accounts():
@@ -155,28 +157,94 @@ def route_api_current_summary():
         }
         return Response(**response)
 
+
+    @app.route('/api/daily/summary')
+    def route_api_daily_summary():
+        """
+
+        """
+        try:
+            days = 14
+            now = datetime.datetime.now()
+            days_ago = now - datetime.timedelta(days=days)
+            load_route_services()
+            authed = app.auth.try_login(app.current_request)
+
+            if authed:
+                daily_summary = (models.DailySummaryStats
+                                  .select()
+                                  .where(models.DailySummaryStats.audit_date > days_ago)
+                                  .order_by(models.DailySummaryStats.audit_date.desc())
+                                  )
+                items = models.DailySummaryStats.serialize_list(daily_summary)
+
+                data = {
+                    "status": "ok",
+                    "items": items
+                }
+            else:
+                raise Exception("Unauthorised")
+        except Exception as err:
+            data = {
+                "status": "failed",
+                "message": str(err)
+            }
+        json = app.utilities.to_json(data, True)
+        response = {
+            "body": json,
+            "status_code": 200,
+            "headers": {"Content-Type": "application/json"}
+        }
+        return Response(**response)
+
+
+    @app.route('/api/daily/delta')
+    def route_api_daily_delta():
+        """
+
+        """
+        try:
+            days = 14
+            now = datetime.datetime.now()
+            days_ago = now - datetime.timedelta(days=days)
+            load_route_services()
+            authed = app.auth.try_login(app.current_request)
+
+            if authed:
+                daily_summary = (models.DailyDeltaStats
+                                 .select()
+                                 .where(models.DailyDeltaStats.audit_date > days_ago)
+                                 .order_by(models.DailyDeltaStats.audit_date.desc())
+                                 )
+                items = models.DailyDeltaStats.serialize_list(daily_summary)
+
+                data = {
+                    "status": "ok",
+                    "items": items
+                }
+            else:
+                raise Exception("Unauthorised")
+        except Exception as err:
+            data = {
+                "status": "failed",
+                "message": str(err)
+            }
+        json = app.utilities.to_json(data, True)
+        response = {
+            "body": json,
+            "status_code": 200,
+            "headers": {"Content-Type": "application/json"}
+        }
+        return Response(**response)
+
+
     # days = 14
     # now = datetime.datetime.now()
     # days_ago = now - datetime.timedelta(days=days)
     #
     # template_data = {}
     # template_data['current'] = {}
-    # current_accounts = models.CurrentAccountStats.select()
-    # template_data['current']['account'] = models.CurrentAccountStats.serialize_list(current_accounts)
     # template_data['daily'] = {}
-    # daily_summary = (models.DailySummaryStats
-    #                  .select()
-    #                  .where(models.DailySummaryStats.audit_date > days_ago)
-    #                  .order_by(models.DailySummaryStats.audit_date.desc())
-    #                  )
-    # template_data['daily']['summary'] = models.DailySummaryStats.serialize_list(daily_summary)
-    # daily_deltas = (models.DailyDeltaStats
-    #                 .select()
-    #                 .where(models.DailyDeltaStats.audit_date > days_ago)
-    #                 .order_by(models.DailyDeltaStats.audit_date.desc())
-    #                 )
-    # template_data['daily']['deltas'] = models.DailyDeltaStats.serialize_list(daily_deltas)
-    #
     # template_data['monthly'] = {}
     # monthly_summary = (models.MonthlySummaryStats
     #     .select()
