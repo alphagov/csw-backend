@@ -99,6 +99,7 @@ def route_api_current_summary():
 
     """
     try:
+        load_route_services()
         authed = app.auth.try_login(app.current_request)
 
         if authed:
