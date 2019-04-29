@@ -63,6 +63,42 @@
                         </table>
                     </div>
                 </div>
+                <div class="govuk-grid-column-one-half">
+                    <div class="chart-wrapper"
+                         type="bar"
+                         series="rows"
+                         x-axis="x"
+                         y-axis="y"
+                         above="false"
+                         ismultiple="false"
+                    >
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption">Accounts audited</caption>
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">
+                                        Statistic
+                                    </th>
+                                    <th class="govuk-table__header govuk-table__header--numeric">
+                                        Value
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    {% for summary in current.summary %}
+                                    <th class="govuk-table__header">
+                                        Percent
+                                    </th>
+                                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                                        {{ (summary.percent_accounts_audited * 100) | round(1, 'floor') }}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
           </section>
           <section class="govuk-tabs__panel" id="daily">
