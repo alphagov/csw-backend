@@ -35,7 +35,7 @@
                          y-axis="y"
                          above="false"
                          ismultiple="false"
-                         palette="['#85994b','#df3034']"
+                         palette="['#85994b','#b10e1e']"
                     >
                         <table class="govuk-table">
                             <caption class="govuk-table__caption">Average failed resources</caption>
@@ -45,7 +45,7 @@
                                         Status
                                     </th>
                                     <th class="govuk-table__header govuk-table__header--numeric">
-                                        Value
+                                        Percent
                                     </th>
                                 </tr>
                             </thead>
@@ -64,7 +64,7 @@
                                         Fail
                                     </th>
                                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                                        {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'floor') }}
+                                        {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'ceil') }}
                                     </td>
                                 </tr>
                             </tbody>
@@ -79,7 +79,7 @@
                          y-axis="y"
                          above="false"
                          ismultiple="false"
-                         palette="['#85994b','#df3034']"
+                         palette="['#85994b','#b10e1e']"
                     >
                         <table class="govuk-table">
                             <caption class="govuk-table__caption">Accounts audited</caption>
@@ -89,7 +89,7 @@
                                         Status
                                     </th>
                                     <th class="govuk-table__header govuk-table__header--numeric">
-                                        Value
+                                        Percent
                                     </th>
                                 </tr>
                             </thead>
@@ -108,7 +108,7 @@
                                         Not audited
                                     </th>
                                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                                        {{ ((1-summary.percent_accounts_audited) * 100) | round(1, 'floor') }}
+                                        {{ ((1-summary.percent_accounts_audited) * 100) | round(1, 'ceil') }}
                                     </td>
                                 </tr>
                             </tbody>
