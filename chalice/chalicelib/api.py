@@ -4,7 +4,7 @@ API LAMBDAS
 import os
 import re
 import json
-from datetime import datetime
+import datetime
 # from peewee import Case, fn
 # from botocore.exceptions import ClientError
 from chalice import Rate, Response, BadRequestError
