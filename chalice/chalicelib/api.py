@@ -61,12 +61,15 @@ def execute_update_stats_tables(event, context):
     commands = []
     try:
         dbh = DatabaseHandle(app)
-        commands = read_script('chalicelib/api/sql/summary_stats.sql')
-        app.log.debug(json.dumps(commands))
-        dbh.execute_commands(commands, 'csw')
+        scripts = app.utilities.list_files_from_path('chalicelib/api/sql/', 'sql')
+        for script in scripts:
+            app.log.debug(f"Executing SQL from chalice/{script}")
+            commands = read_script(script)
+            app.log.debug(json.dumps(commands))
+            dbh.execute_commands(commands, 'csw')
         status = 1
     except Exception as err:
-        app.log.error("Update stats tables error: " + app.utilities.to_json(data))
+        app.log.error("Update stats tables error: " + app.utilities.get_typed_exception(err))
     return {
         "status": status,
         "commands": commands
@@ -79,6 +82,7 @@ def scheduled_update_stats_tables(event):
     The default behaviour is that the stats are generated automatically once every 24 hours
     """
     return execute_update_stats_tables(event, {})
+
 
 @app.lambda_function()
 def update_stats_tables(event, context):

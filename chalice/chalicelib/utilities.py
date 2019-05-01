@@ -64,3 +64,21 @@ class Utilities():
         else:
             error_message = "{}.{}: {}".format(type(err).__module__, type(err).__name__, err)
         return error_message
+
+    def list_files_from_path(self, path, ext=None):
+        """
+        Get a list of items in the directory represented by the relative path `path`, only returning files that end
+        with ".{ext}", while excluding hidden files.
+
+        The list will contain strings that represent relative paths to the files.
+        """
+        abs_path = os.path.join(os.getcwd(), path)
+
+        items = []
+        for item in os.listdir(abs_path):
+            is_required_ext = ext is None or item.endswith(f".{ext}")
+            is_hidden = item.startswith(".")
+            if is_required_ext and not is_hidden:
+                items.append(os.path.join(path, item))
+
+        return items
