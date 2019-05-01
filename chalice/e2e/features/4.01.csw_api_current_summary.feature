@@ -1,8 +1,13 @@
 # Cloud Security Watch - API /current/summary
-# Check that a status=ok response is returned and that the fields exists and have the correct format.
+# Check that a status=ok response is returned and that the fields exists and have the correct types.
 Feature: Cloud Security Watch - API /current/summary
     Scenario: can load api/current/summary endpoint
-        When you make an http get request to "api/current/summary"
+        When you make an unauthenticated http get request to "api/current/summary"
+        Then response code is "403"
+        Then body is valid json
+        Then "status" exists and has value "failed"
+        Then "message" exists and has value "Unauthorised"
+        When you make an authenticated http get request to "api/current/summary"
         Then response code is "200"
         Then body is valid json
         Then "status" exists and has value "ok"

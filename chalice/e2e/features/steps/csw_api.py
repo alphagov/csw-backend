@@ -5,7 +5,17 @@ import re
 import json
 
 
-@when('you make an http get request to "{path}"')
+@when('you make an unauthenticated http get request to "{path}"')
+def step(context, path):
+    """
+    This is separate from the 'you navigate to page' call because it uses requests.get
+    instead of browser.get to get the JSON response.
+    """
+    context.url = os.environ['CSW_URL'] + path
+    context.res = requests.get(context.url)
+
+
+@when('you make an authenticated http get request to "{path}"')
 def step(context, path):
     """
     This is separate from the 'you navigate to page' call because it uses requests.get
@@ -59,3 +69,9 @@ def step(context, path, data_type):
 def step(context, path, value):
     item = get_item_by_path(context.json, path)
     assert item == value
+
+
+@then('"{path}" exists and matches pattern "{pattern}"')
+def step(context, path, pattern):
+    item = get_item_by_path(context.json, path)
+    assert re.match(pattern, item)
