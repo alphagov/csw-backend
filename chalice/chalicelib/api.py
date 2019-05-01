@@ -99,6 +99,7 @@ def route_api_current_summary():
     """
     Overall stats of the results of the latest audit across all teams and accounts
     """
+    status_code = 200
     try:
         load_route_services()
         authed = app.auth.try_login(app.current_request)
@@ -111,6 +112,7 @@ def route_api_current_summary():
                 "items": items
             }
         else:
+            status_code = 403
             raise Exception("Unauthorised")
     except Exception as err:
         data = {
@@ -120,7 +122,7 @@ def route_api_current_summary():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
