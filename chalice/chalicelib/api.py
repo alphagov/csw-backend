@@ -326,3 +326,44 @@ def route_api_monthly_delta():
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
+
+@app.route('/api/daily/account')
+def route_api_daily_account():
+    """
+    List of stats of the last audits for each account for each day in a given time period
+    """
+    status_code = 200
+    try:
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
+        load_route_services()
+        authed = app.auth.try_login(app.current_request)
+
+        if authed:
+            daily_account = (models.DailyAccountStats
+                              .select()
+                              .where(models.DailyAccountStats.audit_date > days_ago)
+                              .order_by(models.DailyAccountStats.audit_date.desc())
+                              )
+            items = models.DailyAccountStats.serialize_list(daily_account)
+
+            data = {
+                "status": "ok",
+                "items": items
+            }
+        else:
+            raise Exception("Unauthorised")
+    except Exception as err:
+        status_code = 403
+        data = {
+            "status": "failed",
+            "message": str(err)
+        }
+    json = app.utilities.to_json(data, True)
+    response = {
+        "body": json,
+        "status_code": status_code,
+        "headers": {"Content-Type": "application/json"}
+    }
+    return Response(**response)
