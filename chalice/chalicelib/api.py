@@ -112,9 +112,9 @@ def route_api_current_summary():
                 "items": items
             }
         else:
-            status_code = 403
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -133,6 +133,7 @@ def route_api_current_accounts():
     """
     Per account summary of latest audit results
     """
+    status_code = 200
     try:
         load_route_services()
         authed = app.auth.try_login(app.current_request)
@@ -147,6 +148,7 @@ def route_api_current_accounts():
         else:
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -154,7 +156,7 @@ def route_api_current_accounts():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
@@ -165,6 +167,7 @@ def route_api_daily_summary():
     """
     Last 2 weeks summary across all accounts day by day to identify short-term trends
     """
+    status_code = 200
     try:
         days = 14
         now = datetime.datetime.now()
@@ -187,6 +190,7 @@ def route_api_daily_summary():
         else:
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -194,7 +198,7 @@ def route_api_daily_summary():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
@@ -205,6 +209,7 @@ def route_api_daily_delta():
     """
     Comparison yesterday to today looking for what's changed
     """
+    status_code = 200
     try:
         days = 14
         now = datetime.datetime.now()
@@ -227,6 +232,7 @@ def route_api_daily_delta():
         else:
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -234,7 +240,7 @@ def route_api_daily_delta():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
@@ -245,6 +251,7 @@ def route_api_monthly_summary():
     """
     Average monthly summary to identify longer term trends
     """
+    status_code = 200
     try:
         load_route_services()
         authed = app.auth.try_login(app.current_request)
@@ -266,6 +273,7 @@ def route_api_monthly_summary():
         else:
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -273,7 +281,7 @@ def route_api_monthly_summary():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
@@ -284,6 +292,7 @@ def route_api_monthly_delta():
     """
     Comparison last month vs this month to show change over time
     """
+    status_code = 200
     try:
         load_route_services()
         authed = app.auth.try_login(app.current_request)
@@ -305,6 +314,7 @@ def route_api_monthly_delta():
         else:
             raise Exception("Unauthorised")
     except Exception as err:
+        status_code = 403
         data = {
             "status": "failed",
             "message": str(err)
@@ -312,7 +322,7 @@ def route_api_monthly_delta():
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
-        "status_code": 200,
+        "status_code": status_code,
         "headers": {"Content-Type": "application/json"}
     }
     return Response(**response)
