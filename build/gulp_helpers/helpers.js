@@ -13,18 +13,17 @@ var helpers = {
             value = value.toLowerCase();
         }
         switch(value) {
+            case true:
             case 1:
             case "true":
             case "t": {
                 parsed = true;
             } break;
+            case false:
             case 0:
             case "false":
             case "f": {
                 parsed = false;
-            } break;
-            default: {
-                parsed = value;
             } break;
         }
         return parsed
