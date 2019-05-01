@@ -14,7 +14,7 @@ from app import app
 from chalicelib.database_handle import DatabaseHandle
 
 
-def criteria_finder(parent_module_name='chalicelib.criteria'):
+def criteria_finder(parent_module_name="chalicelib.criteria"):
     """
     A helper function returning a set with all classes in the chalicelib.criteria submodules
     having a class attribute named active with value True.
@@ -22,33 +22,36 @@ def criteria_finder(parent_module_name='chalicelib.criteria'):
     parent_module = importlib.import_module(parent_module_name)
     active_criteria = set()  # set to gurantee uniqueness of elements
     for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
-        for name, cls in inspect.getmembers(importlib.import_module(f'{parent_module.__name__}.{module_name}')):
+        for name, cls in inspect.getmembers(
+            importlib.import_module(f"{parent_module.__name__}.{module_name}")
+        ):
             if (  # is a class
                 inspect.isclass(cls)
-            # ) and (  # has the class attribute active set to True
-            #     getattr(cls, 'active', False)
+                # ) and (  # has the class attribute active set to True
+                #     getattr(cls, 'active', False)
             ) and (  # is a subclass of the base criterion
-                'CriteriaDefault' in [supercls.__name__ for supercls in inspect.getmro(cls)]
+                "CriteriaDefault"
+                in [supercls.__name__ for supercls in inspect.getmro(cls)]
             ):
-                active_criteria.add(f'{parent_module.__name__}.{module_name}.{name}')
+                active_criteria.add(f"{parent_module.__name__}.{module_name}.{name}")
     return active_criteria
 
 
 @app.lambda_function()
 def database_create(event, context):
-    app.log.debug(os.environ['CSW_HOST'])
-    app.log.debug(event['User'])
-    app.log.debug(event['Database'])
+    app.log.debug(os.environ["CSW_HOST"])
+    app.log.debug(event["User"])
+    app.log.debug(event["Database"])
 
     try:
 
         app.log.debug("Attempt database connection")
 
         con = psycopg2.connect(
-            database='postgres',
-            user=event['User'],
-            host=os.environ['CSW_HOST'],
-            password=event['Password']
+            database="postgres",
+            user=event["User"],
+            host=os.environ["CSW_HOST"],
+            password=event["Password"],
         )
 
         app.log.debug("Set autocommit to on")
@@ -59,7 +62,7 @@ def database_create(event, context):
         cur = con.cursor()
 
         app.log.debug("Execute database create")
-        database = event['Database']
+        database = event["Database"]
         statement = f"CREATE DATABASE {database};"
         status = cur.execute(statement)
 
@@ -80,7 +83,7 @@ def database_create_tables(event, context):
         dbh = DatabaseHandle(app)
         table_list = []
         message = ""
-        for table_name in event['Tables']:
+        for table_name in event["Tables"]:
             model = dbh.get_model(table_name)
             table_list.append(model)
         created = dbh.create_tables(table_list)
@@ -89,7 +92,7 @@ def database_create_tables(event, context):
         created = False
         message = str(err)
     if created:
-        response = ", ".join(event['Tables'])
+        response = ", ".join(event["Tables"])
     else:
         response = f"Table create failed: {message}"
     return response
@@ -122,7 +125,7 @@ def database_create_items(event, context):
 
 @app.lambda_function()
 def database_get_item(event, context):
-    app.log.debug('database_get_item function')
+    app.log.debug("database_get_item function")
     try:
         dbh = DatabaseHandle(app)
         item = dbh.get_item(event)
@@ -136,20 +139,20 @@ def database_get_item(event, context):
 
 @app.lambda_function()
 def database_get_all_items(event, context):
-    app.log.debug('database_get_all_items function')
+    app.log.debug("database_get_all_items function")
     try:
         data = []
         n = 0
         dbh = DatabaseHandle(app)
         db = dbh.get_handle()
         db.connect()
-        model = dbh.get_model(event['Model'])
+        model = dbh.get_model(event["Model"])
         for item in model.select():
             serialised_record = item.serialize()
             data.append(serialised_record)
             n += 1
             app.log.debug(str(serialised_record))
-        app.log.debug(f'database_get_all_items fetched {n} records')
+        app.log.debug(f"database_get_all_items fetched {n} records")
         db.close()
         json_data = app.utilities.to_json(data)
     except Exception as err:
@@ -162,8 +165,8 @@ def database_get_all_items(event, context):
 def database_run(event, context):
     try:
         dbh = DatabaseHandle(app)
-        dbh.set_credentials(event['User'], event['Password'])
-        status = dbh.execute_commands(event['Commands'])
+        dbh.set_credentials(event["User"], event["Password"])
+        status = dbh.execute_commands(event["Commands"])
     except Exception as err:
         app.log.error(str(err))
         status = False
@@ -187,7 +190,7 @@ def database_add_new_criteria(event, context):
     # try:
     dbh = DatabaseHandle(app)
     for criterion in criteria_finder():
-        dbh.create_or_update_criterion({'criterion_name': criterion})
+        dbh.create_or_update_criterion({"criterion_name": criterion})
     # except Exception as err:
     #     app.log.error(str(err))
     return None

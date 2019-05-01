@@ -8,23 +8,32 @@ from chalice import Response, BadRequestError
 
 from app import app, load_route_services, read_asset
 from chalicelib import models
-from chalicelib.controllers import FormControllerAddResourceException, FormControllerAddAllowListException
+from chalicelib.controllers import (
+    FormControllerAddResourceException,
+    FormControllerAddAllowListException,
+)
 
 
-@app.route('/')
+@app.route("/")
 def index():
     load_route_services()
-    app.log.debug('INDEX CONTEXT = ' + str(app.lambda_context))
-    return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
+    app.log.debug("INDEX CONTEXT = " + str(app.lambda_context))
+    return Response(
+        **app.templates.render_authorized_template(
+            "logged_in.html", app.current_request
+        )
+    )
 
 
-@app.route('/denied')
+@app.route("/denied")
 def index():
     load_route_services()
-    return Response(**app.templates.render_authorized_template('denied.html', app.current_request))
+    return Response(
+        **app.templates.render_authorized_template("denied.html", app.current_request)
+    )
 
 
-@app.route('/overview')
+@app.route("/overview")
 def overview_dashboard():
     load_route_services()
     try:
@@ -38,7 +47,7 @@ def overview_dashboard():
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
             overview_data = user.get_overview_data()
 
             template_data = {
@@ -47,30 +56,40 @@ def overview_dashboard():
                     "accounts_passed": {
                         "display_stat": overview_data["all"]["accounts_passed"],
                         "category": "Accounts Passed",
-                        "modifier_class": "passed" if overview_data["all"]["accounts_passed"] > 0 else "failed"
+                        "modifier_class": "passed"
+                        if overview_data["all"]["accounts_passed"] > 0
+                        else "failed",
                     },
                     "accounts_failed": {
                         "display_stat": overview_data["all"]["accounts_failed"],
                         "category": "Accounts Failed",
-                        "modifier_class": "passed" if overview_data["all"]["accounts_failed"] == 0 else "failed"
+                        "modifier_class": "passed"
+                        if overview_data["all"]["accounts_failed"] == 0
+                        else "failed",
                     },
                     "accounts_unadited": {
                         "display_stat": overview_data["all"]["accounts_unaudited"],
                         "category": "Accounts Unaudited",
-                        "modifier_class": "passed" if overview_data["all"]["accounts_unaudited"] == 0 else "failed"
+                        "modifier_class": "passed"
+                        if overview_data["all"]["accounts_unaudited"] == 0
+                        else "failed",
                     },
                     "accounts_inactive": {
                         "display_stat": overview_data["all"]["accounts_inactive"],
                         "category": "Accounts Inactive",
-                        "modifier_class": "passed" if overview_data["all"]["accounts_inactive"] == 0 else "failed"
+                        "modifier_class": "passed"
+                        if overview_data["all"]["accounts_inactive"] == 0
+                        else "failed",
                     },
                     "issues_found": {
                         "display_stat": overview_data["all"]["issues_found"],
                         "category": "All Issues",
-                        "modifier_class": "passed" if overview_data["all"]["issues_found"] == 0 else "failed"
-                    }
+                        "modifier_class": "passed"
+                        if overview_data["all"]["issues_found"] == 0
+                        else "failed",
+                    },
                 },
-                "summaries": overview_data
+                "summaries": overview_data,
             }
 
         # data = app.utilities.to_json(template_data, True)
@@ -83,9 +102,7 @@ def overview_dashboard():
         #     }
         # )
         response = app.templates.render_authorized_template(
-            'overview.html',
-            app.current_request,
-            template_data
+            "overview.html", app.current_request, template_data
         )
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
@@ -93,35 +110,28 @@ def overview_dashboard():
     return Response(**response)
 
 
-@app.route('/team')
+@app.route("/team")
 def team_list():
     load_route_services()
     try:
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
             teams = user.get_my_teams()
         else:
             teams = []
 
-        #teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
+        # teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
         team_list = []
         for team in teams:
             team_stats = team.get_team_stats()
-            team_data = {
-                "team": team.serialize(),
-                "summary": team_stats
-            }
+            team_data = {"team": team.serialize(), "summary": team_stats}
             team_list.append(team_data)
 
-        template_data = {
-            "teams": team_list
-        }
+        template_data = {"teams": team_list}
         response = app.templates.render_authorized_template(
-            'teams.html',
-            app.current_request,
-            template_data
+            "teams.html", app.current_request, template_data
         )
 
     except Exception as err:
@@ -130,7 +140,7 @@ def team_list():
     return Response(**response)
 
 
-@app.route('/team/{id}/dashboard')
+@app.route("/team/{id}/dashboard")
 def team_dashboard(id):
     team_id = int(id)
     # TODO - add check user has access to team
@@ -146,14 +156,11 @@ def team_dashboard(id):
             "team": team.serialize(),
             "team_summary": team.get_team_stats(),
             "criteria_summary": criteria_stats,
-            "failed_resources": team.get_team_failed_resources()
+            "failed_resources": team.get_team_failed_resources(),
         }
 
         response = app.templates.render_authorized_template(
-            'team_dashboard.html',
-            app.current_request,
-            template_data,
-            [team]
+            "team_dashboard.html", app.current_request, template_data, [team]
         )
 
     except Exception as err:
@@ -162,7 +169,7 @@ def team_dashboard(id):
     return Response(**response)
 
 
-@app.route('/team/{id}/status')
+@app.route("/team/{id}/status")
 def team_status(id):
     team_id = int(id)
     # TODO - add check user has access to team
@@ -172,47 +179,49 @@ def team_status(id):
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_stats = team.get_team_stats()
         template_data = {
-            "breadcrumbs": [
-                {
-                    "title": "My teams",
-                    "link": "/team"
-                }
-            ],
+            "breadcrumbs": [{"title": "My teams", "link": "/team"}],
             "status": {
                 "accounts_passed": {
                     "display_stat": team_stats["all"]["accounts_passed"],
                     "category": "Accounts Passed",
-                    "modifier_class": "passed" if team_stats["all"]["accounts_passed"] > 0 else "failed"
+                    "modifier_class": "passed"
+                    if team_stats["all"]["accounts_passed"] > 0
+                    else "failed",
                 },
                 "accounts_failed": {
                     "display_stat": team_stats["all"]["accounts_failed"],
                     "category": "Accounts Failed",
-                    "modifier_class": "passed" if team_stats["all"]["accounts_failed"] == 0 else "failed"
+                    "modifier_class": "passed"
+                    if team_stats["all"]["accounts_failed"] == 0
+                    else "failed",
                 },
                 "accounts_unadited": {
                     "display_stat": team_stats["all"]["accounts_unaudited"],
                     "category": "Accounts Unaudited",
-                    "modifier_class": "passed" if team_stats["all"]["accounts_unaudited"] == 0 else "failed"
+                    "modifier_class": "passed"
+                    if team_stats["all"]["accounts_unaudited"] == 0
+                    else "failed",
                 },
                 "accounts_inactive": {
                     "display_stat": team_stats["all"]["accounts_inactive"],
                     "category": "Accounts Inactive",
-                    "modifier_class": "passed" if team_stats["all"]["accounts_inactive"] == 0 else "failed"
+                    "modifier_class": "passed"
+                    if team_stats["all"]["accounts_inactive"] == 0
+                    else "failed",
                 },
                 "issues_found": {
                     "display_stat": team_stats["all"]["issues_found"],
                     "category": "Team Issues",
-                    "modifier_class": "passed" if team_stats["all"]["issues_found"] == 0 else "failed"
-                }
+                    "modifier_class": "passed"
+                    if team_stats["all"]["issues_found"] == 0
+                    else "failed",
+                },
             },
             "team": team.serialize(),
-            "team_summary": team_stats
+            "team_summary": team_stats,
         }
         response = app.templates.render_authorized_template(
-            'team_status.html',
-            app.current_request,
-            template_data,
-            [team]
+            "team_status.html", app.current_request, template_data, [team]
         )
     except Exception as err:
         app.log.error("Route: team status error: " + str(err))
@@ -220,7 +229,7 @@ def team_status(id):
     return Response(**response)
 
 
-@app.route('/team/{id}/issues')
+@app.route("/team/{id}/issues")
 def team_issues(id):
     team_id = int(id)
     # TODO - add check user has access to team
@@ -230,20 +239,12 @@ def team_issues(id):
         app.log.debug("Team: " + app.utilities.to_json(team))
         team_issues = team.get_team_failed_resources()
         template_data = {
-            "breadcrumbs": [
-                {
-                    "title": "My teams",
-                    "link": "/team"
-                }
-            ],
+            "breadcrumbs": [{"title": "My teams", "link": "/team"}],
             "team": team.serialize(),
-            "account_issues": team_issues
+            "account_issues": team_issues,
         }
         response = app.templates.render_authorized_template(
-            'team_issues.html',
-            app.current_request,
-            template_data,
-            [team]
+            "team_issues.html", app.current_request, template_data, [team]
         )
     except Exception as err:
         app.log.error("Route: team issues error: " + str(err))
@@ -251,7 +252,7 @@ def team_issues(id):
     return Response(**response)
 
 
-@app.route('/account/{id}/status')
+@app.route("/account/{id}/status")
 def account_status(id):
     account_id = int(id)
     # TODO - add check user has access to account team
@@ -264,50 +265,60 @@ def account_status(id):
             audit_stats = latest.get_stats()
             template_data = {
                 "breadcrumbs": [
-                    {
-                        "title": "My teams",
-                        "link": "/team"
-                    },
-                    {
-                        "title": team.team_name,
-                        "link": f"/team/{team.id}/status"
-                    }
+                    {"title": "My teams", "link": "/team"},
+                    {"title": team.team_name, "link": f"/team/{team.id}/status"},
                 ],
                 "audit": latest.serialize(),
                 "status": {
                     "audit_completed": {
-                        "display_stat": ("Yes" if (latest.active_criteria == latest.criteria_processed) else "No"),
+                        "display_stat": (
+                            "Yes"
+                            if (latest.active_criteria == latest.criteria_processed)
+                            else "No"
+                        ),
                         "category": "Audit complete",
-                        "modifier_class": "passed" if (latest.active_criteria == latest.criteria_processed) else "failed"
+                        "modifier_class": "passed"
+                        if (latest.active_criteria == latest.criteria_processed)
+                        else "failed",
                     },
                     "checks_passed": {
                         "display_stat": latest.criteria_passed,
                         "category": "Checks Passed",
-                        "modifier_class": "passed" if latest.criteria_passed > 0 else "failed"
+                        "modifier_class": "passed"
+                        if latest.criteria_passed > 0
+                        else "failed",
                     },
                     "checks_failed": {
                         "display_stat": latest.criteria_failed,
                         "category": "Checks Failed",
-                        "modifier_class": "passed" if latest.criteria_failed == 0 else "failed"
+                        "modifier_class": "passed"
+                        if latest.criteria_failed == 0
+                        else "failed",
                     },
                     "resources_passed": {
-                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
+                        "display_stat": (
+                            audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]
+                        ),
                         "category": "Resources Passed",
-                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
+                        "modifier_class": "passed"
+                        if (
+                            audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]
+                        )
+                        > 0
+                        else "failed",
                     },
                     "resources_failed": {
                         "display_stat": audit_stats["all"]["failed"],
                         "category": "Resources Failed",
-                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
-                    }
+                        "modifier_class": "passed"
+                        if audit_stats["all"]["failed"] == 0
+                        else "failed",
+                    },
                 },
-                "audit_stats": audit_stats
+                "audit_stats": audit_stats,
             }
             response = app.templates.render_authorized_template(
-                'audit_status.html',
-                app.current_request,
-                template_data,
-                [account]
+                "audit_status.html", app.current_request, template_data, [account]
             )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
@@ -317,7 +328,7 @@ def account_status(id):
     return Response(**response)
 
 
-@app.route('/account/{id}/issues')
+@app.route("/account/{id}/issues")
 def account_issues(id):
     account_id = int(id)
     # TODO - add check user has access to account team
@@ -330,24 +341,14 @@ def account_issues(id):
             issues_list = latest.get_issues_list()
             template_data = {
                 "breadcrumbs": [
-                    {
-                        "title": "My teams",
-                        "link": "/team"
-                    },
-
-                    {
-                        "title": team.team_name,
-                        "link": f"/team/{team.id}/status"
-                    }
+                    {"title": "My teams", "link": "/team"},
+                    {"title": team.team_name, "link": f"/team/{team.id}/status"},
                 ],
                 "audit": latest.serialize(),
-                "issues": issues_list
+                "issues": issues_list,
             }
             response = app.templates.render_authorized_template(
-                'audit_issues.html',
-                app.current_request,
-                template_data,
-                [account]
+                "audit_issues.html", app.current_request, template_data, [account]
             )
         else:
             raise Exception(f"No latest audit for account: {account_id}")
@@ -357,7 +358,7 @@ def account_issues(id):
     return Response(**response)
 
 
-@app.route('/account/{id}/history')
+@app.route("/account/{id}/history")
 def account_history(id):
     account_id = int(id)
     # TODO - add check user has access to account team
@@ -369,31 +370,18 @@ def account_history(id):
         history_data = []
         for audit in audit_history:
             audit_stats = audit.get_stats()
-            history_data.append({
-                "audit": audit.serialize(),
-                "stats": audit_stats
-            })
+            history_data.append({"audit": audit.serialize(), "stats": audit_stats})
 
         template_data = {
             "breadcrumbs": [
-                {
-                    "title": "My teams",
-                    "link": "/team"
-                },
-
-                {
-                    "title": team.team_name,
-                    "link": f"/team/{team.id}/status"
-                }
+                {"title": "My teams", "link": "/team"},
+                {"title": team.team_name, "link": f"/team/{team.id}/status"},
             ],
             "account": account.serialize(),
-            "audit_history": history_data
+            "audit_history": history_data,
         }
         response = app.templates.render_authorized_template(
-            'audit_history.html',
-            app.current_request,
-            template_data,
-            [account]
+            "audit_history.html", app.current_request, template_data, [account]
         )
 
     except Exception as err:
@@ -402,7 +390,7 @@ def account_history(id):
     return Response(**response)
 
 
-@app.route('/account/{id}/history/{audit_id}')
+@app.route("/account/{id}/history/{audit_id}")
 def account_status(id, audit_id):
     account_id = int(id)
     # TODO - add check user has access to account team
@@ -416,54 +404,64 @@ def account_status(id, audit_id):
             audit_stats = audit.get_stats()
             template_data = {
                 "breadcrumbs": [
-                    {
-                        "title": "My teams",
-                        "link": "/team"
-                    },
-                    {
-                        "title": team.team_name,
-                        "link": f"/team/{team.id}/status"
-                    },
+                    {"title": "My teams", "link": "/team"},
+                    {"title": team.team_name, "link": f"/team/{team.id}/status"},
                     {
                         "title": account.account_name,
-                        "link": f"/account/{account.id}/history"
-                    }
+                        "link": f"/account/{account.id}/history",
+                    },
                 ],
                 "audit": audit.serialize(),
                 "status": {
                     "audit_completed": {
-                        "display_stat": ("Yes" if (audit.active_criteria == audit.criteria_processed) else "No"),
+                        "display_stat": (
+                            "Yes"
+                            if (audit.active_criteria == audit.criteria_processed)
+                            else "No"
+                        ),
                         "category": "Audit complete",
-                        "modifier_class": "passed" if (audit.active_criteria == audit.criteria_processed) else "failed"
+                        "modifier_class": "passed"
+                        if (audit.active_criteria == audit.criteria_processed)
+                        else "failed",
                     },
                     "checks_passed": {
                         "display_stat": audit.criteria_passed,
                         "category": "Checks Passed",
-                        "modifier_class": "passed" if audit.criteria_passed > 0 else "failed"
+                        "modifier_class": "passed"
+                        if audit.criteria_passed > 0
+                        else "failed",
                     },
                     "checks_failed": {
                         "display_stat": audit.criteria_failed,
                         "category": "Checks Failed",
-                        "modifier_class": "passed" if audit.criteria_failed == 0 else "failed"
+                        "modifier_class": "passed"
+                        if audit.criteria_failed == 0
+                        else "failed",
                     },
                     "resources_passed": {
-                        "display_stat": (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]),
+                        "display_stat": (
+                            audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]
+                        ),
                         "category": "Resources Passed",
-                        "modifier_class": "passed" if (audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]) > 0 else "failed"
+                        "modifier_class": "passed"
+                        if (
+                            audit_stats["all"]["passed"] + audit_stats["all"]["ignored"]
+                        )
+                        > 0
+                        else "failed",
                     },
                     "resources_failed": {
                         "display_stat": audit_stats["all"]["failed"],
                         "category": "Resources Failed",
-                        "modifier_class": "passed" if audit_stats["all"]["failed"] == 0 else "failed"
-                    }
+                        "modifier_class": "passed"
+                        if audit_stats["all"]["failed"] == 0
+                        else "failed",
+                    },
                 },
-                "audit_stats": audit_stats
+                "audit_stats": audit_stats,
             }
             response = app.templates.render_authorized_template(
-                'audit_status.html',
-                app.current_request,
-                template_data,
-                [account]
+                "audit_status.html", app.current_request, template_data, [account]
             )
         else:
             raise Exception(f"No historic audit for account: {account_id}")
@@ -473,7 +471,7 @@ def account_status(id, audit_id):
     return Response(**response)
 
 
-@app.route('/check/{id}/issues')
+@app.route("/check/{id}/issues")
 def check_issues(id):
     try:
         load_route_services()
@@ -485,34 +483,26 @@ def check_issues(id):
         team = account.product_team_id
         # TODO - add check user has access to team
 
-        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        CheckClass = app.utilities.get_class_by_name(
+            audit_check.criterion_id.invoke_class_name
+        )
         check = CheckClass(app)
-
 
         template_data = {
             "breadcrumbs": [
-                {
-                    "title": "My teams",
-                    "link": "/team"
-                },
-                {
-                    "title": team.team_name,
-                    "link": f"/team/{team.id}/status"
-                },
+                {"title": "My teams", "link": "/team"},
+                {"title": team.team_name, "link": f"/team/{team.id}/status"},
                 {
                     "title": account.account_name,
-                    "link": f"/account/{account.id}/status"
-                }
+                    "link": f"/account/{account.id}/status",
+                },
             ],
             "audit_check": audit_check.serialize(),
             "issues": issues_list,
-            "exception_type": check.exception_type
+            "exception_type": check.exception_type,
         }
         response = app.templates.render_authorized_template(
-            'check_issues.html',
-            app.current_request,
-            template_data,
-            [account]
+            "check_issues.html", app.current_request, template_data, [account]
         )
 
     except Exception as err:
@@ -521,7 +511,7 @@ def check_issues(id):
     return Response(**response)
 
 
-@app.route('/check/{id}/{status}')
+@app.route("/check/{id}/{status}")
 def check_status_resources(id, status):
     try:
         load_route_services()
@@ -534,10 +524,10 @@ def check_status_resources(id, status):
 
         # TODO - Might be better to keep exceptions separate
         # I've not done that because they're not identified separately in the audit_criterion stats.
-        if status == 'passed':
-            statuses = [2,4]
+        if status == "passed":
+            statuses = [2, 4]
             status = models.Status.get_by_id(2)
-        elif status == 'failed':
+        elif status == "failed":
             statuses = [3]
             status = models.Status.get_by_id(3)
         else:
@@ -548,34 +538,27 @@ def check_status_resources(id, status):
             status_list = audit_check.get_status_resources_list(status_id)
             resource_list = resource_list + status_list
 
-        CheckClass = app.utilities.get_class_by_name(audit_check.criterion_id.invoke_class_name)
+        CheckClass = app.utilities.get_class_by_name(
+            audit_check.criterion_id.invoke_class_name
+        )
         check = CheckClass(app)
 
         template_data = {
             "breadcrumbs": [
-                {
-                    "title": "My teams",
-                    "link": "/team"
-                },
-                {
-                    "title": team.team_name,
-                    "link": f"/team/{team.id}/status"
-                },
+                {"title": "My teams", "link": "/team"},
+                {"title": team.team_name, "link": f"/team/{team.id}/status"},
                 {
                     "title": account.account_name,
-                    "link": f"/account/{account.id}/status"
-                }
+                    "link": f"/account/{account.id}/status",
+                },
             ],
             "audit_check": audit_check.serialize(),
             "resources": resource_list,
             "status": status,
-            "exception_type": check.exception_type
+            "exception_type": check.exception_type,
         }
         response = app.templates.render_authorized_template(
-            'check_status_resources.html',
-            app.current_request,
-            template_data,
-            [account]
+            "check_status_resources.html", app.current_request, template_data, [account]
         )
 
     except Exception as err:
@@ -583,31 +566,40 @@ def check_status_resources(id, status):
         response = app.templates.default_server_error()
     return Response(**response)
 
-@app.route('/resource/{id}')
+
+@app.route("/resource/{id}")
 def resource_details(id):
     id = int(id)
     load_route_services()
     try:
         resource = models.AuditResource.get_by_id(id)
         account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+            models.AccountAudit.get_by_id(
+                resource.account_audit_id
+            ).account_subscription_id
         )
         # TODO - add check user has access to account team
 
         compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+            models.ResourceCompliance.select()
+            .join(models.AuditResource)
+            .where(models.AuditResource.id == resource.id)
         ).get()
         response = app.templates.render_authorized_template(
-            'resource_details.html',
+            "resource_details.html",
             app.current_request,
             {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "team": models.ProductTeam.get_by_id(
+                    account.product_team_id
+                ).serialize(),
                 "account": account.serialize(),
                 "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "criterion": models.Criterion.get_by_id(
+                    resource.criterion_id
+                ).serialize(),
                 "compliance": compliance.serialize(),
-                "status": models.Status.get_by_id(compliance.status_id).serialize()
-            }
+                "status": models.Status.get_by_id(compliance.status_id).serialize(),
+            },
         )
     except Exception as err:
         app.log.error("Route: resource error: " + str(err))
@@ -615,7 +607,7 @@ def resource_details(id):
     return Response(**response)
 
 
-@app.route('/resource/{id}/exception')
+@app.route("/resource/{id}/exception")
 def resource_exception(id):
     """
     Figure out if data has been posted
@@ -632,34 +624,40 @@ def resource_exception(id):
 
         resource = models.AuditResource.get_by_id(id)
         account = models.AccountSubscription.get_by_id(
-            models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+            models.AccountAudit.get_by_id(
+                resource.account_audit_id
+            ).account_subscription_id
         )
         # TODO - add check user has access to account team
 
         compliance = (
-            models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+            models.ResourceCompliance.select()
+            .join(models.AuditResource)
+            .where(models.AuditResource.id == resource.id)
         ).get()
 
         exception = models.ResourceException.find_exception(
-            resource.criterion_id.id,
-            resource.resource_persistent_id,
-            account.id
+            resource.criterion_id.id, resource.resource_persistent_id, account.id
         )
 
         response = app.templates.render_authorized_template(
-            'resource_exception.html',
+            "resource_exception.html",
             app.current_request,
             {
-                "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                "team": models.ProductTeam.get_by_id(
+                    account.product_team_id
+                ).serialize(),
                 "account": account.serialize(),
                 "resource": resource.serialize(),
-                "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                "criterion": models.Criterion.get_by_id(
+                    resource.criterion_id
+                ).serialize(),
                 "compliance": compliance.serialize(),
                 "exception": exception,
                 "status": models.Status.get_by_id(compliance.status_id).serialize(),
                 "mode": "create",
-                "errors": {}
-            }
+                "errors": {},
+            },
         )
 
     except Exception as err:
@@ -668,9 +666,11 @@ def resource_exception(id):
     return Response(**response)
 
 
-@app.route('/resource/{id}/exception',
-           methods=['POST'],
-           content_types=['application/x-www-form-urlencoded'])
+@app.route(
+    "/resource/{id}/exception",
+    methods=["POST"],
+    content_types=["application/x-www-form-urlencoded"],
+)
 def resource_post_exception(id):
     """
     Deals with parsing urlencoded form data handing errors
@@ -684,18 +684,22 @@ def resource_post_exception(id):
 
         if authed:
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
 
             data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
             resource = models.AuditResource.get_by_id(id)
             account = models.AccountSubscription.get_by_id(
-                models.AccountAudit.get_by_id(resource.account_audit_id).account_subscription_id
+                models.AccountAudit.get_by_id(
+                    resource.account_audit_id
+                ).account_subscription_id
             )
             # TODO - add check user has access to account team
 
             compliance = (
-                models.ResourceCompliance.select().join(models.AuditResource).where(models.AuditResource.id == resource.id)
+                models.ResourceCompliance.select()
+                .join(models.AuditResource)
+                .where(models.AuditResource.id == resource.id)
             ).get()
 
             form = FormControllerAddResourceException()
@@ -722,35 +726,40 @@ def resource_post_exception(id):
             mode = "create"
 
             response = app.templates.render_authorized_template(
-                'resource_exception.html',
+                "resource_exception.html",
                 app.current_request,
                 {
-                    "team": models.ProductTeam.get_by_id(account.product_team_id).serialize(),
+                    "team": models.ProductTeam.get_by_id(
+                        account.product_team_id
+                    ).serialize(),
                     "account": account.serialize(),
                     "resource": resource.serialize(),
-                    "criterion": models.Criterion.get_by_id(resource.criterion_id).serialize(),
+                    "criterion": models.Criterion.get_by_id(
+                        resource.criterion_id
+                    ).serialize(),
                     "compliance": compliance.serialize(),
                     "exception": exception,
                     "status": models.Status.get_by_id(compliance.status_id).serialize(),
                     "mode": mode,
                     "errors": form.get_errors(),
-                    "status_message": status_message
-                }
+                    "status_message": status_message,
+                },
             )
 
         else:
             response = app.templates.render_authorized_template(
-                'denied.html',
-                app.current_request
+                "denied.html", app.current_request
             )
 
     except Exception as err:
-        app.log.error("Route: resource exception error: " + app.utilities.get_typed_exception(err))
+        app.log.error(
+            "Route: resource exception error: " + app.utilities.get_typed_exception(err)
+        )
         response = app.templates.default_server_error()
     return Response(**response)
 
 
-@app.route('/exception')
+@app.route("/exception")
 def my_exceptions():
     """
     Page to view list of excepted resources and rule allowlists
@@ -762,7 +771,7 @@ def my_exceptions():
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
             exceptions = user.get_my_exceptions()
             allowlists = user.get_my_allowlists()
 
@@ -771,12 +780,9 @@ def my_exceptions():
             allowlists = []
 
         response = app.templates.render_authorized_template(
-            'my_exceptions.html',
+            "my_exceptions.html",
             app.current_request,
-            {
-                "exceptions": exceptions,
-                "allowlists": allowlists
-            }
+            {"exceptions": exceptions, "allowlists": allowlists},
         )
     except Exception as err:
         app.log.error("Route: exception error: " + str(err))
@@ -784,7 +790,7 @@ def my_exceptions():
     return Response(**response)
 
 
-@app.route('/account/{id}/check/{check_id}/allowlist')
+@app.route("/account/{id}/check/{check_id}/allowlist")
 def audit_check_allow_list(id, check_id):
     """
     Allows you to create and update allow list records
@@ -801,18 +807,20 @@ def audit_check_allow_list(id, check_id):
         if authed:
 
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
 
             # Get most recent evaluation of criterion for this account
-            audit_criterion = (models.AuditCriterion
-                               .select()
-                               .join(models.AccountAudit)
-                               .where(
-                                    models.AuditCriterion.criterion_id == check_id,
-                                    models.AuditCriterion.account_audit_id.account_subscription_id == account_id
-                               )
-                               .order_by(models.AuditCriterion.id.desc())
-                               .get())
+            audit_criterion = (
+                models.AuditCriterion.select()
+                .join(models.AccountAudit)
+                .where(
+                    models.AuditCriterion.criterion_id == check_id,
+                    models.AuditCriterion.account_audit_id.account_subscription_id
+                    == account_id,
+                )
+                .order_by(models.AuditCriterion.id.desc())
+                .get()
+            )
 
             audit_criterion.serialize()
 
@@ -822,9 +830,11 @@ def audit_check_allow_list(id, check_id):
             form = FormControllerAddAllowListException()
             form.set_user(user)
             defaults = form.get_model_defaults(
-                account_subscription_id = audit_criterion.account_audit_id.account_subscription_id
+                account_subscription_id=audit_criterion.account_audit_id.account_subscription_id
             )
-            allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
+            allowed = form.get_allowlist(
+                audit_criterion.account_audit_id.account_subscription_id
+            )
 
             # defaults = check.AllowlistClass.get_defaults(account_id, user.id)
 
@@ -832,19 +842,16 @@ def audit_check_allow_list(id, check_id):
                 "audit_criterion": audit_criterion.serialize(),
                 "allowlist": allowed,
                 "exception": defaults,
-                "errors": {}
+                "errors": {},
             }
             # json = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
-                'account_check_allowlist.html',
-                app.current_request,
-                template_data
+                "account_check_allowlist.html", app.current_request, template_data
             )
 
         else:
             response = app.templates.render_authorized_template(
-                'denied.html',
-                app.current_request
+                "denied.html", app.current_request
             )
 
     except Exception as err:
@@ -853,9 +860,11 @@ def audit_check_allow_list(id, check_id):
     return Response(**response)
 
 
-@app.route('/account/{id}/check/{check_id}/allowlist',
-           methods=['POST'],
-           content_types=['application/x-www-form-urlencoded'])
+@app.route(
+    "/account/{id}/check/{check_id}/allowlist",
+    methods=["POST"],
+    content_types=["application/x-www-form-urlencoded"],
+)
 def audit_check_post_allow_list(id, check_id):
     """
     Deals with parsing urlencoded form data handing errors
@@ -873,20 +882,22 @@ def audit_check_post_allow_list(id, check_id):
         if authed:
 
             user_data = app.auth.get_login_data()
-            user = models.User.find_active_by_email(user_data['email'])
+            user = models.User.find_active_by_email(user_data["email"])
 
             data = urllib.parse.parse_qs(app.current_request.raw_body.decode("utf-8"))
 
             # Get most recent evaluation of criterion for this account
-            audit_criterion = (models.AuditCriterion
-                               .select()
-                               .join(models.AccountAudit)
-                               .where(
-                                    models.AuditCriterion.criterion_id == check_id,
-                                    models.AuditCriterion.account_audit_id.account_subscription_id == account_id
-                               )
-                               .order_by(models.AuditCriterion.id.desc())
-                               .get())
+            audit_criterion = (
+                models.AuditCriterion.select()
+                .join(models.AccountAudit)
+                .where(
+                    models.AuditCriterion.criterion_id == check_id,
+                    models.AuditCriterion.account_audit_id.account_subscription_id
+                    == account_id,
+                )
+                .order_by(models.AuditCriterion.id.desc())
+                .get()
+            )
 
             audit_criterion.serialize()
 
@@ -897,7 +908,7 @@ def audit_check_post_allow_list(id, check_id):
             exception = form.process()
             status_message = form.processed_status
 
-            if form.get_mode() != 'load':
+            if form.get_mode() != "load":
                 # blank the form after create/update
                 exception = form.get_model_defaults(
                     account_subscription_id=audit_criterion.account_audit_id.account_subscription_id
@@ -909,7 +920,9 @@ def audit_check_post_allow_list(id, check_id):
 
             app.log.debug(app.utilities.to_json(exception))
 
-            allowed = form.get_allowlist(audit_criterion.account_audit_id.account_subscription_id)
+            allowed = form.get_allowlist(
+                audit_criterion.account_audit_id.account_subscription_id
+            )
             num_items = len(allowed)
 
             app.log.debug(f"Retrieved {num_items} for current allowlist")
@@ -919,19 +932,16 @@ def audit_check_post_allow_list(id, check_id):
                 "allowlist": allowed,
                 "exception": exception,
                 "errors": form.get_errors(),
-                "status_message": status_message
+                "status_message": status_message,
             }
             # json = app.utilities.to_json(template_data, True)
             response = app.templates.render_authorized_template(
-                'account_check_allowlist.html',
-                app.current_request,
-                template_data
+                "account_check_allowlist.html", app.current_request, template_data
             )
 
         else:
             response = app.templates.render_authorized_template(
-                'denied.html',
-                app.current_request
+                "denied.html", app.current_request
             )
 
     except Exception as err:
@@ -940,97 +950,104 @@ def audit_check_post_allow_list(id, check_id):
     return Response(**response)
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     load_route_services()
-    return Response(**app.templates.render_authorized_template('logged_out.html', app.current_request))
+    return Response(
+        **app.templates.render_authorized_template(
+            "logged_out.html", app.current_request
+        )
+    )
 
 
-@app.route('/audit')
+@app.route("/audit")
 def audit_list():
     load_route_services()
     # TODO: Base template needs anchor to this route
-    return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
+    return Response(
+        **app.templates.render_authorized_template(
+            "audit_list.html", app.current_request
+        )
+    )
 
 
-@app.route('/audit/{id}')
+@app.route("/audit/{id}")
 def audit_report(id):
     load_route_services()
-    return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
+    return Response(
+        **app.templates.render_authorized_template("audit.html", app.current_request)
+    )
 
 
 # ASSET RENDERERS
 # TODO This doesn't work for binary file types
 
-@app.route('/assets')
+
+@app.route("/assets")
 def asset_render_qs():
     load_route_services()
-    app.log.debug('asset_render function called by /assets?proxy route')
+    app.log.debug("asset_render function called by /assets?proxy route")
     try:
         req = app.current_request
         app.log.debug(str(req.uri_params))
         app.log.debug(json.dumps(app.current_request))
-        if 'proxy' in req.uri_params:
-            proxy = req.uri_params['proxy']
+        if "proxy" in req.uri_params:
+            proxy = req.uri_params["proxy"]
         mime_type = app.utilities.get_mime_type(proxy)
         data = read_asset(proxy)
-        return Response(
-            body=data,
-            status_code=200,
-            headers={"Content-Type": mime_type}
-        )
+        return Response(body=data, status_code=200, headers={"Content-Type": mime_type})
     except Exception as e:
         app.log.debug(str(e))
         raise BadRequestError(str(e))
 
 
-@app.route('/assets/{proxy+}')
+@app.route("/assets/{proxy+}")
 def asset_render():
     load_route_services()
-    app.log.debug('asset_render function called by /assets/{proxy+} route')
+    app.log.debug("asset_render function called by /assets/{proxy+} route")
     try:
         req = app.current_request
         app.log.debug(str(req.uri_params))
-        if 'proxy' in req.uri_params:
-            proxy = req.uri_params['proxy']
+        if "proxy" in req.uri_params:
+            proxy = req.uri_params["proxy"]
         else:
-            proxy = req.uri_params['proxy+']
+            proxy = req.uri_params["proxy+"]
         mime_type = app.utilities.get_mime_type(proxy)
         data = read_asset(proxy)
-        return Response(
-            body=data,
-            status_code=200,
-            headers={"Content-Type": mime_type}
-        )
+        return Response(body=data, status_code=200, headers={"Content-Type": mime_type})
     except Exception as e:
         app.log.debug(str(e))
         raise BadRequestError(str(e))
 
 
-@app.route('/temp-login')
+@app.route("/temp-login")
 def temp_login():
 
     try:
         load_route_services()
-        env = os.environ['CSW_ENV']
+        env = os.environ["CSW_ENV"]
 
-        headers = {
-            "Content-Type": "text/plain"
-        }
+        headers = {"Content-Type": "text/plain"}
         body = "Trying login"
         code = 200
 
-        if (env != 'prod'):
-            csw_client = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/client")
-            csw_secret = app.auth.get_ssm_parameter(f"/csw/{env}/credentials/tester/secret")
+        if env != "prod":
+            csw_client = app.auth.get_ssm_parameter(
+                f"/csw/{env}/credentials/tester/client"
+            )
+            csw_secret = app.auth.get_ssm_parameter(
+                f"/csw/{env}/credentials/tester/secret"
+            )
             req = app.current_request
             qs = req.query_params
 
-            if (csw_client != '[disabled]'
-                    and csw_client == qs.get('client')
-                    and csw_secret == qs.get('secret')):
+            if (
+                csw_client != "[disabled]"
+                and csw_client == qs.get("client")
+                and csw_secret == qs.get("secret")
+            ):
 
-                user = models.User.find_active_by_email(qs.get('email')).serialize()
+                user = models.User.find_active_by_email(qs.get("email")).serialize()
 
                 app.auth.user_jwt = app.auth.get_jwt(user)
 
@@ -1043,17 +1060,12 @@ def temp_login():
             raise Exception("Unauthorised")
 
     except Exception as err:
-        body = "Temporary login failed "+str(err)
+        body = "Temporary login failed " + str(err)
         code = 403
-        headers = {
-            "Content-Type": "text/plain"
-        }
+        headers = {"Content-Type": "text/plain"}
 
-    return Response(
-        body=body,
-        headers=headers,
-        status_code=code
-    )
+    return Response(body=body, headers=headers, status_code=code)
+
 
 # # TO OVERRIDE a route template with the debug template to view the json template data
 # data = app.utilities.to_json(template_data, True)

@@ -1,10 +1,12 @@
 import unittest
 
 from chalicelib.criteria.aws_support_access_key_rotation import (
-    AwsIamAccessKeyRotationYellow, AwsIamAccessKeyRotationRed
+    AwsIamAccessKeyRotationYellow,
+    AwsIamAccessKeyRotationRed,
 )
 from tests.chalicelib.criteria.test_criteria_default import (
-    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+    CriteriaSubclassTestCaseMixin,
+    TestCaseWithAttrAssert,
 )
 from tests.chalicelib.criteria.test_data import IAM_KEY_ROTATION_ITEMS
 
@@ -33,9 +35,7 @@ class TestAwsIamAccessKeyRotationYellow(
         """
         test that initialization works
         """
-        self.assertIsInstance(
-            self.subclass, AwsIamAccessKeyRotationYellow
-        )
+        self.assertIsInstance(self.subclass, AwsIamAccessKeyRotationYellow)
 
     def test_init_failure(self):
         """
@@ -48,16 +48,23 @@ class TestAwsIamAccessKeyRotationYellow(
         test that the client support the correct API method
         """
         # TODO: dynamically importing dependancies from the file tested
-        self.assertIn('describe_trusted_advisor_check_result', dir(self.subclass.client))
+        self.assertIn(
+            "describe_trusted_advisor_check_result", dir(self.subclass.client)
+        )
 
     def test_get_data(self):
         """
         """
         # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-        self.subclass.client.describe_trusted_advisor_check_result = \
-            lambda session, checkId, language: self.test_data['green']['result']
+        self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: self.test_data[
+            "green"
+        ][
+            "result"
+        ]
         # output value
-        item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
+        item = self.subclass.get_data(
+            None, checkId=self.subclass.check_id, language=self.subclass.language
+        )
         # must return a dictionary with the three necessary keys
         msg = "the method must return a list of dictionaries"
         with self.subTest():
@@ -71,11 +78,11 @@ class TestAwsIamAccessKeyRotationYellow(
         event = {}
         whitelist = []
         for suite in self.test_data:
-            for item in self.test_data[suite]['result']['flaggedResources']:
+            for item in self.test_data[suite]["result"]["flaggedResources"]:
                 with self.subTest():
                     # tests
                     output = self._evaluate_invariant_assertions(event, item, whitelist)
-                    if item['status'] in ['warning', 'error']:
+                    if item["status"] in ["warning", "error"]:
                         self._evaluate_failed_status_assertions(item, output)
                     else:
                         self._evaluate_passed_status_assertions(item, output)
@@ -102,9 +109,7 @@ class TestAwsIamAccessKeyRotationRed(TestAwsIamAccessKeyRotationYellow):
         """
         test that initialization works
         """
-        self.assertIsInstance(
-            self.subclass, AwsIamAccessKeyRotationRed
-        )
+        self.assertIsInstance(self.subclass, AwsIamAccessKeyRotationRed)
 
     def test_init_failure(self):
         """
@@ -120,13 +125,11 @@ class TestAwsIamAccessKeyRotationRed(TestAwsIamAccessKeyRotationYellow):
         event = {}
         whitelist = []
         for suite in self.test_data:
-            for item in self.test_data[suite]['result']['flaggedResources']:
+            for item in self.test_data[suite]["result"]["flaggedResources"]:
                 with self.subTest():
                     # tests
                     output = self._evaluate_invariant_assertions(event, item, whitelist)
-                    if item['status'] == 'error':
+                    if item["status"] == "error":
                         self._evaluate_failed_status_assertions(item, output)
                     else:
                         self._evaluate_passed_status_assertions(item, output)
-
-

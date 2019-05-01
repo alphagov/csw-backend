@@ -5,7 +5,7 @@ from chalicelib.aws.gds_aws_client import GdsAwsClient
 from chalicelib.aws.gds_support_client import GdsSupportClient
 
 
-class CriteriaDefault():
+class CriteriaDefault:
 
     active = False
 
@@ -61,7 +61,7 @@ class CriteriaDefault():
             "title": self.title,
             "description": self.description,
             "why_is_it_important": self.why_is_it_important,
-            "how_do_i_fix_it": self.how_do_i_fix_it
+            "how_do_i_fix_it": self.how_do_i_fix_it,
         }
 
     def get_data(self, session, **kwargs):
@@ -86,19 +86,23 @@ class CriteriaDefault():
         """
 
         # aim to use the resource name but fall back to the id if not defined
-        if 'resource_name' in item and item['resource_name'] is not None:
-            name = item.get('resource_name', '')
+        if "resource_name" in item and item["resource_name"] is not None:
+            name = item.get("resource_name", "")
         else:
-            name = item.get('resource_id', '')
+            name = item.get("resource_id", "")
 
-        return (self.resource_type + "::"
-                + item.get('region','') + "::"
-                + str(audit.account_subscription_id.account_id) + "::"
-                + name)
+        return (
+            self.resource_type
+            + "::"
+            + item.get("region", "")
+            + "::"
+            + str(audit.account_subscription_id.account_id)
+            + "::"
+            + name
+        )
 
     def build_evaluation(
-        self, resource_id, compliance_type, event, resource_type,
-        annotation=None
+        self, resource_id, compliance_type, event, resource_type, annotation=None
     ):
         """
         Form an evaluation as a dictionary.
@@ -113,13 +117,13 @@ class CriteriaDefault():
         """
         evaluation = {}
         if annotation:
-            evaluation['annotation'] = annotation
-        evaluation['resource_type'] = resource_type
-        evaluation['resource_id'] = resource_id
-        evaluation['compliance_type'] = compliance_type
-        evaluation['is_compliant'] = (compliance_type == 'COMPLIANT')
-        evaluation['is_applicable'] = (compliance_type != 'NOT_APPLICABLE')
-        evaluation['status_id'] = self.get_status(evaluation)
+            evaluation["annotation"] = annotation
+        evaluation["resource_type"] = resource_type
+        evaluation["resource_id"] = resource_id
+        evaluation["compliance_type"] = compliance_type
+        evaluation["is_compliant"] = compliance_type == "COMPLIANT"
+        evaluation["is_applicable"] = compliance_type != "NOT_APPLICABLE"
+        evaluation["status_id"] = self.get_status(evaluation)
 
         return evaluation
 
@@ -136,35 +140,28 @@ class CriteriaDefault():
     def empty_summary(self):
 
         return {
-            'all': {
-                'display_stat': 0,
-                'category': 'all',
-                'modifier_class': 'tested'
+            "all": {"display_stat": 0, "category": "all", "modifier_class": "tested"},
+            "applicable": {
+                "display_stat": 0,
+                "category": "tested",
+                "modifier_class": "precheck",
             },
-            'applicable': {
-                'display_stat': 0,
-                'category': 'tested',
-                'modifier_class': 'precheck'
+            "non_compliant": {
+                "display_stat": 0,
+                "category": "failed",
+                "modifier_class": "failed",
             },
-            'non_compliant': {
-                'display_stat': 0,
-                'category': 'failed',
-                'modifier_class': 'failed'
+            "compliant": {
+                "display_stat": 0,
+                "category": "passed",
+                "modifier_class": "passed",
             },
-            'compliant': {
-                'display_stat': 0,
-                'category': 'passed',
-                'modifier_class': 'passed'
+            "not_applicable": {
+                "display_stat": 0,
+                "category": "ignored",
+                "modifier_class": "passed",
             },
-            'not_applicable': {
-                'display_stat': 0,
-                'category': 'ignored',
-                'modifier_class': 'passed'
-            },
-            'regions': {
-                'list': [],
-                'count': 0
-            }
+            "regions": {"list": [], "count": 0},
         }
 
     def summarize(self, resources, summary=None):
@@ -191,20 +188,20 @@ class CriteriaDefault():
                 )
             )
 
-            self.app.log.debug('set resource type')
+            self.app.log.debug("set resource type")
 
-            summary['all']['display_stat'] += 1
+            summary["all"]["display_stat"] += 1
 
             if compliance["is_applicable"]:
-                summary['applicable']['display_stat'] += 1
+                summary["applicable"]["display_stat"] += 1
 
                 if compliance["is_compliant"]:
-                    summary['compliant']['display_stat'] += 1
+                    summary["compliant"]["display_stat"] += 1
                 else:
-                    summary['non_compliant']['display_stat'] += 1
+                    summary["non_compliant"]["display_stat"] += 1
 
             else:
-                summary['not_applicable']['display_stat'] += 1
+                summary["not_applicable"]["display_stat"] += 1
 
             summary["regions"]["list"] = regions
             summary["regions"]["count"] = len(regions)
@@ -220,8 +217,8 @@ class CriteriaDefault():
         :return:
         """
         item = {
-            'resource_id': data.get('ResourceId', ''),
-            'resource_name': data.get('Name','')  # trail name or empty string
+            "resource_id": data.get("ResourceId", ""),
+            "resource_name": data.get("Name", ""),  # trail name or empty string
         }
         return item
 
@@ -247,7 +244,7 @@ class CriteriaDefault():
             # item_raw["region"] = params["region"]
 
         # populate the resource_identifier field
-        item['resource_persistent_id'] = self.get_resource_persistent_id(item, audit)
+        item["resource_persistent_id"] = self.get_resource_persistent_id(item, audit)
 
         return item
 
@@ -260,29 +257,30 @@ class TrustedAdvisorCriterion(CriteriaDefault):
     A specialisation factoring out all the common attributes and methods
     of criteria that use one API call to describe TA in order to infer compliance.
     """
+
     def __init__(self, app):
         # attributes to overwrite in subclasses
-        self.status_string = ''
-        self.status_interval = ''
+        self.status_string = ""
+        self.status_interval = ""
         # attributes common in both subclasses
         self.ClientClass = GdsSupportClient
-        self.language = 'en'
-        self.region = 'us-east-1'
-        self.annotation = ''
+        self.language = "en"
+        self.region = "us-east-1"
+        self.annotation = ""
         self.is_regional = False
         super(TrustedAdvisorCriterion, self).__init__(app)
 
     def get_data(self, session, **kwargs):
         output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
+            session, checkId=self.check_id, language=self.language
         )
         # if the TA results does not contain the key flaggedResources, add it with an empty list for its value
-        if 'flaggedResources' not in output:
-            output['flaggedResources'] = []
+        if "flaggedResources" not in output:
+            output["flaggedResources"] = []
         self.app.log.debug(json.dumps(output))
-        return output['flaggedResources']  # will have len() == 0 if compliant or non-applicable
+        return output[
+            "flaggedResources"
+        ]  # will have len() == 0 if compliant or non-applicable
 
     def translate(self, data={}):
         """
@@ -295,7 +293,9 @@ class TrustedAdvisorCriterion(CriteriaDefault):
         """
 
         item = {
-            'resource_id': data.get('resourceId', ''),
-            'resource_name': data.get('metadata', ['', '', ])[1],  # trail name or empty string
+            "resource_id": data.get("resourceId", ""),
+            "resource_name": data.get("metadata", ["", ""])[
+                1
+            ],  # trail name or empty string
         }
         return item

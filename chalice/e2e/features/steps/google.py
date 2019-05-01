@@ -1,9 +1,11 @@
 from behave import given, when, then
 import time
 
+
 @when('visit url "{url}"')
 def step(context, url):
     context.browser.get(url)
+
 
 @when('field with name "{selector}" is given "{value}"')
 def step(context, selector, value):
@@ -11,6 +13,7 @@ def step(context, selector, value):
     elem.send_keys(value)
     elem.submit()
     time.sleep(5)
+
 
 @then('title becomes "{title}"')
 def step(context, title):

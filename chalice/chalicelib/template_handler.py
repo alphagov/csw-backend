@@ -1,27 +1,24 @@
 import os
 import re
 import datetime
+
 # from urllib.parse import urlparse, parse_qs
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 class TemplateHandler:
-
     def __init__(self, app):
 
         self.app = app
         self.auth = app.auth
 
         self.base_dir = os.getcwd()
-        self.template_dir = os.path.join(self.base_dir, 'chalicelib', 'templates')
-        self.govuk_dir = os.path.join(self.template_dir, 'govuk-frontend')
+        self.template_dir = os.path.join(self.base_dir, "chalicelib", "templates")
+        self.govuk_dir = os.path.join(self.template_dir, "govuk-frontend")
 
         self.env = Environment(
-            loader=FileSystemLoader([
-                self.template_dir,
-                self.govuk_dir
-            ]),
-            autoescape=select_autoescape(['html', 'xml']),
+            loader=FileSystemLoader([self.template_dir, self.govuk_dir]),
+            autoescape=select_autoescape(["html", "xml"]),
         )
 
         self.register_filters()
@@ -41,11 +38,11 @@ class TemplateHandler:
     def get_request_path(self):
 
         self.base_url = self.auth.get_base_url(self.app.current_request)
-        self.app.log.debug("Context: "+str(self.app.current_request.context))
+        self.app.log.debug("Context: " + str(self.app.current_request.context))
         # return self.app.current_request.context['resourcePath']
-        full_path = self.app.current_request.context['path']
+        full_path = self.app.current_request.context["path"]
         base_path = self.get_root_path()
-        path = full_path.replace(base_path,"")
+        path = full_path.replace(base_path, "")
         return path
 
     def get_template(self, file):
@@ -54,7 +51,7 @@ class TemplateHandler:
             template = self.env.get_template(file)
         except Exception as err:
             template = None
-            self.app.log.debug("Tried to load non-existent template: "+str(err))
+            self.app.log.debug("Tried to load non-existent template: " + str(err))
         return template
 
     def get_auth_handler(self):
@@ -65,45 +62,56 @@ class TemplateHandler:
         return message.format(*params)
 
     def register_filters(self):
-
-        def format_datetime(value, format='datetime'):
-            if format == 'datetime':
-                render_as = value.strftime('%d/%m/%Y %H:%M')
-            elif format == 'date':
-                render_as = value.strftime('%d/%m/%Y')
-            elif format == 'time':
-                render_as = value.strftime('%H:%M')
+        def format_datetime(value, format="datetime"):
+            if format == "datetime":
+                render_as = value.strftime("%d/%m/%Y %H:%M")
+            elif format == "date":
+                render_as = value.strftime("%d/%m/%Y")
+            elif format == "time":
+                render_as = value.strftime("%H:%M")
 
             return render_as
 
         def format_aws_account_id(value):
             return str(value).zfill(12)
 
-        self.env.filters['datetime'] = format_datetime
-        self.env.filters['aws_account_id'] = format_aws_account_id
+        self.env.filters["datetime"] = format_datetime
+        self.env.filters["aws_account_id"] = format_aws_account_id
 
-        def format_timestamp(value, format='datetime'):
+        def format_timestamp(value, format="datetime"):
 
-            timestamp_pattern = '^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$'
+            timestamp_pattern = "^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$"
 
             m = re.search(timestamp_pattern, value)
 
-            if format == 'datetime':
-                render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1) + " " + m.group(4) + ":" + m.group(5)
-            elif format == 'date':
+            if format == "datetime":
+                render_as = (
+                    m.group(3)
+                    + "/"
+                    + m.group(2)
+                    + "/"
+                    + m.group(1)
+                    + " "
+                    + m.group(4)
+                    + ":"
+                    + m.group(5)
+                )
+            elif format == "date":
                 render_as = m.group(3) + "/" + m.group(2) + "/" + m.group(1)
-            elif format == 'time':
+            elif format == "time":
                 render_as = m.group(4) + ":" + m.group(5)
 
             return render_as
 
-        self.env.filters['timestamp'] = format_datetime
+        self.env.filters["timestamp"] = format_datetime
 
     def is_real(self):
-        return ((self.base_url.find('localhost') == -1) and (self.base_url.find('127.0.0.1') == -1))
+        return (self.base_url.find("localhost") == -1) and (
+            self.base_url.find("127.0.0.1") == -1
+        )
 
     def get_menu_active_class_modifier(self, route, test):
-        return ('--active' if route == test else '')
+        return "--active" if route == test else ""
 
     def get_menu(self, root_path=""):
 
@@ -113,30 +121,23 @@ class TemplateHandler:
             {
                 "name": "Overview",
                 "link": f"{root_path}/overview",
-                "active": re.match("^\/overview",route)
+                "active": re.match("^\/overview", route),
             },
             {
                 "name": "My teams",
                 "link": f"{root_path}/team",
-                "active": re.match("^\/team",route)
+                "active": re.match("^\/team", route),
             },
             {
                 "name": "My exceptions",
                 "link": f"{root_path}/exception",
-                "active": re.match("^\/exception",route)
-            }
+                "active": re.match("^\/exception", route),
+            },
         ]
 
     def refuse(self, req, type, item):
         response = self.render_authorized_template(
-            'denied.html',
-            req,
-            {
-                "refused": {
-                    "type": type,
-                    "item": item
-                }
-            }
+            "denied.html", req, {"refused": {"type": type, "item": item}}
         )
         return response
 
@@ -158,34 +159,26 @@ class TemplateHandler:
         route = self.get_request_path()
         self.app.log.debug(f"Check redirect status for: {route}")
         login_redirect = self.auth.get_cookie_value(req, "login_redirect")
-        status = {
-            "action": "none"
-        }
-        has_header = (login_redirect not in [None,""])
-        is_current_route = (login_redirect == route)
-        is_after_oauth_route = (route == self.auth.get_after_oauth_path())
+        status = {"action": "none"}
+        has_header = login_redirect not in [None, ""]
+        is_current_route = login_redirect == route
+        is_after_oauth_route = route == self.auth.get_after_oauth_path()
 
-        if (has_header):
-            status = {
-                "action": "notify",
-                "target": login_redirect
-            }
+        if has_header:
+            status = {"action": "notify", "target": login_redirect}
 
-        if (has_header and is_after_oauth_route):
-            status = {
-                "action": "redirect",
-                "target": login_redirect
-            }
+        if has_header and is_after_oauth_route:
+            status = {"action": "redirect", "target": login_redirect}
 
-        if (has_header and is_current_route):
-            status = {
-                "action": "complete"
-            }
+        if has_header and is_current_route:
+            status = {"action": "complete"}
 
         self.app.log.debug("Redirect Status: " + str(status))
         return status
 
-    def render_authorized_template(self, template_file, req, data=None, check_access=[]):
+    def render_authorized_template(
+        self, template_file, req, data=None, check_access=[]
+    ):
         """
         Check the user is logged in
         If so render the template using the data supplied
@@ -200,9 +193,7 @@ class TemplateHandler:
         :return:
         """
 
-        headers = {
-            "Content-Type": "text/html"
-        }
+        headers = {"Content-Type": "text/html"}
 
         try:
 
@@ -216,7 +207,7 @@ class TemplateHandler:
 
             self.base_url = self.auth.get_base_url(req)
 
-            self.app.log.debug('Base URL: ' + self.base_url)
+            self.app.log.debug("Base URL: " + self.base_url)
 
             if self.is_real():
 
@@ -224,17 +215,17 @@ class TemplateHandler:
 
                 logged_in = self.auth.try_login(req)
 
-                self.app.log.debug('Not localhost')
+                self.app.log.debug("Not localhost")
             else:
                 logged_in = True
                 root_path = ""
                 data["name"] = "[User]"
 
-                self.app.log.debug('Is localhost')
+                self.app.log.debug("Is localhost")
 
             asset_path = f"{root_path}/assets"
 
-            if template_file == 'logged_out.html':
+            if template_file == "logged_out.html":
 
                 logged_in = False
                 headers["Set-Cookie"] = self.auth.generate_logout_header_val()
@@ -251,7 +242,7 @@ class TemplateHandler:
 
                 has_access = True
                 if len(check_access) > 0:
-                    user = self.auth.get_user_record(login_data['email'])
+                    user = self.auth.get_user_record(login_data["email"])
                     for item in check_access:
                         item_access = item.user_has_access(user)
                         if not item_access:
@@ -262,19 +253,21 @@ class TemplateHandler:
                 if has_access:
                     data.update(login_data)
 
-                    self.app.log.debug('template data: '+str(data))
+                    self.app.log.debug("template data: " + str(data))
 
                     if self.auth.cookie is not None:
                         headers["Set-Cookie"] = self.auth.cookie
 
                     # Set redirect header
-                    if (redirect_status["action"] == "redirect"):
+                    if redirect_status["action"] == "redirect":
                         # Redirect based on cookie
                         target = redirect_status["target"]
                         self.app.log.debug(f"Redirect to target: {target}")
                         status_code = 302
                         headers["Location"] = root_path + target
-                    elif "default_redirect" in data and data["default_redirect"] != route:
+                    elif (
+                        "default_redirect" in data and data["default_redirect"] != route
+                    ):
                         # Redirect to default after login target
                         target = data["default_redirect"]
                         self.app.log.debug(f"Redirect to target: {target}")
@@ -282,27 +275,24 @@ class TemplateHandler:
                         headers["Location"] = root_path + target
 
                     # Unset redirect cookie
-                    if (redirect_status["action"] == "complete"):
+                    if redirect_status["action"] == "complete":
                         self.app.log.debug("Redirection made - deleting cookie")
                         expiration = datetime.datetime.now()
-                        headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", "", expiration)
+                        headers["Set-Cookie"] = self.auth.create_set_cookie_header(
+                            "login_redirect", "", expiration
+                        )
 
                     data["logout_url"] = f"{root_path}/logout"
                     data["menu"] = self.get_menu(root_path)
                 else:
-                    template_file = 'denied.html'
+                    template_file = "denied.html"
 
-                    data = {
-                        "refused": {
-                            "type": "team",
-                            "item": refused
-                        }
-                    }
+                    data = {"refused": {"type": "team", "item": refused}}
 
             # Check for successful auth but non-registered user
-            elif login_data['authenticated'] and not login_data['is_registered']:
+            elif login_data["authenticated"] and not login_data["is_registered"]:
 
-                template_file = 'request_access.html'
+                template_file = "request_access.html"
 
                 status_code = 403
 
@@ -310,81 +300,80 @@ class TemplateHandler:
             else:
                 # Try loading the template matching the route name
                 route_template = self.get_template(f"{route}.html")
-                if ((route in self.logged_out_routes)
-                        and (route_template is not None)):
+                if (route in self.logged_out_routes) and (route_template is not None):
                     template_file = f"{route}.html"
                 else:
                     # Fallback on the logged_out template
-                    template_file = 'logged_out.html'
+                    template_file = "logged_out.html"
 
                 # Redirect to access denied for login
                 if route not in self.logged_out_routes:
                     status_code = 302
                     headers["Location"] = self.base_url + "/denied"
                     # Return user to requested route after login
-                    self.app.log.debug("Not logged in - add login redirect cookie to target: "+route)
+                    self.app.log.debug(
+                        "Not logged in - add login redirect cookie to target: " + route
+                    )
                     expiration = self.auth.get_default_cookie_expiration()
-                    headers["Set-Cookie"] = self.auth.create_set_cookie_header("login_redirect", route, expiration)
+                    headers["Set-Cookie"] = self.auth.create_set_cookie_header(
+                        "login_redirect", route, expiration
+                    )
 
             # Always populate login link in template data
             login_url = self.auth.get_auth_url(self.base_url + route)
 
             # Add the redirect path to the template data so
             # you can tell the user they're being redirected
-            if (redirect_status["action"] == "notify"):
+            if redirect_status["action"] == "notify":
                 data["login_redirect"] = redirect_status["target"]
-                
+
             data["login_url"] = login_url
             data["asset_path"] = asset_path
             data["base_path"] = root_path
 
             # Don't populate back link if it links to the current page.
             # For forms which post to themselves
-            if "referer" in req.headers and req.headers['referer'] != (self.base_url + route):
-                self.app.log.debug("Backlink: " + req.headers['referer'] + " <> " + route)
-                data["back_link"] = req.headers['referer']
+            if "referer" in req.headers and req.headers["referer"] != (
+                self.base_url + route
+            ):
+                self.app.log.debug(
+                    "Backlink: " + req.headers["referer"] + " <> " + route
+                )
+                data["back_link"] = req.headers["referer"]
 
             response_body = self.render_template(template_file, data)
 
         except Exception as err:
             response_body = "Error text: {0}".format(err)
 
-        return {
-            "headers": headers,
-            "body": response_body,
-            "status_code": status_code
-        }
+        return {"headers": headers, "body": response_body, "status_code": status_code}
 
     def get_root_path(self):
         if self.is_real():
             root_path = "/app"
         else:
             root_path = ""
-            self.app.log.debug('Is localhost')
+            self.app.log.debug("Is localhost")
 
         return root_path
 
-    def default_server_error(self, req, status_code=200, message="Something went wrong."):
+    def default_server_error(
+        self, req, status_code=200, message="Something went wrong."
+    ):
         try:
             self.base_url = self.auth.get_base_url(req)
 
-            self.app.log.debug('Base URL: ' + self.base_url)
+            self.app.log.debug("Base URL: " + self.base_url)
 
             template_file = "server_error.html"
-            headers = {
-                "Content-Type": "text/html"
-            }
+            headers = {"Content-Type": "text/html"}
             root_path = self.get_root_path()
             data = {
                 "message": message,
                 "base_path": root_path,
-                "asset_path": f"{root_path}/assets"
+                "asset_path": f"{root_path}/assets",
             }
             response_body = self.render_template(template_file, data)
         except Exception as error:
             response_body = str(error)
-        return {
-            "headers": headers,
-            "body": response_body,
-            "status_code": status_code
-        }
+        return {"headers": headers, "body": response_body, "status_code": status_code}

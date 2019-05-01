@@ -3,7 +3,8 @@ from chalicelib.criteria.aws_support_elb_security_groups import (
     ELBSecurityGroupsRed,
 )
 from tests.chalicelib.criteria.test_criteria_default import (
-    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+    CriteriaSubclassTestCaseMixin,
+    TestCaseWithAttrAssert,
 )
 from tests.chalicelib.criteria.test_data import ELB_SECURITY_GROUPS
 
@@ -25,7 +26,9 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
         test that the client support the correct API method
         """
         # TODO: dynamically importing dependancies from the file tested
-        self.assertIn('describe_trusted_advisor_check_result', dir(self.subclass.client))
+        self.assertIn(
+            "describe_trusted_advisor_check_result", dir(self.subclass.client)
+        )
 
     def test_get_data(self):
         """
@@ -33,15 +36,24 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
         for key in ELB_SECURITY_GROUPS:
             with self.subTest(key=key):
                 # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-                self.subclass.client.describe_trusted_advisor_check_result = \
-                    lambda session, checkId, language: ELB_SECURITY_GROUPS[key]
+                self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: ELB_SECURITY_GROUPS[
+                    key
+                ]
                 # output value
-                item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
+                item = self.subclass.get_data(
+                    None,
+                    checkId=self.subclass.check_id,
+                    language=self.subclass.language,
+                )
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
-                if key != 'no_elb':
-                    self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
+                if key != "no_elb":
+                    self.assertGreater(
+                        len(item),
+                        0,
+                        msg="data must be a list with at least one element",
+                    )
 
     ###
     # Test the three outputs below for pass/inapplicability,
@@ -55,7 +67,7 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_SECURITY_GROUPS['no_elb']['flaggedResources']:
+        for item in ELB_SECURITY_GROUPS["no_elb"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -67,7 +79,7 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_SECURITY_GROUPS['green']['flaggedResources']:
+        for item in ELB_SECURITY_GROUPS["green"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -79,14 +91,13 @@ class TestELBSecurityGroupsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_SECURITY_GROUPS['yellow']['flaggedResources']:
+        for item in ELB_SECURITY_GROUPS["yellow"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
 
 class TestELBSecurityGroupsYellow(TestELBSecurityGroupsMixin, TestCaseWithAttrAssert):
-
     def setUp(self):
         """
         """
@@ -100,14 +111,13 @@ class TestELBSecurityGroupsYellow(TestELBSecurityGroupsMixin, TestCaseWithAttrAs
         # input params
         event = {}
         whitelist = []
-        for item in ELB_SECURITY_GROUPS['yellow']['flaggedResources']:
+        for item in ELB_SECURITY_GROUPS["yellow"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
 class TestELBSecurityGroupsRed(TestELBSecurityGroupsMixin, TestCaseWithAttrAssert):
-
     def setUp(self):
         """
         No data to emulate the red check's failure
