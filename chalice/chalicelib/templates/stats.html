@@ -160,7 +160,7 @@
                          order="null"
                     >
                         <table class="govuk-table">
-                            <caption class="govuk-table__caption"></caption>
+                            <caption class="govuk-table__caption">Failure rate change</caption>
                             <thead class="govuk-table__head">
                                 <tr class="govuk-table__row">
                                     <th class="govuk-table__header">Date</th>
@@ -173,6 +173,72 @@
                                     <th class="govuk-table__header">{{ delta.audit_date }}</th>
                                     <td class="govuk-table__cell govuk-table__cell--numeric">
                                         {{ (delta.avg_percent_fails_delta * 100) | round(1, 'floor') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="chart-wrapper"
+                         type="area"
+                         series="cols"
+                         x-axis="Time"
+                         y-axis="Percentage"
+                         above="false"
+                         ismultiple="false"
+                         order="null"
+                    >
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption">Average failure rate per account</caption>
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">Date</th>
+                                    <th class="govuk-table__header govuk-table__header--numeric">Percent</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for summary in daily.summary %}
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">{{ summary.audit_date }}</th>
+                                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                                        {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'floor') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="chart-wrapper"
+                         type="area"
+                         series="cols"
+                         x-axis="Time"
+                         y-axis="Percentage"
+                         above="false"
+                         ismultiple="false"
+                         order="null"
+                    >
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption">Coverage of AWS accounts</caption>
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">Date</th>
+                                    <th class="govuk-table__header govuk-table__header--numeric">Percent</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for summary in daily.summary %}
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">{{ summary.audit_date }}</th>
+                                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                                        {{ (summary.percent_accounts_audited * 100) | round(1, 'floor') }}
                                     </td>
                                 </tr>
                                 {% endfor %}
