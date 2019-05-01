@@ -84,7 +84,6 @@ gulp.task("environment.settings", function() {
     )
     .pipe(
       data(function(file) {
-        // Ask user for an AWS SSH key pair name that exists in the target region.
         var name = "ssh_key_name";
         var prompt = "Please enter the name of an existing AWS ssh key pair:";
         return helpers.promptInputPromise(name, prompt, file);
@@ -92,10 +91,9 @@ gulp.task("environment.settings", function() {
     )
     .pipe(
       data(function(file) {
-        // Ask the path to the public ssh key described above
-
         var name = "ssh_public_key_path";
-        var prompt = "Please enter the path to the ssh public key file:";
+        var prompt =
+          "Please enter the local path to the public key file for the previous AWS key pair:";
         return helpers.promptInputPromise(name, prompt, file);
       })
     )
