@@ -1,11 +1,13 @@
 from selenium import webdriver
+import os
 import requests
 
 
 def before_all(context):
     context.api_session = requests.Session()
-
-    context.browser = webdriver.Firefox()
+    options = webdriver.FirefoxOptions()
+    options.headless = os.environ['CSW_E2E_HEADLESS']
+    context.browser = webdriver.Firefox(options=options)
 
 
 def after_all(context):

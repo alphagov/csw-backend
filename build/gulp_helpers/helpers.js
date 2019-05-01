@@ -7,6 +7,29 @@ const os = require('os');
 
 var helpers = {
 
+    parseBooleanArgument: function(value) {
+        let parsed = false;
+        if (typeof value == 'string') {
+            value = value.toLowerCase();
+        }
+        switch(value) {
+            case 1:
+            case "true":
+            case "t": {
+                parsed = true;
+            } break;
+            case 0:
+            case "false":
+            case "f": {
+                parsed = false;
+            } break;
+            default: {
+                parsed = value;
+            } break;
+        }
+        return parsed
+    },
+
     getRootPath: function() {
 
         var root_path = __dirname;

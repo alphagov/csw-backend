@@ -18,7 +18,11 @@ gulp.task('environment.test_setup', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
   var user = (args.user == undefined)?'user':args.user;
+  var headless = (args.headless == undefined)
+      ? true // default to headless if argument not specified
+      : helpers.parseBooleanArgument(args.headless);
   process.env.CSW_USER = user;
+  process.env.CSW_E2E_HEADLESS = headless;
 
   var config = helpers.getConfigLocations(env, tool);
   console.log(config.files.chalice_deployed)
