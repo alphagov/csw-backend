@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -x
 
 current_hostname = `hostname`
 
@@ -15,8 +15,7 @@ fi
 # Patch server - do this every time
 
 sudo apt update
-# sudo apt upgrade -y
-
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --force-yes
 
 # Install pyenv
 
