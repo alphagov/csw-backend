@@ -148,7 +148,39 @@
           </section>
           <section class="govuk-tabs__panel" id="daily">
             <h2 class="govuk-heading-m">Daily</h2>
-
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="chart-wrapper"
+                         type="line"
+                         series="cols"
+                         x-axis="Time"
+                         y-axis="Change"
+                         above="false"
+                         ismultiple="false"
+                         order="null"
+                    >
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption"></caption>
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">Date</th>
+                                    <th class="govuk-table__header govuk-table__header--numeric">Percent changed</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                                {% for delta in daily.delta %}
+                                <tr class="govuk-table__row">
+                                    <th class="govuk-table__header">{{ delta.audit_date }}</th>
+                                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                                        {{ (delta.avg_percent_fails_delta * 100) | round(1, 'floor') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
           </section>
           <section class="govuk-tabs__panel" id="monthly">
             <h2 class="govuk-heading-m">Monthly</h2>
