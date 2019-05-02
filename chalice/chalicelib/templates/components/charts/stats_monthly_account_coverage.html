@@ -1,0 +1,29 @@
+<div class="chart-wrapper"
+     type="line"
+     series="cols"
+     x-axis="Year/Month"
+     y-axis="Percentage"
+     above="false"
+     ismultiple="false"
+     order="null"
+>
+    <table class="govuk-table">
+        <caption class="govuk-table__caption">Coverage of AWS accounts</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">Year/Month</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Percent</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for summary in monthly.summary %}
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">{{ summary.audit_year }}-{{ summary.audit_month }}</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (summary.percent_accounts_audited * 100) | round(1, 'floor') }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
