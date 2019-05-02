@@ -72,64 +72,6 @@ gulp.task('environment.database_create', function() {
 
 });
 
-gulp.task('environment.database_create_tables', function() {
-
-  var env = (args.env == undefined)?'test':args.env;
-  var tool = (args.tool == undefined)?'csw':args.tool;
-
-  var config = helpers.getConfigLocations(env, tool);
-
-  // Load default chalice config file
-
-  var pipeline = gulp.src(config.files.environment_settings)
-  // Read settings into file.data
-  .pipe(modifyFile(function(content, path, file) {
-    var settings = JSON.parse(content);
-    file.data = settings;
-    return content;
-  }))
-  .pipe(data(function(file) {
-
-    var payload = {
-        "Tables":[
-            "User",
-            "UserSession",
-            "ProductTeam",
-            "AccountSubscription",
-            "AccountAudit",
-            "AccountLatestAudit",
-            "Status",
-            "Severity",
-            "CriteriaProvider",
-            "Criterion",
-            "CriterionParams",
-            "AuditCriterion",
-            "AuditResource",
-            "ResourceCompliance",
-            "ResourceRiskAssessment"
-        ]
-    };
-
-    var function_name = "csw-"+env+"-database_create_tables";
-    var output_file = config.paths.environment + "/lambda.out"
-    var working = config.paths.environment;
-
-    return helpers.lambdaInvokePromise(function_name, working, payload, file, output_file);
-
-  }))
-  .pipe(data(function(file) {
-
-    var file = config.paths.environment + "/lambda.out"
-    output = JSON.parse(fs.readFileSync(file));
-    console.log(output);
-
-  }));
-
-  return pipeline;
-
-
-});
-
 gulp.task('environment.database_switch_config', function() {
   var env = (args.env == undefined)?'test':args.env;
   var tool = (args.tool == undefined)?'csw':args.tool;
@@ -348,6 +290,5 @@ gulp.task('environment.database_define_criteria', function() {
 
 gulp.task('environment.database_build', gulp.series(
     'environment.database_create',
-    //'environment.database_create_tables',
     'environment.database_migrate'
 ));
