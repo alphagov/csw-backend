@@ -142,51 +142,59 @@ gulp.task('environment.database_run_migrations', function() {
         }
 
         file.data.database = {};
+        let scriptList = [];
         output.forEach(function(row) {
             type = row[0];
-            current_level = row[1];
-            file.data.database[type] = current_level;
+            currentLevel = row[1];
+            file.data.database[type] = currentLevel;
+            let sqlPath = config.paths.root + "/build/sql/"+type;
+            if (fs.existsSync(sqlPath)) {
 
-            (function(promise, type, current_level) {
-                var sqlPath;
-                sqlPath = config.paths.root + "/build/sql/"+type;
+                let items = fs.readdirSync(sqlPath);
 
-                if (fs.existsSync(sqlPath)) {
-                    fs.readdir(sqlPath, function(err, items) {
-                        items.reduce(function(previousPromise, item) {
-                            var index;
-                            index = parseInt(item.replace(/\.sql/,''));
-                            if (index > current_level) {
-                                return previousPromise.then(function() {
-                                    var scriptPath;
-                                    scriptPath = sqlPath + "/" + item;
-                                    return helpers.psqlExecuteScriptInPipelinePromise(
-                                        path,
-                                        scriptPath,
-                                        file,
-                                        'cloud_sec_watch',
-                                        file.data.postgres_user_password,
-                                        'csw'
-                                    );
-                                }).then(function() {
-                                    var command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+type+"'";
-                                    return helpers.psqlExecuteInPipelinePromise(
-                                        path,
-                                        command,
-                                        file,
-                                        'cloud_sec_watch',
-                                        file.data.postgres_user_password,
-                                        'csw'
-                                    );
-                                });
-                            } else {
-                                return previousPromise;
-                            }
-                        }, promise);
-                    });
-                }
-            })(promise, type, current_level);
+                items.forEach(function(item) {
+                    let index = parseInt(item.replace(/\.sql/,''));
+                    if (index > currentLevel) {
+                        let script = {
+                            type: type,
+                            script: item
+                        };
+                        scriptList.push(script);
+                    }
+                });
+            }
         });
+        return scriptList;
+    })
+    .then(function(scriptList) {
+        var promise = Promise.resolve();
+        (function(promise) {
+            scriptList.reduce(function(previousPromise, item) {
+                let sqlPath = config.paths.root + "/build/sql/"+item.type;
+                let index = parseInt(item.script.replace(/\.sql/,''));
+                return previousPromise.then(function() {
+                    let scriptPath = sqlPath + "/" + item.script;
+                    return helpers.psqlExecuteScriptInPipelinePromise(
+                        path,
+                        scriptPath,
+                        file,
+                        'cloud_sec_watch',
+                        file.data.postgres_user_password,
+                        'csw'
+                    );
+                }).then(function() {
+                    let command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+item.type+"'";
+                    return helpers.psqlExecuteInPipelinePromise(
+                        path,
+                        command,
+                        file,
+                        'cloud_sec_watch',
+                        file.data.postgres_user_password,
+                        'csw'
+                    );
+                });
+            }, promise);
+        })(promise);
     });
     return promise;
   }));
