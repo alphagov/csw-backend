@@ -1,0 +1,42 @@
+<div class="chart-wrapper"
+     type="gauge"
+     series="rows"
+     x-axis="x"
+     y-axis="y"
+     above="true"
+     ismultiple="false"
+     palette='["#b1d581","#b10e1e"]'
+>
+    <table class="govuk-table">
+        <caption class="govuk-table__caption">Average pass/fail spread</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">
+                    Status
+                </th>
+                <th class="govuk-table__header govuk-table__header--numeric">
+                    Percent
+                </th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% set summary = current.summary[0] %}
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">
+                    Pass
+                </th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ ((1-summary.avg_percent_fails_per_account) * 100) | round(1, 'floor') }}
+                </td>
+            </tr>
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">
+                    Fail
+                </th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (summary.avg_percent_fails_per_account * 100) | round(1, 'ceil') }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

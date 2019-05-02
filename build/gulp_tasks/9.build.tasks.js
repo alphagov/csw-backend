@@ -3,13 +3,17 @@
  */
 const gulp = require('gulp');
 
+gulp.task('environment.assets', gulp.series(
+    'copy.assets',
+    'sass.csw',
+    'concat.js'
+));
 // Create the settings and parameters for a new environment
 gulp.task('environment.setup', gulp.series(
     'environment.settings',
     'environment.params',
     'environment.tfvars',
-    'copy.assets',
-    'sass.csw'
+    'environment.assets'
 ));
 
 // Load settings for an existing environment into your clone
@@ -19,8 +23,7 @@ gulp.task('environment.load', gulp.series(
     'environment.terraform_init',
     'environment.terraform_output',
     'environment.chalice_config',
-    'copy.assets',
-    'sass.csw'
+    'environment.assets'
 ));
 
 // Build a new environment from scratch
@@ -41,8 +44,7 @@ gulp.task('environment.infrastructure', gulp.series(
 
 // Separate
 gulp.task('environment.redeploy', gulp.series(
-    'copy.assets',
-    'sass.csw',
+    'environment.assets',
     'environment.database_migrate',
     'environment.chalice_s3_deploy',
     'environment.database_define_criteria'

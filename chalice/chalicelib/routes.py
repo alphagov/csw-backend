@@ -18,6 +18,13 @@ def index():
     return Response(**app.templates.render_authorized_template('logged_in.html', app.current_request))
 
 
+@app.route('/cookies')
+def index():
+    load_route_services()
+    app.log.debug('INDEX CONTEXT = ' + str(app.lambda_context))
+    return Response(**app.templates.render_authorized_template('cookies.html', app.current_request))
+
+
 @app.route('/denied')
 def index():
     load_route_services()
@@ -946,18 +953,84 @@ def logout():
     return Response(**app.templates.render_authorized_template('logged_out.html', app.current_request))
 
 
-@app.route('/audit')
-def audit_list():
+# These were originally test routes which should no longer be available
+# @app.route('/audit')
+# def audit_list():
+#     load_route_services()
+#     # TODO: Base template needs anchor to this route
+#     return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
+#
+#
+# @app.route('/audit/{id}')
+# def audit_report(id):
+#     load_route_services()
+#     return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
+
+
+@app.route('/statistics')
+def statistics_route():
     load_route_services()
-    # TODO: Base template needs anchor to this route
-    return Response(**app.templates.render_authorized_template('audit_list.html', app.current_request))
+    try:
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
 
+        template_data = {}
+        template_data['current'] = {}
+        current_summary = models.CurrentSummaryStats.select()
+        template_data['current']['summary'] = models.CurrentSummaryStats.serialize_list(current_summary)
+        current_accounts = models.CurrentAccountStats.select()
+        template_data['current']['account'] = models.CurrentAccountStats.serialize_list(current_accounts)
+        template_data['daily'] = {}
+        daily_summary = (models.DailySummaryStats
+            .select()
+            .where(models.DailySummaryStats.audit_date > days_ago)
+            .order_by(models.DailySummaryStats.audit_date.desc())
+        )
+        template_data['daily']['summary'] = models.DailySummaryStats.serialize_list(daily_summary)
+        daily_deltas = (models.DailyDeltaStats
+            .select()
+            .where(models.DailyDeltaStats.audit_date > days_ago)
+            .order_by(models.DailyDeltaStats.audit_date.desc())
+        )
+        template_data['daily']['deltas'] = models.DailyDeltaStats.serialize_list(daily_deltas)
 
-@app.route('/audit/{id}')
-def audit_report(id):
-    load_route_services()
-    return Response(**app.templates.render_authorized_template('audit.html', app.current_request))
+        template_data['monthly'] = {}
+        monthly_summary = (models.MonthlySummaryStats
+            .select()
+            .order_by(
+                models.MonthlySummaryStats.audit_year.desc(),
+                models.MonthlySummaryStats.audit_month.desc()
+            )
+        )
+        template_data['monthly']['summary'] = models.MonthlySummaryStats.serialize_list(monthly_summary)
+        monthly_deltas = (models.MonthlyDeltaStats
+            .select()
+            .order_by(
+                models.MonthlyDeltaStats.audit_year.desc(),
+                models.MonthlyDeltaStats.audit_month.desc()
+            )
+        )
+        template_data['monthly']['delta'] =  models.MonthlyDeltaStats.serialize_list(monthly_deltas)
 
+        response = app.templates.render_authorized_template(
+            'stats.html',
+            app.current_request,
+            template_data
+        )
+        # data = app.utilities.to_json(template_data, True)
+        # response = app.templates.render_authorized_template(
+        #     'debug.html',
+        #     app.current_request,
+        #     {
+        #         "json": data
+        #     }
+        # )
+
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
 
 # ASSET RENDERERS
 # TODO This doesn't work for binary file types

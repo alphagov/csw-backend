@@ -2,16 +2,19 @@ from behave import given, when, then
 import time
 import os
 
+
 @when('you navigate to CSW homepage')
 def step(context):
     url = os.environ['CSW_URL']
     context.browser.get(url)
+
 
 @when('you navigate to CSW page "{path}"')
 def step(context, path):
     url = os.environ['CSW_URL'] + path
     print(url)
     context.browser.get(url)
+
 
 @when('you login to CSW')
 def step(context):
@@ -27,11 +30,13 @@ def step(context):
     # context.api_session.headers.update({'x-test': 'true'})
     print(response)
 
+
 @then('the content of element with selector "{selector}" equals "{title}"')
 def step(context, selector, title):
     elem = context.browser.find_element_by_css_selector(selector).text
     print(elem)
     assert elem == title
+
 
 @given('the credentials')
 def step(context):
@@ -51,10 +56,15 @@ def step(context, url):
     }
     url = url + '?client='+creds['client']+'&secret='+creds['secret']+'&email='+creds['email']
     response = context.browser.get(url)
-
-    #context.api_session.headers.update({'x-test': 'true'})
     print(response)
+
 
 @then('wait "{seconds}" seconds')
 def step(context, seconds):
     time.sleep(int(seconds))
+
+
+@then('we have a session cookie')
+def step(context):
+    cookie = context.browser.get_cookie("session")
+    assert cookie is not None

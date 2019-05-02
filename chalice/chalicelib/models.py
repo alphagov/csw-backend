@@ -1008,6 +1008,103 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
             "date_expires": default_expiry
         }
 
+
+class CurrentAccountStats(database_handle.BaseModel):
+    audit_date = peewee.DateField(primary_key=True)
+    account_id = peewee.ForeignKeyField(AccountSubscription, field='account_id', backref='current_stats')
+    resources  = peewee.IntegerField()
+    failed     = peewee.IntegerField()
+    ratio      = peewee.FloatField()
+
+    class Meta:
+        table_name = "_current_account_stats"
+
+
+class CurrentSummaryStats(database_handle.BaseModel):
+    total_resources = peewee.FloatField()
+    total_failures = peewee.FloatField()
+    avg_resources_per_account = peewee.FloatField()
+    avg_fails_per_account = peewee.FloatField()
+    avg_percent_fails_per_account = peewee.FloatField()
+    accounts_audited = peewee.IntegerField()
+    percent_accounts_audited = peewee.FloatField()
+
+    class Meta:
+        table_name = "_current_summary_stats"
+        primary_key = peewee.CompositeKey('avg_resources_per_account','avg_fails_per_account','accounts_audited')
+
+
+class DailyAccountStats(database_handle.BaseModel):
+    audit_date = peewee.DateField(primary_key=True)
+    account_id = peewee.ForeignKeyField(AccountSubscription,
+                                        field='account_id',
+                                        backref='current_stats')
+    resources  = peewee.IntegerField()
+    failed     = peewee.IntegerField()
+    ratio      = peewee.FloatField()
+
+    class Meta:
+        table_name = "_daily_account_stats"
+
+
+class DailySummaryStats(database_handle.BaseModel):
+    audit_date = peewee.DateField(primary_key=True)
+    total_resources = peewee.FloatField()
+    total_failures = peewee.FloatField()
+    avg_resources_per_account = peewee.FloatField()
+    avg_fails_per_account = peewee.FloatField()
+    avg_percent_fails_per_account = peewee.FloatField()
+    accounts_audited = peewee.IntegerField()
+    percent_accounts_audited = peewee.FloatField()
+
+    class Meta:
+        table_name = "_daily_summary_stats"
+
+
+class DailyDeltaStats(database_handle.BaseModel):
+    audit_date = peewee.DateField(primary_key=True)
+    resources_delta = peewee.FloatField()
+    failures_delta = peewee.FloatField()
+    avg_resources_delta = peewee.FloatField()
+    avg_fails_delta = peewee.FloatField()
+    avg_percent_fails_delta = peewee.FloatField()
+    accounts_audited_delta = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_daily_delta_stats"
+
+
+class MonthlySummaryStats(database_handle.BaseModel):
+    audit_year = peewee.IntegerField()
+    audit_month = peewee.IntegerField()
+    total_resources = peewee.FloatField()
+    total_failures = peewee.FloatField()
+    avg_resources_per_account = peewee.FloatField()
+    avg_fails_per_account = peewee.FloatField()
+    avg_percent_fails_per_account = peewee.FloatField()
+    accounts_audited = peewee.IntegerField()
+    percent_accounts_audited = peewee.FloatField()
+
+    class Meta:
+        table_name = "_monthly_summary_stats"
+        primary_key = peewee.CompositeKey('audit_year','audit_month')
+
+
+class MonthlyDeltaStats(database_handle.BaseModel):
+    audit_year = peewee.IntegerField()
+    audit_month = peewee.IntegerField()
+    resources_delta = peewee.FloatField()
+    failures_delta = peewee.FloatField()
+    avg_resources_delta = peewee.FloatField()
+    avg_fails_delta = peewee.FloatField()
+    avg_percent_fails_delta = peewee.FloatField()
+    accounts_audited_delta = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_monthly_delta_stats"
+        primary_key = peewee.CompositeKey('audit_year', 'audit_month')
+
+
 '''
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
 '''

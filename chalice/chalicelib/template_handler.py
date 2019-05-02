@@ -333,7 +333,8 @@ class TemplateHandler:
             # you can tell the user they're being redirected
             if (redirect_status["action"] == "notify"):
                 data["login_redirect"] = redirect_status["target"]
-                
+
+            data["route"] = route
             data["login_url"] = login_url
             data["asset_path"] = asset_path
             data["base_path"] = root_path

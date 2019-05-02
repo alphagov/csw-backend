@@ -187,6 +187,7 @@ def database_add_new_criteria(event, context):
     # try:
     dbh = DatabaseHandle(app)
     for criterion in criteria_finder():
+        app.log.debug(f"Updating criterion: {criterion}")
         dbh.create_or_update_criterion({'criterion_name': criterion})
     # except Exception as err:
     #     app.log.error(str(err))
