@@ -7,6 +7,7 @@ import google_auth_oauthlib.flow
 from chalicelib.aws.gds_ssm_client import GdsSsmClient
 from chalicelib import models
 
+
 class AuthHandler:
     """
     Implements Google OAuth flow
@@ -35,11 +36,11 @@ class AuthHandler:
         # JWT encryption
         self.flow = None
 
-        self.token_algorithm = 'HS256'
+        self.token_algorithm = "HS256"
 
         self.scopes = [
             "https://www.googleapis.com/auth/userinfo.profile",
-            "https://www.googleapis.com/auth/userinfo.email"
+            "https://www.googleapis.com/auth/userinfo.email",
         ]
 
         # TODO move to param store
@@ -48,10 +49,7 @@ class AuthHandler:
         # Assume logged in status is false until tested
         self.cookie = None
         self.logged_in = False
-        self.login_data = {
-            'authenticated': False,
-            'is_registered': False
-        }
+        self.login_data = {"authenticated": False, "is_registered": False}
         self.after_oauth_path = ""
 
     def get_params(self):
@@ -59,13 +57,13 @@ class AuthHandler:
         Retrieve the secrets from SSM.
         """
 
-        if 'CSW_ENV' in os.environ:
+        if "CSW_ENV" in os.environ:
 
-            env = os.environ['CSW_ENV']
+            env = os.environ["CSW_ENV"]
 
             params = {
                 "client_config": f"/csw/google/api-credentials",
-                "token_secret": f"/csw/{env}/auth/token_secret"
+                "token_secret": f"/csw/{env}/auth/token_secret",
             }
 
             # Get list of SSM parameter names from dict
@@ -76,16 +74,19 @@ class AuthHandler:
             # Get all listed parameters in one API call
             parameters = ssm.get_parameters(param_list, True)
 
-            self.token_secret = ssm.get_parameter_value(parameters, params["token_secret"])
+            self.token_secret = ssm.get_parameter_value(
+                parameters, params["token_secret"]
+            )
 
             # Because the google creds are JSON they get escaped in the API response
             # and need to be parsed into a dict for use
-            google_config_param = ssm.get_parameter_value(parameters, params["client_config"])
+            google_config_param = ssm.get_parameter_value(
+                parameters, params["client_config"]
+            )
             self.client_config = ssm.parse_escaped_json_parameter(google_config_param)
 
         else:
             self.app.log.debug("Environment variable CSW_ENV missing")
-
 
     def get_ssm_parameter(self, param_name):
         """
@@ -110,7 +111,9 @@ class AuthHandler:
 
         if self.flow is None:
 
-            self.flow = google_auth_oauthlib.flow.Flow.from_client_config(self.client_config, self.scopes)
+            self.flow = google_auth_oauthlib.flow.Flow.from_client_config(
+                self.client_config, self.scopes
+            )
             self.flow.redirect_uri = url
 
         return self.flow
@@ -129,8 +132,7 @@ class AuthHandler:
         auth_flow = self.get_auth_flow(url)
 
         login_url, _ = auth_flow.authorization_url(
-            prompt="select_account",
-            hd=self.email_domain
+            prompt="select_account", hd=self.email_domain
         )
 
         return login_url
@@ -147,10 +149,10 @@ class AuthHandler:
 
         # Set default header for the case where X-Forwarded-Proto header is missing
         # Assume https
-        protocol = 'https'
-        if 'X-Forwarded-Proto' in request.headers:
-            protocol = request.headers['X-Forwarded-Proto']
-        return protocol + "://" + request.headers['Host'] + "/app"
+        protocol = "https"
+        if "X-Forwarded-Proto" in request.headers:
+            protocol = request.headers["X-Forwarded-Proto"]
+        return protocol + "://" + request.headers["Host"] + "/app"
 
     def get_user_token(self, request):
         """
@@ -193,9 +195,13 @@ class AuthHandler:
 
         user = None
 
-        if (user_jwt is not None):
+        if user_jwt is not None:
             try:
-                user = jwt.decode(user_jwt.encode(), self.token_secret, algorithms=[self.token_algorithm])
+                user = jwt.decode(
+                    user_jwt.encode(),
+                    self.token_secret,
+                    algorithms=[self.token_algorithm],
+                )
 
             except Exception as error:
                 self.app.log.error("Failed to decode session token: " + str(error))
@@ -224,10 +230,10 @@ class AuthHandler:
 
                 # Update UserSession accessed date
                 try:
-                    db_user = models.User.find_active_by_email(user['email'])
+                    db_user = models.User.find_active_by_email(user["email"])
                     models.UserSession.accessed(db_user)
                 except Exception as error:
-                    self.app.log.error("Failed to update session: "+str(error))
+                    self.app.log.error("Failed to update session: " + str(error))
 
         return user
 
@@ -240,11 +246,11 @@ class AuthHandler:
 
         domain_pattern = "\@" + self.email_domain.replace(".", "\\.") + "$"
 
-        domain_valid = bool(re.search(domain_pattern, user['email']))
+        domain_valid = bool(re.search(domain_pattern, user["email"]))
 
         # Check against User table for active user record
         try:
-            db_user = models.User.find_active_by_email(user['email'])
+            db_user = models.User.find_active_by_email(user["email"])
             user_registered = True
 
             # Create UserSession record
@@ -279,7 +285,6 @@ class AuthHandler:
         """
         return datetime.datetime.now() + self.cookie_expiration
 
-
     def generate_cookie_header_val(self, token):
         """
         Generate a session cookie with the default expiry
@@ -288,7 +293,7 @@ class AuthHandler:
         :return str:
         """
 
-        #expiration = datetime.datetime.now() + self.cookie_expiration
+        # expiration = datetime.datetime.now() + self.cookie_expiration
         expiration = self.get_default_cookie_expiration()
         return self.create_set_cookie_header("session", token, expiration)
 
@@ -303,11 +308,11 @@ class AuthHandler:
 
         # Update closed date on database UserSession
         try:
-            self.app.log.debug("Close session for user: "+self.user['email'])
-            db_user = models.User.find_active_by_email(self.user['email'])
+            self.app.log.debug("Close session for user: " + self.user["email"])
+            db_user = models.User.find_active_by_email(self.user["email"])
             models.UserSession.close(db_user)
         except Exception as error:
-            self.app.log.error("Failed to close session: "+str(error))
+            self.app.log.error("Failed to close session: " + str(error))
 
         return self.create_set_cookie_header("session", None, expiration)
 
@@ -322,7 +327,9 @@ class AuthHandler:
 
         cookie = cookies.SimpleCookie()
         cookie[cookie_name] = cookie_value
-        cookie[cookie_name]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+        cookie[cookie_name]["expires"] = expiration.strftime(
+            "%a, %d-%b-%Y %H:%M:%S PST"
+        )
         cookie[cookie_name]["path"] = "/"
 
         # Workaround the fact that cookie.output returns a string like: 'Set-Cookie: session=650406237; etc..'
@@ -342,13 +349,15 @@ class AuthHandler:
 
         self.session = flow.authorized_session()
 
-        self.user = self.session.get('https://www.googleapis.com/userinfo/v2/me').json()
+        self.user = self.session.get("https://www.googleapis.com/userinfo/v2/me").json()
 
         return self.user
 
     def get_jwt(self, user):
 
-        user_jwt = jwt.encode(user, self.token_secret, algorithm=self.token_algorithm).decode('utf-8')
+        user_jwt = jwt.encode(
+            user, self.token_secret, algorithm=self.token_algorithm
+        ).decode("utf-8")
         return user_jwt
 
     def try_login(self, req):
@@ -358,10 +367,7 @@ class AuthHandler:
         # Or by a response code QS variable from a Google OAuth request
 
         self.logged_in = False
-        self.login_data = {
-            'authenticated': False,
-            'is_registered': False
-        }
+        self.login_data = {"authenticated": False, "is_registered": False}
 
         try:
 
@@ -373,8 +379,8 @@ class AuthHandler:
 
                 self.token = self.get_user_token(req)
                 self.logged_in = True
-                self.login_data['authenticated'] = True
-                self.login_data['is_registered'] = True
+                self.login_data["authenticated"] = True
+                self.login_data["is_registered"] = True
                 self.login_data.update(self.user)
 
             else:
@@ -388,18 +394,18 @@ class AuthHandler:
                     self.user = self.get_user_from_code(url, code)
 
                     # Explicitly set authenticated property
-                    self.login_data['authenticated'] = bool(self.user is not None)
+                    self.login_data["authenticated"] = bool(self.user is not None)
 
                     # Make sure the email Google OAuthed is on the correct domain
                     # This is a secondary protection as the Cloud Console credentials
-                    if self.login_data['authenticated']:
+                    if self.login_data["authenticated"]:
                         # Copy auth result into login_data
                         self.login_data.update(self.user)
                         # Check that the user has an active account in CSW
-                        self.login_data['is_registered'] = self.is_valid_user(self.user)
+                        self.login_data["is_registered"] = self.is_valid_user(self.user)
 
                     # If both authenticated and registered then log them in.
-                    if self.login_data['is_registered']:
+                    if self.login_data["is_registered"]:
 
                         self.user_jwt = self.get_jwt(self.user)
 
@@ -415,7 +421,6 @@ class AuthHandler:
                 # self.login_data.update(self.user)
                 self.login_data["cookie"] = self.cookie
                 self.login_data["token"] = self.token
-
 
         except Exception as err:
 

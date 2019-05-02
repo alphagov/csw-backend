@@ -11,33 +11,27 @@ class GdsSsmClient(GdsAwsClient):
     # --queue-name < value >
     def get_parameter(self, parameter, decrypt):
 
-        ssm = self.get_default_client('ssm')
-        
-        response = ssm.get_parameter(
-            Name=parameter,
-            WithDecryption=decrypt
-        )
-        param = response['Parameter']
+        ssm = self.get_default_client("ssm")
+
+        response = ssm.get_parameter(Name=parameter, WithDecryption=decrypt)
+        param = response["Parameter"]
 
         return param
 
     def get_parameters(self, parameters, decrypt):
 
-        ssm = self.get_default_client('ssm')
-        
-        response = ssm.get_parameters(
-            Names=parameters,
-            WithDecryption=decrypt
-        )
-        params = response['Parameters']
+        ssm = self.get_default_client("ssm")
+
+        response = ssm.get_parameters(Names=parameters, WithDecryption=decrypt)
+        params = response["Parameters"]
 
         return params
 
     def parse_escaped_json_parameter(self, value):
-        parsed = json.loads(value.replace('\\', ''))
+        parsed = json.loads(value.replace("\\", ""))
         return parsed
 
-    def get_parameter_value(self, params, name): 
+    def get_parameter_value(self, params, name):
 
         value = None
 

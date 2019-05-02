@@ -31,10 +31,10 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         "Enable flow logs in your VPCs. Flow logs can publish flow log data to Amazon S3 or to CloudWatch logs. "
         "Depends on your choice, see the following AWS documentation: <br />"
         "Publishing Flow Logs to CloudWatch Logs: "
-        "<a href=\"https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log\">"
+        '<a href="https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log">'
         "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html#flow-logs-cwl-create-flow-log</a><br />"
         "Publishing Flow Logs to Amazon S3: "
-        "<a href=\"https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log\">"
+        '<a href="https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log">'
         "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-s3.html#flow-logs-s3-create-flow-log</a>"
     )
 
@@ -45,7 +45,9 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
 
         self.app.log.debug("Got VPCs, iterating over them to get flow log data")
         for vpc in vpcs:
-            vpc["FlowLog"] = self.client.describe_flow_logs(session, vpc, params["region"])
+            vpc["FlowLog"] = self.client.describe_flow_logs(
+                session, vpc, params["region"]
+            )
 
         self.app.log.debug("Got all the flow log data")
         return vpcs
@@ -63,10 +65,7 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         else:
             name = ""
 
-        item = {
-            "resource_id": data.get("VpcId", ""),
-            "resource_name": name
-        }
+        item = {"resource_id": data.get("VpcId", ""), "resource_name": name}
         return item
 
     def evaluate(self, event, vpc, whitelist=[]):
@@ -77,15 +76,11 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
         else:  # If the FlowLog key has anything in it, it means that the flow log exists
             compliance_type = "COMPLIANT"
             # Remove any previous annotation if instance is reused
-            self.annotation = ''
+            self.annotation = ""
             log_string = "VPC has a flow log"
 
         evaluation = self.build_evaluation(
-            vpc["VpcId"],
-            compliance_type,
-            event,
-            self.resource_type,
-            self.annotation
+            vpc["VpcId"], compliance_type, event, self.resource_type, self.annotation
         )
 
         self.app.log.debug(log_string)

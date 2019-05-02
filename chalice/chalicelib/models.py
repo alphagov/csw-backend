@@ -1,6 +1,7 @@
 import datetime
 
 import peewee
+
 # peewee has a validator library but it has a max version of 3.1
 # this would mean downgrading our peewee version.
 # essentially it provides some simple validators and then
@@ -19,6 +20,7 @@ class User(database_handle.BaseModel):
     that domain.
     Only people in this table (and marked active) should be allowed to login.
     """
+
     email = peewee.CharField(unique=True)
     name = peewee.CharField()
     active = peewee.BooleanField()
@@ -46,7 +48,7 @@ class User(database_handle.BaseModel):
         :return:
         """
         # TODO replace this with a select based on user access team roles
-        #teams = ProductTeam.select().where(ProductTeam.active == True)
+        # teams = ProductTeam.select().where(ProductTeam.active == True)
         teams = self.get_my_teams()
 
         overview_stats = {
@@ -55,23 +57,17 @@ class User(database_handle.BaseModel):
             "accounts_passed": 0,
             "accounts_failed": 0,
             "accounts_inactive": 0,
-            "issues_found": 0
+            "issues_found": 0,
         }
         team_summaries = []
         for team in teams:
             team_stats = team.get_team_stats()
-            team_data = {
-                "team": team.serialize(),
-                "summary": team_stats
-            }
+            team_data = {"team": team.serialize(), "summary": team_stats}
             for stat in overview_stats:
                 overview_stats[stat] += team_stats["all"][stat]
             team_summaries.append(team_data)
 
-        overview_data = {
-            "all": overview_stats,
-            "teams": team_summaries
-        }
+        overview_data = {"all": overview_stats, "teams": team_summaries}
         return overview_data
 
     def get_my_teams(self):
@@ -80,10 +76,11 @@ class User(database_handle.BaseModel):
         :return arr ProductTeam:
         """
         try:
-            teams = (ProductTeam
-                     .select()
-                     .join(ProductTeamUser)
-                     .where(ProductTeamUser.user_id == self.id))
+            teams = (
+                ProductTeam.select()
+                .join(ProductTeamUser)
+                .where(ProductTeamUser.user_id == self.id)
+            )
         except Exception as err:
             app.log.debug("Failed to get team list for current user: " + str(err))
             teams = []
@@ -91,44 +88,47 @@ class User(database_handle.BaseModel):
 
     def get_my_accounts(self):
         try:
-            accounts = (AccountSubscription
-                        .select()
-                        .join(ProductTeam)
-                        .join(ProductTeamUser)
-                        .where(ProductTeamUser.user_id == self.id))
+            accounts = (
+                AccountSubscription.select()
+                .join(ProductTeam)
+                .join(ProductTeamUser)
+                .where(ProductTeamUser.user_id == self.id)
+            )
         except Exception as err:
             app.log.debug("Failed to get account list for current user: " + str(err))
             accounts = []
         return accounts
 
-
     def get_my_exceptions(self):
         try:
             now = datetime.datetime.now()
-            exceptions = (ResourceException
-                        .select()
-                        .join(AccountSubscription)
-                        .join(ProductTeam)
-                        .join(ProductTeamUser)
-                        .where(
-                            ProductTeamUser.user_id == self.id,
-                            ResourceException.date_expires > now
-                        )
-                        .order_by(
-                            ProductTeam.team_name,
-                            AccountSubscription.account_name,
-                            ResourceException.criterion_id
-                        ))
+            exceptions = (
+                ResourceException.select()
+                .join(AccountSubscription)
+                .join(ProductTeam)
+                .join(ProductTeamUser)
+                .where(
+                    ProductTeamUser.user_id == self.id,
+                    ResourceException.date_expires > now,
+                )
+                .order_by(
+                    ProductTeam.team_name,
+                    AccountSubscription.account_name,
+                    ResourceException.criterion_id,
+                )
+            )
 
             for exception in exceptions:
-                exception.audit_resource_id = (AuditResource
-                                                .select()
-                                                .where(
-                                                    AuditResource.resource_persistent_id == exception.resource_persistent_id,
-                                                    AuditResource.criterion_id == exception.criterion_id
-                                                )
-                                                .order_by(AuditResource.id.desc())
-                                                .get())
+                exception.audit_resource_id = (
+                    AuditResource.select()
+                    .where(
+                        AuditResource.resource_persistent_id
+                        == exception.resource_persistent_id,
+                        AuditResource.criterion_id == exception.criterion_id,
+                    )
+                    .order_by(AuditResource.id.desc())
+                    .get()
+                )
 
         except Exception as err:
             app.log.debug("Failed to get exception list for current user: " + str(err))
@@ -139,32 +139,32 @@ class User(database_handle.BaseModel):
     def get_my_allowlists(self):
         try:
             now = datetime.datetime.now()
-            allowed_ssh_cidrs = (AccountSshCidrAllowlist
-                        .select()
-                        .join(AccountSubscription)
-                        .join(ProductTeam)
-                        .join(ProductTeamUser)
-                        .where(
-                            ProductTeamUser.user_id == self.id,
-                            AccountSshCidrAllowlist.date_expires > now
-                        )
-                        .order_by(
-                            ProductTeam.team_name,
-                            AccountSubscription.account_name
-                        ))
+            allowed_ssh_cidrs = (
+                AccountSshCidrAllowlist.select()
+                .join(AccountSubscription)
+                .join(ProductTeam)
+                .join(ProductTeamUser)
+                .where(
+                    ProductTeamUser.user_id == self.id,
+                    AccountSshCidrAllowlist.date_expires > now,
+                )
+                .order_by(ProductTeam.team_name, AccountSubscription.account_name)
+            )
 
-            ssh_check = (Criterion
-                         .select()
-                         .where(
-                            Criterion.invoke_class_name == 'chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh'
-                         )
-                         .get())
+            ssh_check = (
+                Criterion.select()
+                .where(
+                    Criterion.invoke_class_name
+                    == "chalicelib.criteria.aws_ec2_security_group_ingress_ssh.AwsEc2SecurityGroupIngressSsh"
+                )
+                .get()
+            )
 
             allowlists = [
                 {
                     "type": "ssh_cidrs",
                     "check_id": ssh_check.id,
-                    "list": allowed_ssh_cidrs
+                    "list": allowed_ssh_cidrs,
                 }
             ]
 
@@ -174,15 +174,16 @@ class User(database_handle.BaseModel):
 
         return allowlists
 
-
     def can_access_team(self, team_id):
         try:
-            member = (ProductTeamUser
-                      .select()
-                      .where(
-                        ProductTeamUser.user_id == self.id,
-                        ProductTeamUser.team_id == team_id)
-                      .get())
+            member = (
+                ProductTeamUser.select()
+                .where(
+                    ProductTeamUser.user_id == self.id,
+                    ProductTeamUser.team_id == team_id,
+                )
+                .get()
+            )
             has_access = True
         except Exception as err:
             has_access = False
@@ -190,14 +191,16 @@ class User(database_handle.BaseModel):
 
     def can_access_account(self, account_id):
         try:
-            member = (AccountSubscription
-                      .select()
-                      .join(ProductTeam)
-                      .join(ProductTeamUser)
-                      .where(
-                        AccountSubscription.id == account_id,
-                        ProductTeamUser.user_id == self.id)
-                      .get())
+            member = (
+                AccountSubscription.select()
+                .join(ProductTeam)
+                .join(ProductTeamUser)
+                .where(
+                    AccountSubscription.id == account_id,
+                    ProductTeamUser.user_id == self.id,
+                )
+                .get()
+            )
             has_access = True
         except Exception as err:
             has_access = False
@@ -209,15 +212,15 @@ class UserSession(database_handle.BaseModel):
     UserSession records login sessions against users so we can track things
     like how often and for how long the tool is being used
     """
+
     date_opened = peewee.DateTimeField(default=datetime.datetime.now)
     date_accessed = peewee.DateTimeField(default=datetime.datetime.now)
     date_closed = peewee.DateTimeField(null=True)
 
-    user_id = peewee.ForeignKeyField(User, backref='sessions')
+    user_id = peewee.ForeignKeyField(User, backref="sessions")
 
     class Meta:
         table_name = "user_session"
-
 
     @classmethod
     def start(cls, user):
@@ -232,10 +235,7 @@ class UserSession(database_handle.BaseModel):
         now = datetime.datetime.now()
 
         session = cls.create(
-            user_id = user,
-            date_opened = now,
-            date_accessed = now,
-            date_closed = None
+            user_id=user, date_opened=now, date_accessed=now, date_closed=None
         )
 
         return session
@@ -252,7 +252,7 @@ class UserSession(database_handle.BaseModel):
 
         now = datetime.datetime.now()
 
-        #session.update(date_accessed = now)
+        # session.update(date_accessed = now)
         session.date_accessed = now
         session.save()
 
@@ -282,6 +282,7 @@ class ProductTeam(database_handle.BaseModel):
     Create a product team reference table to link AWS
     accounts to the teams who they belong to
     """
+
     team_name = peewee.CharField()
     active = peewee.BooleanField()
 
@@ -289,10 +290,7 @@ class ProductTeam(database_handle.BaseModel):
         table_name = "product_team"
 
     def get_item(self):
-        return {
-            "id": self.id,
-            "name": self.team_name
-        }
+        return {"id": self.id, "name": self.team_name}
 
     def user_has_access(self, user):
         """
@@ -301,11 +299,12 @@ class ProductTeam(database_handle.BaseModel):
         :return:
         """
         try:
-            member = (ProductTeamUser
-                      .select()
-                      .join(ProductTeam)
-                      .where(ProductTeam.id == self.id,
-                             ProductTeamUser.user_id == user).get())
+            member = (
+                ProductTeamUser.select()
+                .join(ProductTeam)
+                .where(ProductTeam.id == self.id, ProductTeamUser.user_id == user)
+                .get()
+            )
             is_member = True
         except Exception as err:
             # If there's no matching record they're not a member - this is not an error.
@@ -316,7 +315,11 @@ class ProductTeam(database_handle.BaseModel):
         team_id = self.id
         team_failed_resources = []
         try:
-            accounts = AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id)
+            accounts = (
+                AccountSubscription.select()
+                .join(ProductTeam)
+                .where(ProductTeam.id == team_id)
+            )
         except Exception as err:
             app.log.debug("Failed to get team accounts: " + str(err))
             accounts = []
@@ -329,18 +332,22 @@ class ProductTeam(database_handle.BaseModel):
                         resource_data = {
                             "account": account.serialize(),
                             "audit": latest.serialize(),
-                            "resources": []
+                            "resources": [],
                         }
                         for compliance in failed_resources:
-                            audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
+                            audit_resource = AuditResource.get_by_id(
+                                compliance.audit_resource_id
+                            )
                             criterion = Criterion.get_by_id(audit_resource.criterion_id)
                             status = Status.get_by_id(compliance.status_id)
-                            resource_data["resources"].append({
-                                "compliance": compliance.serialize(),
-                                "resource": audit_resource.serialize(),
-                                "criterion": criterion.serialize(),
-                                "status": status.serialize()
-                            })
+                            resource_data["resources"].append(
+                                {
+                                    "compliance": compliance.serialize(),
+                                    "resource": audit_resource.serialize(),
+                                    "criterion": criterion.serialize(),
+                                    "status": status.serialize(),
+                                }
+                            )
                         team_failed_resources.append(resource_data)
         app.log.debug(app.utilities.to_json(team_failed_resources))
         return team_failed_resources
@@ -348,7 +355,11 @@ class ProductTeam(database_handle.BaseModel):
     def get_team_stats(self):
         team_id = self.id
         app.log.debug(f"Get team dashboard for team: {self.team_name}  ({ team_id })")
-        team_accounts = AccountSubscription.select().join(ProductTeam).where(ProductTeam.id == team_id)
+        team_accounts = (
+            AccountSubscription.select()
+            .join(ProductTeam)
+            .where(ProductTeam.id == team_id)
+        )
         unaudited_accounts = []
         inactive_accounts = []
         for account in team_accounts:
@@ -358,14 +369,14 @@ class ProductTeam(database_handle.BaseModel):
             "accounts_unaudited": 0,
             "accounts_passed": 0,
             "accounts_failed": 0,
-            "accounts_inactive": 0
+            "accounts_inactive": 0,
         }
         team_stats = {
             "active_criteria": 0,
             "criteria_processed": 0,
             "criteria_passed": 0,
             "criteria_failed": 0,
-            "issues_found": 0
+            "issues_found": 0,
         }
         account_audits = []
         app.log.debug("Got default stats")
@@ -377,11 +388,11 @@ class ProductTeam(database_handle.BaseModel):
                     latest_data = latest.serialize()
                     app.log.debug("Latest audit: " + app.utilities.to_json(latest_data))
                     account_data = account.serialize()
-                    account_passed = (latest.criteria_failed == 0)
+                    account_passed = latest.criteria_failed == 0
                     account_status = {
                         "account": account_data,
                         "stats": latest_data,
-                        "passed": account_passed
+                        "passed": account_passed,
                     }
                     account_audits.append(account_status)
                     account_stats["accounts_audited"] += 1
@@ -392,16 +403,14 @@ class ProductTeam(database_handle.BaseModel):
                     for stat in team_stats:
                         team_stats[stat] += latest_data[stat]
                 else:
-                    app.log.error("Latest audit not found for account: " + str(account.id))
+                    app.log.error(
+                        "Latest audit not found for account: " + str(account.id)
+                    )
                     account_stats["accounts_unaudited"] += 1
-                    unaudited_accounts.append({
-                        "account": account.serialize()
-                    })
+                    unaudited_accounts.append({"account": account.serialize()})
             else:
                 account_stats["accounts_inactive"] += 1
-                inactive_accounts.append({
-                    "account": account.serialize()
-                })
+                inactive_accounts.append({"account": account.serialize()})
 
         app.log.debug("Team stats: " + app.utilities.to_json(team_stats))
         # add account stats to team stats dictionary
@@ -410,7 +419,7 @@ class ProductTeam(database_handle.BaseModel):
             "all": team_stats,
             "accounts": account_audits,
             "unaudited_accounts": unaudited_accounts,
-            "inactive_accounts": inactive_accounts
+            "inactive_accounts": inactive_accounts,
         }
 
     def get_active_accounts(self):
@@ -418,11 +427,11 @@ class ProductTeam(database_handle.BaseModel):
         Get the active accounts linked ot the ProductTeam instance
         :return arr AccountSubscription:
         """
-        accounts = (AccountSubscription
-                    .select()
-                    .join(ProductTeam)
-                    .where(ProductTeam.id == self.id,
-                           ProductTeam.active == True))
+        accounts = (
+            AccountSubscription.select()
+            .join(ProductTeam)
+            .where(ProductTeam.id == self.id, ProductTeam.active == True)
+        )
         return accounts
 
     @classmethod
@@ -444,19 +453,21 @@ class ProductTeam(database_handle.BaseModel):
                     "tested": 0,
                     "passed": 0,
                     "failed": 0,
-                    "ignored": 0
+                    "ignored": 0,
                 }
                 app.log.debug("Got default criteria stats")
                 for account in ProductTeam.get_active_accounts(team):
-                    app.log.debug("Get latest account stats for account: " + str(account.id))
+                    app.log.debug(
+                        "Get latest account stats for account: " + str(account.id)
+                    )
                     account_stats = {
                         "resources": 0,
                         "tested": 0,
                         "passed": 0,
                         "failed": 0,
-                        "ignored": 0
+                        "ignored": 0,
                     }
-                    app.log.debug('Team ID: ' + str(account.product_team_id.id))
+                    app.log.debug("Team ID: " + str(account.product_team_id.id))
                     if account.active and account.product_team_id.id == team.id:
 
                         latest = account.get_latest_audit()
@@ -469,35 +480,47 @@ class ProductTeam(database_handle.BaseModel):
                             # for stat in team_stats:
                             #     team_stats[stat] += account_stats[stat]
 
-                            audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == latest.id)
+                            audit_criteria = (
+                                AuditCriterion.select()
+                                .join(AccountAudit)
+                                .where(AccountAudit.id == latest.id)
+                            )
                             for audit_criterion in audit_criteria:
-                                app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
+                                app.log.debug(
+                                    "Criterion ID: "
+                                    + str(audit_criterion.criterion_id.id)
+                                )
                                 if audit_criterion.criterion_id.id == criterion.id:
                                     audit_criterion_stats = {
                                         "resources": audit_criterion.resources,
                                         "tested": audit_criterion.tested,
                                         "passed": audit_criterion.passed,
                                         "failed": audit_criterion.failed,
-                                        "ignored": audit_criterion.ignored
+                                        "ignored": audit_criterion.ignored,
                                     }
                                     for stat in account_stats:
-                                        account_stats[stat] += audit_criterion_stats[stat]
-                            account_data.append({
-                                "account_subscription": account.serialize(),
-                                "stats": account_stats
-                            })
+                                        account_stats[stat] += audit_criterion_stats[
+                                            stat
+                                        ]
+                            account_data.append(
+                                {
+                                    "account_subscription": account.serialize(),
+                                    "stats": account_stats,
+                                }
+                            )
                             for stat in team_stats:
                                 team_stats[stat] += account_stats[stat]
 
-                team_data.append({
-                    "product_team": team.serialize(),
-                    "stats": team_stats
-                })
-            criteria_stats.append({
-                "criterion": criterion.serialize(),
-                "product_teams": team_data,
-                "account_subscriptions": account_data
-            })
+                team_data.append(
+                    {"product_team": team.serialize(), "stats": team_stats}
+                )
+            criteria_stats.append(
+                {
+                    "criterion": criterion.serialize(),
+                    "product_teams": team_data,
+                    "account_subscriptions": account_data,
+                }
+            )
         return criteria_stats
 
 
@@ -505,8 +528,9 @@ class ProductTeamUser(database_handle.BaseModel):
     """
     Link product team records to user accounts in order to limit access
     """
-    user_id = peewee.ForeignKeyField(User, backref='sessions')
-    team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
+
+    user_id = peewee.ForeignKeyField(User, backref="sessions")
+    team_id = peewee.ForeignKeyField(ProductTeam, backref="account_subscriptions")
 
     class Meta:
         table_name = "product_team_user"
@@ -517,31 +541,32 @@ class AccountSubscription(database_handle.BaseModel):
     Create a subscriptions table which designates
     which AWS accounts we should scan
     """
+
     account_id = peewee.BigIntegerField()
     account_name = peewee.CharField()
-    product_team_id = peewee.ForeignKeyField(ProductTeam, backref='account_subscriptions')
+    product_team_id = peewee.ForeignKeyField(
+        ProductTeam, backref="account_subscriptions"
+    )
     active = peewee.BooleanField()
 
     class Meta:
         table_name = "account_subscription"
 
     def get_item(self):
-        return {
-            "id": self.id,
-            "name": self.account_name,
-            "reference": self.account_id
-        }
+        return {"id": self.id, "name": self.account_name, "reference": self.account_id}
 
     def user_has_access(self, user):
         # Check whether the user is a member in ProductTeamUser
         try:
-            member = (ProductTeamUser
-                      .select()
-                      .join(ProductTeam)
-                      .join(AccountSubscription)
-                      .where(AccountSubscription.id == self.id,
-                             ProductTeamUser.user_id == user)
-                      .get())
+            member = (
+                ProductTeamUser.select()
+                .join(ProductTeam)
+                .join(AccountSubscription)
+                .where(
+                    AccountSubscription.id == self.id, ProductTeamUser.user_id == user
+                )
+                .get()
+            )
             is_member = True
         except Exception as err:
             # If there's no matching record they're not a member - this is not an error.
@@ -551,10 +576,15 @@ class AccountSubscription(database_handle.BaseModel):
     def get_latest_audit(self):
         account_id = self.id
         try:
-            latest = AccountAudit.select().join(AccountLatestAudit).where(
-                AccountLatestAudit.account_subscription_id == account_id
-            ).get()
-            app.log.debug("Found latest audit: " + app.utilities.to_json(latest.serialize()))
+            latest = (
+                AccountAudit.select()
+                .join(AccountLatestAudit)
+                .where(AccountLatestAudit.account_subscription_id == account_id)
+                .get()
+            )
+            app.log.debug(
+                "Found latest audit: " + app.utilities.to_json(latest.serialize())
+            )
         except peewee.DoesNotExist as err:
             latest = None
             app.log.debug("Failed to get latest audit: " + str(err))
@@ -567,14 +597,17 @@ class AccountSubscription(database_handle.BaseModel):
         account_id = self.id
         try:
             show_last_n_days = 30
-            time_limit = datetime.datetime.now() - datetime.timedelta(days=show_last_n_days)
-            audit_history = (AccountAudit
-                .select()
+            time_limit = datetime.datetime.now() - datetime.timedelta(
+                days=show_last_n_days
+            )
+            audit_history = (
+                AccountAudit.select()
                 .where(
                     AccountAudit.account_subscription_id == account_id,
-                    AccountAudit.date_started >= time_limit
+                    AccountAudit.date_started >= time_limit,
                 )
-                .order_by(AccountAudit.date_started.desc()))
+                .order_by(AccountAudit.date_started.desc())
+            )
         except peewee.DoesNotExist as err:
             audit_history = []
             app.log.debug("Failed to get audit history: " + str(err))
@@ -603,7 +636,9 @@ class AccountSubscription(database_handle.BaseModel):
 # a successful audit should have
 # active_criteria = criteria_analysed
 class AccountAudit(database_handle.BaseModel):
-    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='account_audits')
+    account_subscription_id = peewee.ForeignKeyField(
+        AccountSubscription, backref="account_audits"
+    )
     date_started = peewee.DateTimeField(default=datetime.datetime.now)
     date_updated = peewee.DateTimeField(default=datetime.datetime.now)
     date_completed = peewee.DateTimeField(null=True)
@@ -620,8 +655,13 @@ class AccountAudit(database_handle.BaseModel):
     def get_audit_failed_resources(self):
         account_audit_id = self.id
         try:
-            return ResourceCompliance.select().join(AuditResource).where(
-                AuditResource.account_audit_id == account_audit_id, ResourceCompliance.status_id == 3
+            return (
+                ResourceCompliance.select()
+                .join(AuditResource)
+                .where(
+                    AuditResource.account_audit_id == account_audit_id,
+                    ResourceCompliance.status_id == 3,
+                )
             )
         except Exception as err:
             self.app.log.error("Failed to get audit failed resources: " + str(err))
@@ -635,12 +675,14 @@ class AccountAudit(database_handle.BaseModel):
                 audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
                 criterion = Criterion.get_by_id(audit_resource.criterion_id)
                 status = Status.get_by_id(compliance.status_id)
-                issues_list.append({
-                    "compliance": compliance.serialize(),
-                    "resource": audit_resource.serialize(),
-                    "criterion": criterion.serialize(),
-                    "status": status.serialize()
-                })
+                issues_list.append(
+                    {
+                        "compliance": compliance.serialize(),
+                        "resource": audit_resource.serialize(),
+                        "criterion": criterion.serialize(),
+                        "status": status.serialize(),
+                    }
+                )
 
         return issues_list
 
@@ -651,14 +693,20 @@ class AccountAudit(database_handle.BaseModel):
             "tested": 0,
             "passed": 0,
             "failed": 0,
-            "ignored": 0
+            "ignored": 0,
         }
         criteria_stats = []
         try:
-            audit_criteria = AuditCriterion.select().join(AccountAudit).where(AccountAudit.id == self.id)
+            audit_criteria = (
+                AuditCriterion.select()
+                .join(AccountAudit)
+                .where(AccountAudit.id == self.id)
+            )
             for audit_criterion in audit_criteria:
-                criterion = Criterion.select().where(Criterion.id == audit_criterion.criterion_id.id)
-                app.log.debug('Criterion ID: ' + str(audit_criterion.criterion_id.id))
+                criterion = Criterion.select().where(
+                    Criterion.id == audit_criterion.criterion_id.id
+                )
+                app.log.debug("Criterion ID: " + str(audit_criterion.criterion_id.id))
                 if criterion is not None:
 
                     audit_criterion_stats = audit_criterion.serialize()
@@ -672,16 +720,17 @@ class AccountAudit(database_handle.BaseModel):
         except Exception as err:
             app.log.debug("Catch generic exception from get_stats: " + str(err))
 
-        stats = {
-            "all": audit_stats,
-            "criteria": criteria_stats
-        }
+        stats = {"all": audit_stats, "criteria": criteria_stats}
         return stats
 
 
 class AccountLatestAudit(database_handle.BaseModel):
-    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='account_latest_audit')
-    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='account_latest_audit')
+    account_subscription_id = peewee.ForeignKeyField(
+        AccountSubscription, backref="account_latest_audit"
+    )
+    account_audit_id = peewee.ForeignKeyField(
+        AccountAudit, backref="account_latest_audit"
+    )
 
     class Meta:
         table_name = "account_latest_audit"
@@ -701,7 +750,7 @@ class CriteriaProvider(database_handle.BaseModel):
 class Criterion(database_handle.BaseModel):
     criterion_name = peewee.CharField()
     # TODO: remove the FK below and its class above, not used
-    criteria_provider_id = peewee.ForeignKeyField(CriteriaProvider, backref='criteria')
+    criteria_provider_id = peewee.ForeignKeyField(CriteriaProvider, backref="criteria")
     invoke_class_name = peewee.CharField()
     invoke_class_get_data_method = peewee.CharField()
     title = peewee.TextField()
@@ -721,7 +770,7 @@ class Criterion(database_handle.BaseModel):
 # language=en
 # checkId=HCP4007jGY (for Security Groups - Specific Ports Unrestricted)
 class CriterionParams(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='criterion_params')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="criterion_params")
     param_name = peewee.CharField()
     param_value = peewee.CharField()
 
@@ -773,8 +822,10 @@ class NotificationMethod(database_handle.BaseModel):
 # via splunk in the future or we could broaden the reach of the
 # tool to check other vulnerabilities.
 class CachedDataResponse(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='cached_data_responses')
-    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='cached_data_responses')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="cached_data_responses")
+    account_audit_id = peewee.ForeignKeyField(
+        AccountAudit, backref="cached_data_responses"
+    )
     invoke_class_name = peewee.CharField()
     invoke_class_get_data_method = peewee.CharField()
     response = peewee.TextField()
@@ -784,8 +835,8 @@ class CachedDataResponse(database_handle.BaseModel):
 
 
 class AuditCriterion(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='audit_criteria')
-    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='audit_criteria')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="audit_criteria")
+    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref="audit_criteria")
     regions = peewee.IntegerField(default=0)
     resources = peewee.IntegerField(default=0)
     tested = peewee.IntegerField(default=0)
@@ -804,13 +855,14 @@ class AuditCriterion(database_handle.BaseModel):
         try:
             criterion = self.criterion_id
 
-            return (ResourceCompliance.select()
+            return (
+                ResourceCompliance.select()
                 .join(AuditResource)
                 .where(
-                AuditResource.criterion_id == criterion.id,
-                AuditResource.account_audit_id == account_audit_id,
-                ResourceCompliance.status_id == status_id
-            )
+                    AuditResource.criterion_id == criterion.id,
+                    AuditResource.account_audit_id == account_audit_id,
+                    ResourceCompliance.status_id == status_id,
+                )
             )
         except Exception as err:
             self.app.log.error("Failed to get audit resources: " + str(err))
@@ -828,12 +880,14 @@ class AuditCriterion(database_handle.BaseModel):
                 audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
                 criterion = Criterion.get_by_id(audit_resource.criterion_id)
                 status = Status.get_by_id(compliance.status_id)
-                issues_list.append({
-                    "compliance": compliance.serialize(),
-                    "resource": audit_resource.serialize(),
-                    "criterion": criterion.serialize(),
-                    "status": status.serialize()
-                })
+                issues_list.append(
+                    {
+                        "compliance": compliance.serialize(),
+                        "resource": audit_resource.serialize(),
+                        "criterion": criterion.serialize(),
+                        "status": status.serialize(),
+                    }
+                )
 
         return issues_list
 
@@ -845,12 +899,14 @@ class AuditCriterion(database_handle.BaseModel):
             for compliance in account_issues:
                 audit_resource = AuditResource.get_by_id(compliance.audit_resource_id)
                 criterion = Criterion.get_by_id(audit_resource.criterion_id)
-                issues_list.append({
-                    "compliance": compliance.serialize(),
-                    "resource": audit_resource.serialize(),
-                    "criterion": criterion.serialize(),
-                    "status": status.serialize()
-                })
+                issues_list.append(
+                    {
+                        "compliance": compliance.serialize(),
+                        "resource": audit_resource.serialize(),
+                        "criterion": criterion.serialize(),
+                        "status": status.serialize(),
+                    }
+                )
 
         return issues_list
 
@@ -859,8 +915,8 @@ class AuditCriterion(database_handle.BaseModel):
 # This should include "green" status checks as well as
 # identified risks.
 class AuditResource(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='audit_resources')
-    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='audit_resources')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="audit_resources")
+    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref="audit_resources")
     region = peewee.CharField(null=True)
     resource_id = peewee.CharField()
     resource_name = peewee.CharField(null=True)
@@ -871,15 +927,18 @@ class AuditResource(database_handle.BaseModel):
     class Meta:
         table_name = "audit_resource"
 
+
 class ResourceCompliance(database_handle.BaseModel):
-    audit_resource_id = peewee.ForeignKeyField(AuditResource, backref='resource_compliance')
+    audit_resource_id = peewee.ForeignKeyField(
+        AuditResource, backref="resource_compliance"
+    )
     annotation = peewee.TextField(null=True)
     resource_type = peewee.CharField()
     resource_id = peewee.CharField()
     compliance_type = peewee.CharField()
     is_compliant = peewee.BooleanField(default=False)
     is_applicable = peewee.BooleanField(default=True)
-    status_id = peewee.ForeignKeyField(Status, backref='status')
+    status_id = peewee.ForeignKeyField(Status, backref="status")
 
     class Meta:
         table_name = "resource_compliance"
@@ -887,16 +946,22 @@ class ResourceCompliance(database_handle.BaseModel):
 
 # For non-green status issues we record a risk record
 class ResourceRiskAssessment(database_handle.BaseModel):
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='resource_risk_assessments')
-    audit_resource_id = peewee.ForeignKeyField(AuditResource, backref='resource_risk_assessments')
-    account_audit_id = peewee.ForeignKeyField(AccountAudit, backref='resource_risk_assessments')
+    criterion_id = peewee.ForeignKeyField(
+        Criterion, backref="resource_risk_assessments"
+    )
+    audit_resource_id = peewee.ForeignKeyField(
+        AuditResource, backref="resource_risk_assessments"
+    )
+    account_audit_id = peewee.ForeignKeyField(
+        AccountAudit, backref="resource_risk_assessments"
+    )
     resource_id = peewee.CharField()
     date_first_identifed = peewee.DateField()
     date_last_notified = peewee.DateField(null=True)
     date_of_review = peewee.DateField(null=True)
     accepted_risk = peewee.BooleanField(default=False)
     analyst_assessed = peewee.BooleanField(default=False)
-    severity = peewee.ForeignKeyField(Severity, backref='severity', null=True)
+    severity = peewee.ForeignKeyField(Severity, backref="severity", null=True)
 
     class Meta:
         table_name = "resource_risk_assessment"
@@ -904,10 +969,12 @@ class ResourceRiskAssessment(database_handle.BaseModel):
 
 class ResourceException(database_handle.BaseModel):
     resource_persistent_id = peewee.CharField()
-    criterion_id = peewee.ForeignKeyField(Criterion, backref='resource_exceptions')
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="resource_exceptions")
     reason = peewee.CharField()
-    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='resource_exceptions')
-    user_id = peewee.ForeignKeyField(User, backref='resource_exceptions')
+    account_subscription_id = peewee.ForeignKeyField(
+        AccountSubscription, backref="resource_exceptions"
+    )
+    user_id = peewee.ForeignKeyField(User, backref="resource_exceptions")
     date_created = peewee.DateTimeField(default=datetime.datetime.now)
     date_expires = peewee.DateTimeField()
 
@@ -915,47 +982,59 @@ class ResourceException(database_handle.BaseModel):
         table_name = "resource_exception"
 
     @classmethod
-    def has_active_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+    def has_active_exception(
+        cls, criterion_id, resource_persistent_id, account_subscription_id
+    ):
         try:
             now = datetime.datetime.now()
-            exception = (ResourceException.select()
+            exception = (
+                ResourceException.select()
                 .where(
                     ResourceException.resource_persistent_id == resource_persistent_id,
                     ResourceException.criterion_id == criterion_id,
-                    ResourceException.account_subscription_id == account_subscription_id,
+                    ResourceException.account_subscription_id
+                    == account_subscription_id,
                     ResourceException.date_created <= now,
-                    ResourceException.date_expires >= now
+                    ResourceException.date_expires >= now,
                 )
                 .get()
             )
 
-            app.log.debug("Found exception: " + app.utilities.to_json(exception.serialize()))
+            app.log.debug(
+                "Found exception: " + app.utilities.to_json(exception.serialize())
+            )
 
         except Exception as err:
-            app.log.debug("Exception not found: " + app.utilities.get_typed_exception(err))
+            app.log.debug(
+                "Exception not found: " + app.utilities.get_typed_exception(err)
+            )
             exception = None
 
         return exception
 
     @classmethod
-    def find_exception(cls, criterion_id, resource_persistent_id, account_subscription_id):
+    def find_exception(
+        cls, criterion_id, resource_persistent_id, account_subscription_id
+    ):
         try:
-            exception = (ResourceException.select()
+            exception = (
+                ResourceException.select()
                 .where(
                     ResourceException.resource_persistent_id == resource_persistent_id,
                     ResourceException.criterion_id == criterion_id,
-                    ResourceException.account_subscription_id == account_subscription_id
+                    ResourceException.account_subscription_id
+                    == account_subscription_id,
                 )
                 .get()
             ).raw()
 
             app.log.debug("Found exception: " + app.utilities.to_json(exception))
 
-            expiry = exception['date_expires']
+            expiry = exception["date_expires"]
             if expiry is not None:
-                exception['expiry_day'] = expiry.day
-                exception['expiry_month'] = expiry.month
-                exception['expiry_year'] = expiry.year
+                exception["expiry_day"] = expiry.day
+                exception["expiry_month"] = expiry.month
+                exception["expiry_year"] = expiry.year
 
         except Exception as err:
             app.log.debug(app.utilities.get_typed_exception(err))
@@ -970,9 +1049,8 @@ class ResourceException(database_handle.BaseModel):
                 "date_expires": expiry,
                 "expiry_day": expiry.day,
                 "expiry_month": expiry.month,
-                "expiry_year": expiry.year
+                "expiry_year": expiry.year,
             }
-
 
         return exception
 
@@ -980,8 +1058,10 @@ class ResourceException(database_handle.BaseModel):
 class AccountSshCidrAllowlist(database_handle.BaseModel):
     cidr = peewee.CharField()
     reason = peewee.CharField()
-    account_subscription_id = peewee.ForeignKeyField(AccountSubscription, backref='ssh_cidr_allowlist')
-    user_id = peewee.ForeignKeyField(User, backref='ssh_cidr_allowlist')
+    account_subscription_id = peewee.ForeignKeyField(
+        AccountSubscription, backref="ssh_cidr_allowlist"
+    )
+    user_id = peewee.ForeignKeyField(User, backref="ssh_cidr_allowlist")
     date_created = peewee.DateTimeField(default=datetime.datetime.now)
     date_expires = peewee.DateTimeField()
 
@@ -1005,16 +1085,18 @@ class AccountSshCidrAllowlist(database_handle.BaseModel):
             "account_subscription_id": account_subscription_id,
             "user_id": user_id,
             "date_created": now,
-            "date_expires": default_expiry
+            "date_expires": default_expiry,
         }
 
 
 class CurrentAccountStats(database_handle.BaseModel):
     audit_date = peewee.DateField(primary_key=True)
-    account_id = peewee.ForeignKeyField(AccountSubscription, field='account_id', backref='current_stats')
-    resources  = peewee.IntegerField()
-    failed     = peewee.IntegerField()
-    ratio      = peewee.FloatField()
+    account_id = peewee.ForeignKeyField(
+        AccountSubscription, field="account_id", backref="current_stats"
+    )
+    resources = peewee.IntegerField()
+    failed = peewee.IntegerField()
+    ratio = peewee.FloatField()
 
     class Meta:
         table_name = "_current_account_stats"
@@ -1031,17 +1113,19 @@ class CurrentSummaryStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_current_summary_stats"
-        primary_key = peewee.CompositeKey('avg_resources_per_account','avg_fails_per_account','accounts_audited')
+        primary_key = peewee.CompositeKey(
+            "avg_resources_per_account", "avg_fails_per_account", "accounts_audited"
+        )
 
 
 class DailyAccountStats(database_handle.BaseModel):
     audit_date = peewee.DateField(primary_key=True)
-    account_id = peewee.ForeignKeyField(AccountSubscription,
-                                        field='account_id',
-                                        backref='current_stats')
-    resources  = peewee.IntegerField()
-    failed     = peewee.IntegerField()
-    ratio      = peewee.FloatField()
+    account_id = peewee.ForeignKeyField(
+        AccountSubscription, field="account_id", backref="current_stats"
+    )
+    resources = peewee.IntegerField()
+    failed = peewee.IntegerField()
+    ratio = peewee.FloatField()
 
     class Meta:
         table_name = "_daily_account_stats"
@@ -1087,7 +1171,7 @@ class MonthlySummaryStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_monthly_summary_stats"
-        primary_key = peewee.CompositeKey('audit_year','audit_month')
+        primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
 
 class MonthlyDeltaStats(database_handle.BaseModel):
@@ -1102,9 +1186,9 @@ class MonthlyDeltaStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_monthly_delta_stats"
-        primary_key = peewee.CompositeKey('audit_year', 'audit_month')
+        primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
 
-'''
+"""
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
-'''
+"""

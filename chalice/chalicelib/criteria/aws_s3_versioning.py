@@ -18,13 +18,17 @@ class AwsS3Versioning(CriteriaDefault):
 
     title = "S3 Buckets: Bucket Versioning Enabled"
     description = "Checks that all S3 buckets have versioning enabled."
-    why_is_it_important = ("Versioning in S3 is a way to recover from unintended user changes and actions that might "
-                           "occur through misuse or corruption, such as ransomware infection. Each time an object "
-                           "changes, a new version of that object is created.")
-    how_do_i_fix_it = ("Enable versioning on the S3 buckets listed above. Please see the following AWS documentation "
-                       "to enable versioning for an S3 bucket:<br />"
-                       "<a href='https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html'>"
-                       "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html</a>")
+    why_is_it_important = (
+        "Versioning in S3 is a way to recover from unintended user changes and actions that might "
+        "occur through misuse or corruption, such as ransomware infection. Each time an object "
+        "changes, a new version of that object is created."
+    )
+    how_do_i_fix_it = (
+        "Enable versioning on the S3 buckets listed above. Please see the following AWS documentation "
+        "to enable versioning for an S3 bucket:<br />"
+        "<a href='https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html'>"
+        "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/enable-versioning.html</a>"
+    )
 
     def __init__(self, app):
         super(AwsS3Versioning, self).__init__(app)
@@ -34,14 +38,16 @@ class AwsS3Versioning(CriteriaDefault):
         buckets = self.client.get_bucket_list(session)
         for bucket in buckets:
             # Mutating items as I'm iterating over them again... Sorry
-            bucket["Versioning"] = self.client.get_bucket_versioning(session, bucket["Name"])
+            bucket["Versioning"] = self.client.get_bucket_versioning(
+                session, bucket["Name"]
+            )
 
         return buckets
 
     def translate(self, data):
         item = {
             "resource_id": "arn:aws:s3:::" + data.get("Name", ""),
-            "resource_name": data.get("Name", "")
+            "resource_name": data.get("Name", ""),
         }
 
         return item
@@ -71,7 +77,7 @@ class AwsS3Versioning(CriteriaDefault):
             compliance_type,
             event,
             self.resource_type,
-            self.annotation
+            self.annotation,
         )
         self.app.log.debug(log_string)
         return evaluation

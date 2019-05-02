@@ -17,7 +17,7 @@ class GdsSqsClient(GdsAwsClient):
             self.app.log.debug("Try getting queue URL for: " + queue_name)
             region = os.environ["CSW_REGION"]
             caller = self.get_caller_details()
-            account = caller['Account']
+            account = caller["Account"]
             queue_url = f"https://{region}.queue.amazonaws.com/{account}/{queue_name}"
 
             self.app.log.debug("Queue URL: " + queue_url)
@@ -37,14 +37,11 @@ class GdsSqsClient(GdsAwsClient):
 
             region = os.environ["CSW_REGION"]
 
-            sqs = self.get_default_client('sqs', region)
+            sqs = self.get_default_client("sqs", region)
 
-            response = sqs.send_message(
-                QueueUrl=queue_url,
-                MessageBody=body
-            )
+            response = sqs.send_message(QueueUrl=queue_url, MessageBody=body)
 
-            message_id = response['MessageId']
+            message_id = response["MessageId"]
         except Exception as err:
             self.app.log.error("Failed to send SQS message: " + str(err))
             message_id = None
