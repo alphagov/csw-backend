@@ -1,0 +1,79 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container" id="app">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+
+      <div class="govuk-tabs" data-module="tabs">
+          <h1 class="govuk-tabs__title">
+            Statistics
+          </h1>
+          <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#current">
+                Current
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#daily">
+                Daily
+              </a>
+            </li>
+            <li class="govuk-tabs__list-item">
+              <a class="govuk-tabs__tab" href="#monthly">
+                Monthly
+              </a>
+            </li>
+          </ul>
+
+          <section class="govuk-tabs__panel" id="current">
+            <h2 class="govuk-heading-m">Current</h2>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_current_percent_pass_fail_spread.html" %}
+                </div>
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_current_percent_coverage.html" %}
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "components/charts/stats_current_account_percent_failure.html" %}
+                </div>
+            </div>
+          </section>
+          <section class="govuk-tabs__panel" id="daily">
+            <h2 class="govuk-heading-m">Daily</h2>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "components/charts/stats_daily_failure_rate_change.html" %}
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_daily_failure_rate.html" %}
+                </div>
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_daily_account_coverage.html" %}
+                </div>
+            </div>
+          </section>
+          <section class="govuk-tabs__panel" id="monthly">
+            <h2 class="govuk-heading-m">Monthly</h2>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "components/charts/stats_monthly_failure_rate_change.html" %}
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_monthly_failure_rate.html" %}
+                </div>
+                <div class="govuk-grid-column-one-half">
+                    {% include "components/charts/stats_monthly_account_coverage.html" %}
+                </div>
+            </div>
+          </section>
+      </div>
+  </main>
+</div>
+{% endblock %}

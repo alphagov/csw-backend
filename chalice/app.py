@@ -154,9 +154,8 @@ app.utilities = Utilities()
 # TODO: ... with the additional functionality fo binding periodic and triggered lambdas.
 app.load_views(
     [
-        "routes",
-        "demos",  # route lambdas (aka HTTP responses, views)
-        "admin",
-        "audit",  # periodic and triggered lambdas
+        'routes', 'demos',  # route lambdas (aka HTTP responses, views)
+        'admin', 'audit',  # periodic and triggered lambdas
+        'api' #
     ]
 )

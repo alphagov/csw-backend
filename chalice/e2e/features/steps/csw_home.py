@@ -3,7 +3,7 @@ import time
 import os
 
 
-@when("you navigate to CSW homepage")
+@when('you navigate to CSW homepage')
 def step(context):
     url = os.environ["CSW_URL"]
     context.browser.get(url)
@@ -16,7 +16,7 @@ def step(context, path):
     context.browser.get(url)
 
 
-@when("you login to CSW")
+@when('you login to CSW')
 def step(context):
     creds = {
         "email": os.environ["CSW_USER"] + "@digital.cabinet-office.gov.uk",
@@ -46,7 +46,7 @@ def step(context, selector, title):
     assert elem == title
 
 
-@given("the credentials")
+@given('the credentials')
 def step(context):
     context.browser.header_overrides = {
         "Client": os.environ["CSW_CLIENT"],
@@ -72,11 +72,15 @@ def step(context, url):
         + creds["email"]
     )
     response = context.browser.get(url)
-
-    # context.api_session.headers.update({'x-test': 'true'})
     print(response)
 
 
 @then('wait "{seconds}" seconds')
 def step(context, seconds):
     time.sleep(int(seconds))
+
+
+@then('we have a session cookie')
+def step(context):
+    cookie = context.browser.get_cookie("session")
+    assert cookie is not None

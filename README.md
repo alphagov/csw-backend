@@ -49,7 +49,9 @@ If you are running the e2e tests for the first time you probably
 need to do some installs first.
 ```
 brew install geckodriver
-cd build
+cd /path/to/csw-backend/chalice 
+pip install -r requirements-dev.txt
+cd ../build
 reinstall
 gulp environment.terraform --env=[env]
 gulp environment.chalice_s3_deploy --env=[env]

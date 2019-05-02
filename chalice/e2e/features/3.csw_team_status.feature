@@ -1,4 +1,4 @@
-# Cloud Security Watch - Homepage Feature
+# Cloud Security Watch - Team Status page
 Feature: Cloud Security Watch - Team Status page loads
     Scenario: can load homepage
         When you navigate to CSW page "team/1/status"
