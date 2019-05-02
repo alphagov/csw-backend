@@ -1,0 +1,29 @@
+<div class="chart-wrapper"
+     type="line"
+     series="cols"
+     x-axis="Time"
+     y-axis="Change"
+     above="false"
+     ismultiple="false"
+     order="null"
+>
+    <table class="govuk-table">
+        <caption class="govuk-table__caption">Failure rate change</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">Date</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Percent change</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for delta in daily.deltas %}
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">{{ delta.audit_date }}</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (delta.avg_percent_fails_delta * 100) | round(1, 'floor') }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

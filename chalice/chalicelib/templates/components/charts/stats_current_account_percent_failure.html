@@ -1,0 +1,31 @@
+<div class="chart-wrapper"
+     type="bar"
+     series="cols"
+     x-axis="Account"
+     y-axis="Failure rate"
+     above="false"
+     ismultiple="false"
+     rotated="true"
+>
+    <table class="govuk-table">
+        <caption class="govuk-table__caption">Account summary</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">Account</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Percent failed</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for account in current.account %}
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">
+                    {{ account.account_id.account_id }}: {{ account.account_id.account_name }}
+                </th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (account.ratio * 100) | round(1) }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
