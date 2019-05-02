@@ -57,7 +57,7 @@ class DatabaseHandle:
         # reset handle to force reconnect using new creadentials
         self.handle = None
 
-    def execute_commands(self, commands, database='postgres'):
+    def execute_commands(self, commands, database="postgres"):
         status = True
         try:
             db_host = self.get_env_var("CSW_HOST")
@@ -65,16 +65,12 @@ class DatabaseHandle:
             db_user = self.get_env_var("CSW_USER")
             db_password = self.get_env_var("CSW_PASSWORD")
             db = postgres_ext.PostgresqlExtDatabase(
-                database,
-                user=db_user,
-                password=db_password,
-                host=db_host,
-                port=db_port,
+                database, user=db_user, password=db_password, host=db_host, port=db_port
             )
             db.connect()
             for command in commands:
                 cursor = db.execute_sql(command)
-                status &= (cursor is not None)
+                status &= cursor is not None
         except Exception as err:
             self.app.log.error("Failed to execute commands: " + str(err))
             db.rollback()

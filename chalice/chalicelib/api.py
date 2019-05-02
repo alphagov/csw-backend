@@ -5,6 +5,7 @@ import os
 import re
 import json
 import datetime
+
 # from peewee import Case, fn
 # from botocore.exceptions import ClientError
 from chalice import Rate, Response, BadRequestError
@@ -12,6 +13,7 @@ from chalice import Rate, Response, BadRequestError
 from app import app, load_route_services
 from chalicelib.database_handle import DatabaseHandle
 from chalicelib import models
+
 
 def read_script(script_path):
     """
@@ -22,7 +24,7 @@ def read_script(script_path):
         abs_path = os.path.join(os.getcwd(), script_path)
         app.log.debug(os.getcwd())
         print(abs_path)
-        with open(abs_path,'r') as script:
+        with open(abs_path, "r") as script:
             command = ""
             lines = script.readlines()
             for line in lines:
@@ -44,7 +46,7 @@ def read_script(script_path):
             if len(command) > 0:
                 commands.append(command)
     except Exception as err:
-        print (f"Failed to open script: {script_path}: " + str(err))
+        print(f"Failed to open script: {script_path}: " + str(err))
 
     return commands
 
@@ -61,19 +63,18 @@ def execute_update_stats_tables(event, context):
     commands = []
     try:
         dbh = DatabaseHandle(app)
-        scripts = app.utilities.list_files_from_path('chalicelib/api/sql/', 'sql')
+        scripts = app.utilities.list_files_from_path("chalicelib/api/sql/", "sql")
         for script in scripts:
             app.log.debug(f"Executing SQL from chalice/{script}")
             commands = read_script(script)
             app.log.debug(json.dumps(commands))
-            dbh.execute_commands(commands, 'csw')
+            dbh.execute_commands(commands, "csw")
         status = 1
     except Exception as err:
-        app.log.error("Update stats tables error: " + app.utilities.get_typed_exception(err))
-    return {
-        "status": status,
-        "commands": commands
-    }
+        app.log.error(
+            "Update stats tables error: " + app.utilities.get_typed_exception(err)
+        )
+    return {"status": status, "commands": commands}
 
 
 @app.schedule(Rate(24, unit=Rate.HOURS))
@@ -91,6 +92,7 @@ def update_stats_tables(event, context):
     """
     return execute_update_stats_tables(event, context)
 
+
 # TODO provide a number of GET only routes
 # TODO API authentication | whitelisting?
 # /api/[ health | prometheus]/... - for health
@@ -98,7 +100,7 @@ def update_stats_tables(event, context):
 # /api/stats/... - for raw json data
 
 
-@app.route('/api/current/summary')
+@app.route("/api/current/summary")
 def route_api_current_summary():
     """
     Overall stats of the results of the latest audit across all teams and accounts
@@ -111,28 +113,22 @@ def route_api_current_summary():
         if authed:
             current_summary = models.CurrentSummaryStats.select()
             items = models.CurrentSummaryStats.serialize_list(current_summary)
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
 
-@app.route('/api/current/accounts')
+@app.route("/api/current/accounts")
 def route_api_current_accounts():
     """
     Per account summary of latest audit results
@@ -145,28 +141,22 @@ def route_api_current_accounts():
         if authed:
             current_accounts = models.CurrentAccountStats.select()
             items = models.CurrentAccountStats.serialize_list(current_accounts)
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
 
-@app.route('/api/daily/summary')
+@app.route("/api/daily/summary")
 def route_api_daily_summary():
     """
     Last 2 weeks summary across all accounts day by day to identify short-term trends
@@ -180,35 +170,29 @@ def route_api_daily_summary():
         authed = app.auth.try_login(app.current_request)
 
         if authed:
-            daily_summary = (models.DailySummaryStats
-                              .select()
-                              .where(models.DailySummaryStats.audit_date > days_ago)
-                              .order_by(models.DailySummaryStats.audit_date.desc())
-                              )
+            daily_summary = (
+                models.DailySummaryStats.select()
+                .where(models.DailySummaryStats.audit_date > days_ago)
+                .order_by(models.DailySummaryStats.audit_date.desc())
+            )
             items = models.DailySummaryStats.serialize_list(daily_summary)
 
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
 
-@app.route('/api/daily/delta')
+@app.route("/api/daily/delta")
 def route_api_daily_delta():
     """
     Comparison yesterday to today looking for what's changed
@@ -222,35 +206,29 @@ def route_api_daily_delta():
         authed = app.auth.try_login(app.current_request)
 
         if authed:
-            daily_summary = (models.DailyDeltaStats
-                             .select()
-                             .where(models.DailyDeltaStats.audit_date > days_ago)
-                             .order_by(models.DailyDeltaStats.audit_date.desc())
-                             )
+            daily_summary = (
+                models.DailyDeltaStats.select()
+                .where(models.DailyDeltaStats.audit_date > days_ago)
+                .order_by(models.DailyDeltaStats.audit_date.desc())
+            )
             items = models.DailyDeltaStats.serialize_list(daily_summary)
 
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
 
-@app.route('/api/monthly/summary')
+@app.route("/api/monthly/summary")
 def route_api_monthly_summary():
     """
     Average monthly summary to identify longer term trends
@@ -261,37 +239,28 @@ def route_api_monthly_summary():
         authed = app.auth.try_login(app.current_request)
 
         if authed:
-            monthly_summary = (models.MonthlySummaryStats
-                .select()
-                .order_by(
-                    models.MonthlySummaryStats.audit_year.desc(),
-                    models.MonthlySummaryStats.audit_month.desc()
-                )
+            monthly_summary = models.MonthlySummaryStats.select().order_by(
+                models.MonthlySummaryStats.audit_year.desc(),
+                models.MonthlySummaryStats.audit_month.desc(),
             )
             items = models.MonthlySummaryStats.serialize_list(monthly_summary)
 
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
 
-@app.route('/api/monthly/delta')
+@app.route("/api/monthly/delta")
 def route_api_monthly_delta():
     """
     Comparison last month vs this month to show change over time
@@ -302,36 +271,28 @@ def route_api_monthly_delta():
         authed = app.auth.try_login(app.current_request)
 
         if authed:
-            monthly_deltas = (models.MonthlyDeltaStats
-                .select()
-                .order_by(
-                    models.MonthlyDeltaStats.audit_year.desc(),
-                    models.MonthlyDeltaStats.audit_month.desc()
-                )
+            monthly_deltas = models.MonthlyDeltaStats.select().order_by(
+                models.MonthlyDeltaStats.audit_year.desc(),
+                models.MonthlyDeltaStats.audit_month.desc(),
             )
             items = models.MonthlySummaryStats.serialize_list(monthly_deltas)
 
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
 
-@app.route('/api/daily/account')
+
+@app.route("/api/daily/account")
 def route_api_daily_account():
     """
     List of stats of the last audits for each account for each day in a given time period
@@ -345,29 +306,23 @@ def route_api_daily_account():
         authed = app.auth.try_login(app.current_request)
 
         if authed:
-            daily_account = (models.DailyAccountStats
-                              .select()
-                              .where(models.DailyAccountStats.audit_date > days_ago)
-                              .order_by(models.DailyAccountStats.audit_date.desc())
-                              )
+            daily_account = (
+                models.DailyAccountStats.select()
+                .where(models.DailyAccountStats.audit_date > days_ago)
+                .order_by(models.DailyAccountStats.audit_date.desc())
+            )
             items = models.DailyAccountStats.serialize_list(daily_account)
 
-            data = {
-                "status": "ok",
-                "items": items
-            }
+            data = {"status": "ok", "items": items}
         else:
             raise Exception("Unauthorised")
     except Exception as err:
         status_code = 403
-        data = {
-            "status": "failed",
-            "message": str(err)
-        }
+        data = {"status": "failed", "message": str(err)}
     json = app.utilities.to_json(data, True)
     response = {
         "body": json,
         "status_code": status_code,
-        "headers": {"Content-Type": "application/json"}
+        "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
