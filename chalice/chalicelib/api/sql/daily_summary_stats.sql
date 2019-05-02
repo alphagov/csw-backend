@@ -9,7 +9,7 @@ SELECT
     AVG(failed) AS avg_fails_per_account,
     AVG(ratio) AS avg_percent_fails_per_account,
     COUNT(DISTINCT account_id) AS accounts_audited,
-    CAST(COUNT(account_id) AS FLOAT)/80 AS percent_accounts_audited
+    CAST(COUNT(DISTINCT account_id) AS FLOAT)/80 AS percent_accounts_audited
 FROM public._daily_account_stats
 GROUP BY audit_date
 ORDER BY audit_date DESC;
