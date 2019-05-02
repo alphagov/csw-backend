@@ -143,17 +143,20 @@ gulp.task('environment.database_run_migrations', function() {
 
         file.data.database = {};
         let scriptList = [];
+        // For each type get the list of scripts and compare the the current index
         output.forEach(function(row) {
             type = row[0];
             currentLevel = row[1];
             file.data.database[type] = currentLevel;
             let sqlPath = config.paths.root + "/build/sql/"+type;
+            // Ensure the folder exists before trying to read it
             if (fs.existsSync(sqlPath)) {
-
+                // Get list of matching files
                 let items = fs.readdirSync(sqlPath);
-
+                // Iterate across list and compare to current index
                 items.forEach(function(item) {
                     let index = parseInt(item.replace(/\.sql/,''));
+                    // If the migration is later than the current index add to list.
                     if (index > currentLevel) {
                         let script = {
                             type: type,
@@ -167,34 +170,38 @@ gulp.task('environment.database_run_migrations', function() {
         return scriptList;
     })
     .then(function(scriptList) {
+        // Use a reduce to force the list of promises to chain after
+        // each other rather than all chaining onto the first promise
+        // First create a resolved promise to chain everything else onto
         var promise = Promise.resolve();
-        (function(promise) {
-            scriptList.reduce(function(previousPromise, item) {
-                let sqlPath = config.paths.root + "/build/sql/"+item.type;
-                let index = parseInt(item.script.replace(/\.sql/,''));
-                return previousPromise.then(function() {
-                    let scriptPath = sqlPath + "/" + item.script;
-                    return helpers.psqlExecuteScriptInPipelinePromise(
-                        path,
-                        scriptPath,
-                        file,
-                        'cloud_sec_watch',
-                        file.data.postgres_user_password,
-                        'csw'
-                    );
-                }).then(function() {
-                    let command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+item.type+"'";
-                    return helpers.psqlExecuteInPipelinePromise(
-                        path,
-                        command,
-                        file,
-                        'cloud_sec_watch',
-                        file.data.postgres_user_password,
-                        'csw'
-                    );
-                });
-            }, promise);
-        })(promise);
+        scriptList.reduce(function(previousPromise, item) {
+            let sqlPath = config.paths.root + "/build/sql/"+item.type;
+            let index = parseInt(item.script.replace(/\.sql/,''));
+            // After the promise passed in from reduce
+            return previousPromise.then(function() {
+                let scriptPath = sqlPath + "/" + item.script;
+                // Execute the script through the tunnel script
+                return helpers.psqlExecuteScriptInPipelinePromise(
+                    path,
+                    scriptPath,
+                    file,
+                    'cloud_sec_watch',
+                    file.data.postgres_user_password,
+                    'csw'
+                );
+            // After the script has executed update the index in the _metadata_version table
+            }).then(function() {
+                let command = "UPDATE "+meta_table+" SET version = "+index+" WHERE type='"+item.type+"'";
+                return helpers.psqlExecuteInPipelinePromise(
+                    path,
+                    command,
+                    file,
+                    'cloud_sec_watch',
+                    file.data.postgres_user_password,
+                    'csw'
+                );
+            });
+        }, promise); // pass in the resolved promise to start
     });
     return promise;
   }));
@@ -206,73 +213,6 @@ gulp.task('environment.database_migrate', gulp.series(
     'environment.database_switch_config',
     'environment.database_run_migrations'
 ));
-
-
-gulp.task('environment.database_populate', function() {
-
-  var env = (args.env == undefined)?'test':args.env;
-  var tool = (args.tool == undefined)?'csw':args.tool;
-
-  var config = helpers.getConfigLocations(env, tool);
-
-  // Load default chalice config file
-  var payloads = {
-    "Items": [
-        {
-            "Model":"Status",
-            "Params":{
-                "status_name": "Unknown",
-                "description": "Not yet evaluated"
-            }
-        },
-        {
-            "Model":"Status",
-            "Params":{
-                "status_name": "Pass",
-                "description": "Compliant or not-applicable"
-            }
-        },
-        {
-            "Model":"Status",
-            "Params":{
-                "status_name": "Fail",
-                "description": "Non-compliant"
-            }
-        },
-        {
-            "Model":"CriteriaProvider",
-            "Params":{
-                "provider_name":"AWS Trusted Advisor"
-            }
-        },
-        {
-            "Model":"CriteriaProvider",
-            "Params":{
-                "provider_name":"AWS Elastic Cloud Compute (EC2) service"
-            }
-        },
-        {
-            "Model":"CriteriaProvider",
-            "Params":{
-                "provider_name":"AWS Identity and Access Management (IAM) service"
-            }
-        }
-    ]
-  };
-
-  var pipeline = gulp.src(config.files.environment_settings)
-  .pipe(data(function(file) {
-    var i;
-    var function_name = "csw-"+env+"-database_create_items";
-    var output_file = config.paths.environment + "/lambda.out"
-    var working = config.paths.environment;
-
-    return helpers.lambdaInvokePromise(function_name, working, payloads, file, output_file);
-  }));
-
-  return pipeline;
-
-});
 
 gulp.task('environment.database_define_criteria', function() {
 
