@@ -46,7 +46,7 @@ args = parser.parse_args()
 def read_script(script_path):
     commands = []
     abs_path = os.path.join(os.getcwd(), script_path)
-    print(abs_path)
+    print(abs_path, file=sys.stderr)
     with open(abs_path, "r") as script:
         command = ""
         lines = script.readlines()
@@ -80,7 +80,7 @@ with SSHTunnelForwarder(
 ) as server:
 
     server.start()
-    print ("Server connected")
+    print ("Server connected", file=sys.stderr)
 
     params = {
         "database": args.database,
@@ -94,7 +94,7 @@ with SSHTunnelForwarder(
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     curs = conn.cursor()
 
-    # print ("Database connected")
+    # print ("Database connected", file=sys.stderr)
 
     if args.command is not None:
         # curs.execute(args.command)
@@ -102,7 +102,7 @@ with SSHTunnelForwarder(
 
     if args.script is not None:
         commands = read_script(args.script)
-        # print (*commands, sep='\n')
+        # print (*commands, sep='\n', file=sys.stderr)
 
     for index, command in enumerate(commands, start=1):
 
@@ -111,11 +111,11 @@ with SSHTunnelForwarder(
             curs.execute(command)
             if re.match("^SELECT", command):
                 results = curs.fetchall()
-                # print(*results, sep='\n')
+                # print(*results, sep='\n', file=sys.stderr)
                 print(json.dumps(results))
         except Exception as err:
             print("Failed to execute command: " + str(err), file=sys.stderr)
 
-    # print ("Close connection")
+    # print ("Close connection", file=sys.stderr)
     curs.close()
     conn.close()
