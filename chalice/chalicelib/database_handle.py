@@ -31,7 +31,7 @@ class DatabaseHandle:
                 self.app.log.debug(message)
 
     def get_handle(self):
-        if self.handle is None:
+        if not self.handle or self.handle.is_closed():
             db_host = self.get_env_var("CSW_HOST")
             db_port = self.get_env_var("CSW_PORT")
             db_user = self.get_env_var("CSW_USER")
