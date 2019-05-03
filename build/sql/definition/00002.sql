@@ -240,20 +240,20 @@ ALTER TABLE public.resource_risk_assessment OWNER TO cloud_sec_watch;
 -- Insert status data
 --
 
-INSERT INTO public.status (id, status_name, description)
+INSERT INTO public.status (status_name, description)
 VALUES
-(1, 'Unknown', 'Not yet evaluated'),
-(2, 'Pass', 'Compliant or not-applicable'),
-(3, 'Fail', 'Non-compliant')
+('Unknown', 'Not yet evaluated'),
+('Pass', 'Compliant or not-applicable'),
+('Fail', 'Non-compliant')
 ON CONFLICT DO NOTHING;
 
 --
 -- Insert provider data
 --
 
-INSERT INTO public.criteria_provider (id, provider_name)
+INSERT INTO public.criteria_provider (provider_name)
 VALUES
-(1, 'AWS Trusted Advisor'),
-(2, 'AWS Elastic Cloud Compute (EC2) service'),
-(3, 'AWS Identity and Access Management (IAM) service')
+('AWS Trusted Advisor'),
+('AWS Elastic Cloud Compute (EC2) service'),
+('AWS Identity and Access Management (IAM) service')
 ON CONFLICT DO NOTHING;
