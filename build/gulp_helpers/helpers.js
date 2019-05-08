@@ -97,12 +97,14 @@ var helpers = {
     execProcess.stdout.on("data", function(data) {
       console.log(data.toString());
     });
-
+    execProcess.on("exit", code => {
+      console.log("Exit status:", code);
+    });
     return during;
   },
 
   runTaskInPipelinePromise: function(task, dir, file) {
-    var during = this.runTaskPromise(task, dir);
+    var during = this.runTaskPromise(task, dir)
 
     var after = during.then(
       function(out) {
@@ -110,12 +112,16 @@ var helpers = {
         console.log(out.stdout);
         if (file.data) {
           file.data.task_output = out.stdout;
+          file.data.exit_status = 0;
         }
+
         return file.data;
       },
       function(err) {
         console.log("FAILURE");
         console.log(err.stderr);
+        file.data.task_error = err.stderr;
+        file.data.exit_status = 1;
         return file.data;
       }
     );
