@@ -148,10 +148,6 @@ gulp.task("environment.test_disable_credentials", function() {
         );
       })
     );
-  //  .pipe(data(function(file) {
-  //    console.log('environment', process.env);
-  //    return true;
-  //  }));
   return pipeline;
 });
 
@@ -180,9 +176,32 @@ gulp.task("environment.test_run_e2e", function() {
 
         return helpers.runTaskInPipelinePromise(task, working, file);
       })
+    )
+    .pipe(
+      data(function(file) {
+        console.log("Exit status: ", file.data.exit_status);
+        process.env.EXIT_STATUS = file.data.exit_status;
+      })
     );
 
   return pipeline;
+});
+
+// We don't want to signal failure when the tests fail
+// since this would break the credentials management
+// instead we want to run to the end of the process
+// and then fail the overall gulp task.
+// It seems there's no nice way to set the exit status
+// so I've added this final task which triggers
+// process.exit() if there was a failure which sets the
+// exit status (echo $?) to 1
+gulp.task("environment.test_e2e_report_status", done => {
+  if (process.env.EXIT_STATUS == 1) {
+    console.log("Failed: A non-zero exit status was reported");
+    done(new Error("Failed: A non-zero exit status was reported"));
+  } else {
+    done();
+  }
 });
 
 gulp.task(
@@ -192,6 +211,7 @@ gulp.task(
     "environment.test_rotate_credentials",
     "environment.test_run_e2e",
     "environment.test_rotate_credentials",
-    "environment.test_disable_credentials"
+    "environment.test_disable_credentials",
+    "environment.test_e2e_report_status"
   )
 );
