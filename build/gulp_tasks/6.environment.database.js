@@ -155,96 +155,134 @@ gulp.task("environment.database_run_migrations", function() {
           "csw"
         );
 
-        promise
-          .then(function(output) {
-            var type, current_level, apply;
+        return promise;
+      })
+    )
+    .pipe(
+      data(function(file){
 
-            //console.log(file.data.task_output);
-            try {
-              output = JSON.parse(file.data.task_output);
-            } catch (err) {
-              /*
-            The assumption here is that there are 2 indices for migrations
-            1. definition - Schema creates and alters.
-            2. population - My plan is to retrieve these files from a separate private repository
-                which can contain all the GDS specific configuration data about teams we've
-                onboarded. This should replace the need for the database populate gulp task
-            */
-              output = [["definition", 0], ["population", 0]];
-            }
+        var type, current_level, apply, output;
 
-            file.data.database = {};
-            let scriptList = [];
-            // For each type get the list of scripts and compare the the current index
-            output.forEach(function(row) {
-              type = row[0];
-              currentLevel = row[1];
-              file.data.database[type] = currentLevel;
-              let sqlPath = config.paths.root + "/build/sql/" + type;
-              // Ensure the folder exists before trying to read it
-              if (fs.existsSync(sqlPath)) {
-                // Get list of matching files
-                let items = fs.readdirSync(sqlPath);
-                // Iterate across list and compare to current index
-                items.forEach(function(item) {
-                  let index = parseInt(item.replace(/\.sql/, ""));
-                  // If the migration is later than the current index add to list.
-                  if (index > currentLevel) {
-                    let script = {
-                      type: type,
-                      script: item
-                    };
-                    scriptList.push(script);
-                  }
-                });
+        //console.log(file.data.task_output);
+        try {
+          output = JSON.parse(file.data.task_output);
+        } catch (err) {
+          /*
+        The assumption here is that there are 2 indices for migrations
+        1. definition - Schema creates and alters.
+        2. population - My plan is to retrieve these files from a separate private repository
+            which can contain all the GDS specific configuration data about teams we've
+            onboarded. This should replace the need for the database populate gulp task
+        */
+          output = [["definition", 0], ["population", 0]];
+        }
+
+        file.data.database = {};
+        let scriptList = [];
+        // For each type get the list of scripts and compare the the current index
+        output.forEach(function(row) {
+          type = row[0];
+          currentLevel = row[1];
+          file.data.database[type] = currentLevel;
+          let sqlPath = config.paths.root + "/build/sql/" + type;
+          // Ensure the folder exists before trying to read it
+          if (fs.existsSync(sqlPath)) {
+            // Get list of matching files
+            let items = fs.readdirSync(sqlPath);
+            // Iterate across list and compare to current index
+            items.forEach(function(item) {
+              let index = parseInt(item.replace(/\.sql/, ""));
+              // If the migration is later than the current index add to list.
+              if (index > currentLevel) {
+                let script = {
+                  type: type,
+                  script: item
+                };
+                scriptList.push(script);
               }
             });
-            return scriptList;
-          })
-          .then(function(scriptList) {
-            // Use a reduce to force the list of promises to chain after
-            // each other rather than all chaining onto the first promise
-            // First create a resolved promise to chain everything else onto
-            var promise = Promise.resolve();
-            scriptList.reduce(function(previousPromise, item) {
-              let sqlPath = config.paths.root + "/build/sql/" + item.type;
-              let index = parseInt(item.script.replace(/\.sql/, ""));
-              // After the promise passed in from reduce
-              return previousPromise
-                .then(function() {
-                  let scriptPath = sqlPath + "/" + item.script;
-                  // Execute the script through the tunnel script
-                  return helpers.psqlExecuteScriptInPipelinePromise(
-                    path,
-                    scriptPath,
-                    file,
-                    "cloud_sec_watch",
-                    file.data.postgres_user_password,
-                    "csw"
-                  );
-                  // After the script has executed update the index in the _metadata_version table
-                })
-                .then(function() {
-                  let command =
-                    "UPDATE " +
-                    meta_table +
-                    " SET version = " +
-                    index +
-                    " WHERE type='" +
-                    item.type +
-                    "'";
-                  return helpers.psqlExecuteInPipelinePromise(
-                    path,
-                    command,
-                    file,
-                    "cloud_sec_watch",
-                    file.data.postgres_user_password,
-                    "csw"
-                  );
-                });
-            }, promise); // pass in the resolved promise to start
-          });
-        return promise;
+          }
+        });
+        file.data.scriptList = scriptList;
+        return file;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        path = config.paths.root + "/build/gulp_helpers";
+        meta_table = "public._metadata_version";
+        let scriptList = file.data.scriptList;
+        //console.log("scripts", scriptList);
+        // Use a reduce to force the list of promises to chain after
+        // each other rather than all chaining onto the first promise
+        // First create a resolved promise to chain everything else onto
+        let promise = Promise.resolve();
+
+        // Add a final entry which is the test for signalling task completion
+        let final = {
+          type: "last",
+          resolve: null,
+          reject: null,
+          promise: null
+        };
+
+        // initialise the promise and expose the resolve method
+        final.promise = new Promise(function(resolve,reject) {
+          final.resolve = resolve;
+          final.reject = reject;
+        });
+
+        // add the final promise to the task list
+        scriptList.push(final);
+
+        scriptList.reduce(function(previousPromise, item) {
+          // if the type is "last" then resolve the final promise
+          // to complete the task.
+          if (item.type == "last") {
+            return previousPromise.then(function() {
+              console.log("Resolving final promise");
+              item.resolve()
+            });
+          // otherwise process the script and update the metadata.
+          } else {
+            let sqlPath = config.paths.root + "/build/sql/" + item.type;
+            let index = parseInt(item.script.replace(/\.sql/, ""));
+            // After the promise passed in from reduce
+            return previousPromise
+              .then(function() {
+                let scriptPath = sqlPath + "/" + item.script;
+                // Execute the script through the tunnel script
+                return helpers.psqlExecuteScriptInPipelinePromise(
+                  path,
+                  scriptPath,
+                  file,
+                  "cloud_sec_watch",
+                  file.data.postgres_user_password,
+                  "csw"
+                );
+                // After the script has executed update the index in the _metadata_version table
+              })
+              .then(function() {
+                let command =
+                  "UPDATE " +
+                  meta_table +
+                  " SET version = " +
+                  index +
+                  " WHERE type='" +
+                  item.type +
+                  "'";
+                return helpers.psqlExecuteInPipelinePromise(
+                  path,
+                  command,
+                  file,
+                  "cloud_sec_watch",
+                  file.data.postgres_user_password,
+                  "csw"
+                );
+              });
+            }
+        }, promise); // pass in the resolved promise to start
+        return final.promise;
       })
     );
 
