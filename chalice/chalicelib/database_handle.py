@@ -31,23 +31,19 @@ class DatabaseHandle:
                 self.app.log.debug(message)
 
     def get_handle(self):
-        try:
-            if self.handle is None:
-                db_host = self.get_env_var("CSW_HOST")
-                db_port = self.get_env_var("CSW_PORT")
-                db_user = self.get_env_var("CSW_USER")
-                db_password = self.get_env_var("CSW_PASSWORD")
+        if not self.handle or self.handle.is_closed():
+            db_host = self.get_env_var("CSW_HOST")
+            db_port = self.get_env_var("CSW_PORT")
+            db_user = self.get_env_var("CSW_USER")
+            db_password = self.get_env_var("CSW_PASSWORD")
 
-                self.handle = postgres_ext.PostgresqlExtDatabase(
-                    "csw",
-                    user=db_user,
-                    password=db_password,
-                    host=db_host,
-                    port=db_port,
-                )
-        except Exception as err:
-            self.app.log.error("Error connecting to db: " + str(err))
-            self.handle = None
+            self.handle = postgres_ext.PostgresqlExtDatabase(
+                "csw",
+                user=db_user,
+                password=db_password,
+                host=db_host,
+                port=db_port,
+            )
         return self.handle
 
     def set_credentials(self, user, password):

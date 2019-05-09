@@ -106,15 +106,12 @@ with SSHTunnelForwarder(
 
     for index, command in enumerate(commands, start=1):
 
-        try:
-            print(f"{index} Executing command:\n{command}\n\n", file=sys.stderr)
-            curs.execute(command)
-            if re.match("^SELECT", command):
-                results = curs.fetchall()
-                # print(*results, sep='\n', file=sys.stderr)
-                print(json.dumps(results))
-        except Exception as err:
-            print("Failed to execute command: " + str(err), file=sys.stderr)
+        print(f"{index} Executing command:\n{command}\n\n", file=sys.stderr)
+        curs.execute(command)
+        if re.match("^SELECT", command):
+            results = curs.fetchall()
+            # print(*results, sep='\n', file=sys.stderr)
+            print(json.dumps(results))
 
     # print ("Close connection", file=sys.stderr)
     curs.close()
