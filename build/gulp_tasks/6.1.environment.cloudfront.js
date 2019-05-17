@@ -4,6 +4,7 @@ const data = require("gulp-data");
 const modifyFile = require("gulp-modify-file");
 const rename = require("gulp-rename");
 const helpers = require(process.cwd() + "/gulp_helpers/helpers.js");
+const fs = require("fs");
 
 gulp.task("environment.cloudfront_backend.tfvars", function() {
   var env = args.env == undefined ? "test" : args.env;
@@ -36,29 +37,7 @@ gulp.task("environment.cloudfront_backend.tfvars", function() {
     )
     .pipe(
       data(function(file) {
-        var content = "";
-
-        for (varName in file.data) {
-          varValue = file.data[varName];
-          switch (varValue) {
-            case "true":
-            case true:
-            case "false":
-            case false:
-              {
-                content += varName + " = " + varValue + "\n";
-              }
-              break;
-            default:
-              {
-                content += varName + ' = "' + varValue + '"\n';
-              }
-              break;
-          }
-        }
-
-        console.log(content);
-        file.data.content = content;
+        file.data.content = helpers.getVarFileContent(file);
         return file.data;
       })
     )
@@ -100,6 +79,7 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
         file.data.resources.forEach(function(resource) {
           if (resource.name == "rest_api") {
             file.data.api_gateway_url = resource.rest_api_url;
+
             console.log(resource.rest_api_url);
           }
         });
@@ -108,8 +88,39 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
     )
     .pipe(
       data(function(file) {
+        let settingsFile = file.data.config.files.environment_settings;
+        let settingsData = fs.readFileSync(settingsFile);
+        file.data.settings = JSON.parse(settingsData);
+        file.data.region = file.data.settings.region;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        let domainFile = file.data.config.paths.configuration + '/dns/domains.json';
+        let domainData = fs.readFileSync(domainFile);
+        let domains = JSON.parse(domainData);
+        let set = false;
+        file.data.domains = domains;
+        file.data.env = env;
+        for(domain_env in domains.domains) {
+          let settings = domains.domains[domain_env];
+          if (domain_env == env) {
+            file.data.sub_domain = (settings.rename)?settings.rename:domain_env;
+            file.data.dns_zone_fqdn = settings.domain;
+            set = true;
+          }
+        }
+        if (!set) {
+          let settings = domains.default;
+          file.data.sub_domain = env;
+          file.data.dns_zone_fqdn = settings.domain;
+        }
+      })
+    )
+    .pipe(
+      data(function(file) {
         // sanitize
-        var keep = ["api_gateway_url"];
+        var keep = ["region", "env", "dns_zone_fqdn", "sub_domain", "api_gateway_url"];
 
         file.data = helpers.removeExceptPropertiesInPipeline(file.data, keep);
         return file.data;
@@ -117,29 +128,7 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
     )
     .pipe(
       data(function(file) {
-        var content = "";
-
-        for (varName in file.data) {
-          varValue = file.data[varName];
-          switch (varValue) {
-            case "true":
-            case true:
-            case "false":
-            case false:
-              {
-                content += varName + " = " + varValue + "\n";
-              }
-              break;
-            default:
-              {
-                content += varName + ' = "' + varValue + '"\n';
-              }
-              break;
-          }
-        }
-
-        console.log(content);
-        file.data.content = content;
+        file.data.content = helpers.getVarFileContent(file);
         return file.data;
       })
     )
@@ -163,3 +152,191 @@ gulp.task(
   "environment.cloudfront_tfvars",
   gulp.series("environment.cloudfront_backend.tfvars", "environment.cloudfront_apply.tfvars")
 );
+
+
+gulp.task("environment.cloudfront_terraform_init", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+
+  var config = helpers.getConfigLocations(env, tool);
+  console.log(config);
+
+  // Load default settings
+  var pipeline = gulp
+    .src("./node_modules/csw-infra")
+    .pipe(gulp.symlink(config.paths.terraform))
+    .pipe(
+      data(function(file) {
+        var task =
+          "terraform init -backend-config=" +
+          config.paths.terraform +
+          "/cloudfront/backend.tfvars -reconfigure";
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool_cloudfront;
+
+        return helpers.runTaskInPipelinePromise(task, working, file);
+      })
+    );
+
+  return pipeline;
+});
+
+gulp.task("environment.cloudfront_terraform_output", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load settings file
+  var pipeline = gulp
+    .src(config.files.environment_settings)
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    // Get terraform output and add to file.data
+    .pipe(
+      data(function(file) {
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool;
+
+        var promise = helpers.getTerraformOutputInPipelinePromise(
+          working,
+          file
+        );
+
+        return promise;
+      })
+    )
+    .pipe(
+      modifyFile(function(content, path, file) {
+        return JSON.stringify(file.data, null, 4);
+      })
+    )
+    .pipe(gulp.dest(config.paths.environment));
+
+  return pipeline;
+});
+
+gulp.task("environment.cloudfront_terraform_plan", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load settings file
+  var pipeline = gulp
+    .src(config.files.environment_settings)
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        var task =
+          "terraform plan -var-file=" +
+          config.paths.terraform +
+          "/cloudfront/apply.tfvars";
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool_cloudfront;
+
+        return helpers.runTaskInPipelinePromise(task, working, file);
+      })
+    );
+
+  return pipeline;
+});
+
+gulp.task("environment.cloudfront_terraform_apply", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load settings file
+  var pipeline = gulp
+    .src(config.files.environment_settings)
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        var task =
+          "terraform apply -var-file=" +
+          config.paths.terraform +
+          "/cloudfront/apply.tfvars" +
+          " -auto-approve";
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool_cloudfront;
+
+        return helpers.runTaskInPipelinePromise(task, working, file);
+      })
+    );
+  return pipeline;
+});
+
+gulp.task("environment.cloudfront_terraform_destroy", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load settings file
+  var pipeline = gulp
+    .src(config.files.environment_settings)
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        var task =
+          "terraform destroy -var-file=" +
+          config.paths.terraform +
+          "/cloudfront/apply.tfvars" +
+          " -auto-approve";
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool_cloudfront;
+
+        return helpers.runTaskInPipelinePromise(task, working, file);
+      })
+    );
+  return pipeline;
+});
+
+gulp.task("environment.cloudfront_terraform_push", function() {
+  var env = args.env == undefined ? "test" : args.env;
+  var tool = args.tool == undefined ? "csw" : args.tool;
+  var config = helpers.getConfigLocations(env, tool);
+
+  // Load settings file
+  var pipeline = gulp
+    .src(config.files.environment_settings)
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        var task =
+          "terraform state push errored.tfstate";
+        //var working = terraform_path+tool_path;
+        var working = config.paths.terraform_tool_cloudfront;
+
+        return helpers.runTaskInPipelinePromise(task, working, file);
+      })
+    );
+  return pipeline;
+});

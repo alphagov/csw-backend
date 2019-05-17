@@ -55,6 +55,8 @@ var helpers = {
 
     config.paths.home = os.homedir();
     config.paths.root = root_path;
+    config.paths.configuration =
+      root_path + "/../csw-configuration";
     // default files
     config.files.default_settings =
       root_path + "/environments/example/settings.json";
@@ -69,6 +71,8 @@ var helpers = {
     config.paths.terraform = root_path + "/environments/" + env + "/terraform";
     config.paths.terraform_tool =
       config.paths.terraform + "/csw-infra/tools/" + tool;
+    config.paths.terraform_tool_cloudfront =
+      config.paths.terraform_tool + "_cloudfront_distribution";
     config.files.terraform_apply = config.paths.terraform + "/apply.tfvars";
     config.files.terraform_backend = config.paths.terraform + "/backend.tfvars";
     // chalice config path
@@ -452,6 +456,32 @@ var helpers = {
     task += ' --script "' + script + '"';
 
     return this.runTaskInPipelinePromise(task, path, file);
+  },
+
+  getVarFileContent: function(file) {
+    var content = "";
+
+    for (varName in file.data) {
+      varValue = file.data[varName];
+      switch (varValue) {
+        case "true":
+        case true:
+        case "false":
+        case false:
+          {
+            content += varName + " = " + varValue + "\n";
+          }
+          break;
+        default:
+          {
+            content += varName + ' = "' + varValue + '"\n';
+          }
+          break;
+      }
+    }
+
+    console.log(content);
+    return content;
   }
 };
 
