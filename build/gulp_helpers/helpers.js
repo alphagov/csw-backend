@@ -482,6 +482,30 @@ var helpers = {
 
     console.log(content);
     return content;
+  },
+
+  getDomainSettings: function(file) {
+    let domainFile = file.data.config.paths.configuration + '/dns/domains.json';
+    let domainData = fs.readFileSync(domainFile);
+    let domains = JSON.parse(domainData);
+    let set = false;
+    file.data.domains = domains;
+    for(domain_env in domains.domains) {
+      let settings = domains.domains[domain_env];
+      if (domain_env == file.data.env) {
+        file.data.sub_domain = (settings.rename)?settings.rename:domain_env;
+        file.data.dns_zone_fqdn = settings.domain;
+        set = true;
+      }
+    }
+    if (!set) {
+      let settings = domains.default;
+      file.data.sub_domain = file.data.env;
+      file.data.dns_zone_fqdn = settings.domain;
+
+    }
+    file.data.custom_url = file.data.sub_domain + "." + file.data.dns_zone_fqdn;
+    return file;
   }
 };
 

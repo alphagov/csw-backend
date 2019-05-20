@@ -71,6 +71,7 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
         var deployed = JSON.parse(content);
         file.data = deployed;
         file.data.config = config;
+        file.data.env = env;
         return content;
       })
     )
@@ -96,25 +97,7 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
     )
     .pipe(
       data(function(file) {
-        let domainFile = file.data.config.paths.configuration + '/dns/domains.json';
-        let domainData = fs.readFileSync(domainFile);
-        let domains = JSON.parse(domainData);
-        let set = false;
-        file.data.domains = domains;
-        file.data.env = env;
-        for(domain_env in domains.domains) {
-          let settings = domains.domains[domain_env];
-          if (domain_env == env) {
-            file.data.sub_domain = (settings.rename)?settings.rename:domain_env;
-            file.data.dns_zone_fqdn = settings.domain;
-            set = true;
-          }
-        }
-        if (!set) {
-          let settings = domains.default;
-          file.data.sub_domain = env;
-          file.data.dns_zone_fqdn = settings.domain;
-        }
+        return helpers.getDomainSettings(file);
       })
     )
     .pipe(
