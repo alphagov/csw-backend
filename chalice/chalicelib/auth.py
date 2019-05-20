@@ -168,6 +168,12 @@ class AuthHandler:
             path = "/app"
         return path
 
+    def get_interface_root_path(self, request):
+        root_path = self.get_root_path(request)
+        if self.is_cloud_front(request):
+            root_path = ""
+        return root_path
+
     def get_base_url(self, request):
         """
         Returns the base URL from the current request
