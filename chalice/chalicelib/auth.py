@@ -138,6 +138,10 @@ class AuthHandler:
         return login_url
 
     def is_real(self, request):
+        """
+        Check whether the code is running on API Gateway or through
+        chalice local on a local python server
+        """
         host = request.headers["Host"]
         is_localhost = (
             host.find("localhost") == -1
@@ -147,6 +151,12 @@ class AuthHandler:
         return is_localhost
 
     def is_cloud_front(self, request):
+        """
+        Check whether the request has been routed through a CloudFront
+        custom domain or come to API Gateway directly.
+        The host headers are not passed so the only way to detect this
+        is from the User-Agent header which is set to Amazon CloudFront
+        """
         is_cloud_front = ("User-Agent" in request.headers and
                 request.headers["User-Agent"] == "Amazon CloudFront")
 
@@ -155,12 +165,21 @@ class AuthHandler:
         return is_cloud_front
 
     def get_request_protocol(self, request):
+        """
+        Assume https and check the protocol header in the http request
+        This is mostly so we can resolve non-https chalice local routes
+        """
         protocol = "https"
         if "X-Forwarded-Proto" in request.headers:
             protocol = request.headers["X-Forwarded-Proto"]
         return protocol
 
     def get_root_path(self, request):
+        """
+        This is the stage name of the API Gateway deploy in chalice config
+        This needs to be there for all API Gateway requests whether through
+        CloudFront or not since it's part of how the router works.
+        """
         is_real = self.is_real(request)
 
         path =  ""
@@ -169,6 +188,10 @@ class AuthHandler:
         return path
 
     def get_interface_root_path(self, request):
+        """
+        The CloudFront maps the root domain to the /app path on API Gateway
+        When we create links in CF we need to exclude the /app path
+        """
         root_path = self.get_root_path(request)
         if self.is_cloud_front(request):
             root_path = ""
