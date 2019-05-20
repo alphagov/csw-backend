@@ -139,9 +139,12 @@ class AuthHandler:
 
     def is_real(self, request):
         host = request.headers["Host"]
-        return (host.find("localhost") == -1) and (
+        is_localhost = (
+            host.find("localhost") == -1
+        ) and (
             host.find("127.0.0.1") == -1
         )
+        return is_localhost
 
     def is_cloud_front(self, request):
         is_cloud_front = ("User-Agent" in request.headers and
