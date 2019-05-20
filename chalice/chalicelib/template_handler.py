@@ -213,7 +213,7 @@ class TemplateHandler:
 
             if self.is_real():
 
-                self.auth.get_root_path(req)
+                root_path = self.auth.get_root_path(req)
 
                 logged_in = self.auth.try_login(req)
 
