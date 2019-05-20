@@ -7,6 +7,22 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 class TemplateHandler:
+    """
+    This class implements the jinja2 template loading and rendering.
+
+    It also populates default variables required by all templates
+    like the asset path.
+
+    As part of the above it creates the top level menu which needs
+    moving somewhere else.
+
+    It invokes the AuthHandler class (from self.app.auth) to wrap
+    requests to render a template with some authorisation logic
+    and renders a denied template on failure.
+
+    This is a bit tightly coupled and could do with a re-write to
+    separate out the duties of each class.
+    """
     def __init__(self, app):
 
         self.app = app
