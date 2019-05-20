@@ -148,6 +148,12 @@ class AuthHandler:
                 request.headers["User-Agent"] == "Amazon CloudFront")
         return is_cloud_front
 
+    def get_request_protocol(self, request):
+        protocol = "https"
+        if "X-Forwarded-Proto" in request.headers:
+            protocol = request.headers["X-Forwarded-Proto"]
+        return protocol
+
     def get_root_path(self, request):
         is_real = self.is_real(request)
         is_cloud_front = self.is_cloud_front(request)
@@ -171,9 +177,7 @@ class AuthHandler:
         # Assume https
         self.app.log.debug("Headers: " + str(request.headers))
 
-        protocol = "https"
-        if "X-Forwarded-Proto" in request.headers:
-            protocol = request.headers["X-Forwarded-Proto"]
+        protocol = self.get_request_protocol(request)
 
         if self.is_cloud_front(request):
             host = os.environ["CSW_CF_DOMAIN"]
