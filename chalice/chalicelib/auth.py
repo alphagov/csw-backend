@@ -149,6 +149,9 @@ class AuthHandler:
     def is_cloud_front(self, request):
         is_cloud_front = ("User-Agent" in request.headers and
                 request.headers["User-Agent"] == "Amazon CloudFront")
+
+        if "User-Agent" in request.headers:
+            self.app.log.debug("User-Agent: " + request.headers["User-Agent"])
         return is_cloud_front
 
     def get_request_protocol(self, request):
