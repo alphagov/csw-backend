@@ -38,6 +38,8 @@ class TemplateHandler:
     def get_request_path(self):
 
         self.base_url = self.auth.get_base_url(self.app.current_request)
+
+        self.app.log.debug("Headers: " + str(self.app.current_request.headers))
         self.app.log.debug("Context: " + str(self.app.current_request.context))
         # return self.app.current_request.context['resourcePath']
         full_path = self.app.current_request.context["path"]
@@ -211,7 +213,7 @@ class TemplateHandler:
 
             if self.is_real():
 
-                root_path = "/app"
+                self.auth.get_root_path(req)
 
                 logged_in = self.auth.try_login(req)
 
@@ -350,11 +352,7 @@ class TemplateHandler:
         return {"headers": headers, "body": response_body, "status_code": status_code}
 
     def get_root_path(self):
-        if self.is_real():
-            root_path = "/app"
-        else:
-            root_path = ""
-            self.app.log.debug("Is localhost")
+        root_path = self.auth.get_root_path(self.app.current_request)
 
         return root_path
 

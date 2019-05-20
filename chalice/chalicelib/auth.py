@@ -137,6 +137,26 @@ class AuthHandler:
 
         return login_url
 
+    def is_real(self, request):
+        host = request.headers["Host"]
+        return (host.find("localhost") == -1) and (
+            host.find("127.0.0.1") == -1
+        )
+
+    def is_cloud_front(self, request):
+        is_cloud_front = ("User-Agent" in request.headers and
+                request.headers["User-Agent"] == "Amazon CloudFront")
+        return is_cloud_front
+
+    def get_root_path(self, request):
+        is_real = self.is_real(request)
+        is_cloud_front = self.is_cloud_front(request)
+
+        path =  ""
+        if is_real and not is_cloud_front:
+            path = "/app"
+        return path
+
     def get_base_url(self, request):
         """
         Returns the base URL from the current request
@@ -149,10 +169,19 @@ class AuthHandler:
 
         # Set default header for the case where X-Forwarded-Proto header is missing
         # Assume https
+        self.app.log.debug("Headers: " + str(request.headers))
+
         protocol = "https"
         if "X-Forwarded-Proto" in request.headers:
             protocol = request.headers["X-Forwarded-Proto"]
-        return protocol + "://" + request.headers["Host"] + "/app"
+
+        if self.is_cloud_front(request):
+            host = os.environ["CSW_CF_DOMAIN"]
+        else:
+            host = request.headers["Host"]
+
+        path = self.get_root_path(request)
+        return f"{protocol}://{host}{path}"
 
     def get_user_token(self, request):
         """
