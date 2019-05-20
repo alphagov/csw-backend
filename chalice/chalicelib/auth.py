@@ -162,10 +162,9 @@ class AuthHandler:
 
     def get_root_path(self, request):
         is_real = self.is_real(request)
-        is_cloud_front = self.is_cloud_front(request)
 
         path =  ""
-        if is_real and not is_cloud_front:
+        if is_real:
             path = "/app"
         return path
 
@@ -187,10 +186,10 @@ class AuthHandler:
 
         if self.is_cloud_front(request):
             host = os.environ["CSW_CF_DOMAIN"]
+            path = ""
         else:
             host = request.headers["Host"]
-
-        path = self.get_root_path(request)
+            path = self.get_root_path(request)
         return f"{protocol}://{host}{path}"
 
     def get_user_token(self, request):
