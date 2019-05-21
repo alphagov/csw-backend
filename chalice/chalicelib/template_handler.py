@@ -81,6 +81,9 @@ class TemplateHandler:
 
     def register_filters(self):
         def format_datetime(value, format="datetime"):
+            """
+            Format python datetime types into strings
+            """
             if format == "datetime":
                 render_as = value.strftime("%d/%m/%Y %H:%M")
             elif format == "date":
@@ -90,13 +93,20 @@ class TemplateHandler:
 
             return render_as
 
+        self.env.filters["datetime"] = format_datetime
+
         def format_aws_account_id(value):
+            """
+            Add leading 0s to fixed length AWS account IDs
+            """
             return str(value).zfill(12)
 
-        self.env.filters["datetime"] = format_datetime
         self.env.filters["aws_account_id"] = format_aws_account_id
 
         def format_timestamp(value, format="datetime"):
+            """
+            Format string literal timestamp into datetime values
+            """
 
             timestamp_pattern = "^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$"
 
@@ -121,7 +131,7 @@ class TemplateHandler:
 
             return render_as
 
-        self.env.filters["timestamp"] = format_datetime
+        self.env.filters["timestamp"] = format_timestamp
 
     def is_real(self):
         return (self.base_url.find("localhost") == -1) and (
