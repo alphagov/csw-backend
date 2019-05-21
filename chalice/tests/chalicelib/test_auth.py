@@ -49,6 +49,7 @@ class TestAuthHandler(unittest.TestCase):
                 ]
             }
         }
+        # Generate a random string to emulate the SSM parameter
         self.auth.token_secret = ''.join(random.choices(
             string.ascii_uppercase + string.ascii_lowercase + string.digits, k=128)
         )
