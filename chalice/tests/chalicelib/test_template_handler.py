@@ -63,6 +63,64 @@ class TestTemplateHandler(unittest.TestCase):
         auth = self.templates.get_auth_handler()
         self.assertIsInstance(auth, AuthHandler)
 
+    def test_filter_datetime(self):
+        """
+        Test the behaviour of the custom datetime Jinja filter
+        with a known datetime value with all format options
+        """
+        filter = self.templates.env.filters["datetime"]
+        o_datetime = datetime.datetime(2018, 6, 24, 12, 36, 48)
+
+        f_datetime = filter(o_datetime, "datetime")
+        s_datetime = "24/06/2018 12:36"
+        self.assertEqual(f_datetime, s_datetime)
+
+        f_date = filter(o_datetime, "date")
+        s_date = "24/06/2018"
+        self.assertEqual(f_date, s_date)
+
+        f_time = filter(o_datetime, "time")
+        s_time = "12:36"
+        self.assertEqual(f_time, s_time)
+
+    def test_filter_timestamp(self):
+        """
+        Test the behaviour of the custom datetime Jinja filter
+        with a known datetime value with all format options
+        """
+        filter = self.templates.env.filters["timestamp"]
+        o_timestamp = "2018-06-24 12:36:48"
+
+        f_datetime = filter(o_timestamp, "datetime")
+        s_datetime = "24/06/2018 12:36"
+        self.assertEqual(f_datetime, s_datetime)
+
+        f_date = filter(o_timestamp, "date")
+        s_date = "24/06/2018"
+        self.assertEqual(f_date, s_date)
+
+        f_time = filter(o_timestamp, "time")
+        s_time = "12:36"
+        self.assertEqual(f_time, s_time)
+
+    def test_filter_aws_account_id(self):
+        """
+        Test that aws_account_id filter returns a 12 digit string
+        regardless of the length of the input and works for both
+        string and integer inputs
+        """
+        filter = self.templates.env.filters["aws_account_id"]
+
+        accounts = [
+            123456789012,
+            12345678901,
+            "123456789012",
+            "12345678901"
+        ]
+        for raw in accounts:
+            formatted = filter(raw)
+            self.assertEqual(len(formatted), 12)
+
 
 if __name__ == "__main__":
     unittest.main()
