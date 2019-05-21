@@ -30,7 +30,7 @@ class AuthHandler:
         self.cookie_expiration = datetime.timedelta(days=1)
 
         # Retrieve Google OAuth credentials and token secret
-        self.get_params()
+        #self.get_params()
 
         # Initialise parameters for OAuth scopes and
         # JWT encryption
