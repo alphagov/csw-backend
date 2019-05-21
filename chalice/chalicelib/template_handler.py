@@ -55,8 +55,8 @@ class TemplateHandler:
 
         self.base_url = self.auth.get_base_url(self.app.current_request)
 
-        self.app.log.debug("Headers: " + str(self.app.current_request.headers))
-        self.app.log.debug("Context: " + str(self.app.current_request.context))
+        #self.app.log.debug("Headers: " + str(self.app.current_request.headers))
+        #self.app.log.debug("Context: " + str(self.app.current_request.context))
         # return self.app.current_request.context['resourcePath']
         full_path = self.app.current_request.context["path"]
         base_path = self.get_root_path()
