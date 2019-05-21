@@ -30,6 +30,7 @@ class TestAuthHandler(unittest.TestCase):
         self.app = Chalice("test")
         self.auth = AuthHandler(self.app)
         self.setUpAuthParameters()
+        self.default_login_data = {"authenticated": False, "is_registered": False}
 
     def setUpAuthParameters(self):
         self.auth.client_config = {
@@ -75,7 +76,7 @@ class TestAuthHandler(unittest.TestCase):
 
         self.assertFalse(self.auth.logged_in)
 
-        self.assertDictEqual(self.auth.login_data, {"authenticated": False, "is_registered": False})
+        self.assertDictEqual(self.auth.login_data, self.default_login_data)
 
     def test_init_failure(self):
         """
@@ -161,6 +162,14 @@ class TestAuthHandler(unittest.TestCase):
 
         # Check the original dict is returned successfully
         self.assertDictEqual(user, decode)
+
+    def test_get_login_data(self):
+        """
+        Test that the login data is returned successfully from the
+        get_login_data method unaltered
+        """
+        login_data = self.auth.get_login_data()
+        self.assertDictEqual(login_data, self.default_login_data)
 
 
 if __name__ == "__main__":
