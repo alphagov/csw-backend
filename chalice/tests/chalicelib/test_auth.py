@@ -103,14 +103,25 @@ class TestAuthHandler(unittest.TestCase):
 
         # Set request header values
         protocol = "https"
-        domain = "example.com"
 
         # Create mock request instance
+        domain = "localhost"
         test_request = TestRequest()
         test_request.headers = {
             "X-Forwarded-Proto": protocol,
             "Host": domain
         }
+
+        # Call the method
+        url = self.auth.get_base_url(test_request)
+        # Check the method returns the manually created url.
+        # Test that the protocol matches
+        # Test that the domain matches the host header
+        # Test that /app is not appended to the URL
+        self.assertEqual(url, protocol + "://" + domain)
+
+        domain = "example.com"
+        test_request.headers["Host"] = domain
 
         # Call the method
         url = self.auth.get_base_url(test_request)
