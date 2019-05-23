@@ -1,6 +1,6 @@
 boto3==1.9.154
 psycopg2-binary==2.8.2
-peewee==3.6.4
+peewee==3.9.5
 cerberus==1.2
 httplib2==0.11.3
 google-auth==1.5.1
