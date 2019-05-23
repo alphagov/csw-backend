@@ -1,5 +1,5 @@
 -r requirements.txt
-chalice==1.6.0
+chalice==1.8.0
 flake8==3.5.0
 safety==1.8.4
 sshtunnel==0.1.4
