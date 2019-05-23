@@ -30,7 +30,7 @@ class AuthHandler:
         self.cookie_expiration = datetime.timedelta(days=1)
 
         # Retrieve Google OAuth credentials and token secret
-        self.get_params()
+        #self.get_params()
 
         # Initialise parameters for OAuth scopes and
         # JWT encryption
@@ -137,6 +137,66 @@ class AuthHandler:
 
         return login_url
 
+    def is_real(self, request):
+        """
+        Check whether the code is running on API Gateway or through
+        chalice local on a local python server
+        """
+        host = request.headers["Host"]
+        is_localhost = (
+            host.find("localhost") == -1
+        ) and (
+            host.find("127.0.0.1") == -1
+        )
+        return is_localhost
+
+    def is_cloud_front(self, request):
+        """
+        Check whether the request has been routed through a CloudFront
+        custom domain or come to API Gateway directly.
+        The host headers are not passed so the only way to detect this
+        is from the User-Agent header which is set to Amazon CloudFront
+        """
+        is_cloud_front = ("User-Agent" in request.headers and
+                request.headers["User-Agent"] == "Amazon CloudFront")
+
+        if "User-Agent" in request.headers:
+            self.app.log.debug("User-Agent: " + request.headers["User-Agent"])
+        return is_cloud_front
+
+    def get_request_protocol(self, request):
+        """
+        Assume https and check the protocol header in the http request
+        This is mostly so we can resolve non-https chalice local routes
+        """
+        protocol = "https"
+        if "X-Forwarded-Proto" in request.headers:
+            protocol = request.headers["X-Forwarded-Proto"]
+        return protocol
+
+    def get_root_path(self, request):
+        """
+        This is the stage name of the API Gateway deploy in chalice config
+        This needs to be there for all API Gateway requests whether through
+        CloudFront or not since it's part of how the router works.
+        """
+        is_real = self.is_real(request)
+
+        path =  ""
+        if is_real:
+            path = "/app"
+        return path
+
+    def get_interface_root_path(self, request):
+        """
+        The CloudFront maps the root domain to the /app path on API Gateway
+        When we create links in CF we need to exclude the /app path
+        """
+        root_path = self.get_root_path(request)
+        if self.is_cloud_front(request):
+            root_path = ""
+        return root_path
+
     def get_base_url(self, request):
         """
         Returns the base URL from the current request
@@ -149,10 +209,17 @@ class AuthHandler:
 
         # Set default header for the case where X-Forwarded-Proto header is missing
         # Assume https
-        protocol = "https"
-        if "X-Forwarded-Proto" in request.headers:
-            protocol = request.headers["X-Forwarded-Proto"]
-        return protocol + "://" + request.headers["Host"] + "/app"
+        self.app.log.debug("Headers: " + str(request.headers))
+
+        protocol = self.get_request_protocol(request)
+
+        if self.is_cloud_front(request):
+            host = os.environ["CSW_CF_DOMAIN"]
+            path = ""
+        else:
+            host = request.headers["Host"]
+            path = self.get_root_path(request)
+        return f"{protocol}://{host}{path}"
 
     def get_user_token(self, request):
         """

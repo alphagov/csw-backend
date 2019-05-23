@@ -242,6 +242,12 @@ gulp.task("environment.chalice_config", function() {
     )
     .pipe(
       data(function(file) {
+        file.data.env = env;
+        file.data.config = config;
+      })
+    )
+    .pipe(
+      data(function(file) {
         var parameter = "/csw/" + env + "/rds/user";
         var property = "postgres_user_password";
         return helpers.getParameterInPipelinePromise(
@@ -250,6 +256,11 @@ gulp.task("environment.chalice_config", function() {
           file,
           property
         );
+      })
+    )
+    .pipe(
+      data(function(file) {
+        return helpers.getDomainSettings(file);
       })
     )
     .pipe(
@@ -274,6 +285,8 @@ gulp.task("environment.chalice_config", function() {
           file.data.rds_connection_string;
         file.data.config.stages[env].environment_variables.CSW_REGION =
           file.data.region;
+        file.data.config.stages[env].environment_variables.CSW_CF_DOMAIN =
+          file.data.custom_url;
 
         var role_name = file.data.prefix + "_CstSecurityAgentRole";
         var role_arn =

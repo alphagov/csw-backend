@@ -7,6 +7,22 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 class TemplateHandler:
+    """
+    This class implements the jinja2 template loading and rendering.
+
+    It also populates default variables required by all templates
+    like the asset path.
+
+    As part of the above it creates the top level menu which needs
+    moving somewhere else.
+
+    It invokes the AuthHandler class (from self.app.auth) to wrap
+    requests to render a template with some authorisation logic
+    and renders a denied template on failure.
+
+    This is a bit tightly coupled and could do with a re-write to
+    separate out the duties of each class.
+    """
     def __init__(self, app):
 
         self.app = app
@@ -38,7 +54,9 @@ class TemplateHandler:
     def get_request_path(self):
 
         self.base_url = self.auth.get_base_url(self.app.current_request)
-        self.app.log.debug("Context: " + str(self.app.current_request.context))
+
+        #self.app.log.debug("Headers: " + str(self.app.current_request.headers))
+        #self.app.log.debug("Context: " + str(self.app.current_request.context))
         # return self.app.current_request.context['resourcePath']
         full_path = self.app.current_request.context["path"]
         base_path = self.get_root_path()
@@ -63,6 +81,9 @@ class TemplateHandler:
 
     def register_filters(self):
         def format_datetime(value, format="datetime"):
+            """
+            Format python datetime types into strings
+            """
             if format == "datetime":
                 render_as = value.strftime("%d/%m/%Y %H:%M")
             elif format == "date":
@@ -72,13 +93,20 @@ class TemplateHandler:
 
             return render_as
 
+        self.env.filters["datetime"] = format_datetime
+
         def format_aws_account_id(value):
+            """
+            Add leading 0s to fixed length AWS account IDs
+            """
             return str(value).zfill(12)
 
-        self.env.filters["datetime"] = format_datetime
         self.env.filters["aws_account_id"] = format_aws_account_id
 
         def format_timestamp(value, format="datetime"):
+            """
+            Format string literal timestamp into datetime values
+            """
 
             timestamp_pattern = "^(\d+)-(\d+)-(\d+)\s(\d+):(\d+).+$"
 
@@ -103,7 +131,7 @@ class TemplateHandler:
 
             return render_as
 
-        self.env.filters["timestamp"] = format_datetime
+        self.env.filters["timestamp"] = format_timestamp
 
     def is_real(self):
         return (self.base_url.find("localhost") == -1) and (
@@ -211,7 +239,7 @@ class TemplateHandler:
 
             if self.is_real():
 
-                root_path = "/app"
+                root_path = self.auth.get_interface_root_path(req)
 
                 logged_in = self.auth.try_login(req)
 
@@ -350,11 +378,7 @@ class TemplateHandler:
         return {"headers": headers, "body": response_body, "status_code": status_code}
 
     def get_root_path(self):
-        if self.is_real():
-            root_path = "/app"
-        else:
-            root_path = ""
-            self.app.log.debug("Is localhost")
+        root_path = self.auth.get_root_path(self.app.current_request)
 
         return root_path
 
