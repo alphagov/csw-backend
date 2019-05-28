@@ -387,16 +387,16 @@ def route_api_prometheus_metrics():
             {
                 "name": "csw_failed_audits",
                 "type": "gauge",
-                "desc": "Percentage of failed audits of active accounts in the last 24 hours",
+                "desc": "Percentage of failed audits of active accounts in the last week",
                 "data": 0,
                 "query": (
                     "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) as metric_data " 
-                    "FROM public.account_subscription AS sub "
-                    "LEFT JOIN public.account_audit AS aa "
-                    "ON sub.id = aa.account_subscription_id "
-                    "WHERE sub.active "
-                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '24 hours')"
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data " 
+                    "FROM public.account_subscription AS sub " 
+                    "LEFT JOIN public.account_audit AS aa " 
+                    "ON sub.id = aa.account_subscription_id " 
+                    "WHERE sub.active " 
+                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '7 days')"
                 )
             }
         ]
