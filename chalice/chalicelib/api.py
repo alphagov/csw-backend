@@ -414,8 +414,7 @@ def route_api_prometheus_metrics():
 
                 metric_data += f"# HELP {metric['name']} {metric['desc']}\n"
                 metric_data += f"# TYPE {metric['name']} {metric['type']}\n"
-                metric_data += f"{metric['name']}\n"
-                metric_data += f"{metric['data']}\n"
+                metric_data += f"{metric['name']} {metric['data']}\n"
 
     except Exception as err:
         status_code = 500
