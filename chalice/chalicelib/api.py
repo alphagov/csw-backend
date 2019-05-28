@@ -374,7 +374,7 @@ def route_api_prometheus_metrics():
                 "data": 0,
                 "query": (
                     "SELECT " 
-                        "AVG(age(NOW(), aa.date_completed)) AS average_age "
+                        "AVG(EXTRACT(EPOCH FROM age(NOW(), aa.date_completed))) AS average_age "
                     "FROM public.account_subscription AS sub "
                     "INNER JOIN public.account_latest_audit AS ala "
                     "ON sub.id = ala.account_subscription_id "
