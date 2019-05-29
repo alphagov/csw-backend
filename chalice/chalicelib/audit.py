@@ -104,12 +104,18 @@ def account_audit_criteria(event):
             audit.active_criteria = len(list(active_criteria))
             audit.save()
             for criterion in active_criteria:
-                audit_criterion = models.AuditCriterion.create(
-                    account_audit_id=audit, criterion_id=criterion
-                )
-                message_body = app.utilities.to_json(audit_criterion.serialize())
-                message_id = sqs.send_message(queue_url, message_body)
-                messages.append(message_id)
+                # catch KeyErrors for duplicate compound keys if SQS messages
+                # are processed twice
+                # (account_audit_id, criterion_id) should be unique
+                try:
+                    audit_criterion = models.AuditCriterion.create(
+                        account_audit_id=audit, criterion_id=criterion
+                    )
+                    message_body = app.utilities.to_json(audit_criterion.serialize())
+                    message_id = sqs.send_message(queue_url, message_body)
+                    messages.append(message_id)
+                except KeyError as err:
+                    app.log.error(app.utilities.get_typed_exception(err))
             audit.date_updated = datetime.now()
             audit.save()
     except Exception as err:
