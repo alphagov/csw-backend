@@ -64,6 +64,54 @@ gulp.task("environment.settings", function() {
         );
       })
     )
+    .pipe(
+      data(function(file) {
+        // Get Terraforms state S3 bucket name from AWS SSM Parameter Store
+        console.log("Get terraform chain account");
+
+        var parameter = "/csw/chain/account";
+        var property = "chain_account_id";
+        var region = file.data.region;
+        return helpers.getParameterInPipelinePromise(
+          parameter,
+          region,
+          file,
+          property
+        );
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Get Terraforms state S3 bucket name from AWS SSM Parameter Store
+        console.log("Get terraform chain role");
+
+        var parameter = "/csw/chain/chain_role";
+        var property = "chain_role_name";
+        var region = file.data.region;
+        return helpers.getParameterInPipelinePromise(
+          parameter,
+          region,
+          file,
+          property
+        );
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Get Terraforms state S3 bucket name from AWS SSM Parameter Store
+        console.log("Get terraform target role");
+
+        var parameter = "/csw/chain/target_role";
+        var property = "target_role_name";
+        var region = file.data.region;
+        return helpers.getParameterInPipelinePromise(
+          parameter,
+          region,
+          file,
+          property
+        );
+      })
+    )
     // Read host account ID using STS GetCallerIdentity
     .pipe(
       data(function(file) {
@@ -113,7 +161,10 @@ gulp.task("environment.settings", function() {
           "bucket_name",
           "ip_16bit_prefix",
           "ssh_key_name",
-          "ssh_public_key_path"
+          "ssh_public_key_path",
+          "chain_account_id",
+          "chain_role_name",
+          "target_role_name"
         ];
 
         file.data = helpers.removeExceptPropertiesInPipeline(

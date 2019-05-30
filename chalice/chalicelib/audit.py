@@ -151,9 +151,13 @@ def account_evaluate_criteria(event):
             check = CheckClass(app)
             account_id = audit.account_subscription_id.account_id
             check.set_account_subscription_id(audit.account_subscription_id.id)
-            session = check.get_session(
-                account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole"
-            )
+
+            # TODO figure out how to resolve the chain account and new role names
+            # TODO implement the check.get_chained_session method
+            # session = check.get_session(
+            #     account=account_id, role=f"{app.prefix}_CstSecurityInspectorRole"
+            # )
+            session = check.get_chained_session(account_id)
 
             # check passed is set to true and and-equalsed for all
             # or false and or-equalsed for any
