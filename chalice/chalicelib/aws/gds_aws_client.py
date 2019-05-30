@@ -25,31 +25,24 @@ class GdsAwsClient:
         Retrieve the secrets from SSM.
         """
 
-        if "CSW_ENV" in os.environ:
+        params = {
+            "/csw/chain/account": "account",
+            "/csw/chain/chain_role": "chain_role",
+            "/csw/chain/target_role": "target_role"
+        }
 
-            env = os.environ["CSW_ENV"]
+        # Get list of SSM parameter names from dict
+        param_list = list(params.keys())
 
-            params = {
-                "/csw/chain/account": "account",
-                "/csw/chain/chain_role": "chain_role",
-                "/csw/chain/target_role": "target_role"
-            }
+        ssm = boto3.client("ssm")
 
-            # Get list of SSM parameter names from dict
-            param_list = list(params.keys())
+        # Get all listed parameters in one API call
+        response = ssm.get_parameters(Names=param_list, WithDecryption=True)
 
-            ssm = boto3.client("ssm")
-
-            # Get all listed parameters in one API call
-            parameters = ssm.get_parameters(Names=param_list, WithDecryption=True)
-
-            for item in parameters:
-                param_name = params[item["Name"]]
-                param_value = item["Value"]
-                self.chain[param_name] = param_value
-
-        else:
-            self.app.log.debug("Environment variable CSW_ENV missing")
+        for item in response["Parameters"]:
+            param_name = params[item["Name"]]
+            param_value = item["Value"]
+            self.chain[param_name] = param_value
 
     def to_camel_case(snake_str, capitalize_first=True):
         components = snake_str.split("_")
