@@ -53,8 +53,8 @@ class CriteriaDefault:
     def get_session(self, account="default", role=""):
         return self.client.get_session(account, role)
 
-    def get_chained_session(self, target_account, target_role):
-        return self.client.get_chained_session(target_account, target_role)
+    def get_chained_session(self, target_account):
+        return self.client.get_chained_session(target_account)
 
     def get_aggregation_type(self):
         return self.aggregation_type
