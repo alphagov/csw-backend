@@ -17,6 +17,39 @@ class GdsAwsClient:
 
     def __init__(self, app=None):
         self.app = app
+        self.chain = {}
+        self.get_chain_role_params()
+
+    def get_chain_role_params(self):
+        """
+        Retrieve the secrets from SSM.
+        """
+
+        if "CSW_ENV" in os.environ:
+
+            env = os.environ["CSW_ENV"]
+
+            params = {
+                "/csw/chain/account": "account",
+                "/csw/chain/chain_role": "chain_role",
+                "/csw/chain/target_role": "target_role"
+            }
+
+            # Get list of SSM parameter names from dict
+            param_list = list(params.keys())
+
+            ssm = boto3.client("ssm")
+
+            # Get all listed parameters in one API call
+            parameters = ssm.get_parameters(Names=param_list, WithDecryption=True)
+
+            for item in parameters:
+                param_name = params[item["Name"]]
+                param_value = item["Value"]
+                self.chain[param_name] = param_value
+
+        else:
+            self.app.log.debug("Environment variable CSW_ENV missing")
 
     def to_camel_case(snake_str, capitalize_first=True):
         components = snake_str.split("_")
@@ -123,7 +156,7 @@ class GdsAwsClient:
         return self.resources[resource_name]
 
     # issue the sts assume-role command and store the returned credentials
-    def assume_role(self, account, role, is_lambda=True, email="", token=""):
+    def assume_role(self, account, role, session=None, is_lambda=True, email="", token=""):
 
         """
         Example response
@@ -147,7 +180,10 @@ class GdsAwsClient:
                 account = str(account).rjust(12, "0")
             self.app.log.debug(f"Assuming to account: {account} with role: {role}")
 
-            sts = self.get_boto3_client("sts")
+            if (session is None):
+                sts = self.get_boto3_client("sts")
+            else:
+                sts = self.get_boto3_session_client("sts", session)
 
             role_arn = f"arn:aws:iam::{account}:role/{role}"
             print(f"Assume role: {role_arn}")
@@ -191,9 +227,12 @@ class GdsAwsClient:
 
         return role_assumed
 
-    # get the role and account id assumed by the current session credentials
     def get_caller_details(self, session=None):
-
+        """
+        Get the role and account id assumed by the current session credentials
+        :param session:
+        :return:
+        """
         caller_details = None
         try:
             if session is None:
@@ -215,7 +254,7 @@ class GdsAwsClient:
 
     # get_session returns the existing session if it already exists
     # or assumes the role and returns the new session if it doesn't
-    def get_session(self, account="default", role=""):
+    def get_session(self, account="default", role="", session=None):
 
         try:
             session_name = self.get_session_name(account, role)
@@ -233,7 +272,7 @@ class GdsAwsClient:
 
             if not valid:
 
-                assumed = self.assume_role(account, role)
+                assumed = self.assume_role(account, role, session)
                 if not assumed:
                     raise Exception("Assume role failed")
 
@@ -244,3 +283,39 @@ class GdsAwsClient:
             session = None
 
         return session
+
+    def assume_chained_role(self, target_account):
+        """
+        Assumed the target account:role by first assuming
+        a chain account:role and only return true if both
+        assumes complete successfully
+        return: bool
+        """
+        assumed = False
+        try:
+            chain_assumed = self.assume_role(self.chain["account"], self.chain["chain_role"])
+            if chain_assumed:
+                chain_session = self.get_session(self.chain["account"], self.chain["chain_role"])
+                assumed = self.assume_role(target_account, self.chain["target_role"], session=chain_session)
+        except Exception as err:
+            self.app.log.error(self.app.utilities.get_typed_exception(err))
+
+        return assumed
+
+    def get_chained_session(self, target_account):
+        """
+        Assumed the target account:role by first assuming
+        a chain account:role and only return true if both
+        assumes complete successfully
+        return: session dict|None
+        """
+        target_session = None
+        try:
+            chain_assumed = self.assume_role(self.chain["account"], self.chain["chain_role"])
+            if chain_assumed:
+                chain_session = self.get_session(self.chain["account"], self.chain["chain_role"])
+                target_session = self.get_session(target_account, self.chain["target_role"], session=chain_session)
+        except Exception as err:
+            self.app.log.error(self.app.utilities.get_typed_exception(err))
+
+        return target_session

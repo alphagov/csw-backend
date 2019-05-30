@@ -149,6 +149,7 @@ app = CloudSecurityWatch(app_name="cloud-security-watch")
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
 app.prefix = os.environ["CSW_PREFIX"]
+app.env = os.environ["CSW_ENV"]
 app.utilities = Utilities()
 # load decorated function-based views from another chalicelib file
 # TODO: Replace load_views with a django-like dispatcher...

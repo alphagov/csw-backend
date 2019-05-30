@@ -87,10 +87,101 @@ gulp.task("parameters.shared.terraform_states_bucket", function() {
   return pipeline;
 });
 
+gulp.task("parameters.shared.role_chain", function() {
+  // Load default settings
+  var pipeline = gulp
+    .src("../environments/example/settings.json")
+    .pipe(
+      modifyFile(function(content, path, file) {
+        var defaults = JSON.parse(content);
+        file.data = defaults;
+        return content;
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Ask user for environment name
+
+        var name = "chain_account";
+        var prompt = "Please paste the AWS account ID to chain through to the target IAM role:";
+        return helpers.promptInputPromise(name, prompt, file);
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Upload api credentials to Parameter Store
+        var name = "/" + file.data.tool + "/chain/account";
+        var property = "chain_account";
+
+        var region = file.data.region;
+        return helpers.setParameterInPipelinePromise(
+          name,
+          file.data.bucket_name,
+          region,
+          file,
+          property
+        );
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Ask user for environment name
+
+        var name = "chain_role";
+        var prompt = "Please paste the IAM role name to chain through to the target IAM role:";
+        return helpers.promptInputPromise(name, prompt, file);
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Upload api credentials to Parameter Store
+        var name = "/" + file.data.tool + "/chain/chain_role";
+        var property = "chain_role";
+
+        var region = file.data.region;
+        return helpers.setParameterInPipelinePromise(
+          name,
+          file.data.bucket_name,
+          region,
+          file,
+          property
+        );
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Ask user for environment name
+
+        var name = "target_role";
+        var prompt = "Please paste the IAM role name to assume in the target account:";
+        return helpers.promptInputPromise(name, prompt, file);
+      })
+    )
+    .pipe(
+      data(function(file) {
+        // Upload api credentials to Parameter Store
+        var name = "/" + file.data.tool + "/chain/target_role";
+        var property = "target_role";
+
+        var region = file.data.region;
+        return helpers.setParameterInPipelinePromise(
+          name,
+          file.data.bucket_name,
+          region,
+          file,
+          property
+        );
+      })
+    );
+
+  return pipeline;
+});
+
 gulp.task(
   "parameters.shared",
   gulp.series(
     "parameters.shared.google_auth",
-    "parameters.shared.terraform_states_bucket"
+    "parameters.shared.terraform_states_bucket",
+    "parameters.shared.role_chain"
   )
 );

@@ -112,7 +112,9 @@ gulp.task("environment.apply.tfvars", function() {
           "bucket_name",
           "ip_16bit_prefix",
           "ssh_key_name",
-          "ssh_public_key_path"
+          "ssh_public_key_path",
+          "chain_account_id",
+          "chain_role_name"
         ];
 
         file.data = helpers.removeExceptPropertiesInPipeline(
