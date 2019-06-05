@@ -37,7 +37,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
     Base class, don't subclass this, use the two subclasses declared below.
     """
 
-    active = True
+    active = False
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationYellow, self).__init__(app)
