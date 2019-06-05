@@ -57,7 +57,7 @@ class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
             self.annotation = ""
             self.app.log.debug("Bucket found compliant")
         else:
-            compliance_type = "NOT_COMPLIANT"
+            compliance_type = "NON_COMPLIANT"
             self.annotation = "The S3 bucket does not have encryption at rest enabled."
             self.app.log.debug("Bucket is found to be not compliant")
 
