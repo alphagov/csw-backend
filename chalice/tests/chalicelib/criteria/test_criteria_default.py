@@ -244,7 +244,9 @@ class CriteriaSubclassTestCaseMixin(object):
         test that all instance variables have the expected initial values
         """
         with self.subTest():
-            self.assertTrue(self.subclass.active, msg="active must be True")
+            # Checks do not have to be active but value should be set and boolean
+            #    self.assertTrue(self.subclass.active, msg="active must be True")
+            self.assertIn(self.subclass.active, [True,False], msg="active must be True")
         with self.subTest():
             self.assertNotEqual(
                 self.subclass.resource_type,
