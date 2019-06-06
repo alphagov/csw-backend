@@ -326,3 +326,102 @@ def route_api_daily_account():
         "headers": {"Content-Type": "application/json"},
     }
     return Response(**response)
+
+
+@app.route("/api/prometheus/metrics")
+def route_api_prometheus_metrics():
+    """
+    Proof of concept endpoint to expose metric data for Prometheus
+    In production we'd need this endpoint to be minimal load so we
+    could prepare the data or we could separate into multiple
+    endpoints with a single metric per endpoint.
+
+    Example metrics implemented
+    Percentage of active accounts with audit in last 24 hours
+    Average age of most recent audit
+    Failed audits in last 24 hours
+
+    Example metric data
+    # HELP go_goroutines Number of goroutines that currently exist.
+    # TYPE go_goroutines gauge
+    go_goroutines
+    35
+    """
+    status_code = 200
+    metric_data = ""
+    try:
+        metrics = [
+            {
+                "name": "csw_percentage_active_current",
+                "type": "gauge",
+                "desc": "Percentage of active accounts which have been audited in the last 24 hours",
+                "data": 0,
+                "query": (
+                    "SELECT "
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) as metric_data " 
+                    "FROM public.account_subscription AS sub "
+                    "LEFT JOIN public.account_audit AS aa "
+                    "ON sub.id = aa.account_subscription_id "
+                    "WHERE sub.active "
+                    "AND (aa.date_completed IS NULL "
+                    "   OR age(NOW(), aa.date_completed) < INTERVAL '24 hours')"
+                )
+            },
+            {
+                "name": "csw_average_age_of_recent_audit",
+                "type": "gauge",
+                "desc": "Average age of current audit for active accounts",
+                "data": 0,
+                "query": (
+                    "SELECT " 
+                        "AVG(EXTRACT(EPOCH FROM age(NOW(), aa.date_completed))) AS average_age "
+                    "FROM public.account_subscription AS sub "
+                    "INNER JOIN public.account_latest_audit AS ala "
+                    "ON sub.id = ala.account_subscription_id "
+                    "INNER JOIN public.account_audit AS aa " 
+                    "ON aa.id = ala.account_audit_id "
+                    "WHERE aa.date_completed IS NOT NULL "
+                    "AND sub.active"
+                )
+            },
+            {
+                "name": "csw_failed_audits",
+                "type": "gauge",
+                "desc": "Percentage of failed audits of active accounts in the last week",
+                "data": 0,
+                "query": (
+                    "SELECT "
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data " 
+                    "FROM public.account_subscription AS sub " 
+                    "LEFT JOIN public.account_audit AS aa " 
+                    "ON sub.id = aa.account_subscription_id " 
+                    "WHERE sub.active " 
+                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '7 days')"
+                )
+            }
+        ]
+
+        dbh = DatabaseHandle(app)
+        db = dbh.get_handle()
+        for metric in metrics:
+            app.log.debug(f"Metric {metric['name']}")
+            app.log.debug(f"Query: {metric['query']}")
+
+            cursor = db.execute_sql(metric["query"])
+            for row in cursor.fetchall():
+                app.log.debug("Row: " + app.utilities.to_json(row))
+                metric["data"] = row[0]
+
+                metric_data += f"# HELP {metric['name']} {metric['desc']}\n"
+                metric_data += f"# TYPE {metric['name']} {metric['type']}\n"
+                metric_data += f"{metric['name']} {metric['data']}\n"
+
+    except Exception as err:
+        status_code = 500
+
+    response = {
+        "body": metric_data,
+        "status_code": status_code,
+        "headers": {"Content-Type": "text/plain"},
+    }
+    return Response(**response)
