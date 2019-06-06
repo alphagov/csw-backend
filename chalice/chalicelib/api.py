@@ -51,7 +51,7 @@ def read_script(script_path):
     return commands
 
 
-def execute_update_stats_tables(event, context):
+def execute_update_usage_stats_tables(event, context):
     """
     The summary stats are produced daily as static tables.
     These could be rendered as views or materialized views but since the data is not changing that frequently
@@ -77,20 +77,29 @@ def execute_update_stats_tables(event, context):
     return {"status": status, "commands": commands}
 
 
+# Usage metrics
+# Scheduled lambda for usage metrics
 @app.schedule(Rate(24, unit=Rate.HOURS))
-def scheduled_update_stats_tables(event):
+def scheduled_update_usage_stats_tables(event):
     """
     The default behaviour is that the stats are generated automatically once every 24 hours
     """
-    return execute_update_stats_tables(event, {})
+    return execute_update_usage_stats_tables(event, {})
 
 
+# Manual lambda to trigger the usage metrics update
 @app.lambda_function()
-def update_stats_tables(event, context):
+def update_usage_stats_tables(event, context):
     """
     For the purposes of testing we can manually regenerate the stats summary tables on demand
     """
-    return execute_update_stats_tables(event, context)
+    return execute_update_usage_stats_tables(event, context)
+
+# Health metrics
+# Manual lambda to trigger the health metrics update
+@app.lambda_function()
+def update_health_metrics_table(event, context):
+    return models.HealthMetrics.update_metrics()
 
 
 # TODO provide a number of GET only routes
