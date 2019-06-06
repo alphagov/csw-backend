@@ -1188,6 +1188,96 @@ class MonthlyDeltaStats(database_handle.BaseModel):
         table_name = "_monthly_delta_stats"
         primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
+class HealthMetrics(database_handle.BaseModel):
+    name = peewee.CharField(unique=True)
+    desc = peewee.TextField()
+    metric_type = peewee.CharField()
+    data = peewee.FloatField()
+
+    class Meta:
+        table_name = "_health_metrics"
+
+    @classmethod
+    def update_metrics(cls):
+        metrics = [
+            {
+                "name": "csw_percentage_active_current",
+                "type": "gauge",
+                "desc": "Percentage of active accounts which have been audited in the last 24 hours",
+                "data": 0,
+                "query": (
+                    "SELECT "
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) as metric_data " 
+                    "FROM public.account_subscription AS sub "
+                    "LEFT JOIN public.account_audit AS aa "
+                    "ON sub.id = aa.account_subscription_id "
+                    "WHERE sub.active "
+                    "AND (aa.date_completed IS NULL "
+                    "   OR age(NOW(), aa.date_completed) < INTERVAL '24 hours')"
+                )
+            },
+            {
+                "name": "csw_average_age_of_recent_audit",
+                "type": "gauge",
+                "desc": "Average age of current audit for active accounts",
+                "data": 0,
+                "query": (
+                    "SELECT " 
+                        "AVG(EXTRACT(EPOCH FROM age(NOW(), aa.date_completed))) AS average_age "
+                    "FROM public.account_subscription AS sub "
+                    "INNER JOIN public.account_latest_audit AS ala "
+                    "ON sub.id = ala.account_subscription_id "
+                    "INNER JOIN public.account_audit AS aa " 
+                    "ON aa.id = ala.account_audit_id "
+                    "WHERE aa.date_completed IS NOT NULL "
+                    "AND sub.active"
+                )
+            },
+            {
+                "name": "csw_failed_audits",
+                "type": "gauge",
+                "desc": "Percentage of failed audits of active accounts in the last week",
+                "data": 0,
+                "query": (
+                    "SELECT "
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data " 
+                    "FROM public.account_subscription AS sub " 
+                    "LEFT JOIN public.account_audit AS aa " 
+                    "ON sub.id = aa.account_subscription_id " 
+                    "WHERE sub.active " 
+                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '7 days')"
+                )
+            }
+        ]
+        for metric in metrics:
+            app.log.debug(f"Metric {metric['name']}")
+            app.log.debug(f"Query: {metric['query']}")
+            cls.update_metric_data(metric)
+
+    @classmethod
+    def update_metric_data(cls, metric):
+        try:
+            # TODO: Get database from model
+            dbh = database_handle.DatabaseHandle(app)
+            db = dbh.get_handle()
+            cursor = db.execute_sql(metric["query"])
+
+            for row in cursor.fetchall():
+                app.log.debug("Row: " + app.utilities.to_json(row))
+                metric["data"] = row[0]
+
+                metric = (cls
+                    .insert(
+                        name=metric['name'],
+                        desc=metric['desc'],
+                        metric_type=metric['type'],
+                        data=metric['data']
+                    )
+                    .on_conflict_replace()
+                    .execute()
+                )
+        except Exception as err:
+            app.log.error(app.utilities.get_typed_exception(err))
 
 """
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
