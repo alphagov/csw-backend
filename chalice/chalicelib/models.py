@@ -1273,7 +1273,7 @@ class HealthMetrics(database_handle.BaseModel):
                         metric_type=metric['type'],
                         data=metric['data']
                     )
-                    .on_conflict_replace()
+                    .on_conflict(conflict_target=[cls.name], preserve=[cls.data])
                     .execute()
                 )
         except Exception as err:
