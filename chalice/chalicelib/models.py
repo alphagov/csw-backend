@@ -1257,9 +1257,7 @@ class HealthMetrics(database_handle.BaseModel):
     @classmethod
     def update_metric_data(cls, metric):
         try:
-            # TODO: Get database from model
-            dbh = database_handle.DatabaseHandle(app)
-            db = dbh.get_handle()
+            db = cls._meta.database
             cursor = db.execute_sql(metric["query"])
 
             for row in cursor.fetchall():
