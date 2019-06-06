@@ -246,7 +246,7 @@ class CriteriaSubclassTestCaseMixin(object):
         with self.subTest():
             # Checks do not have to be active but value should be set and boolean
             #    self.assertTrue(self.subclass.active, msg="active must be True")
-            self.assertIn(self.subclass.active, [True,False], msg="active must be True")
+            self.assertIn(self.subclass.active, [True,False], msg="active must be set and boolean")
         with self.subTest():
             self.assertNotEqual(
                 self.subclass.resource_type,
