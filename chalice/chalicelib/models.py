@@ -1203,7 +1203,7 @@ class HealthMetrics(database_handle.BaseModel):
             {
                 "name": "csw_percentage_active_current",
                 "type": "gauge",
-                "desc": "Percentage of active accounts which have been audited in the last 24 hours",
+                "desc": "What percentage of active accounts have a complete audit less than 24 hours old",
                 "data": 0,
                 "query": (
                     "SELECT "
@@ -1212,40 +1212,43 @@ class HealthMetrics(database_handle.BaseModel):
                     "LEFT JOIN public.account_audit AS aa "
                     "ON sub.id = aa.account_subscription_id "
                     "WHERE sub.active "
-                    "AND (aa.date_completed IS NULL "
-                    "   OR age(NOW(), aa.date_completed) < INTERVAL '24 hours')"
+                    "AND (age(NOW(), aa.date_started) < INTERVAL '24 hours') OR aa.date_started IS NULL)"
                 )
             },
             {
-                "name": "csw_average_age_of_recent_audit",
+                "name": "csw_percentage_completed_audits_7_days",
                 "type": "gauge",
-                "desc": "Average age of current audit for active accounts",
-                "data": 0,
-                "query": (
-                    "SELECT " 
-                        "AVG(EXTRACT(EPOCH FROM age(NOW(), aa.date_completed))) AS average_age "
-                    "FROM public.account_subscription AS sub "
-                    "INNER JOIN public.account_latest_audit AS ala "
-                    "ON sub.id = ala.account_subscription_id "
-                    "INNER JOIN public.account_audit AS aa " 
-                    "ON aa.id = ala.account_audit_id "
-                    "WHERE aa.date_completed IS NOT NULL "
-                    "AND sub.active"
-                )
-            },
-            {
-                "name": "csw_failed_audits",
-                "type": "gauge",
-                "desc": "Percentage of failed audits of active accounts in the last week",
+                "desc": "What percentage of audits have run and completed in the past 7 days",
                 "data": 0,
                 "query": (
                     "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data " 
-                    "FROM public.account_subscription AS sub " 
-                    "LEFT JOIN public.account_audit AS aa " 
-                    "ON sub.id = aa.account_subscription_id " 
+                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data "
+                    "FROM public.account_subscription AS sub "
+                    "LEFT JOIN public.account_audit AS aa "
+                    "ON sub.id = aa.account_subscription_id "
                     "WHERE sub.active " 
-                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '7 days')"
+                    "AND age(NOW(), aa.date_started) < INTERVAL '7 days'"
+                )
+            },
+            {
+                "name": "csw_percentage_current_false_positive",
+                "type": "gauge",
+                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned",
+                "data": 0,
+                "query": (
+                    "SELECT CAST(SUM(CASE WHEN comp.status_id = 4 THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data "
+                    "FROM public.account_latest_audit AS latest "
+                    "LEFT JOIN public.audit_resource AS res "
+                    "ON latest.account_audit_id = res.account_audit_id "
+                    "LEFT JOIN public.resource_compliance AS comp "
+                )
+            },
+            {
+                "name": "",
+                "type": "gauge",
+                "desc": "",
+                "data": 0,
+                "query": (
                 )
             }
         ]
