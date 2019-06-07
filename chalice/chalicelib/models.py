@@ -1212,7 +1212,7 @@ class HealthMetrics(database_handle.BaseModel):
                     "LEFT JOIN public.account_audit AS aa "
                     "ON sub.id = aa.account_subscription_id "
                     "WHERE sub.active "
-                    "AND (age(NOW(), aa.date_started) < INTERVAL '24 hours') OR aa.date_started IS NULL)"
+                    "AND ((age(NOW(), aa.date_started) < INTERVAL '24 hours') OR aa.date_started IS NULL)"
                 )
             },
             {
@@ -1241,6 +1241,7 @@ class HealthMetrics(database_handle.BaseModel):
                     "LEFT JOIN public.audit_resource AS res "
                     "ON latest.account_audit_id = res.account_audit_id "
                     "LEFT JOIN public.resource_compliance AS comp "
+                    "ON res.id = comp.audit_resource_id "
                 )
             },
             {
