@@ -95,7 +95,14 @@ def update_usage_stats_tables(event, context):
     """
     return execute_update_usage_stats_tables(event, context)
 
+
 # Health metrics
+# Scheduled lambda for the health metrics
+@app.schedule(Rate(10, unit=Rate.MINUTES))
+def scheduled_update_health_metrics_table(event, context):
+    return models.HealthMetrics.update_metrics()
+
+
 # Manual lambda to trigger the health metrics update
 @app.lambda_function()
 def update_health_metrics_table(event, context):
@@ -359,73 +366,15 @@ def route_api_prometheus_metrics():
     status_code = 200
     metric_data = ""
     try:
-        metrics = [
-            {
-                "name": "csw_percentage_active_current",
-                "type": "gauge",
-                "desc": "Percentage of active accounts which have been audited in the last 24 hours",
-                "data": 0,
-                "query": (
-                    "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) as metric_data " 
-                    "FROM public.account_subscription AS sub "
-                    "LEFT JOIN public.account_audit AS aa "
-                    "ON sub.id = aa.account_subscription_id "
-                    "WHERE sub.active "
-                    "AND (aa.date_completed IS NULL "
-                    "   OR age(NOW(), aa.date_completed) < INTERVAL '24 hours')"
-                )
-            },
-            {
-                "name": "csw_average_age_of_recent_audit",
-                "type": "gauge",
-                "desc": "Average age of current audit for active accounts",
-                "data": 0,
-                "query": (
-                    "SELECT " 
-                        "AVG(EXTRACT(EPOCH FROM age(NOW(), aa.date_completed))) AS average_age "
-                    "FROM public.account_subscription AS sub "
-                    "INNER JOIN public.account_latest_audit AS ala "
-                    "ON sub.id = ala.account_subscription_id "
-                    "INNER JOIN public.account_audit AS aa " 
-                    "ON aa.id = ala.account_audit_id "
-                    "WHERE aa.date_completed IS NOT NULL "
-                    "AND sub.active"
-                )
-            },
-            {
-                "name": "csw_failed_audits",
-                "type": "gauge",
-                "desc": "Percentage of failed audits of active accounts in the last week",
-                "data": 0,
-                "query": (
-                    "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data " 
-                    "FROM public.account_subscription AS sub " 
-                    "LEFT JOIN public.account_audit AS aa " 
-                    "ON sub.id = aa.account_subscription_id " 
-                    "WHERE sub.active " 
-                    "AND (aa.date_completed IS NULL OR age(NOW(), aa.date_completed) < INTERVAL '7 days')"
-                )
-            }
-        ]
-
-        dbh = DatabaseHandle(app)
-        db = dbh.get_handle()
+        health_metrics = models.HealthMetrics.select()
+        metrics = models.HealthMetrics.serialize_list(health_metrics)
         for metric in metrics:
-            app.log.debug(f"Metric {metric['name']}")
-            app.log.debug(f"Query: {metric['query']}")
-
-            cursor = db.execute_sql(metric["query"])
-            for row in cursor.fetchall():
-                app.log.debug("Row: " + app.utilities.to_json(row))
-                metric["data"] = row[0]
-
-                metric_data += f"# HELP {metric['name']} {metric['desc']}\n"
-                metric_data += f"# TYPE {metric['name']} {metric['type']}\n"
-                metric_data += f"{metric['name']} {metric['data']}\n"
+            metric_data += f"# HELP {metric['name']} {metric['desc']}\n"
+            metric_data += f"# TYPE {metric['name']} {metric['metric_type']}\n"
+            metric_data += f"{metric['name']} {metric['data']}\n"
 
     except Exception as err:
+        app.log.error(app.utilities.get_typed_exception(err))
         status_code = 500
 
     response = {
