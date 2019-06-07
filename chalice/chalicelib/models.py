@@ -1203,17 +1203,9 @@ class HealthMetrics(database_handle.BaseModel):
             {
                 "name": "csw_percentage_active_current",
                 "type": "gauge",
-                "desc": "What percentage of active accounts have a complete audit less than 24 hours old",
+                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?",
                 "data": 0,
-                "query": (
-                    "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) as metric_data " 
-                    "FROM public.account_subscription AS sub "
-                    "LEFT JOIN public.account_audit AS aa "
-                    "ON sub.id = aa.account_subscription_id "
-                    "WHERE sub.active "
-                    "AND ((age(NOW(), aa.date_started) < INTERVAL '24 hours') OR aa.date_started IS NULL)"
-                )
+                "query": ""
             },
             {
                 "name": "csw_percentage_completed_audits_7_days",
@@ -1296,6 +1288,8 @@ class HealthMetrics(database_handle.BaseModel):
             }
         ]
         for metric in metrics:
+            if metric['query'] == "":
+                metric['query'] = cls.load_metric_query(metric['name'])
             app.log.debug(f"Metric {metric['name']}")
             app.log.debug(f"Query: {metric['query']}")
             cls.update_metric_data(metric)
@@ -1322,6 +1316,24 @@ class HealthMetrics(database_handle.BaseModel):
                 )
         except Exception as err:
             app.log.error(app.utilities.get_typed_exception(err))
+
+    @classmethod
+    def load_metric_query(cls, metric_name):
+        query = ""
+        try:
+            file_path = f"chalicelib/api/health_metric_queries/{metric_name}.sql"
+            abs_path = os.path.join(os.getcwd(), file_path)
+            app.log.debug(os.getcwd())
+            print(abs_path)
+            with open(abs_path, "r") as script:
+                query = script.read()
+        except Exception as err:
+            app.log.error(app.utilities.get_typed_exception(err))
+
+        return query
+
+
+
 
 """
 -- TODO - Do we calculate the aggregations or index the tables and aggregate on the fly ? Ares prefers the later
