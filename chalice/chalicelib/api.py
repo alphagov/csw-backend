@@ -98,7 +98,7 @@ def update_usage_stats_tables(event, context):
 
 # Health metrics
 # Scheduled lambda for the health metrics
-@app.schedule(Rate(10, unit=Rate.MINUTES))
+@app.schedule(Rate(24, unit=Rate.HOURS))
 def scheduled_update_health_metrics_table(event, context):
     return models.HealthMetrics.update_metrics()
 
