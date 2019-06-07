@@ -1203,93 +1203,31 @@ class HealthMetrics(database_handle.BaseModel):
             {
                 "name": "csw_percentage_active_current",
                 "type": "gauge",
-                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?",
-                "data": 0,
-                "query": ""
+                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?"
             },
             {
                 "name": "csw_percentage_completed_audits_7_days",
                 "type": "gauge",
-                "desc": "What percentage of audits have run and completed in the past 7 days",
-                "data": 0,
-                "query": (
-                    "SELECT "
-                        "CAST(SUM(CASE WHEN aa.date_completed IS NOT NULL THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data "
-                    "FROM public.account_subscription AS sub "
-                    "LEFT JOIN public.account_audit AS aa "
-                    "ON sub.id = aa.account_subscription_id "
-                    "WHERE sub.active " 
-                    "AND age(NOW(), aa.date_started) < INTERVAL '7 days'"
-                )
+                "desc": "What percentage of audits have run and completed in the past 7 days?"
             },
             {
                 "name": "csw_percentage_current_false_positive",
                 "type": "gauge",
-                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned",
-                "data": 0,
-                "query": (
-                    "SELECT CAST(SUM(CASE WHEN comp.status_id = 4 THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS metric_data "
-                    "FROM public.account_latest_audit AS latest "
-                    "LEFT JOIN public.audit_resource AS res "
-                    "ON latest.account_audit_id = res.account_audit_id "
-                    "LEFT JOIN public.resource_compliance AS comp "
-                    "ON res.id = comp.audit_resource_id "
-                )
+                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned?"
             },
             {
                 "name": "csw_percentage_actioned_resources",
                 "type": "gauge",
-                "desc": "What percentage of audited resources have been actioned?",
-                "data": 0,
-                "query": (
-                    "SELECT " 
-                    "CAST(SUM(CASE WHEN res_fixes > 0 THEN 1 ELSE 0 END) AS FLOAT)/COUNT(*) AS fixed_once " 
-                    "FROM ( "
-                        "SELECT " 
-                            "seq.resource_persistent_id, " 
-                            "seq.criterion_id, "
-                            "COUNT(*) AS res_entries, "
-                            "SUM( "
-                                "CASE WHEN (seq.prev_status_id = 3 "
-                                        "AND " 
-                                        "((seq.next_audit_finished = TRUE AND seq.next_audit_resource_id IS NULL) " 
-                                            "OR " 
-                                        "(seq.next_status_id IN(2,4)))) "  
-                                "THEN 1 "
-                                "ELSE 0 " 
-                            "END) AS res_fixes "
-                        "FROM public._previous_next_resource_status_stats AS seq "  
-                        "GROUP BY seq.resource_persistent_id, seq.criterion_id "
-                    ") AS res_fixes;"
-                )
+                "desc": "What percentage of audited resources have been actioned?"
             },
             {
-                "name": "csw_percentage_actioned_resources",
+                "name": "csw_average_failing_resource_days",
                 "type": "gauge",
-                "desc": "What percentage of audited resources have been actioned?",
-                "data": 0,
-                "query": (
-                    "SELECT " 
-                        "EXTRACT(HOUR FROM AVG(duration_failed) * INTERVAL '1 second')/ 24 AS days "
-                    "FROM ( "
-                        "SELECT " 
-                            "seq.resource_persistent_id, "
-                            "seq.criterion_id, " 
-                            "MIN(seq.prev_date) AS first_failed, " 
-                            "MAX(seq.next_date) AS last_failed, "
-                            "EXTRACT(EPOCH FROM MAX(seq.next_date) - MIN(seq.prev_date)) AS duration_failed "
-                        "FROM public._previous_next_resource_status_stats AS seq "
-                        "WHERE seq.prev_status_id = 3 "
-                        "AND seq.next_status_id = 3 "
-                        "AND seq.next_audit_finished = TRUE "
-                        "GROUP BY seq.resource_persistent_id, seq.criterion_id "
-                    ") AS res_fail_duration;"
-                )
+                "desc": "What percentage of audited resources have been actioned?"
             }
         ]
         for metric in metrics:
-            if metric['query'] == "":
-                metric['query'] = cls.load_metric_query(metric['name'])
+            metric['query'] = cls.load_metric_query(metric['name'])
             app.log.debug(f"Metric {metric['name']}")
             app.log.debug(f"Query: {metric['query']}")
             cls.update_metric_data(metric)
