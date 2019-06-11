@@ -1,5 +1,5 @@
+import os
 import datetime
-
 import peewee
 
 # peewee has a validator library but it has a max version of 3.1
@@ -1187,6 +1187,90 @@ class MonthlyDeltaStats(database_handle.BaseModel):
     class Meta:
         table_name = "_monthly_delta_stats"
         primary_key = peewee.CompositeKey("audit_year", "audit_month")
+
+class HealthMetrics(database_handle.BaseModel):
+    name = peewee.CharField(unique=True)
+    desc = peewee.TextField()
+    metric_type = peewee.CharField()
+    data = peewee.FloatField()
+
+    class Meta:
+        table_name = "_health_metrics"
+
+    @classmethod
+    def update_metrics(cls):
+        metrics = [
+            {
+                "name": "csw_percentage_active_current",
+                "type": "gauge",
+                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?"
+            },
+            {
+                "name": "csw_percentage_completed_audits_7_days",
+                "type": "gauge",
+                "desc": "What percentage of audits have run and completed in the past 7 days?"
+            },
+            {
+                "name": "csw_percentage_current_false_positive",
+                "type": "gauge",
+                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned?"
+            },
+            {
+                "name": "csw_percentage_actioned_resources",
+                "type": "gauge",
+                "desc": "What percentage of audited resources have been actioned?"
+            },
+            {
+                "name": "csw_average_failing_resource_days",
+                "type": "gauge",
+                "desc": "What percentage of audited resources have been actioned?"
+            }
+        ]
+        for metric in metrics:
+            metric['query'] = cls.load_metric_query(metric['name'])
+            app.log.debug(f"Metric {metric['name']}")
+            app.log.debug(f"Query: {metric['query']}")
+            cls.update_metric_data(metric)
+
+    @classmethod
+    def update_metric_data(cls, metric):
+        try:
+            db = cls._meta.database
+            cursor = db.execute_sql(metric["query"])
+
+            for row in cursor.fetchall():
+                app.log.debug("Row: " + app.utilities.to_json(row))
+                metric["data"] = row[0]
+
+                metric = (cls
+                    .insert(
+                        name=metric['name'],
+                        desc=metric['desc'],
+                        metric_type=metric['type'],
+                        data=metric['data']
+                    )
+                    .on_conflict(conflict_target=[cls.name], preserve=[cls.data])
+                    .execute()
+                )
+        except Exception as err:
+            app.log.error(app.utilities.get_typed_exception(err))
+
+    @classmethod
+    def load_metric_query(cls, metric_name):
+        query = ""
+        try:
+            file_path = f"chalicelib/api/health_metric_queries/{metric_name}.sql"
+            abs_path = os.path.join(os.getcwd(), file_path)
+            app.log.debug(os.getcwd())
+            print(abs_path)
+            with open(abs_path, "r") as script:
+                query = script.read()
+        except Exception as err:
+            app.log.error(app.utilities.get_typed_exception(err))
+
+        return query
+
+
 
 
 """

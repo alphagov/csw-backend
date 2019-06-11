@@ -51,7 +51,7 @@ def read_script(script_path):
     return commands
 
 
-def execute_update_stats_tables(event, context):
+def execute_update_usage_stats_tables(event, context):
     """
     The summary stats are produced daily as static tables.
     These could be rendered as views or materialized views but since the data is not changing that frequently
@@ -63,7 +63,7 @@ def execute_update_stats_tables(event, context):
     commands = []
     try:
         dbh = DatabaseHandle(app)
-        scripts = app.utilities.list_files_from_path("chalicelib/api/sql/", "sql")
+        scripts = app.utilities.list_files_from_path("chalicelib/api/derived_stats_tables/", "sql")
         for script in scripts:
             app.log.debug(f"Executing SQL from chalice/{script}")
             commands = read_script(script)
@@ -77,20 +77,36 @@ def execute_update_stats_tables(event, context):
     return {"status": status, "commands": commands}
 
 
+# Usage metrics
+# Scheduled lambda for usage metrics
 @app.schedule(Rate(24, unit=Rate.HOURS))
-def scheduled_update_stats_tables(event):
+def scheduled_update_usage_stats_tables(event):
     """
     The default behaviour is that the stats are generated automatically once every 24 hours
     """
-    return execute_update_stats_tables(event, {})
+    return execute_update_usage_stats_tables(event, {})
 
 
+# Manual lambda to trigger the usage metrics update
 @app.lambda_function()
-def update_stats_tables(event, context):
+def update_usage_stats_tables(event, context):
     """
     For the purposes of testing we can manually regenerate the stats summary tables on demand
     """
-    return execute_update_stats_tables(event, context)
+    return execute_update_usage_stats_tables(event, context)
+
+
+# Health metrics
+# Scheduled lambda for the health metrics
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def scheduled_update_health_metrics_table(event, context):
+    return models.HealthMetrics.update_metrics()
+
+
+# Manual lambda to trigger the health metrics update
+@app.lambda_function()
+def update_health_metrics_table(event, context):
+    return models.HealthMetrics.update_metrics()
 
 
 # TODO provide a number of GET only routes
@@ -324,5 +340,46 @@ def route_api_daily_account():
         "body": json,
         "status_code": status_code,
         "headers": {"Content-Type": "application/json"},
+    }
+    return Response(**response)
+
+
+@app.route("/api/prometheus/metrics")
+def route_api_prometheus_metrics():
+    """
+    Proof of concept endpoint to expose metric data for Prometheus
+    In production we'd need this endpoint to be minimal load so we
+    could prepare the data or we could separate into multiple
+    endpoints with a single metric per endpoint.
+
+    Example metrics implemented
+    Percentage of active accounts with audit in last 24 hours
+    Average age of most recent audit
+    Failed audits in last 24 hours
+
+    Example metric data
+    # HELP go_goroutines Number of goroutines that currently exist.
+    # TYPE go_goroutines gauge
+    go_goroutines
+    35
+    """
+    status_code = 200
+    metric_data = ""
+    try:
+        health_metrics = models.HealthMetrics.select()
+        metrics = models.HealthMetrics.serialize_list(health_metrics)
+        for metric in metrics:
+            metric_data += f"# HELP {metric['name']} {metric['desc']}\n"
+            metric_data += f"# TYPE {metric['name']} {metric['metric_type']}\n"
+            metric_data += f"{metric['name']} {metric['data']}\n"
+
+    except Exception as err:
+        app.log.error(app.utilities.get_typed_exception(err))
+        status_code = 500
+
+    response = {
+        "body": metric_data,
+        "status_code": status_code,
+        "headers": {"Content-Type": "text/plain"},
     }
     return Response(**response)
