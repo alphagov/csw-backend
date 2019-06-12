@@ -486,15 +486,15 @@ def update_subscriptions():
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
             sub = models.AccountSubscription.get(
-                models.AccountSubscription.account_id == account.Id
+                models.AccountSubscription.account_id == account['Id']
             )
             sub.active = is_active
             sub.save()
         except models.AccountSubscription.DoesNotExist:
             account_stats["new"] += 1
             sub = models.AccountSubscription.create(
-                account_id = account.Id,
-                account_name = account.Name,
+                account_id = account['Id'],
+                account_name = account['Name'],
                 product_team_id = default_team,
                 active = is_active
             )
