@@ -548,6 +548,8 @@ class AccountSubscription(database_handle.BaseModel):
         ProductTeam, backref="account_subscriptions"
     )
     active = peewee.BooleanField()
+    auditable = peewee.BooleanField()
+    suspended = peewee.BooleanField()
 
     class Meta:
         table_name = "account_subscription"
