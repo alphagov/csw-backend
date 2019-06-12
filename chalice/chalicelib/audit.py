@@ -423,7 +423,9 @@ def get_default_audit_account_list():
         params = ssm.get_parameters_by_path('/csw/audit_defaults', True)
 
         for item in params:
-            accounts.append(json.loads(item['Value'].decode('utf-8')))
+            account = json.loads(item['Value'])
+            app.log.debug(str(account))
+            accounts.append(account)
     except Exception as err:
         app.log.debug(app.utilities.get_typed_exception(err))
 
