@@ -11,6 +11,7 @@ from chalice import Rate
 from app import app
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
+from chalicelib.aws.gds_organizations_client import GdsOrganizationsClient
 from chalicelib import models
 from chalicelib.criteria.aws_ec2_security_group_ingress_open import (
     AwsEc2SecurityGroupIngressOpen,
@@ -398,3 +399,20 @@ def audit_evaluated_metric(event):
     except Exception as err:
         app.log.error(str(err))
     return status
+
+
+def update_subscriptions():
+    #client = GdsOrganizationsClient()
+    #session = client.get_chain_assume_session()
+    #accounts = client.list_accounts()
+
+
+
+@app.lambda_function()
+def manual_update_subscriptions(event, context):
+    update_subscriptions()
+
+
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def schedule_update_subscriptions(event, context):
+    update_subscriptions()
