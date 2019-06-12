@@ -490,7 +490,7 @@ def update_subscriptions():
             )
             sub.active = is_active
             sub.save()
-        except models.AccountSubscripton.DoesNotExist:
+        except models.AccountSubscription.DoesNotExist:
             account_stats["new"] += 1
             sub = models.AccountSubscription.create(
                 account_id = account.Id,
