@@ -11,7 +11,7 @@ class GdsOrganizationsClient(GdsAwsClient):
     The organizations client gives us access to list accounts linked
     to the parent organization account
     """
-    def get_accounts(self, session):
+    def list_accounts(self, session):
         """Get a list of AWS organization linked accounts.
         :param session: The boto3 session to use for the connection
         :returns: A list of accounts
