@@ -1,6 +1,7 @@
 """
 AUDIT LAMBDAS
 """
+import os
 import json
 from datetime import datetime
 from peewee import Case, fn
@@ -9,6 +10,8 @@ from botocore.exceptions import ClientError
 from chalice import Rate
 
 from app import app
+from chalicelib.aws.gds_aws_client import GdsAwsClient
+from chalicelib.aws.gds_ssm_client import GdsSsmClient
 from chalicelib.aws.gds_sqs_client import GdsSqsClient
 from chalicelib.aws.gds_ec2_client import GdsEc2Client
 from chalicelib.aws.gds_organizations_client import GdsOrganizationsClient
@@ -401,18 +404,135 @@ def audit_evaluated_metric(event):
     return status
 
 
-def update_subscriptions():
-    #client = GdsOrganizationsClient()
-    #session = client.get_chain_assume_session()
-    #accounts = client.list_accounts()
+def get_default_audit_account_list():
+    """
+    In production we get this data from organizations list-accounts but
+    in staging environments we need to mimic that behaviour by providing
+    a list of accounts to subscribe the audit to
 
+    Accounts are stored as JSON in SSM ParameterStore populating the
+    Id, Name and Status fields
+
+    The parameters are named /csw/audit_defaults/[account_id]
+    """
+    accounts = []
+    try:
+        ssm = GdsSsmClient()
+
+        # Get all listed parameters in one API call
+        params = ssm.get_parameters_by_path('/csw/audit_defaults', True)
+
+        for item in params:
+            accounts.append(json.loads(item['Value'].decode('utf-8')))
+    except Exception as err:
+        app.log.debug(app.utilities.get_typed_exception(err))
+
+    return accounts
+
+
+def get_account_list():
+    """
+    For the production account call organizations list-accounts to retrieve
+    a list of all related AWS accounts (including the parent account)
+
+    For non production environments we retrieve a list of account subscriptions
+    from SSM ParameterStore
+    """
+    if os.environ['CSW_ENV'] == 'prod':
+        # Only automate subscriptions for the production env
+        client = GdsOrganizationsClient()
+        org_session = client.get_chain_assume_session()
+        accounts = client.list_accounts(org_session)
+    else:
+        accounts = get_default_audit_account_list()
+
+    return accounts
+
+
+def update_subscriptions():
+    """
+    Any accounts with Status = "SUSPENDED" are marked as
+        active = False
+    and suspended = True
+
+    The we iterate across the list of accounts checking that we are able
+    to assume the SecurityAudit role in each active account
+
+    Where we can the accounts are marked as auditable = True
+    Otherwise they're marked as auditable = False and active = False
+
+    New subscriptions are added to the "TBC" default team. This team
+    will need to be monitored and accounts re-assigned to a real team.
+    """
+    accounts = get_account_list()
+
+    default_team = models.ProductTeam.get(
+        models.ProductTeam.team_name == 'TBC'
+    )
+    default_client = GdsAwsClient()
+
+    # declare a dict for account stats
+    account_stats = {
+        "total": 0,
+        "live": 0,
+        "new": 0,
+        "suspended": 0,
+        "auditable": 0
+    }
+
+    for account in accounts:
+        is_active = not (account['Status'] == 'SUSPENDED')
+        try:
+            sub = models.AccountSubscription.get(
+                models.AccountSubscription.account_id == account.Id
+            )
+            sub.active = is_active
+            sub.save()
+        except models.AccountSubscripton.DoesNotExist:
+            account_stats["new"] += 1
+            sub = models.AccountSubscription.create(
+                account_id = account.Id,
+                account_name = account.Name,
+                product_team_id = default_team,
+                active = is_active
+            )
+
+        account_stats["total"] += 1
+        if is_active:
+            account_stats['live'] += 1
+            assume_role = default_client.assume_chained_role(sub.account_id)
+            if assume_role:
+                account_stats["auditable"] += 1
+                sub.auditable = True
+            else:
+                sub.active = False
+                sub.auditable = False
+        else:
+            account_stats['suspended'] += 1
+            sub.suspended = True
+        sub.save()
+
+    return account_stats
 
 
 @app.lambda_function()
 def manual_update_subscriptions(event, context):
-    update_subscriptions()
+    """
+    Enable manual updates to the subscription
+    via a call to aws lambda invoke
+    """
+    stats = update_subscriptions()
+    return json.dumps(stats)
 
 
-@app.schedule(Rate(24, unit=Rate.HOURS))
-def schedule_update_subscriptions(event, context):
-    update_subscriptions()
+if os.environ['CSW_ENV'] == 'prod':
+    @app.schedule(Rate(24, unit=Rate.HOURS))
+    def schedule_update_subscriptions(event, context):
+        """
+        For the production account the subscriptions are updated daily
+        to match the current list of accounts from the parent organization
+        and their statuses.
+
+        SUSPENDED accounts are switched to inactive.
+        """
+        update_subscriptions()
