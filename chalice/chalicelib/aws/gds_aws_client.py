@@ -18,31 +18,31 @@ class GdsAwsClient:
     def __init__(self, app=None):
         self.app = app
         self.chain = {}
-        self.get_chain_role_params()
+        #self.get_chain_role_params()
 
     def get_chain_role_params(self):
         """
         Retrieve the secrets from SSM.
         """
+        if self.chain == {}:
+            params = {
+                "/csw/chain/account": "account",
+                "/csw/chain/chain_role": "chain_role",
+                "/csw/chain/target_role": "target_role"
+            }
 
-        params = {
-            "/csw/chain/account": "account",
-            "/csw/chain/chain_role": "chain_role",
-            "/csw/chain/target_role": "target_role"
-        }
+            # Get list of SSM parameter names from dict
+            param_list = list(params.keys())
 
-        # Get list of SSM parameter names from dict
-        param_list = list(params.keys())
+            ssm = boto3.client("ssm")
 
-        ssm = boto3.client("ssm")
+            # Get all listed parameters in one API call
+            response = ssm.get_parameters(Names=param_list, WithDecryption=True)
 
-        # Get all listed parameters in one API call
-        response = ssm.get_parameters(Names=param_list, WithDecryption=True)
-
-        for item in response["Parameters"]:
-            param_name = params[item["Name"]]
-            param_value = item["Value"]
-            self.chain[param_name] = param_value
+            for item in response["Parameters"]:
+                param_name = params[item["Name"]]
+                param_value = item["Value"]
+                self.chain[param_name] = param_value
 
     def to_camel_case(snake_str, capitalize_first=True):
         components = snake_str.split("_")
@@ -285,11 +285,12 @@ class GdsAwsClient:
         return: bool
         """
         assumed = False
+        chain = self.get_chain_role_params()
         try:
-            chain_assumed = self.assume_role(self.chain["account"], self.chain["chain_role"])
+            chain_assumed = self.assume_role(chain["account"], chain["chain_role"])
             if chain_assumed:
-                chain_session = self.get_session(self.chain["account"], self.chain["chain_role"])
-                assumed = self.assume_role(target_account, self.chain["target_role"], session=chain_session)
+                chain_session = self.get_session(chain["account"], chain["chain_role"])
+                assumed = self.assume_role(target_account, chain["target_role"], session=chain_session)
         except Exception as err:
             self.app.log.error(self.app.utilities.get_typed_exception(err))
 
@@ -304,10 +305,11 @@ class GdsAwsClient:
         """
         target_session = None
         try:
-            chain_assumed = self.assume_role(self.chain["account"], self.chain["chain_role"])
+            chain = self.get_chain_role_params()
+            chain_assumed = self.assume_role(chain["account"], chain["chain_role"])
             if chain_assumed:
-                chain_session = self.get_session(self.chain["account"], self.chain["chain_role"])
-                target_session = self.get_session(target_account, self.chain["target_role"], session=chain_session)
+                chain_session = self.get_session(chain["account"], chain["chain_role"])
+                target_session = self.get_session(target_account, chain["target_role"], session=chain_session)
         except Exception as err:
             self.app.log.error(self.app.utilities.get_typed_exception(err))
 
