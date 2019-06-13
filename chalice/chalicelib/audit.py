@@ -529,7 +529,7 @@ def manual_update_subscriptions(event, context):
     via a call to aws lambda invoke
     """
     stats = update_subscriptions()
-    return json.dumps(stats)
+    return stats
 
 
 if os.environ['CSW_ENV'] == 'prod':
