@@ -25,6 +25,8 @@ class GdsAwsClient:
         Retrieve the secrets from SSM.
         """
         if self.chain == {}:
+            # Only get the SSM params if they're not
+            # already populated into self.chain
             params = {
                 "/csw/chain/account": "account",
                 "/csw/chain/chain_role": "chain_role",
@@ -43,6 +45,8 @@ class GdsAwsClient:
                 param_name = params[item["Name"]]
                 param_value = item["Value"]
                 self.chain[param_name] = param_value
+
+        return self.chain
 
     def to_camel_case(snake_str, capitalize_first=True):
         components = snake_str.split("_")
