@@ -484,7 +484,7 @@ def update_subscriptions():
 
     for account in accounts:
         app.log.debug("update: " + str(account))
-        app.log.debug("type: " + type(account))
+        app.log.debug("type: " + str(type(account)))
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
             sub = models.AccountSubscription.get(
