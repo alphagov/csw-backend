@@ -424,7 +424,7 @@ def get_default_audit_account_list():
 
         for item in params:
             account = ssm.parse_escaped_json_parameter(item['Value'])
-            app.log.debug(str(account))
+            app.log.debug("list: " + str(account))
             accounts.append(account)
     except Exception as err:
         app.log.debug(app.utilities.get_typed_exception(err))
@@ -483,7 +483,8 @@ def update_subscriptions():
     }
 
     for account in accounts:
-        app.log.debug(str(account))
+        app.log.debug("update: " + str(account))
+        app.log.debug("type: " + type(account))
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
             sub = models.AccountSubscription.get(
