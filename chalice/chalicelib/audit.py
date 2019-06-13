@@ -482,21 +482,15 @@ def update_subscriptions():
         "auditable": 0
     }
 
-    app.log.debug("account list: " + json.dumps(accounts))
-
     for account in accounts:
-        app.log.debug("update: " + str(account))
-        app.log.debug("type: " + str(type(account)))
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
-            app.log.debug("find existing sub: " + str(account))
             sub = models.AccountSubscription.get(
                 models.AccountSubscription.account_id == account['Id']
             )
             sub.active = is_active
             sub.save()
         except models.AccountSubscription.DoesNotExist as err:
-            app.log.debug("new sub")
             app.log.debug(app.utilities.get_typed_exception(err))
             account_stats["new"] += 1
             sub = models.AccountSubscription.create(
