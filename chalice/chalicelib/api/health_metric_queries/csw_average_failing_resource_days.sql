@@ -23,6 +23,6 @@ FROM (
   FROM public._previous_next_resource_status_stats AS seq
   WHERE seq.prev_status_id = 3
   AND seq.next_status_id = 3
-  AND seq.next_audit_finished = TRUE
+  AND seq.next_finished = TRUE
   GROUP BY seq.resource_persistent_id, seq.criterion_id
 ) AS res_fail_duration;
