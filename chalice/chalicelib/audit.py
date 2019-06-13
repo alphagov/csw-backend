@@ -471,7 +471,7 @@ def update_subscriptions():
     default_team = models.ProductTeam.get(
         models.ProductTeam.team_name == 'TBC'
     )
-    default_client = GdsAwsClient()
+    default_client = GdsAwsClient(app)
 
     # declare a dict for account stats
     account_stats = {
@@ -487,6 +487,7 @@ def update_subscriptions():
         app.log.debug("type: " + str(type(account)))
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
+            app.log.debug("find existing sub")
             sub = models.AccountSubscription.get(
                 models.AccountSubscription.account_id == account['Id']
             )
@@ -506,7 +507,11 @@ def update_subscriptions():
         account_stats["total"] += 1
         if is_active:
             account_stats['live'] += 1
-            assume_role = default_client.assume_chained_role(sub.account_id)
+            try:
+                assume_role = default_client.assume_chained_role(sub.account_id)
+            except Exception as err:
+                assume_role = False
+                app.log.debug(app.utilities.get_typed_exception(err))
             if assume_role:
                 account_stats["auditable"] += 1
                 sub.auditable = True
