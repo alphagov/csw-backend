@@ -489,7 +489,7 @@ def update_subscriptions():
         app.log.debug("type: " + str(type(account)))
         is_active = not (account['Status'] == 'SUSPENDED')
         try:
-            app.log.debug("find existing sub: " + str(account['Id']))
+            app.log.debug("find existing sub: " + str(account))
             sub = models.AccountSubscription.get(
                 models.AccountSubscription.account_id == account['Id']
             )
