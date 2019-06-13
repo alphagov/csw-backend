@@ -482,6 +482,8 @@ def update_subscriptions():
         "auditable": 0
     }
 
+    app.log.debug("account list: " + json.dumps(accounts))
+
     for account in accounts:
         app.log.debug("update: " + str(account))
         app.log.debug("type: " + str(type(account)))
