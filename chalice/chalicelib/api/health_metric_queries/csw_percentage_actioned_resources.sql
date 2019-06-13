@@ -25,7 +25,7 @@ FROM (
       WHEN (
         seq.prev_status_id = 3
         AND (
-          (seq.next_audit_finished = TRUE AND seq.next_audit_resource_id IS NULL)
+          (seq.next_finished = TRUE AND seq.next_audit_resource_id IS NULL)
           OR
           (seq.next_status_id IN(2,4))
         )
