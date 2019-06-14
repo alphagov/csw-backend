@@ -2,23 +2,27 @@ DROP TABLE IF EXISTS public._previous_next_resource_status_stats;
 
 CREATE TABLE public._previous_next_resource_status_stats AS
 SELECT
-  seq.resource_persistent_id,
-	seq.criterion_id,
-	seq.prev_audit_id,
+	ids.resource_persistent_id,
+	prev_res.criterion_id,
+	seq.prev_id AS prev_audit_id,
 	seq.prev_date,
 	seq.prev_finished,
-	seq.prev_audit_resource_id,
-	prev_comp.status_id AS prev_status_id,
-	seq.next_audit_id,
+	prev_res.audit_resource_id AS prev_audit_resource_id,
+	prev_res.status_id AS prev_status_id,
+	seq.next_id AS next_audit_id,
 	seq.next_date,
 	seq.next_finished,
-	seq.next_audit_resource_id,
-	next_comp.status_id AS next_status_id
-FROM public._previous_next_resource_stats AS seq
-INNER JOIN public.resource_compliance AS prev_comp
-ON seq.prev_audit_resource_id = prev_comp.audit_resource_id
-INNER JOIN public.resource_compliance AS next_comp
-ON seq.next_audit_resource_id = next_comp.audit_resource_id;
+	next_res.audit_resource_id AS next_audit_resource_id,
+	next_res.status_id AS next_status_id
+FROM public._previous_next_audit_id_stats AS seq
+INNER JOIN public._resource_evaluations AS prev_res
+ON seq.prev_id = prev_res.account_audit_id
+LEFT JOIN public._resource_evaluations AS next_res
+ON seq.next_id = next_res.account_audit_id
+AND prev_res.id = next_res.id
+AND prev_res.criterion_id = next_res.criterion_id
+INNER JOIN public._resource_persistent_ids as ids
+ON prev_res.id = ids.id;
 
 CREATE INDEX previous_next_resource_status_stats__resource_persistent_id ON public._previous_next_resource_status_stats (resource_persistent_id);
 CREATE INDEX previous_next_resource_status_stats__criterion_id ON public._previous_next_resource_status_stats (criterion_id);
