@@ -103,7 +103,13 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
     .pipe(
       data(function(file) {
         // sanitize
-        var keep = ["region", "env", "dns_zone_fqdn", "sub_domain", "api_gateway_url"];
+        var keep = [
+          "region",
+          "env",
+          "dns_zone_fqdn",
+          "sub_domain",
+          "api_gateway_url"
+        ];
 
         file.data = helpers.removeExceptPropertiesInPipeline(file.data, keep);
         return file.data;
@@ -133,9 +139,11 @@ gulp.task("environment.cloudfront_apply.tfvars", function() {
 
 gulp.task(
   "environment.cloudfront_tfvars",
-  gulp.series("environment.cloudfront_backend.tfvars", "environment.cloudfront_apply.tfvars")
+  gulp.series(
+    "environment.cloudfront_backend.tfvars",
+    "environment.cloudfront_apply.tfvars"
+  )
 );
-
 
 gulp.task("environment.cloudfront_terraform_init", function() {
   var env = args.env == undefined ? "test" : args.env;
@@ -313,8 +321,7 @@ gulp.task("environment.cloudfront_terraform_push", function() {
     )
     .pipe(
       data(function(file) {
-        var task =
-          "terraform state push errored.tfstate";
+        var task = "terraform state push errored.tfstate";
         //var working = terraform_path+tool_path;
         var working = config.paths.terraform_tool_cloudfront;
 
