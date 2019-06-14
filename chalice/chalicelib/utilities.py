@@ -1,5 +1,6 @@
 import os
 import json
+import traceback
 import importlib
 from datetime import datetime, date
 
@@ -63,12 +64,13 @@ class Utilities:
         return ClientClass
 
     def get_typed_exception(self, err):
-        if type(err).__module__ in ["__main__", "builtins"]:
-            error_message = "{}: {}".format(type(err).__name__, err)
-        else:
-            error_message = "{}.{}: {}".format(
-                type(err).__module__, type(err).__name__, err
-            )
+        #if type(err).__module__ in ["__main__", "builtins"]:
+        #    error_message = "{}: {}".format(type(err).__name__, err)
+        #else:
+        #    error_message = "{}.{}: {}".format(
+        #        type(err).__module__, type(err).__name__, err
+        #    )
+        error_message = traceback.format_exc()
         return error_message
 
     def list_files_from_path(self, path, ext=None):
