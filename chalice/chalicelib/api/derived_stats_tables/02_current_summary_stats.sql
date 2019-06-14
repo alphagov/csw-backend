@@ -8,7 +8,7 @@ SELECT
   summary.avg_fails_per_account,
   summary.avg_percent_fails_per_account,
   summary.accounts_audited,
-  CAST(summary.accounts_audited AS FLOAT)/(coverage.accounts - coverage.suspended) AS percent_accounts_audited
+  CAST(summary.accounts_audited AS FLOAT)/(coverage.enabled) AS percent_accounts_audited
 FROM (
   SELECT
     SUM(acc.resources) AS total_resources,
