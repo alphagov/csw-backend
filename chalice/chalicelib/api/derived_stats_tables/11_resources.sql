@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS _resources;
 
 CREATE TABLE _resources AS
-
 SELECT
 res.id AS audit_resource_id,
 res.account_audit_id,
