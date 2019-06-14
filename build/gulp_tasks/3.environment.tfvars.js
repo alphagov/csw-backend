@@ -97,6 +97,7 @@ gulp.task("environment.apply.tfvars", function() {
       modifyFile(function(content, path, file) {
         var defaults = JSON.parse(content);
         file.data = defaults;
+        file.data.env_type = (env == 'prod')?'production':'staging';
         return content;
       })
     )
@@ -107,6 +108,7 @@ gulp.task("environment.apply.tfvars", function() {
           "region",
           "tool",
           "environment",
+          "env_type",
           "prefix",
           "host_account_id",
           "bucket_name",
