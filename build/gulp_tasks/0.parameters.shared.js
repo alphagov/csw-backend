@@ -103,7 +103,8 @@ gulp.task("parameters.shared.role_chain", function() {
         // Ask user for environment name
 
         var name = "chain_account";
-        var prompt = "Please paste the AWS account ID to chain through to the target IAM role:";
+        var prompt =
+          "Please paste the AWS account ID to chain through to the target IAM role:";
         return helpers.promptInputPromise(name, prompt, file);
       })
     )
@@ -128,7 +129,8 @@ gulp.task("parameters.shared.role_chain", function() {
         // Ask user for environment name
 
         var name = "chain_role";
-        var prompt = "Please paste the IAM role name to chain through to the target IAM role:";
+        var prompt =
+          "Please paste the IAM role name to chain through to the target IAM role:";
         return helpers.promptInputPromise(name, prompt, file);
       })
     )
@@ -153,7 +155,8 @@ gulp.task("parameters.shared.role_chain", function() {
         // Ask user for environment name
 
         var name = "target_role";
-        var prompt = "Please paste the IAM role name to assume in the target account:";
+        var prompt =
+          "Please paste the IAM role name to assume in the target account:";
         return helpers.promptInputPromise(name, prompt, file);
       })
     )
