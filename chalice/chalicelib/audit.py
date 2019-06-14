@@ -442,8 +442,12 @@ def get_account_list():
     """
     if os.environ['CSW_ENV'] == 'prod':
         # Only automate subscriptions for the production env
-        client = GdsOrganizationsClient()
-        org_session = client.get_chain_assume_session()
+        client = GdsOrganizationsClient(app)
+        # Get SSM parameters for chain role
+        chain = client.get_chain_role_params()
+        # Assume the GDSSecurityAudit role in the parent account
+        org_session = client.get_chained_session(chain['account'])
+        # Use the assumed session to the parent account to list the child accounts
         accounts = client.list_accounts(org_session)
     else:
         accounts = get_default_audit_account_list()
