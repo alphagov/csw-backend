@@ -32,10 +32,12 @@ def step(context, code):
     print("status code: " + str(context.res.status_code))
     assert str(context.res.status_code) == str(code)
 
+
 @then('response mime type is "{mime_type}"')
 def step(context, mime_type):
-    print("mime type: " + str(context.res.headers['content-type']))
-    assert str(context.res.headers['content-type']) == str(mime_type)
+    print("mime type: " + str(context.res.headers["content-type"]))
+    assert str(context.res.headers["content-type"]) == str(mime_type)
+
 
 @then("body is valid json")
 def step(context):

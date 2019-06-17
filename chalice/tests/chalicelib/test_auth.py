@@ -13,6 +13,7 @@ from chalice import Chalice
 from chalicelib.auth import AuthHandler
 import google_auth_oauthlib.flow
 
+
 class TestAuthHandler(unittest.TestCase):
     """
     Unit tests for the AuthHandler class
@@ -34,25 +35,25 @@ class TestAuthHandler(unittest.TestCase):
 
     def setUpAuthParameters(self):
         self.auth.client_config = {
-            "web":{
-                "client_id":"randomstring.apps.googleusercontent.com",
-                "project_id":"cloud-security-watch",
-                "auth_uri":"https://accounts.google.com/o/oauth2/auth",
-                "token_uri":"https://www.googleapis.com/oauth2/v3/token",
-                "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret":"randomstring",
-                "redirect_uris":[
+            "web": {
+                "client_id": "randomstring.apps.googleusercontent.com",
+                "project_id": "cloud-security-watch",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://www.googleapis.com/oauth2/v3/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": "randomstring",
+                "redirect_uris": [
                     "https://example.com/app",
-                    "https://example.com/app/"
+                    "https://example.com/app/",
                 ],
-                "javascript_origins":[
-                    "https://example.com"
-                ]
+                "javascript_origins": ["https://example.com"],
             }
         }
         # Generate a random string to emulate the SSM parameter
-        self.auth.token_secret = ''.join(random.choices(
-            string.ascii_uppercase + string.ascii_lowercase + string.digits, k=128)
+        self.auth.token_secret = "".join(
+            random.choices(
+                string.ascii_uppercase + string.ascii_lowercase + string.digits, k=128
+            )
         )
 
     def test_init_success(self):
@@ -109,10 +110,7 @@ class TestAuthHandler(unittest.TestCase):
         # Create mock request instance
         domain = "localhost"
         test_request = TestRequest()
-        test_request.headers = {
-            "X-Forwarded-Proto": protocol,
-            "Host": domain
-        }
+        test_request.headers = {"X-Forwarded-Proto": protocol, "Host": domain}
 
         # Call the method
         url = self.auth.get_base_url(test_request)
@@ -149,10 +147,7 @@ class TestAuthHandler(unittest.TestCase):
     def test_get_read_jwt(self):
 
         # Create a static user record dict
-        user = {
-            "email": "someone@somewhere.com",
-            "name": "Someone Something"
-        }
+        user = {"email": "someone@somewhere.com", "name": "Someone Something"}
 
         # Encode it using get_jwt
         jwt = self.auth.get_jwt(user)

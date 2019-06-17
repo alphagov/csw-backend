@@ -30,7 +30,7 @@ class AuthHandler:
         self.cookie_expiration = datetime.timedelta(days=1)
 
         # Retrieve Google OAuth credentials and token secret
-        #self.get_params()
+        # self.get_params()
 
         # Initialise parameters for OAuth scopes and
         # JWT encryption
@@ -143,11 +143,7 @@ class AuthHandler:
         chalice local on a local python server
         """
         host = request.headers["Host"]
-        is_localhost = (
-            host.find("localhost") == -1
-        ) and (
-            host.find("127.0.0.1") == -1
-        )
+        is_localhost = (host.find("localhost") == -1) and (host.find("127.0.0.1") == -1)
         return is_localhost
 
     def is_cloud_front(self, request):
@@ -157,8 +153,10 @@ class AuthHandler:
         The host headers are not passed so the only way to detect this
         is from the User-Agent header which is set to Amazon CloudFront
         """
-        is_cloud_front = ("User-Agent" in request.headers and
-                request.headers["User-Agent"] == "Amazon CloudFront")
+        is_cloud_front = (
+            "User-Agent" in request.headers
+            and request.headers["User-Agent"] == "Amazon CloudFront"
+        )
 
         if "User-Agent" in request.headers:
             self.app.log.debug("User-Agent: " + request.headers["User-Agent"])
@@ -182,7 +180,7 @@ class AuthHandler:
         """
         is_real = self.is_real(request)
 
-        path =  ""
+        path = ""
         if is_real:
             path = "/app"
         return path

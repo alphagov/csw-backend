@@ -38,11 +38,7 @@ class DatabaseHandle:
             db_password = self.get_env_var("CSW_PASSWORD")
 
             self.handle = postgres_ext.PostgresqlExtDatabase(
-                "csw",
-                user=db_user,
-                password=db_password,
-                host=db_host,
-                port=db_port,
+                "csw", user=db_user, password=db_password, host=db_host, port=db_port
             )
         return self.handle
 

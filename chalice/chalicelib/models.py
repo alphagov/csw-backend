@@ -1190,6 +1190,7 @@ class MonthlyDeltaStats(database_handle.BaseModel):
         table_name = "_monthly_delta_stats"
         primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
+
 class HealthMetrics(database_handle.BaseModel):
     name = peewee.CharField(unique=True)
     desc = peewee.TextField()
@@ -1205,31 +1206,31 @@ class HealthMetrics(database_handle.BaseModel):
             {
                 "name": "csw_percentage_active_current",
                 "type": "gauge",
-                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?"
+                "desc": "What percentage of active accounts have a complete audit less than 24 hours old?",
             },
             {
                 "name": "csw_percentage_completed_audits_7_days",
                 "type": "gauge",
-                "desc": "What percentage of audits have run and completed in the past 7 days?"
+                "desc": "What percentage of audits have run and completed in the past 7 days?",
             },
             {
                 "name": "csw_percentage_current_false_positive",
                 "type": "gauge",
-                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned?"
+                "desc": "What percentage of identified misconfigurations are labelled as false positives / not to be actioned?",
             },
             {
                 "name": "csw_percentage_actioned_resources",
                 "type": "gauge",
-                "desc": "What percentage of audited resources have been actioned?"
+                "desc": "What percentage of audited resources have been actioned?",
             },
             {
                 "name": "csw_average_failing_resource_days",
                 "type": "gauge",
-                "desc": "What percentage of audited resources have been actioned?"
-            }
+                "desc": "What percentage of audited resources have been actioned?",
+            },
         ]
         for metric in metrics:
-            metric['query'] = cls.load_metric_query(metric['name'])
+            metric["query"] = cls.load_metric_query(metric["name"])
             app.log.debug(f"Metric {metric['name']}")
             app.log.debug(f"Query: {metric['query']}")
             cls.update_metric_data(metric)
@@ -1244,12 +1245,12 @@ class HealthMetrics(database_handle.BaseModel):
                 app.log.debug("Row: " + app.utilities.to_json(row))
                 metric["data"] = row[0]
 
-                metric = (cls
-                    .insert(
-                        name=metric['name'],
-                        desc=metric['desc'],
-                        metric_type=metric['type'],
-                        data=metric['data']
+                metric = (
+                    cls.insert(
+                        name=metric["name"],
+                        desc=metric["desc"],
+                        metric_type=metric["type"],
+                        data=metric["data"],
                     )
                     .on_conflict(conflict_target=[cls.name], preserve=[cls.data])
                     .execute()
@@ -1271,8 +1272,6 @@ class HealthMetrics(database_handle.BaseModel):
             app.log.error(app.utilities.get_typed_exception(err))
 
         return query
-
-
 
 
 """

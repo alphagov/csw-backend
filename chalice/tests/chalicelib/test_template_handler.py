@@ -12,6 +12,7 @@ from chalice import Chalice
 from chalicelib.auth import AuthHandler
 from chalicelib.template_handler import TemplateHandler
 
+
 class TestTemplateHandler(unittest.TestCase):
     """
     Unit tests for the AuthHandler class
@@ -47,8 +48,8 @@ class TestTemplateHandler(unittest.TestCase):
         jinja2.Template for a valid template file or None
         """
 
-        real_template = 'denied.html'
-        fake_template = 'fake.html'
+        real_template = "denied.html"
+        fake_template = "fake.html"
 
         template = self.templates.get_template(real_template)
         self.assertIsInstance(template, Template)
@@ -111,12 +112,7 @@ class TestTemplateHandler(unittest.TestCase):
         """
         filter = self.templates.env.filters["aws_account_id"]
 
-        accounts = [
-            123456789012,
-            12345678901,
-            "123456789012",
-            "12345678901"
-        ]
+        accounts = [123456789012, 12345678901, "123456789012", "12345678901"]
         for raw in accounts:
             formatted = filter(raw)
             self.assertEqual(len(formatted), 12)

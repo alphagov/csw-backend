@@ -63,7 +63,9 @@ def execute_update_usage_stats_tables(event, context):
     commands = []
     try:
         dbh = DatabaseHandle(app)
-        scripts = app.utilities.list_files_from_path("chalicelib/api/derived_stats_tables/", "sql")
+        scripts = app.utilities.list_files_from_path(
+            "chalicelib/api/derived_stats_tables/", "sql"
+        )
         for script in scripts:
             app.log.debug(f"Executing SQL from chalice/{script}")
             commands = read_script(script)

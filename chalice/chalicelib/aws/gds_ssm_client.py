@@ -32,9 +32,7 @@ class GdsSsmClient(GdsAwsClient):
         ssm = self.get_default_client("ssm")
 
         response = ssm.get_parameters_by_path(
-            Path=path,
-            Recursive=recursive,
-            WithDecryption=decrypt
+            Path=path, Recursive=recursive, WithDecryption=decrypt
         )
         params = response["Parameters"]
 
