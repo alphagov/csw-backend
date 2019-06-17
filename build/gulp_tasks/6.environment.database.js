@@ -159,8 +159,7 @@ gulp.task("environment.database_run_migrations", function() {
       })
     )
     .pipe(
-      data(function(file){
-
+      data(function(file) {
         var type, current_level, apply, output;
 
         //console.log(file.data.task_output);
@@ -227,7 +226,7 @@ gulp.task("environment.database_run_migrations", function() {
         };
 
         // initialise the promise and expose the resolve method
-        final.promise = new Promise(function(resolve,reject) {
+        final.promise = new Promise(function(resolve, reject) {
           final.resolve = resolve;
           final.reject = reject;
         });
@@ -241,9 +240,9 @@ gulp.task("environment.database_run_migrations", function() {
           if (item.type == "last") {
             return previousPromise.then(function() {
               console.log("Resolving final promise");
-              item.resolve()
+              item.resolve();
             });
-          // otherwise process the script and update the metadata.
+            // otherwise process the script and update the metadata.
           } else {
             let sqlPath = config.paths.root + "/build/sql/" + item.type;
             let index = parseInt(item.script.replace(/\.sql/, ""));
@@ -280,7 +279,7 @@ gulp.task("environment.database_run_migrations", function() {
                   "csw"
                 );
               });
-            }
+          }
         }, promise); // pass in the resolved promise to start
         return final.promise;
       })

@@ -55,8 +55,7 @@ var helpers = {
 
     config.paths.home = os.homedir();
     config.paths.root = root_path;
-    config.paths.configuration =
-      root_path + "/../csw-configuration";
+    config.paths.configuration = root_path + "/../csw-configuration";
     // default files
     config.files.default_settings =
       root_path + "/environments/example/settings.json";
@@ -108,7 +107,7 @@ var helpers = {
   },
 
   runTaskInPipelinePromise: function(task, dir, file) {
-    var during = this.runTaskPromise(task, dir)
+    var during = this.runTaskPromise(task, dir);
 
     var after = during.then(
       function(out) {
@@ -485,15 +484,15 @@ var helpers = {
   },
 
   getDomainSettings: function(file) {
-    let domainFile = file.data.config.paths.configuration + '/dns/domains.json';
+    let domainFile = file.data.config.paths.configuration + "/dns/domains.json";
     let domainData = fs.readFileSync(domainFile);
     let domains = JSON.parse(domainData);
     let set = false;
     file.data.domains = domains;
-    for(domain_env in domains.domains) {
+    for (domain_env in domains.domains) {
       let settings = domains.domains[domain_env];
       if (domain_env == file.data.env) {
-        file.data.sub_domain = (settings.rename)?settings.rename:domain_env;
+        file.data.sub_domain = settings.rename ? settings.rename : domain_env;
         file.data.dns_zone_fqdn = settings.domain;
         set = true;
       }
@@ -502,7 +501,6 @@ var helpers = {
       let settings = domains.default;
       file.data.sub_domain = file.data.env;
       file.data.dns_zone_fqdn = settings.domain;
-
     }
     file.data.custom_url = file.data.sub_domain + "." + file.data.dns_zone_fqdn;
     return file;
