@@ -420,10 +420,10 @@ def get_default_audit_account_list():
         ssm = GdsSsmClient()
 
         # Get all listed parameters in one API call
-        params = ssm.get_parameters_by_path('/csw/audit_defaults', True)
+        params = ssm.get_parameters_by_path("/csw/audit_defaults", True)
 
         for item in params:
-            account = ssm.parse_escaped_json_parameter(item['Value'])
+            account = ssm.parse_escaped_json_parameter(item["Value"])
             app.log.debug("list: " + str(account))
             accounts.append(account)
     except Exception as err:
@@ -440,13 +440,13 @@ def get_account_list():
     For non production environments we retrieve a list of account subscriptions
     from SSM ParameterStore
     """
-    if os.environ['CSW_ENV'] == 'prod':
+    if os.environ["CSW_ENV"] == "prod":
         # Only automate subscriptions for the production env
         client = GdsOrganizationsClient(app)
         # Get SSM parameters for chain role
         chain = client.get_chain_role_params()
         # Assume the GDSSecurityAudit role in the parent account
-        org_session = client.get_chained_session(chain['account'])
+        org_session = client.get_chained_session(chain["account"])
         # Use the assumed session to the parent account to list the child accounts
         accounts = client.list_accounts(org_session)
     else:
@@ -472,25 +472,17 @@ def update_subscriptions():
     """
     accounts = get_account_list()
 
-    default_team = models.ProductTeam.get(
-        models.ProductTeam.team_name == 'TBC'
-    )
+    default_team = models.ProductTeam.get(models.ProductTeam.team_name == "TBC")
     default_client = GdsAwsClient(app)
 
     # declare a dict for account stats
-    account_stats = {
-        "total": 0,
-        "live": 0,
-        "new": 0,
-        "suspended": 0,
-        "auditable": 0
-    }
+    account_stats = {"total": 0, "live": 0, "new": 0, "suspended": 0, "auditable": 0}
 
     for account in accounts:
-        is_active = not (account['Status'] == 'SUSPENDED')
+        is_active = not (account["Status"] == "SUSPENDED")
         try:
             sub = models.AccountSubscription.get(
-                models.AccountSubscription.account_id == account['Id']
+                models.AccountSubscription.account_id == account["Id"]
             )
             sub.active = is_active
             sub.save()
@@ -498,15 +490,15 @@ def update_subscriptions():
             app.log.debug(app.utilities.get_typed_exception(err))
             account_stats["new"] += 1
             sub = models.AccountSubscription.create(
-                account_id = account['Id'],
-                account_name = account['Name'],
-                product_team_id = default_team,
-                active = is_active
+                account_id=account["Id"],
+                account_name=account["Name"],
+                product_team_id=default_team,
+                active=is_active,
             )
 
         account_stats["total"] += 1
         if is_active:
-            account_stats['live'] += 1
+            account_stats["live"] += 1
             try:
                 assume_role = default_client.assume_chained_role(sub.account_id)
             except Exception as err:
@@ -519,7 +511,7 @@ def update_subscriptions():
                 sub.active = False
                 sub.auditable = False
         else:
-            account_stats['suspended'] += 1
+            account_stats["suspended"] += 1
             sub.suspended = True
         sub.save()
 
@@ -536,7 +528,8 @@ def manual_update_subscriptions(event, context):
     return stats
 
 
-if os.environ['CSW_ENV'] == 'prod':
+if os.environ["CSW_ENV"] == "prod":
+
     @app.schedule(Rate(24, unit=Rate.HOURS))
     def schedule_update_subscriptions(event, context):
         """

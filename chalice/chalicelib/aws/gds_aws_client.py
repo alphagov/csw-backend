@@ -18,7 +18,7 @@ class GdsAwsClient:
     def __init__(self, app=None):
         self.app = app
         self.chain = {}
-        #self.get_chain_role_params()
+        # self.get_chain_role_params()
 
     def get_chain_role_params(self):
         """
@@ -30,7 +30,7 @@ class GdsAwsClient:
             params = {
                 "/csw/chain/account": "account",
                 "/csw/chain/chain_role": "chain_role",
-                "/csw/chain/target_role": "target_role"
+                "/csw/chain/target_role": "target_role",
             }
 
             # Get list of SSM parameter names from dict
@@ -153,7 +153,9 @@ class GdsAwsClient:
         return self.resources[resource_name]
 
     # issue the sts assume-role command and store the returned credentials
-    def assume_role(self, account, role, session=None, is_lambda=True, email="", token=""):
+    def assume_role(
+        self, account, role, session=None, is_lambda=True, email="", token=""
+    ):
 
         """
         Example response
@@ -177,7 +179,7 @@ class GdsAwsClient:
                 account = str(account).rjust(12, "0")
             self.app.log.debug(f"Assuming to account: {account} with role: {role}")
 
-            if (session is None):
+            if session is None:
                 sts = self.get_boto3_client("sts")
             else:
                 sts = self.get_boto3_session_client("sts", session)
@@ -294,7 +296,9 @@ class GdsAwsClient:
             chain_assumed = self.assume_role(chain["account"], chain["chain_role"])
             if chain_assumed:
                 chain_session = self.get_session(chain["account"], chain["chain_role"])
-                assumed = self.assume_role(target_account, chain["target_role"], session=chain_session)
+                assumed = self.assume_role(
+                    target_account, chain["target_role"], session=chain_session
+                )
         except Exception as err:
             self.app.log.error(self.app.utilities.get_typed_exception(err))
 
@@ -313,7 +317,9 @@ class GdsAwsClient:
             chain_assumed = self.assume_role(chain["account"], chain["chain_role"])
             if chain_assumed:
                 chain_session = self.get_session(chain["account"], chain["chain_role"])
-                target_session = self.get_session(target_account, chain["target_role"], session=chain_session)
+                target_session = self.get_session(
+                    target_account, chain["target_role"], session=chain_session
+                )
         except Exception as err:
             self.app.log.error(self.app.utilities.get_typed_exception(err))
 
