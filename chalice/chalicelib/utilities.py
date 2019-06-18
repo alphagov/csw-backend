@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 import traceback
@@ -63,15 +64,25 @@ class Utilities:
 
         return ClientClass
 
-    def get_typed_exception(self, err):
-        # if type(err).__module__ in ["__main__", "builtins"]:
-        #    error_message = "{}: {}".format(type(err).__name__, err)
-        # else:
-        #    error_message = "{}.{}: {}".format(
-        #        type(err).__module__, type(err).__name__, err
-        #    )
-        error_message = traceback.format_exc()
-        return error_message
+    def get_typed_exception(self):
+        """Finds the current exception and returns a JSON formatted
+        representation. Useful when outputting stack traces to
+        cloudwatch.
+
+        """
+        return json.dumps(
+            [
+                {
+                    "filename": frame.filename,
+                    "line": frame.line,
+                    "lineno": frame.lineno,
+                    "locals": frame.locals,
+                    "name": frame.name,
+                }
+                for frame in traceback.extract_tb(sys.exc_info()[2])
+            ]
+        )
+
 
     def list_files_from_path(self, path, ext=None):
         """
