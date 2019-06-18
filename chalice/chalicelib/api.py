@@ -45,8 +45,11 @@ def read_script(script_path):
             # then the last command gets missed if you don't do this
             if len(command) > 0:
                 commands.append(command)
-    except Exception as err:
-        print(f"Failed to open script: {script_path}: " + str(err))
+    except Exception:
+        app.log.error(
+            f"Failed to open script: {script_path}:"
+            + app.utilities.get_typed_exception()
+        )
 
     return commands
 
@@ -72,9 +75,9 @@ def execute_update_usage_stats_tables(event, context):
             app.log.debug(json.dumps(commands))
             dbh.execute_commands(commands, "csw")
         status = 1
-    except Exception as err:
+    except Exception:
         app.log.error(
-            "Update stats tables error: " + app.utilities.get_typed_exception(err)
+            "Update stats tables error: " + app.utilities.get_typed_exception()
         )
     return {"status": status, "commands": commands}
 
@@ -375,8 +378,8 @@ def route_api_prometheus_metrics():
             metric_data += f"# TYPE {metric['name']} {metric['metric_type']}\n"
             metric_data += f"{metric['name']} {metric['data']}\n"
 
-    except Exception as err:
-        app.log.error(app.utilities.get_typed_exception(err))
+    except Exception:
+        app.log.error(app.utilities.get_typed_exception())
         status_code = 500
 
     response = {

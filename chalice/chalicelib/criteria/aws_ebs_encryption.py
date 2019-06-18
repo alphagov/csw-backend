@@ -56,8 +56,8 @@ class EbsEncryption(CriteriaDefault):
             for vol in self.client.describe_volumes(session):
                 if vol["AvailabilityZone"].startswith(kwargs["region"]):
                     home_volumes.append(vol)
-        except Exception as e:
-            self.app.log.error(self.app.utilities.get_typed_exception(e))
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
         return home_volumes
 
     def translate(self, data={}):

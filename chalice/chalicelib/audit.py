@@ -118,12 +118,12 @@ def account_audit_criteria(event):
                     message_body = app.utilities.to_json(audit_criterion.serialize())
                     message_id = sqs.send_message(queue_url, message_body)
                     messages.append(message_id)
-                except KeyError as err:
-                    app.log.error(app.utilities.get_typed_exception(err))
+                except KeyError:
+                    app.log.error(app.utilities.get_typed_exception())
             audit.date_updated = datetime.now()
             audit.save()
-    except Exception as err:
-        app.log.error(str(err))
+    except Exception:
+        app.log.error(app.utilities.get_typed_exception())
     return status
 
 
@@ -297,9 +297,8 @@ def account_evaluate_criteria(event):
                 queue_url, message_body
             )  # TODO: unecessary assignment?
 
-    except Exception as err:
-        # app.log.error(str(err))
-        app.log.error(app.utilities.get_typed_exception(err))
+    except Exception:
+        app.log.error(app.utilities.get_typed_exception())
     return status
 
 
@@ -426,8 +425,8 @@ def get_default_audit_account_list():
             account = ssm.parse_escaped_json_parameter(item["Value"])
             app.log.debug("list: " + str(account))
             accounts.append(account)
-    except Exception as err:
-        app.log.debug(app.utilities.get_typed_exception(err))
+    except Exception:
+        app.log.error(app.utilities.get_typed_exception())
 
     return accounts
 
@@ -486,8 +485,8 @@ def update_subscriptions():
             )
             sub.active = is_active
             sub.save()
-        except models.AccountSubscription.DoesNotExist as err:
-            app.log.debug(app.utilities.get_typed_exception(err))
+        except models.AccountSubscription.DoesNotExist:
+            app.log.error(app.utilities.get_typed_exception())
             account_stats["new"] += 1
             sub = models.AccountSubscription.create(
                 account_id=account["Id"],
@@ -501,9 +500,9 @@ def update_subscriptions():
             account_stats["live"] += 1
             try:
                 assume_role = default_client.assume_chained_role(sub.account_id)
-            except Exception as err:
+            except Exception:
                 assume_role = False
-                app.log.debug(app.utilities.get_typed_exception(err))
+                app.log.error(app.utilities.get_typed_exception())
             if assume_role:
                 account_stats["auditable"] += 1
                 sub.auditable = True

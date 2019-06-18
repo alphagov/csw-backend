@@ -760,9 +760,9 @@ def resource_post_exception(id):
                 "denied.html", app.current_request
             )
 
-    except Exception as err:
+    except Exception:
         app.log.error(
-            "Route: resource exception error: " + app.utilities.get_typed_exception(err)
+            "Route: resource exception error: " + app.utilities.get_typed_exception()
         )
         response = app.templates.default_server_error()
     return Response(**response)
