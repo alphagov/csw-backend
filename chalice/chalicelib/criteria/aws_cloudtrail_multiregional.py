@@ -30,8 +30,8 @@ class MultiregionalCloudtrail(CriteriaDefault):
     def get_data(self, session, **kwargs):
         try:
             return self.client.describe_trails(session)
-        except Exception as e:
-            self.app.log.error(self.app.utilities.get_typed_exception(e))
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
             return []
 
     def translate(self, data={}):

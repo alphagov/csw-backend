@@ -83,7 +83,6 @@ class Utilities:
             ]
         )
 
-
     def list_files_from_path(self, path, ext=None):
         """
         Get a list of items in the directory represented by the relative path `path`, only returning files that end

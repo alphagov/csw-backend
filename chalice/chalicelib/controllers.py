@@ -104,8 +104,8 @@ class FormController:
                     "message": f"Form requested action ({mode}) not recognised",
                 }
 
-        except Exception as err:
-            message = app.utilities.get_typed_exception(err)
+        except Exception:
+            message = app.utilities.get_typed_exception()
             self.processed_status = {
                 "success": False,
                 "message": f"Form {mode} failed: {message}",
@@ -250,9 +250,9 @@ class FormControllerAddResourceException(FormController):
             document["expiry_date"] = expiry_date
 
             app.log.debug(json.dumps(document))
-        except Exception as err:
+        except Exception:
             app.log.error(
-                "Failed to parse post data" + app.utilities.get_typed_exception(err)
+                "Failed to parse post data" + app.utilities.get_typed_exception()
             )
         return document
 
@@ -348,9 +348,9 @@ class FormControllerAddAllowListException(FormController):
             document["expiry_date"] = expiry_date
 
             app.log.debug(json.dumps(document))
-        except Exception as err:
+        except Exception:
             app.log.error(
-                "Failed to parse post data: " + app.utilities.get_typed_exception(err)
+                "Failed to parse post data: " + app.utilities.get_typed_exception()
             )
         return document
 

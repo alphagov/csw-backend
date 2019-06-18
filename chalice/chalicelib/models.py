@@ -1006,10 +1006,8 @@ class ResourceException(database_handle.BaseModel):
                 "Found exception: " + app.utilities.to_json(exception.serialize())
             )
 
-        except Exception as err:
-            app.log.debug(
-                "Exception not found: " + app.utilities.get_typed_exception(err)
-            )
+        except Exception:
+            app.log.error(app.utilities.get_typed_exception())
             exception = None
 
         return exception
@@ -1038,8 +1036,8 @@ class ResourceException(database_handle.BaseModel):
                 exception["expiry_month"] = expiry.month
                 exception["expiry_year"] = expiry.year
 
-        except Exception as err:
-            app.log.debug(app.utilities.get_typed_exception(err))
+        except Exception:
+            app.log.error(app.utilities.get_typed_exception())
             now = datetime.datetime.now()
             expiry = now + datetime.timedelta(days=90)
             exception = {
@@ -1255,8 +1253,8 @@ class HealthMetrics(database_handle.BaseModel):
                     .on_conflict(conflict_target=[cls.name], preserve=[cls.data])
                     .execute()
                 )
-        except Exception as err:
-            app.log.error(app.utilities.get_typed_exception(err))
+        except Exception:
+            app.log.error(app.utilities.get_typed_exception())
 
     @classmethod
     def load_metric_query(cls, metric_name):
@@ -1268,8 +1266,8 @@ class HealthMetrics(database_handle.BaseModel):
             print(abs_path)
             with open(abs_path, "r") as script:
                 query = script.read()
-        except Exception as err:
-            app.log.error(app.utilities.get_typed_exception(err))
+        except Exception:
+            app.log.error(app.utilities.get_typed_exception())
 
         return query
 

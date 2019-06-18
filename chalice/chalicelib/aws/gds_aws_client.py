@@ -299,8 +299,8 @@ class GdsAwsClient:
                 assumed = self.assume_role(
                     target_account, chain["target_role"], session=chain_session
                 )
-        except Exception as err:
-            self.app.log.error(self.app.utilities.get_typed_exception(err))
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
 
         return assumed
 
@@ -320,7 +320,7 @@ class GdsAwsClient:
                 target_session = self.get_session(
                     target_account, chain["target_role"], session=chain_session
                 )
-        except Exception as err:
-            self.app.log.error(self.app.utilities.get_typed_exception(err))
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
 
         return target_session

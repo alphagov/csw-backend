@@ -25,7 +25,8 @@ class GdsS3Client(GdsAwsClient):
                 "Policy"
             ]  # This is actually a JSON string instead of a dict. Don't ask me why
         except Exception as exception:
-            policy = str(exception)
+            self.app.log.error(self.app.utilities.get_typed_exception())
+            policy = "{}"
 
         return policy
 
@@ -41,8 +42,8 @@ class GdsS3Client(GdsAwsClient):
             # Don't try to get versioning without a name
             if bucket_name is not None and bucket_name != "":
                 versioning = s3.get_bucket_versioning(Bucket=bucket_name)
-        except Exception as err:
-            self.app.log.debug(self.app.utilities.get_typed_exception(err))
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
 
         return versioning
 
@@ -53,7 +54,7 @@ class GdsS3Client(GdsAwsClient):
         try:
             self.app.log.debug(f"Getting encryption data for {bucket_name}")
             encryption = s3.get_bucket_encryption(Bucket=bucket_name)
-        except Exception as err:
-            self.app.log.debug(f"Error: {err}")
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
 
         return encryption
