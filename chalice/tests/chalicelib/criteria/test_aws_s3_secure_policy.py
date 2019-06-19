@@ -9,14 +9,24 @@ from tests.chalicelib.criteria.test_data import (
     S3_BUCKET_POLICIES,
 )
 import json
+from pprint import pprint
 
 
 class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
     @classmethod
     def setUpClass(cls):
         super(TestAwsS3SecurePolicy, cls).setUpClass()
+
         cls.test_data = S3_BUCKET_POLICY_BUCKETS
-        cls.test_data_policies = S3_BUCKET_POLICIES
+        cls.test_data_policies = {}
+        for k, v in S3_BUCKET_POLICIES.items():
+            try:
+                j = json.dumps(v)
+            except:
+                j = v
+            cls.test_data_policies[k] = j
+        pprint(cls.test_data_policies)
+        pprint(cls.test_data_policies["fail_no_secure_condition"])
 
     def setUp(self):
         """
