@@ -4,7 +4,8 @@ from chalicelib.criteria.aws_support_s3_bucket_permissions import (
     S3BucketWriteAll,
 )
 from tests.chalicelib.criteria.test_criteria_default import (
-    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+    CriteriaSubclassTestCaseMixin,
+    TestCaseWithAttrAssert,
 )
 from tests.chalicelib.criteria.test_data import S3_BUCKET_PERMISSIONS
 
@@ -26,7 +27,9 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         test that the client support the correct API method
         """
         # TODO: dynamically importing dependancies from the file tested
-        self.assertIn('describe_trusted_advisor_check_result', dir(self.subclass.client))
+        self.assertIn(
+            "describe_trusted_advisor_check_result", dir(self.subclass.client)
+        )
 
     def test_get_data(self):
         """
@@ -34,17 +37,28 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         for key in S3_BUCKET_PERMISSIONS:
             with self.subTest(key=key):
                 # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-                self.subclass.client.describe_trusted_advisor_check_result = \
-                    lambda session, checkId, language: S3_BUCKET_PERMISSIONS[key]
+                self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: S3_BUCKET_PERMISSIONS[
+                    key
+                ]
                 # output value
-                item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
+                item = self.subclass.get_data(
+                    None,
+                    checkId=self.subclass.check_id,
+                    language=self.subclass.language,
+                )
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
-                if key in ['compliant', 'non_applicable', ]:
-                    self.assertEqual(len(item), 0, msg='data must be a list with no elements')
+                if key in ["compliant", "non_applicable"]:
+                    self.assertEqual(
+                        len(item), 0, msg="data must be a list with no elements"
+                    )
                 else:
-                    self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
+                    self.assertGreater(
+                        len(item),
+                        0,
+                        msg="data must be a list with at least one element",
+                    )
 
     ###
     # Test all five outputs below for pass/inapplicability,
@@ -58,7 +72,7 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['compliant']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["compliant"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -70,7 +84,7 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['non_applicable']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["non_applicable"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -82,7 +96,7 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['read_all_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["read_all_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -94,7 +108,7 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['write_all_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["write_all_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -106,14 +120,13 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['open_access_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["open_access_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
 
 class TestS3BucketReadAll(TestS3BucketPermissionsMixin, TestCaseWithAttrAssert):
-
     def setUp(self):
         """
         """
@@ -127,14 +140,13 @@ class TestS3BucketReadAll(TestS3BucketPermissionsMixin, TestCaseWithAttrAssert):
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['read_all_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["read_all_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
 class TestS3BucketOpenAccess(TestS3BucketPermissionsMixin, TestCaseWithAttrAssert):
-
     def setUp(self):
         """
         """
@@ -148,14 +160,13 @@ class TestS3BucketOpenAccess(TestS3BucketPermissionsMixin, TestCaseWithAttrAsser
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['open_access_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["open_access_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
 class TestS3BucketWriteAll(TestS3BucketPermissionsMixin, TestCaseWithAttrAssert):
-
     def setUp(self):
         """
         """
@@ -169,7 +180,7 @@ class TestS3BucketWriteAll(TestS3BucketPermissionsMixin, TestCaseWithAttrAssert)
         # input params
         event = {}
         whitelist = []
-        for item in S3_BUCKET_PERMISSIONS['write_all_fails']['flaggedResources']:
+        for item in S3_BUCKET_PERMISSIONS["write_all_fails"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)

@@ -5,7 +5,8 @@ from chalicelib.criteria.aws_support_elb_listener_security import (
     ELBListenerSecurityInsecureProtocol,
 )
 from tests.chalicelib.criteria.test_criteria_default import (
-    CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert
+    CriteriaSubclassTestCaseMixin,
+    TestCaseWithAttrAssert,
 )
 from tests.chalicelib.criteria.test_data import ELB_LISTENER_SECURITY
 
@@ -27,7 +28,9 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         test that the client support the correct API method
         """
         # TODO: dynamically importing dependancies from the file tested
-        self.assertIn('describe_trusted_advisor_check_result', dir(self.subclass.client))
+        self.assertIn(
+            "describe_trusted_advisor_check_result", dir(self.subclass.client)
+        )
 
     def test_get_data(self):
         """
@@ -35,17 +38,28 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         for key in ELB_LISTENER_SECURITY:
             with self.subTest(key=key):
                 # overwrite the client.describe_trusted_advisor_check_result(...) to return a static response
-                self.subclass.client.describe_trusted_advisor_check_result = \
-                    lambda session, checkId, language: ELB_LISTENER_SECURITY[key]
+                self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: ELB_LISTENER_SECURITY[
+                    key
+                ]
                 # output value
-                item = self.subclass.get_data(None, checkId=self.subclass.check_id, language=self.subclass.language)
+                item = self.subclass.get_data(
+                    None,
+                    checkId=self.subclass.check_id,
+                    language=self.subclass.language,
+                )
                 # must return a dictionary with the three necessary keys
                 msg = "the method must return a list of dictionaries"
                 self.assertIsInstance(item, list, msg=msg)
-                if key == 'no_elb':
-                    self.assertEqual(len(item), 0, msg='data must be a list with no elements')
+                if key == "no_elb":
+                    self.assertEqual(
+                        len(item), 0, msg="data must be a list with no elements"
+                    )
                 else:
-                    self.assertGreater(len(item), 0, msg='data must be a list with at least one element')
+                    self.assertGreater(
+                        len(item),
+                        0,
+                        msg="data must be a list with at least one element",
+                    )
 
     ###
     # Test all five outputs below for pass/inapplicability,
@@ -59,7 +73,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['all_clear']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["all_clear"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -71,7 +85,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['no_listener']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["no_listener"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -83,7 +97,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['predifined_outdated']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["predifined_outdated"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -95,7 +109,7 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['protocol_discouraged']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["protocol_discouraged"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
@@ -107,14 +121,15 @@ class TestELBListenerSecurityMixin(CriteriaSubclassTestCaseMixin):
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['insecure_protocol']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["insecure_protocol"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_passed_status_assertions(item, output)
 
 
-class TestELBListenerSecurityNoListener(TestELBListenerSecurityMixin, TestCaseWithAttrAssert):
-
+class TestELBListenerSecurityNoListener(
+    TestELBListenerSecurityMixin, TestCaseWithAttrAssert
+):
     def setUp(self):
         """
         """
@@ -128,14 +143,15 @@ class TestELBListenerSecurityNoListener(TestELBListenerSecurityMixin, TestCaseWi
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['no_listener']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["no_listener"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
-class TestELBListenerSecurityPredefinedOutdated(TestELBListenerSecurityMixin, TestCaseWithAttrAssert):
-
+class TestELBListenerSecurityPredefinedOutdated(
+    TestELBListenerSecurityMixin, TestCaseWithAttrAssert
+):
     def setUp(self):
         """
         """
@@ -149,14 +165,15 @@ class TestELBListenerSecurityPredefinedOutdated(TestELBListenerSecurityMixin, Te
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['predifined_outdated']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["predifined_outdated"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
-class TestELBListenerSecurityProtocolDiscouraged(TestELBListenerSecurityMixin, TestCaseWithAttrAssert):
-
+class TestELBListenerSecurityProtocolDiscouraged(
+    TestELBListenerSecurityMixin, TestCaseWithAttrAssert
+):
     def setUp(self):
         """
         """
@@ -170,14 +187,15 @@ class TestELBListenerSecurityProtocolDiscouraged(TestELBListenerSecurityMixin, T
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['protocol_discouraged']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["protocol_discouraged"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
 
 
-class TestELBListenerSecurityInsecureProtocol(TestELBListenerSecurityMixin, TestCaseWithAttrAssert):
-
+class TestELBListenerSecurityInsecureProtocol(
+    TestELBListenerSecurityMixin, TestCaseWithAttrAssert
+):
     def setUp(self):
         """
         """
@@ -191,7 +209,7 @@ class TestELBListenerSecurityInsecureProtocol(TestELBListenerSecurityMixin, Test
         # input params
         event = {}
         whitelist = []
-        for item in ELB_LISTENER_SECURITY['insecure_protocol']['flaggedResources']:
+        for item in ELB_LISTENER_SECURITY["insecure_protocol"]["flaggedResources"]:
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)

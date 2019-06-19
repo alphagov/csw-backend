@@ -3,28 +3,36 @@ import time
 import os
 
 
-@when('you navigate to CSW homepage')
+@when("you navigate to CSW homepage")
 def step(context):
-    url = os.environ['CSW_URL']
+    url = os.environ["CSW_URL"]
     context.browser.get(url)
 
 
 @when('you navigate to CSW page "{path}"')
 def step(context, path):
-    url = os.environ['CSW_URL'] + path
+    url = os.environ["CSW_URL"] + path
     print(url)
     context.browser.get(url)
 
 
-@when('you login to CSW')
+@when("you login to CSW")
 def step(context):
     creds = {
-        'email': os.environ['CSW_USER'] + '@digital.cabinet-office.gov.uk',
-        'client': os.environ['CSW_CLIENT'],
-        'secret': os.environ['CSW_SECRET']
+        "email": os.environ["CSW_USER"] + "@digital.cabinet-office.gov.uk",
+        "client": os.environ["CSW_CLIENT"],
+        "secret": os.environ["CSW_SECRET"],
     }
-    url = os.environ['CSW_URL']
-    url = url + 'temp-login?client=' + creds['client'] + '&secret=' + creds['secret'] + '&email=' + creds['email']
+    url = os.environ["CSW_URL"]
+    url = (
+        url
+        + "temp-login?client="
+        + creds["client"]
+        + "&secret="
+        + creds["secret"]
+        + "&email="
+        + creds["email"]
+    )
     response = context.browser.get(url)
 
     # context.api_session.headers.update({'x-test': 'true'})
@@ -38,11 +46,11 @@ def step(context, selector, title):
     assert elem == title
 
 
-@given('the credentials')
+@given("the credentials")
 def step(context):
     context.browser.header_overrides = {
-        'Client': os.environ['CSW_CLIENT'],
-        'Secret': os.environ['CSW_SECRET']
+        "Client": os.environ["CSW_CLIENT"],
+        "Secret": os.environ["CSW_SECRET"],
     }
     print(str(context.browser.header_overrides))
 
@@ -50,11 +58,19 @@ def step(context):
 @when('login post to "{url}"')
 def step(context, url):
     creds = {
-        'email':  os.environ['CSW_USER']+'@digital.cabinet-office.gov.uk',
-        'client': os.environ['CSW_CLIENT'],
-        'secret': os.environ['CSW_SECRET']
+        "email": os.environ["CSW_USER"] + "@digital.cabinet-office.gov.uk",
+        "client": os.environ["CSW_CLIENT"],
+        "secret": os.environ["CSW_SECRET"],
     }
-    url = url + '?client='+creds['client']+'&secret='+creds['secret']+'&email='+creds['email']
+    url = (
+        url
+        + "?client="
+        + creds["client"]
+        + "&secret="
+        + creds["secret"]
+        + "&email="
+        + creds["email"]
+    )
     response = context.browser.get(url)
     print(response)
 
@@ -64,7 +80,7 @@ def step(context, seconds):
     time.sleep(int(seconds))
 
 
-@then('we have a session cookie')
+@then("we have a session cookie")
 def step(context):
     cookie = context.browser.get_cookie("session")
     assert cookie is not None
