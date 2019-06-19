@@ -34,9 +34,7 @@ class AwsSupportRootMfa(TrustedAdvisorCriterion):
     def get_data(self, session, **kwargs):
 
         output = self.client.describe_trusted_advisor_check_result(
-            session,
-            checkId=self.check_id,
-            language=self.language
+            session, checkId=self.check_id, language=self.language
         )
 
         self.app.log.debug(self.app.utilities.to_json(output))
@@ -46,29 +44,22 @@ class AwsSupportRootMfa(TrustedAdvisorCriterion):
 
     def translate(self, data):
 
-        item = {
-            "resource_id": "root",
-            "resource_name": "Root Account",
-        }
+        item = {"resource_id": "root", "resource_name": "Root Account"}
 
         return item
 
     def evaluate(self, event, item, whitelist=[]):
 
         # Remove any previous annotation if instance is reused
-        self.annotation = ''
+        self.annotation = ""
 
-        if item['status'] == 'ok':
+        if item["status"] == "ok":
             compliance_type = "COMPLIANT"
         else:
             compliance_type = "NON_COMPLIANT"
 
         evaluation = self.build_evaluation(
-            "root",
-            compliance_type,
-            event,
-            self.resource_type,
-            self.annotation
+            "root", compliance_type, event, self.resource_type, self.annotation
         )
 
         return evaluation

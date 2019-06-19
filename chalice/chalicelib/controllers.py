@@ -6,7 +6,8 @@ from chalicelib import models
 from app import app
 from chalicelib.validators import FormValidator
 
-class FormController():
+
+class FormController:
     """
     Implements the validation from "application/x-www-form-urlencoded"
     post data using cerberus with some custom rules
@@ -17,6 +18,7 @@ class FormController():
     This is basically like an API controller but because we don't have
     a REST verb we've got a mode field in the form which sets the verb
     """
+
     # Cerberus example implementation
     # schema = {'name': {'type': 'string'}, 'age': {'type': 'integer', 'min': 10}}
     # document = {'name': 'Little Joe', 'age': 5}
@@ -26,6 +28,7 @@ class FormController():
     data = None
     mode = None
     processed_status = {}
+
     def __init__(self):
         self.form_validator = FormValidator()
 
@@ -69,10 +72,12 @@ class FormController():
         expiry_date = datetime.date(
             int(self.data[components]["year"]),
             int(self.data[components]["month"]),
-            int(self.data[components]["day"])
+            int(self.data[components]["day"]),
         )
 
-        date_field = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
+        date_field = datetime.datetime.combine(
+            expiry_date, datetime.datetime.min.time()
+        )
         return date_field
 
     def process(self):
@@ -96,14 +101,14 @@ class FormController():
                 output = self.data
                 self.processed_status = {
                     "success": False,
-                    "message": f"Form requested action ({mode}) not recognised"
+                    "message": f"Form requested action ({mode}) not recognised",
                 }
 
         except Exception as err:
             message = app.utilities.get_typed_exception(err)
             self.processed_status = {
                 "success": False,
-                "message": f"Form {mode} failed: {message}"
+                "message": f"Form {mode} failed: {message}",
             }
 
         return output
@@ -121,7 +126,7 @@ class FormController():
         self.item = self._Model.get_by_id(self.get_item_id())
         self.processed_status = {
             "success": True,
-            "message": f"The entry can be edited in the form below"
+            "message": f"The entry can be edited in the form below",
         }
         return self.item
 
@@ -133,13 +138,13 @@ class FormController():
             self.item = self._Model.create(**model_data)
             self.processed_status = {
                 "success": True,
-                "message": "The record was created successfully"
+                "message": "The record was created successfully",
             }
         else:
             self.item = model_data
             self.processed_status = {
                 "success": False,
-                "message": "The record was not created successfully"
+                "message": "The record was not created successfully",
             }
 
         return self.item
@@ -155,13 +160,13 @@ class FormController():
             self.item.save()
             self.processed_status = {
                 "success": True,
-                "message": "The record was updated successfully"
+                "message": "The record was updated successfully",
             }
         else:
             self.item = model_data
             self.processed_status = {
                 "success": False,
-                "message": "The record was not updated successfully"
+                "message": "The record was not updated successfully",
             }
         return self.item
 
@@ -172,7 +177,7 @@ class FormController():
         self.item.save()
         self.processed_status = {
             "success": True,
-            "message": "The record was set to expired"
+            "message": "The record was set to expired",
         }
         return self.item
 
@@ -183,7 +188,7 @@ class FormController():
         status = "Active" if state else "Inactive"
         self.processed_status = {
             "success": True,
-            "message": f"The record state was set to :{status}"
+            "message": f"The record state was set to :{status}",
         }
         return self.item
 
@@ -193,12 +198,13 @@ class FormController():
             item_data = item
             app.log.debug("Model item is already a dict")
         else:
-            app.log.debug("Convert item model to dict from " + str(type(item)) )
+            app.log.debug("Convert item model to dict from " + str(type(item)))
             item_data = item.raw()
         return item_data
 
     def append_form_fields(self, item):
         return self.convert_model_to_dict(item)
+
 
 class FormControllerAddResourceException(FormController):
 
@@ -211,17 +217,14 @@ class FormControllerAddResourceException(FormController):
             "type": "string",
             "notnull": True,
             "maxlength": 500,
-            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            "errorpattern": "([^A-Z0-9\s'\_\-\.\?\\\/]+)",
         },
-        "expiry_components": {
-            "type": "dict",
-            "datecomponents": True
-        },
+        "expiry_components": {"type": "dict", "datecomponents": True},
         "expiry_date": {
             "coerce": "datecomponents",
             "datemin": (datetime.timedelta(days=0).total_seconds()),
-            "datemax": (datetime.timedelta(days=365).total_seconds())
-        }
+            "datemax": (datetime.timedelta(days=365).total_seconds()),
+        },
     }
 
     def parse_post_data(self, data):
@@ -229,22 +232,28 @@ class FormControllerAddResourceException(FormController):
         try:
             now = datetime.datetime.now()
             expiry_date = {
-                "year": int(data.get('exception-expiry-year',[now.year])[0]),
-                "month": int(data.get('exception-expiry-month',[now.month])[0]),
-                "day": int(data.get('exception-expiry-day',[now.day])[0])
+                "year": int(data.get("exception-expiry-year", [now.year])[0]),
+                "month": int(data.get("exception-expiry-month", [now.month])[0]),
+                "day": int(data.get("exception-expiry-day", [now.day])[0]),
             }
 
             document = {}
             document["resource_persistent_id"] = data["resource_persistent_id"][0]
             document["criterion_id"] = int(data["criterion_id"][0])
-            document["account_subscription_id"] = int(data["account_subscription_id"][0])
-            document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
+            document["account_subscription_id"] = int(
+                data["account_subscription_id"][0]
+            )
+            document["reason"] = self.flatten_text_input(
+                data.get("exception-reason", [])
+            )
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
 
             app.log.debug(json.dumps(document))
         except Exception as err:
-            app.log.error("Failed to parse post data" + app.utilities.get_typed_exception(err))
+            app.log.error(
+                "Failed to parse post data" + app.utilities.get_typed_exception(err)
+            )
         return document
 
     def get_model_defaults(self, **kwargs):
@@ -252,15 +261,15 @@ class FormControllerAddResourceException(FormController):
         exception = self._Model.find_exception(
             kwargs["criterion_id"],
             kwargs["resource_persistent_id"],
-            kwargs["account_subscription_id"]
+            kwargs["account_subscription_id"],
         )
         return exception
 
     def build_model(self):
         exception = self.get_model_defaults(
-            criterion_id = self.data["criterion_id"],
-            resource_persistent_id = self.data["resource_persistent_id"],
-            account_subscription_id = self.data["account_subscription_id"]
+            criterion_id=self.data["criterion_id"],
+            resource_persistent_id=self.data["resource_persistent_id"],
+            account_subscription_id=self.data["account_subscription_id"],
         )
 
         exception["date_expires"] = self.get_date_from_components("expiry_components")
@@ -271,9 +280,11 @@ class FormControllerAddResourceException(FormController):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        item_data = super(FormControllerAddResourceException, self).append_form_fields(item)
+        item_data = super(FormControllerAddResourceException, self).append_form_fields(
+            item
+        )
 
-        app.log.debug("item_data is an instance of "+str(type(item_data)))
+        app.log.debug("item_data is an instance of " + str(type(item_data)))
         if self.data and self.data["expiry_components"]:
             item_data["expiry_day"] = self.data["expiry_components"]["day"]
             item_data["expiry_month"] = self.data["expiry_components"]["month"]
@@ -284,6 +295,7 @@ class FormControllerAddResourceException(FormController):
             item_data["expiry_year"] = item_data["date_expires"].year
 
         return item_data
+
 
 class FormControllerAddAllowListException(FormController):
 
@@ -296,23 +308,20 @@ class FormControllerAddAllowListException(FormController):
             "type": "string",
             "notnull": True,
             "maxlength": 20,
-            "matchpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}"
+            "matchpattern": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}",
         },
         "reason": {
             "type": "string",
             "notnull": True,
             "maxlength": 500,
-            "errorpattern": "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
+            "errorpattern": "([^A-Z0-9\s'\_\-\.\?\\\/]+)",
         },
-        "expiry_components": {
-            "type": "dict",
-            "datecomponents": True
-        },
+        "expiry_components": {"type": "dict", "datecomponents": True},
         "expiry_date": {
             "coerce": "datecomponents",
             "datemin": (datetime.timedelta(days=0).total_seconds()),
-            "datemax": (datetime.timedelta(days=365).total_seconds())
-        }
+            "datemax": (datetime.timedelta(days=365).total_seconds()),
+        },
     }
 
     def parse_post_data(self, data):
@@ -320,31 +329,41 @@ class FormControllerAddAllowListException(FormController):
         try:
             now = datetime.datetime.now()
             expiry_date = {
-                "year": int(data.get('exception-expiry-year',[now.year])[0]),
-                "month": int(data.get('exception-expiry-month',[now.month])[0]),
-                "day": int(data.get('exception-expiry-day',[now.day])[0])
+                "year": int(data.get("exception-expiry-year", [now.year])[0]),
+                "month": int(data.get("exception-expiry-month", [now.month])[0]),
+                "day": int(data.get("exception-expiry-day", [now.day])[0]),
             }
 
             document = {}
             document["mode"] = data["mode"][0]
             document["id"] = int(data["id"][0])
-            document["account_subscription_id"] = int(data["account_subscription_id"][0])
+            document["account_subscription_id"] = int(
+                data["account_subscription_id"][0]
+            )
             document["cidr"] = self.flatten_text_input(data.get("exception-cidr", []))
-            document["reason"] = self.flatten_text_input(data.get("exception-reason",[]))
+            document["reason"] = self.flatten_text_input(
+                data.get("exception-reason", [])
+            )
             document["expiry_components"] = expiry_date
             document["expiry_date"] = expiry_date
 
             app.log.debug(json.dumps(document))
         except Exception as err:
-            app.log.error("Failed to parse post data: " + app.utilities.get_typed_exception(err))
+            app.log.error(
+                "Failed to parse post data: " + app.utilities.get_typed_exception(err)
+            )
         return document
 
     def get_model_defaults(self, **kwargs):
-        exception = self._Model.get_defaults(kwargs["account_subscription_id"], self.user.id)
+        exception = self._Model.get_defaults(
+            kwargs["account_subscription_id"], self.user.id
+        )
         return exception
 
     def build_model(self):
-        exception = self._Model.get_defaults(self.data["account_subscription_id"], self.user.id)
+        exception = self._Model.get_defaults(
+            self.data["account_subscription_id"], self.user.id
+        )
 
         exception["date_expires"] = self.get_date_from_components("expiry_components")
         exception["reason"] = self.data["reason"]
@@ -355,7 +374,9 @@ class FormControllerAddAllowListException(FormController):
 
     def append_form_fields(self, item):
         # turn model instance into a dict using .raw if necessary
-        item_data = super(FormControllerAddAllowListException, self).append_form_fields(item)
+        item_data = super(FormControllerAddAllowListException, self).append_form_fields(
+            item
+        )
 
         if self.data and self.data["expiry_components"]:
             item_data["expiry_day"] = self.data["expiry_components"]["day"]
@@ -371,12 +392,10 @@ class FormControllerAddAllowListException(FormController):
 
     def get_allowlist(self, account_subscription_id):
         now = datetime.datetime.now()
-        allowlist = (self._Model
-            .select()
-            .where(
-                self._Model.account_subscription_id == account_subscription_id,
-                self._Model.date_expires > now
-            ))
+        allowlist = self._Model.select().where(
+            self._Model.account_subscription_id == account_subscription_id,
+            self._Model.date_expires > now,
+        )
         allowed = []
         for item in allowlist:
             allowed.append(item.serialize())

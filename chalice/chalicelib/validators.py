@@ -7,7 +7,6 @@ from app import app
 
 
 class FormValidator(cerberus.Validator):
-
     def __init__(self):
         self.now = datetime.datetime.now()
         super(FormValidator, self).__init__()
@@ -39,11 +38,11 @@ class FormValidator(cerberus.Validator):
         try:
 
             expiry_date = datetime.date(
-                int(value['year']),
-                int(value['month']),
-                int(value['day'])
+                int(value["year"]), int(value["month"]), int(value["day"])
             )
-            expiry_timestamp = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
+            expiry_timestamp = datetime.datetime.combine(
+                expiry_date, datetime.datetime.min.time()
+            )
             # timestamp = expiry_timestamp.isoformat()
 
         except Exception as err:
@@ -55,15 +54,15 @@ class FormValidator(cerberus.Validator):
     def _normalize_coerce_datecomponents(self, value):
         try:
             expiry_date = datetime.date(
-                int(value['year']),
-                int(value['month']),
-                int(value['day'])
+                int(value["year"]), int(value["month"]), int(value["day"])
             )
 
-            component_datetime = datetime.datetime.combine(expiry_date, datetime.datetime.min.time())
-            #timestamp = expiry_timestamp.isoformat()
+            component_datetime = datetime.datetime.combine(
+                expiry_date, datetime.datetime.min.time()
+            )
+            # timestamp = expiry_timestamp.isoformat()
         except Exception as err:
-            #timestamp = ""
+            # timestamp = ""
             component_datetime = datetime.datetime.now()
 
         return component_datetime
@@ -76,7 +75,7 @@ class FormValidator(cerberus.Validator):
         The rule's arguments are validated against this schema:
         {'type': 'float'}
         """
-        #app.log.debug(f"t:{datemin}, f:{field}, v:{value}")
+        # app.log.debug(f"t:{datemin}, f:{field}, v:{value}")
 
         self.now = datetime.datetime.now()
         delta = datetime.timedelta(seconds=datemin)
@@ -108,7 +107,9 @@ class FormValidator(cerberus.Validator):
             # invalid_chars = "([^A-Z0-9\s\'\_\-\.\?\\\/]+)"
             pattern = re.compile(matchpattern)
             if not pattern.match(value):
-                raise ValueError("Value does not match the CIDR pattern eg 112.123.134.0/24")
+                raise ValueError(
+                    "Value does not match the CIDR pattern eg 112.123.134.0/24"
+                )
         except Exception as err:
             self._error(field, str(err))
 
@@ -123,7 +124,9 @@ class FormValidator(cerberus.Validator):
             pattern = re.compile(errorpattern)
             if pattern.match(value):
                 match = re.search(errorpattern, value)
-                raise ValueError("Value contains invalid characters : " + match.group(1))
+                raise ValueError(
+                    "Value contains invalid characters : " + match.group(1)
+                )
         except Exception as err:
             self._error(field, str(err))
 

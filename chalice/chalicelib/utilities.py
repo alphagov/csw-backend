@@ -4,11 +4,15 @@ import importlib
 from datetime import datetime, date
 
 
-class Utilities():
-
+class Utilities:
     def to_json(self, data, pretty=False):
         if pretty:
-            json_data = json.dumps(data, default=self.to_json_type_convert, indent=4, separators=(',', ': '))
+            json_data = json.dumps(
+                data,
+                default=self.to_json_type_convert,
+                indent=4,
+                separators=(",", ": "),
+            )
         else:
             json_data = json.dumps(data, default=self.to_json_type_convert)
         return json_data
@@ -38,7 +42,7 @@ class Utilities():
             ".woff2": "font/woff",
             ".eot": "font/eot",
             ".txt": "text/plain",
-            ".md": "text/plain"
+            ".md": "text/plain",
         }
 
         default_type = "application/octet-stream"
@@ -59,10 +63,12 @@ class Utilities():
         return ClientClass
 
     def get_typed_exception(self, err):
-        if type(err).__module__ in ['__main__', 'builtins']:
+        if type(err).__module__ in ["__main__", "builtins"]:
             error_message = "{}: {}".format(type(err).__name__, err)
         else:
-            error_message = "{}.{}: {}".format(type(err).__module__, type(err).__name__, err)
+            error_message = "{}.{}: {}".format(
+                type(err).__module__, type(err).__name__, err
+            )
         return error_message
 
     def list_files_from_path(self, path, ext=None):

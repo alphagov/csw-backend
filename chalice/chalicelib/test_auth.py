@@ -2,6 +2,7 @@ import unittest
 import datetime
 import os
 from chalice import Chalice
+
 # This import is broken.
 # from chalicelib.auth import AuthHandler
 import google_auth_oauthlib.flow
@@ -16,7 +17,7 @@ class TestAuthHandler(unittest.TestCase):
     def setUp(self):
         """
         """
-        os.environ['CSW_ENV'] = 'test'
+        os.environ["CSW_ENV"] = "test"
         self.app = Chalice("test")
         self.auth = AuthHandler(self.app)
 
@@ -25,46 +26,23 @@ class TestAuthHandler(unittest.TestCase):
         test that initialization works
         """
 
-        self.assertIsInstance(
-            self.auth, AuthHandler
-        )
+        self.assertIsInstance(self.auth, AuthHandler)
 
-        self.assertIsNone(
-            self.auth.flow
-        )
+        self.assertIsNone(self.auth.flow)
 
-        self.assertIsInstance(
-            self.auth.token_algorithm,
-            str
-        )
+        self.assertIsInstance(self.auth.token_algorithm, str)
 
-        self.assertIsInstance(
-            self.auth.cookie_expiration,
-            datetime.timedelta
-        )
+        self.assertIsInstance(self.auth.cookie_expiration, datetime.timedelta)
 
-        self.assertIsInstance(
-            self.auth.email_domain,
-            str
-        )
+        self.assertIsInstance(self.auth.email_domain, str)
 
-        self.assertEqual(
-            len(self.auth.scopes),
-            3
-        )
+        self.assertEqual(len(self.auth.scopes), 3)
 
-        self.assertIsNone(
-            self.auth.cookie
-        )
+        self.assertIsNone(self.auth.cookie)
 
-        self.assertFalse(
-            self.auth.logged_in
-        )
+        self.assertFalse(self.auth.logged_in)
 
-        self.assertDictEqual(
-            self.auth.login_data,
-            {}
-        )
+        self.assertDictEqual(self.auth.login_data, {})
 
     def test_init_failure(self):
         """
@@ -80,10 +58,7 @@ class TestAuthHandler(unittest.TestCase):
         TODO resolve pip requirements to remove deprecation warnings - CT-341
         """
         flow = self.auth.get_auth_flow("https://example.com")
-        self.assertIsInstance(
-            flow,
-            google_auth_oauthlib.flow.Flow
-        )
+        self.assertIsInstance(flow, google_auth_oauthlib.flow.Flow)
 
     def test_get_request_url(self):
         """
@@ -100,20 +75,14 @@ class TestAuthHandler(unittest.TestCase):
 
         # Create mock request instance
         test_request = TestRequest()
-        test_request.headers = {
-            "X-Forwarded-Proto": protocol,
-            "Host": domain
-        }
+        test_request.headers = {"X-Forwarded-Proto": protocol, "Host": domain}
 
         # Call the method
         url = self.auth.get_request_url(test_request)
 
         # Check the method returns the manually created url.
-        self.assertEqual(
-            url,
-            protocol+"://"+domain+"/app"
-        )
+        self.assertEqual(url, protocol + "://" + domain + "/app")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
