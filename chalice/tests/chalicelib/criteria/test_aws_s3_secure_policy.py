@@ -4,10 +4,7 @@ from tests.chalicelib.criteria.test_criteria_default import (
     CriteriaSubclassTestCaseMixin,
     TestCaseWithAttrAssert,
 )
-from tests.chalicelib.criteria.test_data import (
-    S3_BUCKET_POLICY_BUCKETS,
-    S3_BUCKET_POLICIES,
-)
+from tests.chalicelib.criteria.test_data import S3_BUCKET_POLICY_BUCKETS
 import json
 
 
@@ -15,8 +12,8 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
     @classmethod
     def setUpClass(cls):
         super(TestAwsS3SecurePolicy, cls).setUpClass()
+
         cls.test_data = S3_BUCKET_POLICY_BUCKETS
-        cls.test_data_policies = S3_BUCKET_POLICIES
 
     def setUp(self):
         """
@@ -28,168 +25,124 @@ class TestAwsS3SecurePolicy(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAsser
         self.assertIn("get_bucket_list", dir(self.subclass.client))
         self.assertIn("get_bucket_policy", dir(self.subclass.client))
 
-    def test_get_data(self):
-        for key in self.test_data:
-            with self.subTest(key=key):
-                self.subclass.client.get_bucket_list = lambda session: self.test_data[
-                    key
-                ]
-                self.subclass.client.get_bucket_policy = lambda session, bucket_name: self.test_data_policies[
-                    key
-                ]
-                item = self.subclass.get_data(None)
-                self.assertIsInstance(
-                    item, list, msg="The method must return a list of dictionaries"
-                )
-                self.assertIn(
-                    "Policy", item[0], msg="The dictionary must have a Policy key"
-                )
+    def test_get_data_returns_buckets(self):
+        self.subclass.client.get_bucket_list = lambda session: [{"Name": "bucket"}]
+        self.subclass.client.get_bucket_policy = lambda session, bucket_name: json.dumps(
+            {}
+        )
+
+        buckets = self.subclass.get_data(None)
+
+        assert isinstance(buckets, list)
+        assert all([isinstance(item, dict) for item in buckets])
+
+    def test_get_data_returns_policy(self):
+        self.subclass.client.get_bucket_list = lambda _s: [{"Name": "bucket"}]
+        self.subclass.client.get_bucket_policy = lambda _s, _b: json.dumps({})
+
+        buckets = self.subclass.get_data(None)
+
+        assert "Policy" in buckets[0]
+        assert isinstance(buckets[0]["Policy"], dict)
+
+    def test_get_data_does_not_attach_broken_policy(self):
+        self.subclass.client.get_bucket_list = lambda _s: [{"Name": "bucket"}]
+        self.subclass.client.get_bucket_policy = lambda _s, _b: "}"
+        buckets = self.subclass.get_data(None)
+
+        assert "Policy" not in buckets[0]
 
     def test_translate(self):
-        for bucket in self.test_data.values():
-            with self.subTest():
-                translation = self.subclass.translate(bucket[0])
-                self.assertIsInstance(
-                    translation,
-                    dict,
-                    msg="The output of the translate method should be a dict",
-                )
-                self.assertIn(
-                    "resource_id",
-                    translation,
-                    msg="The key 'resource_id' was not in "
-                    "the output of the translate method.",
-                )
-                self.assertIn(
-                    "resource_name",
-                    translation,
-                    msg="The key 'resource_name' was not in "
-                    "the output of the translate method.",
-                )
-                self.assertEqual(
-                    translation["resource_id"],
-                    "arn:aws:s3:::" + bucket[0]["Name"],
-                    msg="resource_id does not match the bucket ARN",
-                )
-                self.assertEqual(
-                    translation["resource_name"],
-                    bucket[0]["Name"],
-                    msg="resource_name does not match the bucket name",
-                )
+        bucket = self.test_data[list(self.test_data)[0]]
+        translation = self.subclass.translate(bucket)
+
+        assert isinstance(translation, dict)
+
+        assert "resource_id" in translation
+        assert "resource_name" in translation
+
+        assert translation["resource_id"] == f"arn:aws:s3:::{bucket['Name']}"
+        assert translation["resource_name"] == bucket["Name"]
+
+    def get_bucket_evaluation_result(self, test):
+        return self._evaluate_invariant_assertions({}, self.test_data[test], [])
 
     def test_evaluate_pass_secure_transport_true(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["pass_secure_transport_true"]:
-            policy = self.test_data_policies["pass_secure_transport_true"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("pass_secure_transport_true")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_passed_status_assertions(item, output)
+        self._evaluate_passed_status_assertions(None, result)
 
     def test_evaluate_pass_secure_transport_false(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["pass_secure_transport_false"]:
-            policy = self.test_data_policies["pass_secure_transport_false"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("pass_secure_transport_true")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_passed_status_assertions(item, output)
+        self._evaluate_passed_status_assertions(None, result)
 
     def test_evaluate_pass_multiple_statements(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["pass_multiple_statements"]:
-            policy = self.test_data_policies["pass_multiple_statements"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("pass_multiple_statements")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_passed_status_assertions(item, output)
+        self._evaluate_passed_status_assertions(None, result)
 
     def test_evaluate_fail_multiple_statements(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_multiple_statements"]:
-            policy = self.test_data_policies["fail_multiple_statements"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_multiple_statements")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
+        self._evaluate_failed_status_assertions(None, result)
 
     def test_evaluate_fail_secure_transport_true(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_secure_transport_true"]:
-            policy = self.test_data_policies["fail_secure_transport_true"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_secure_transport_true")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("misconfigured", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_secure_transport_false(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_secure_transport_false"]:
-            policy = self.test_data_policies["fail_secure_transport_false"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_secure_transport_false")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("misconfigured", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_no_policy(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_no_policy"]:
-            policy = self.test_data_policies["fail_no_policy"]
-            item["Policy"] = policy  # The policy isn't valid JSON in this case
+        result = self.get_bucket_evaluation_result("fail_no_policy")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("has no policy", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_no_condition(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_no_condition"]:
-            policy = self.test_data_policies["fail_no_condition"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_no_condition")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("policy does not have a condition", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_no_secure_condition(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_no_secure_condition"]:
-            policy = self.test_data_policies["fail_no_secure_condition"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_no_secure_condition")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("no SecureTransport", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_only_partly_secure(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_only_partly_secure"]:
-            policy = self.test_data_policies["fail_only_partly_secure"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_only_partly_secure")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("all items in", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
 
     def test_evaluate_fail_overridden_statement(self):
-        event = {}
-        whitelist = []
-        for item in self.test_data["fail_overridden_statement"]:
-            policy = self.test_data_policies["fail_overridden_statement"]
-            item["Policy"] = json.loads(policy)
+        result = self.get_bucket_evaluation_result("fail_overridden_statement")
 
-            output = self._evaluate_invariant_assertions(event, item, whitelist)
-            self._evaluate_failed_status_assertions(item, output)
-            self.assertIn("misconfigured", self.subclass.annotation)
+        self._evaluate_failed_status_assertions(None, result)
+        assert result["annotation"] == "Bucket does not enforce SecureTransport"
+
+    def test_compliance_words_compliant(self):
+        assert self.subclass.compliance_words(True) == "COMPLIANT"
+
+    def test_compliance_words_non_compliant(self):
+        assert self.subclass.compliance_words(False) == "NON_COMPLIANT"
+
+    def test_get_bucket_securetransport_statements_no_secure_condition(self):
+        result = self.subclass.get_bucket_securetransport_statements(
+            self.test_data["fail_no_secure_condition"]
+        )
+        assert result == []
+
+    def test_get_bucket_securetransport_statements_(self):
+        result = self.subclass.get_bucket_securetransport_statements(
+            self.test_data["pass_multiple_statements"]
+        )
+        assert len(result) == 1
