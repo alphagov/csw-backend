@@ -71,7 +71,7 @@ class TestAuthHandler(unittest.TestCase):
 
         self.assertIsInstance(self.auth.email_domain, str)
 
-        self.assertEqual(len(self.auth.scopes), 2)
+        self.assertEqual(len(self.auth.scopes), 3)
 
         self.assertIsNone(self.auth.cookie)
 
@@ -165,6 +165,16 @@ class TestAuthHandler(unittest.TestCase):
         """
         login_data = self.auth.get_login_data()
         self.assertDictEqual(login_data, self.default_login_data)
+
+    def test_oauth_scopes(self):
+        """Test that OAuth has the correct scopes. Sometimes, Google will
+        update these and break login."""
+        scopes = [
+            "openid",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+        ]
+        assert self.auth.scopes == scopes
 
 
 if __name__ == "__main__":

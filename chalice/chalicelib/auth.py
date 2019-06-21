@@ -39,6 +39,7 @@ class AuthHandler:
         self.token_algorithm = "HS256"
 
         self.scopes = [
+            "openid",
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
         ]
