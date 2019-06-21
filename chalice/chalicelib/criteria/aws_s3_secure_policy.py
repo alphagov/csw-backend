@@ -39,118 +39,88 @@ class AwsS3SecurePolicy(CriteriaDefault):
         "ket-policies-and-apply-defense-in-depth-to-help-secure-your-amazon-s3-data/</a>"
     )
 
+    fail = "Bucket does not enforce SecureTransport"
+
     def __init__(self, app):
         super(AwsS3SecurePolicy, self).__init__(app)
 
     def get_data(self, session, **kwargs):
-        self.app.log.debug("Getting a list of buckets in this account")
+        """Request buckets and policies from AWS API."""
         buckets = self.client.get_bucket_list(session)
-        self.app.log.debug("Adding a 'Policy' key to these buckets")
         for bucket in buckets:
-            # I know mutating what you're iterating over is a bad idea...
             policy = self.client.get_bucket_policy(session, bucket["Name"])
-            self.app.log.debug(f"policy is: '{policy}'")
             try:
                 bucket["Policy"] = json.loads(policy)
-            except json.decoder.JSONDecodeError:  # policy is not valid JSON - probably an exception from the client
-                bucket["Policy"] = policy
+            except (TypeError, json.decoder.JSONDecodeError):
+                pass
 
         return buckets
 
     def translate(self, data):
-
-        item = {
+        """But why?"""
+        return {
             "resource_id": "arn:aws:s3:::" + data.get("Name", ""),
             "resource_name": data.get("Name", ""),
         }
 
-        return item
+    def compliance_words(self, compliant):
+        """Return the Config compatible compliance type in words."""
+        return "COMPLIANT" if compliant else "NON_COMPLIANT"
+
+
+    def get_bucket_securetransport_statements(self, bucket):
+        """Return a list of policy statements that have a SecureTransport
+        condition."""
+        statements = []
+        try:
+            for statement in bucket["Policy"]["Statement"]:
+                if "Condition" not in statement:
+                    continue
+                for k, v in statement["Condition"].items():
+                    if "aws:SecureTransport" in v.keys():
+                        statements.append(statement)
+        except:
+            pass
+        return statements
 
     def evaluate(self, event, bucket, whitelist=[]):
-        compliance_type = ""
-        self.app.log.debug(f"Evaluating bucket with name {bucket['Name']}")
-        if not isinstance(bucket["Policy"], dict):  # Failure: no policy
-            log_string = "Bucket does not have a policy"
-            compliance_type = "NON_COMPLIANT"
-            self.annotation = "This bucket has no policy attached."
-        else:
-            # We loop over the statements in the bucket policies. The aim is to make sure that SecureTransport applies
-            # to the entire bucket. If we find a statement that applies the SecureTransport condition correctly to the
-            # entire bucket, on subsequent iterations we can ignore most of the cases that would otherwise cause a fail
-            # (like a statement not having a SecureTransport condition). So we can keep track of if we haven't
-            # encountered a "secure" policy statement yet.
-            not_passed = True
-            for statement in bucket["Policy"]["Statement"]:
-                if not_passed and "Condition" not in statement:  # Failure: No condition
-                    log_string = "Bucket does not have any conditions on its policy"
-                    compliance_type = "NON_COMPLIANT"
-                    self.annotation = "This bucket's policy does not have a condition."
-                else:
-                    secure = (
-                        statement["Condition"]
-                        .get("Bool", {})
-                        .get("aws:SecureTransport")
+        """Evaluate the bucket policy to check that it requires
+        SecureTransport."""
+        compliant = False
+        annotation = self.fail
+        bucket_arn = f"arn:aws:s3:::{bucket['Name']}"
+
+        statements = self.get_bucket_securetransport_statements(bucket)
+
+        for statement in statements:
+            try:
+                # If bucket allows in-SecureTransport then fail.
+                if (
+                    statement["Resource"] != f"{bucket_arn}/*"
+                    and statement["Condition"]["Bool"]["aws:SecureTransport"] == "false"
+                ):
+                    compliant = False
+                    annotation = self.fail
+                    break
+                if statement["Resource"] == f"{bucket_arn}/*" and (
+                    (
+                        statement["Condition"]["Bool"]["aws:SecureTransport"] == "true"
+                        and statement["Effect"] == "Allow"
                     )
-                    if (
-                        not_passed and not secure
-                    ):  # checking to see if SecureTransport condition does not exist
-                        # Failure: no secure transport condition
-                        log_string = "Bucket does not disallow insecure connections"
-                        compliance_type = "NON_COMPLIANT"
-                        self.annotation = (
-                            "This bucket's policy does not disallow connections over HTTP, because "
-                            "there is no SecureTransport condition in this bucket's policy."
-                        )
-                    else:
-                        if (secure == "true" and statement["Effect"] == "Allow") or (
-                            secure == "false" and statement["Effect"] == "Deny"
-                        ):
-                            if statement["Resource"] != (
-                                "arn:aws:s3:::" + bucket["Name"] + "/*"
-                            ):
-                                # Policy must apply to entire bucket
-                                log_string = (
-                                    "SecureTransport and statement effect line up correctly, but doesn't "
-                                    "apply to entire bucket"
-                                )
-                                compliance_type = "NON_COMPLIANT"
-                                self.annotation = (
-                                    "This bucket doesn't enforce HTTPS connections for all items in the "
-                                    "bucket. Check the Resource key in the relevant statement of the "
-                                    "bucket policy."
-                                )
-                                # This failure makes it certain that the SecureTransport condition isn't applied
-                                # to the whole bucket, so we can stop iterating over the policy statements, break
-                                break
-                            else:
-                                not_passed = False  # See above
-                                compliance_type = "COMPLIANT"
-                                self.annotation = (
-                                    ""
-                                )  # Overwrite any existing annotations from previous statements
-                                log_string = "Bucket is compliant"
+                    or (
+                        statement["Condition"]["Bool"]["aws:SecureTransport"] == "false"
+                        and statement["Effect"] == "Deny"
+                    )
+                ):
+                    compliant = True
+                    annotation = ""
+            except KeyError:
+                continue
 
-                        elif secure:
-                            # The above is so that we only trigger if SecureTransport *is* defined, for the case that a
-                            # previous statement passed the check, and not_passed was set to False
-                            log_string = "SecureTransport configured incorrectly (deny access to HTTPS or vice versa)"
-                            compliance_type = "NON_COMPLIANT"
-                            self.annotation = (
-                                "This bucket's policy refers to HTTPS connections using the "
-                                "SecureTransport condition, but it is misconfigured (denying access to "
-                                "HTTPS connections or allowing access to only HTTP connections). Check "
-                                "the Effect or Condition key in the relevant statement of the bucket "
-                                "policy."
-                            )
-                            break  # SecureTransport is misconfigured somehow, so this is also a "fatal" failure
-
-        evaluation = self.build_evaluation(
-            ("arn:aws:s3:::" + bucket["Name"]),
-            compliance_type,
+        return self.build_evaluation(
+            bucket_arn,
+            self.compliance_words(compliant),
             event,
             self.resource_type,
-            self.annotation,
+            annotation,
         )
-
-        self.app.log.debug(log_string)
-        return evaluation
