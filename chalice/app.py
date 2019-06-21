@@ -145,9 +145,13 @@ def read_asset(proxy):
 
 # Instantiate and initialise the Chalice child object
 app = CloudSecurityWatch(app_name="cloud-security-watch")
-
 # switch debug logging on
 app.log.setLevel(logging.DEBUG)
+log_format = logging.Formatter(
+    "%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+    "%Y-%m-%d:%H:%M:%S",
+)
+app.log.handlers[0].setFormatter(log_format)
 app.prefix = os.environ["CSW_PREFIX"]
 app.env = os.environ["CSW_ENV"]
 app.utilities = Utilities()
