@@ -1,28 +1,13 @@
 -- What percentage of audited resources have been actioned?
--- Subselect
---    Gets the first and last date for checked resources
---    where the state failed in both before and after audits
--- Outer query
---    Aggregates to average duration and calculates the
---    elapsed time in days
+-- Passed resources are one of:
+--   The current status is passed or excepted and is from the latest audit
+--   The current status is passed but is not from the latest audit and the
+--   latest audit completed (the resource is no longer there)
 SELECT
-  EXTRACT(
-    HOUR FROM
-    AVG(duration_failed) * INTERVAL '1 second'
-  ) / 24 AS days
-FROM (
-  SELECT
-    seq.resource_persistent_id,
-    seq.criterion_id,
-    MIN(seq.prev_date) AS first_failed,
-    MAX(seq.next_date) AS last_failed,
-    EXTRACT(
-      EPOCH FROM
-      MAX(seq.next_date) - MIN(seq.prev_date)
-    ) AS duration_failed
-  FROM public._previous_next_resource_status_stats AS seq
-  WHERE seq.prev_status_id = 3
-  AND seq.next_status_id = 3
-  AND seq.next_finished = TRUE
-  GROUP BY seq.resource_persistent_id, seq.criterion_id
-) AS res_fail_duration;
+  AVG(days_failed) as days_failed
+FROM _summary_resource_evaluations
+WHERE (
+  is_latest AND current_status_id IN (2,4)
+) OR (
+  current_status_id = 3 AND (NOT is_latest) AND latest_completed
+);
