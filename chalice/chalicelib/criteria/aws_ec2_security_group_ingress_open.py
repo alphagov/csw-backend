@@ -85,6 +85,9 @@ class AwsEc2SecurityGroupIngressOpen(CriteriaDefault):
             item["GroupId"], compliance_type, event, self.resource_type, self.annotation
         )
 
+        # apply filter to mark default security groups as compliant by exception
+        evaluation = self.client.except_default_security_groups(item, evaluation)
+
         return evaluation
 
     def rule_is_compliant(self, rule, whitelist):

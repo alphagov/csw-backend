@@ -122,3 +122,10 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
         b_in_a = self.parent_cidr_contains_child_cidr(cidr_b, cidr_a)
 
         return a_in_b and b_in_a
+
+    def except_default_security_groups(self, item, compliance):
+        if item['GroupName'] == "default":
+            compliance["status_id"] = 4
+            compliance["is_compliant"] = True
+            compliance["compliance_type"] = "COMPLIANT"
+        return compliance

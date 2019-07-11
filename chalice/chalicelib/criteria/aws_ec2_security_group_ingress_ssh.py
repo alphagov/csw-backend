@@ -84,6 +84,9 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
             item["GroupId"], compliance_type, event, self.resource_type, self.annotation
         )
 
+        # apply filter to mark default security groups as compliant by exception
+        evaluation = self.client.except_default_security_groups(item, evaluation)
+
         return evaluation
 
     def get_valid_ranges(self):
