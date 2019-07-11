@@ -4,7 +4,9 @@ This repository contains the code for creating an
 instance of Cloud Security Watch running in an
 infrastructure created by [alphagov/csw-infra](https://github.com/alphagov/csw-infra)
 
-
+## Note - Cloud Security Watch audits can now be run offline 
+from the command line. If you want to run CSW audits without 
+a web infrastructure please read the [CLI ReadMe](cli/README.md) 
 
 ## Create your virtual env
 
