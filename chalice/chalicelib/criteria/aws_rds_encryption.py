@@ -52,7 +52,12 @@ class RdsEncryption(CriteriaDefault):
         }
 
     def evaluate(self, event, item, whitelist=[]):
+        # is storage encryption enabled
         if item["StorageEncrypted"] is True:
+            compliance_type = "COMPLIANT"
+            self.annotation = ""
+        # don't fail stopped or deleting instances
+        elif item["DBInstanceStatus"] in ["stopped", "deleting"]:
             compliance_type = "COMPLIANT"
             self.annotation = ""
         else:
