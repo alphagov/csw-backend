@@ -2867,3 +2867,382 @@ S3_BUCKET_ENCRYPTION = {
         }
     ],
 }
+
+EC2_SECURITY_GROUPS_SSH_INGRESS = {
+    "pass": [
+        {
+            "Description": "Pass - Valid ranges.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "85.133.67.244/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.237/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.214/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.236/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.212/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.235/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.213/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Pass - internal reserved IP range class 1.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "10.0.0.0/8"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Pass - internal reserved IP range class 2.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "192.168.0.0/16"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Pass - internal reserved IP range class 2.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "192.168.0.0/16"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Pass - internal reserved IP range class 2.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "172.16.0.0/12"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Pass - port range includes SSH",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 21,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "10.0.0.0/8"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 23,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        }
+    ],
+    "fail": [
+        {
+            "Description": "Fail - Any port from anywhere.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 0,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 65535,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Fail - SSH Anywhere.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Fail - Includes Gov WiFi.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "213.86.153.192/26"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Fail - Non GDS.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "1.2.3.4/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Fail - 2nd rule invalid.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "85.133.67.244/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.237/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.214/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.236/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.212/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.235/32"
+                        },
+                        {
+                            "CidrIp": "213.86.153.213/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "1.2.3.4/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Fail - Badly defined port range.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 0,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        }
+    ],
+    "na": [
+        {
+            "Description": "Not applicable - Not SSH.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissions": [
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "1.2.3.4/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "1.2.3.4/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        },
+        {
+            "Description": "Not applicable - No ingress rules.",
+            "GroupName": "csw-xxx-sg-public",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "1.2.3.4/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "103495720024",
+            "GroupId": "sg-0c1a7a844ad4805e8",
+            "VpcId": "vpc-0c1066b2680c940db"
+        }
+    ]
+}

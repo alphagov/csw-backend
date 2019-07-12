@@ -59,17 +59,17 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
         has_relevant_rule = False
         is_compliant = True
+        if "IpPermissions" in item:
+            for ingress_rule in item["IpPermissions"]:
 
-        for ingress_rule in item["IpPermissions"]:
+                self.app.log.debug("ingress rule")
+                # self.app.log.debug(json.dumps(rule))
 
-            self.app.log.debug("ingress rule")
-            # self.app.log.debug(json.dumps(rule))
-
-            if self.rule_applies_to_ssh(ingress_rule):
-                self.app.log.debug("Applies to SSH")
-                has_relevant_rule = True
-                rule_is_compliant = self.rule_is_compliant(ingress_rule)
-                is_compliant &= rule_is_compliant
+                if self.rule_applies_to_ssh(ingress_rule):
+                    self.app.log.debug("Applies to SSH")
+                    has_relevant_rule = True
+                    rule_is_compliant = self.rule_is_compliant(ingress_rule)
+                    is_compliant &= rule_is_compliant
 
         if has_relevant_rule:
             if is_compliant:

@@ -5,10 +5,14 @@ CriteriaDefault unit tests and Mixin for all its subclasses TestCases
 
 import importlib
 import unittest
+import os
 
 from chalice import Chalice
 from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY
 from chalicelib.criteria.criteria_default import CriteriaDefault
+
+
+os.environ["CSW_CRITERIA_UNIT_TESTING"] = "1"
 
 
 class TestCaseWithAttrAssert(unittest.TestCase):
@@ -435,18 +439,6 @@ class CriteriaSubclassTestCaseMixin(object):
         green (status: ok) test
         """
         # ignored tests
-        with self.subTest():
-            self.assertNotIn(
-                "annotation",
-                output,
-                msg="evaluate must not return an annotation when not applicable",
-            )
-        with self.subTest():
-            self.assertEqual(
-                self.subclass.annotation,
-                "",
-                msg="the object's annotation must be an blank string",
-            )
         with self.subTest():
             self.assertFalse(output["is_compliant"])
         with self.subTest():
