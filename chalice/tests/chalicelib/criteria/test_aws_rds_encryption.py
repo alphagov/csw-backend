@@ -109,12 +109,30 @@ class TestRdsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
 
     def test_evaluate_fail(self):
         for d in self.test_data["fail"]["DBInstances"]:
+            # ensure that the fail cases are not ignored due to instance status
+            d["DBInstanceStatus"] = "available"
             with self.subTest(key=d):
                 output = self._evaluate_invariant_assertions({}, d, [])
                 self._evaluate_failed_status_assertions(d, output)
 
     def test_evaluate_pass(self):
         for d in self.test_data["pass"]["DBInstances"]:
+            with self.subTest(key=d):
+                output = self._evaluate_invariant_assertions({}, d, [])
+                self._evaluate_passed_status_assertions(d, output)
+
+    def test_evaluate_stopped(self):
+        for d in self.test_data["fail"]["DBInstances"]:
+            # change item status to check the evaluation changes
+            d["DBInstanceStatus"] = "stopped"
+            with self.subTest(key=d):
+                output = self._evaluate_invariant_assertions({}, d, [])
+                self._evaluate_passed_status_assertions(d, output)
+
+    def test_evaluate_deleting(self):
+        for d in self.test_data["fail"]["DBInstances"]:
+            # change item status to check the evaluation changes
+            d["DBInstanceStatus"] = "deleting"
             with self.subTest(key=d):
                 output = self._evaluate_invariant_assertions({}, d, [])
                 self._evaluate_passed_status_assertions(d, output)
