@@ -9,7 +9,10 @@ ids.id
 FROM public.audit_resource AS res
 INNER JOIN public._resource_persistent_ids AS ids
 ON res.resource_persistent_id = ids.resource_persistent_id
-WHERE res.resource_persistent_id IS NOT NULL;
+INNER JOIN public.account_audit as aud
+ON aud.id = res.account_audit_id
+WHERE res.resource_persistent_id IS NOT NULL
+AND age(NOW(), aud.date_started) < INTERVAL '28 days';
 
 CREATE INDEX resources__audit_resource_id ON public._resources (audit_resource_id);
 CREATE INDEX resources__account_audit_id ON public._resources (account_audit_id);
