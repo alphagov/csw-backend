@@ -158,12 +158,15 @@ app.utilities = Utilities()
 # load decorated function-based views from another chalicelib file
 # TODO: Replace load_views with a django-like dispatcher...
 # TODO: ... with the additional functionality fo binding periodic and triggered lambdas.
-app.load_views(
-    [
-        "routes",
-        "demos",  # route lambdas (aka HTTP responses, views)
-        "admin",
-        "audit",  # periodic and triggered lambdas
-        "api",  #
-    ]
-)
+if "CSW_CRITERIA_UNIT_TESTING" in os.environ:
+    app.log.debug("Unit testing")
+else:
+    app.load_views(
+        [
+            "routes",
+            "demos",  # route lambdas (aka HTTP responses, views)
+            "admin",
+            "audit",  # periodic and triggered lambdas
+            "api",  #
+        ]
+    )

@@ -1006,6 +1006,9 @@ class ResourceException(database_handle.BaseModel):
                 "Found exception: " + app.utilities.to_json(exception.serialize())
             )
 
+        except peewee.DoesNotExist:
+            app.log.debug(app.utilities.get_typed_exception())
+            exception = None
         except Exception:
             app.log.error(app.utilities.get_typed_exception())
             exception = None
