@@ -152,8 +152,6 @@ log_format = logging.Formatter(
     "%Y-%m-%d:%H:%M:%S",
 )
 app.log.handlers[0].setFormatter(log_format)
-app.prefix = os.environ["CSW_PREFIX"]
-app.env = os.environ["CSW_ENV"]
 app.utilities = Utilities()
 # load decorated function-based views from another chalicelib file
 # TODO: Replace load_views with a django-like dispatcher...
@@ -161,6 +159,8 @@ app.utilities = Utilities()
 if "CSW_CRITERIA_UNIT_TESTING" in os.environ:
     app.log.debug("Unit testing")
 else:
+    app.prefix = os.environ["CSW_PREFIX"]
+    app.env = os.environ["CSW_ENV"]
     app.load_views(
         [
             "routes",
