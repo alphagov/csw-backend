@@ -178,7 +178,11 @@ def criteria_finder(parent_module_name="chalicelib.criteria"):
             importlib.import_module(parent_module_import_path), inspect.isclass
         )
         for name, cls in members:
-            active_criteria.add(f"{parent_module_import_path}.{name}")
+            is_criteria_default = "CriteriaDefault" in [
+                supercls.__name__ for supercls in inspect.getmro(cls)
+            ]
+            if is_criteria_default:
+                active_criteria.add(f"{parent_module_import_path}.{name}")
 
     return active_criteria
 
