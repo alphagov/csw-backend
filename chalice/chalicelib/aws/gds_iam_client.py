@@ -60,6 +60,12 @@ class GdsIamClient(GdsAwsClient):
 
         return response
 
+    def list_role_tags(self, session, role_name):
+        iam = self.get_boto3_session_client("iam", session)
+        response = iam.list_role_tags(RoleName=role_name)
+
+        return response["Tags"]
+
     def split_resource(self, resource):
 
         (type, name) = resource.split("/", 1)

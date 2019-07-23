@@ -564,6 +564,7 @@ class ProductTeam(database_handle.BaseModel):
     def get_access_settings(self):
         iam_client = GdsIamClient(app)
         role = self.get_iam_role()
+
         users = iam_client.get_role_users(role)
         accounts = self.get_iam_role_accounts(role)
 
@@ -573,6 +574,28 @@ class ProductTeam(database_handle.BaseModel):
         }
 
         return team_settings
+    
+    @classmethod
+    def get_all_team_iam_roles(cls):
+        # list roles in host account
+        iam_client = GdsIamClient(app)
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
+        roles = iam_client.list_roles(local_audit_session)
+        team_roles = []
+        for role in roles:
+            print(str(role))
+            # the docs are wrong - list_roles does not return tags
+            # if "Tags" in role:
+            #     tags = iam_client.tag_list_to_dict(role["Tags"])
+            tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
+            tags = iam_client.tag_list_to_dict(tag_list)
+            # filter by tags
+            is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
+            if is_team_role:
+                team_roles.append(role)
+
+        return team_roles
 
 
 class ProductTeamUser(database_handle.BaseModel):
