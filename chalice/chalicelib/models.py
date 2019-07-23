@@ -1,6 +1,7 @@
 import os
 import datetime
 import peewee
+import re
 
 # peewee has a validator library but it has a max version of 3.1
 # this would mean downgrading our peewee version.
@@ -588,15 +589,16 @@ class ProductTeam(database_handle.BaseModel):
             # the docs are wrong - list_roles does not return tags
             # if "Tags" in role:
             #     tags = iam_client.tag_list_to_dict(role["Tags"])
-            app.log.debug(role["RoleName"])
-            tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
-            app.log.debug(str(tag_list))
-            tags = iam_client.tag_list_to_dict(tag_list)
-            app.log.debug(str(tags))
-            # filter by tags
-            is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
-            if is_team_role:
-                team_roles.append(role)
+            if re.match("csw", role["RoleName"], re.IGNORECASE) is not None:
+                app.log.debug(role["RoleName"])
+                tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
+                app.log.debug(str(tag_list))
+                tags = iam_client.tag_list_to_dict(tag_list)
+                app.log.debug(str(tags))
+                # filter by tags
+                is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
+                if is_team_role:
+                    team_roles.append(role)
 
         return team_roles
 
