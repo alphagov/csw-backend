@@ -524,7 +524,7 @@ class ProductTeam(database_handle.BaseModel):
             )
         return criteria_stats
 
-    def get_team_role(self, team_id):
+    def get_iam_role(self):
         # list roles in host account
         iam_client = GdsIamClient(app)
         default_session = iam_client.get_default_session()
@@ -536,12 +536,12 @@ class ProductTeam(database_handle.BaseModel):
                 tags = iam_client.tag_list_to_dict(role["Tags"])
                 # filter by tags
                 is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
-                is_this_team = ("team_id" in tags) and (tags["team_id"] == str(team_id))
+                is_this_team = ("team_id" in tags) and (tags["team_id"] == str(self.id))
                 if is_team_role and is_this_team:
                     team_role = role
         return team_role
 
-    def get_team_role_accounts(self, team_role):
+    def get_iam_role_accounts(self, team_role):
         iam_client = GdsIamClient(app)
         default_session = iam_client.get_default_session()
         arn = team_role["Arn"]
@@ -559,11 +559,11 @@ class ProductTeam(database_handle.BaseModel):
         unique_accounts = list(accounts_set)
         return unique_accounts
 
-    def get_team_settings(self):
+    def get_access_settings(self):
         iam_client = GdsIamClient(app)
-        role = iam_client.get_team_role(self.id)
-        users = iam_client.get_team_role_users(role)
-        accounts = iam_client.get_team_role_accounts(role)
+        role = self.get_team_role()
+        users = iam_client.get_role_users(role)
+        accounts = self.get_iam_role_accounts(role)
 
         team_settings = {
             "users": users,
