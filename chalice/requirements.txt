@@ -1,4 +1,4 @@
-boto3==1.9.154
+boto3==1.9.193
 psycopg2-binary==2.8.2
 peewee==3.9.5
 cerberus==1.3.1
