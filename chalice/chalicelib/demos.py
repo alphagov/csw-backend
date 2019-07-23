@@ -272,7 +272,6 @@ def validate_iam_policy():
 def team_loader():
     load_route_services()
     try:
-        role_defs = []
         team_roles = models.ProductTeam.get_all_team_iam_roles()
 
         # teams = models.ProductTeam.select()
@@ -280,7 +279,10 @@ def team_loader():
         # app.log.debug(str(team))
         # team_settings = team.get_access_settings()
         # app.log.debug(str(team_settings))
-        response = app.templates.render_template("debug.html", {"JSON": team_roles})
+        data = {
+            "team_roles": team_roles
+        }
+        response = app.templates.render_template("debug.html", {"JSON": data})
     except Exception as err:
         response = {
             "body": app.utilities.get_typed_exception() #"failed: " + str(err)
