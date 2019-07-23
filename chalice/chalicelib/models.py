@@ -561,7 +561,7 @@ class ProductTeam(database_handle.BaseModel):
 
     def get_access_settings(self):
         iam_client = GdsIamClient(app)
-        role = self.get_team_role()
+        role = self.get_iam_role()
         users = iam_client.get_role_users(role)
         accounts = self.get_iam_role_accounts(role)
 
