@@ -280,7 +280,7 @@ def team_loader():
         # app.log.debug(str(team))
         # team_settings = team.get_access_settings()
         # app.log.debug(str(team_settings))
-        response = app.template.render_template("debug.html", {"JSON": team_roles})
+        response = app.templates.render_template("debug.html", {"JSON": team_roles})
     except Exception as err:
         response = {
             "body": app.utilities.get_typed_exception() #"failed: " + str(err)
