@@ -275,7 +275,7 @@ def team_loader():
         teams = models.ProductTeam.select()
         team = teams[0]
         app.log.debug(str(team))
-        team_settings = team.get_team_settings()
+        team_settings = team.get_access_settings()
         app.log.debug(str(team_settings))
         response = app.template.render_template("debug.html", {"JSON": team_settings})
     except Exception as err:
