@@ -527,8 +527,9 @@ class ProductTeam(database_handle.BaseModel):
     def get_iam_role(self):
         # list roles in host account
         iam_client = GdsIamClient(app)
-        default_session = iam_client.get_default_session()
-        roles = iam_client.list_roles(default_session)
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
+        roles = iam_client.list_roles(local_audit_session)
         team_role = None
         for role in roles:
             print(str(role))
@@ -543,15 +544,16 @@ class ProductTeam(database_handle.BaseModel):
 
     def get_iam_role_accounts(self, team_role):
         iam_client = GdsIamClient(app)
-        default_session = iam_client.get_default_session()
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
         arn = team_role["Arn"]
         arn_components = iam_client.parse_arn_components(arn)
         role_name = arn_components["resource_components"]["name"]
-        policies = iam_client.list_attached_role_policies(default_session, role_name)
+        policies = iam_client.list_attached_role_policies(local_audit_session, role_name)
         accounts = []
         for policy_attachment in policies:
             policy_arn = policy_attachment["PolicyArn"]
-            policy_version = iam_client.get_policy_default_version(default_session, policy_arn)
+            policy_version = iam_client.get_policy_default_version(local_audit_session, policy_arn)
             roles = iam_client.get_assumable_roles(policy_version)
             accounts.extend(iam_client.get_role_accounts(roles))
 
