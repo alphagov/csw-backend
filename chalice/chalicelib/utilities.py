@@ -70,8 +70,9 @@ class Utilities:
         cloudwatch.
 
         """
-        return json.dumps(
-            [
+        return json.dumps({
+            "message": traceback.format_exc(),
+            "stack": [
                 {
                     "filename": frame.filename,
                     "line": frame.line,
@@ -81,7 +82,7 @@ class Utilities:
                 }
                 for frame in traceback.extract_tb(sys.exc_info()[2])
             ]
-        )
+        })
 
     def list_files_from_path(self, path, ext=None):
         """
