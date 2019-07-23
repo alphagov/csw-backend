@@ -15,7 +15,7 @@ class GdsIamClient(GdsAwsClient):
 
         return response["Users"]
 
-    def list_roles(self, session=None):
+    def list_roles(self, session):
 
         iam = self.get_boto3_session_client("iam", session)
         response = iam.list_roles()
@@ -79,7 +79,8 @@ class GdsIamClient(GdsAwsClient):
 
     def get_team_role(self, team_id):
         # list roles in host account
-        roles = self.list_roles()
+        default_session = self.get_default_session()
+        roles = self.list_roles(default_session)
         team_role = None
         for role in roles:
             print(str(role))
