@@ -283,7 +283,12 @@ def team_loader():
             "team_roles": team_roles
         }
         rendered = app.templates.render_template("debug.html", {"JSON": data})
-        response = {"body": rendered}
+        response = {
+            "headers": {
+                "Content-Type": "text/html"
+            },
+            "body": rendered
+        }
     except Exception as err:
         response = {
             "body": app.utilities.get_typed_exception() #"failed: " + str(err)
