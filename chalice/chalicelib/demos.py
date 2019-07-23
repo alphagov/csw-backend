@@ -12,7 +12,6 @@ from chalice import Response
 from app import app, load_route_services
 from chalicelib import models
 from chalicelib.template_handler import TemplateHandler
-from chalicelib.admin import get_team_settings
 
 
 AUDIT = {
@@ -276,7 +275,7 @@ def team_loader():
         teams = models.ProductTeam.select()
         team = teams[0]
         app.log.debug(str(team))
-        team_settings = get_team_settings(team)
+        team_settings = team.get_team_settings()
         app.log.debug(str(team_settings))
         response = app.template.render_template("debug.html", {"JSON": team_settings})
     except Exception as err:

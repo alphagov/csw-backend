@@ -77,22 +77,6 @@ class GdsIamClient(GdsAwsClient):
 
         return components
 
-    def get_team_role(self, team_id):
-        # list roles in host account
-        default_session = self.get_default_session()
-        roles = self.list_roles(default_session)
-        team_role = None
-        for role in roles:
-            print(str(role))
-            if "Tags" in role:
-                tags = self.tag_list_to_dict(role["Tags"])
-                # filter by tags
-                is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
-                is_this_team = ("team_id" in tags) and (tags["team_id"] == str(team_id))
-                if is_team_role and is_this_team:
-                    team_role = role
-        return team_role
-
     def get_remote_role(self, account_id, role_name):
         remote_session = self.get_chained_session(account_id)
         role = self.get_role(remote_session, role_name)
@@ -155,7 +139,7 @@ class GdsIamClient(GdsAwsClient):
         accounts = []
         for role_arn in roles:
             arn_components = self.parse_arn_components(role_arn)
-            if arn_components["resource_components"]["name"] == "GDSSecurityAudti":
+            if arn_components["resource_components"]["name"] == "GDSSecurityAudit":
                 accounts.append(arn_components["account"])
 
         # force uniqueness in case the same user belongs to multiple roles
@@ -164,19 +148,3 @@ class GdsIamClient(GdsAwsClient):
         unique_accounts = list(accounts_set)
         return unique_accounts
 
-    def get_team_role_accounts(self, team_role):
-        default_session = self.get_default_session()
-        arn = team_role["Arn"]
-        arn_components = self.parse_arn_components(arn)
-        role_name = arn_components["resource_components"]["name"]
-        policies = self.list_attached_role_policies(default_session, role_name)
-        accounts = []
-        for policy_attachment in policies:
-            policy_arn = policy_attachment["PolicyArn"]
-            policy_version = self.get_policy_default_version(default_session, policy_arn)
-            roles = self.get_assumable_roles(policy_version)
-            accounts.extend(self.get_role_accounts(roles))
-
-        accounts_set = set(accounts)
-        unique_accounts = list(accounts_set)
-        return unique_accounts

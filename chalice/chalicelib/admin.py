@@ -13,7 +13,6 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from app import app, load_route_services
 from chalicelib.database_handle import DatabaseHandle
 from chalicelib import models
-from chalicelib.aws.gds_iam_client import GdsIamClient
 
 
 def criteria_finder(parent_module_name="chalicelib.criteria"):
@@ -197,20 +196,6 @@ def database_add_new_criteria(event, context):
     # except Exception as err:
     #     app.log.error(str(err))
     return None
-
-
-def get_team_settings(team):
-    iam_client = GdsIamClient(app)
-    role = iam_client.get_team_role(team.id)
-    users = iam_client.get_team_role_users(role)
-    accounts = iam_client.get_team_role_accounts(role)
-
-    team_settings = {
-        "users": users,
-        "accounts": accounts
-    }
-
-    return team_settings
 
 
 @app.lambda_function()
