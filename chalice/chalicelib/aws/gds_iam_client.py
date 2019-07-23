@@ -43,7 +43,7 @@ class GdsIamClient(GdsAwsClient):
 
     def get_policy_default_version(self, session, policy_arn):
         policy = self.get_policy(session, policy_arn)
-        response = self.get_policy_version(session, policy["DefaultVersionId"])
+        response = self.get_policy_version(session, policy_arn, policy["DefaultVersionId"])
         return response
 
     def get_role_policy(self, session, role_name, policy_name):
@@ -179,6 +179,4 @@ class GdsIamClient(GdsAwsClient):
 
         accounts_set = set(accounts)
         unique_accounts = list(accounts_set)
-        return unique_accounts
-
         return unique_accounts
