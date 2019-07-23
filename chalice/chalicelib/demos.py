@@ -274,15 +274,13 @@ def team_loader():
     try:
         role_defs = []
         team_roles = models.ProductTeam.get_all_team_iam_roles()
-        for team_role in team_roles:
-            role_defs.append(team_role.serialize())
 
         # teams = models.ProductTeam.select()
         # team = teams[0]
         # app.log.debug(str(team))
         # team_settings = team.get_access_settings()
         # app.log.debug(str(team_settings))
-        response = app.template.render_template("debug.html", {"JSON": role_defs})
+        response = app.template.render_template("debug.html", {"JSON": team_roles})
     except Exception as err:
         response = {
             "body": app.utilities.get_typed_exception() #"failed: " + str(err)
