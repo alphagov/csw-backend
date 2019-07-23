@@ -11,6 +11,7 @@ import peewee
 
 from app import app  # used only for logging
 from chalicelib import database_handle
+from chalicelib.aws.gds_iam_client import GdsIamClient
 
 
 class User(database_handle.BaseModel):
@@ -522,6 +523,54 @@ class ProductTeam(database_handle.BaseModel):
                 }
             )
         return criteria_stats
+
+    def get_team_role(self, team_id):
+        # list roles in host account
+        iam_client = GdsIamClient(app)
+        default_session = iam_client.get_default_session()
+        roles = iam_client.list_roles(default_session)
+        team_role = None
+        for role in roles:
+            print(str(role))
+            if "Tags" in role:
+                tags = iam_client.tag_list_to_dict(role["Tags"])
+                # filter by tags
+                is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
+                is_this_team = ("team_id" in tags) and (tags["team_id"] == str(team_id))
+                if is_team_role and is_this_team:
+                    team_role = role
+        return team_role
+
+    def get_team_role_accounts(self, team_role):
+        iam_client = GdsIamClient(app)
+        default_session = iam_client.get_default_session()
+        arn = team_role["Arn"]
+        arn_components = iam_client.parse_arn_components(arn)
+        role_name = arn_components["resource_components"]["name"]
+        policies = iam_client.list_attached_role_policies(default_session, role_name)
+        accounts = []
+        for policy_attachment in policies:
+            policy_arn = policy_attachment["PolicyArn"]
+            policy_version = iam_client.get_policy_default_version(default_session, policy_arn)
+            roles = iam_client.get_assumable_roles(policy_version)
+            accounts.extend(iam_client.get_role_accounts(roles))
+
+        accounts_set = set(accounts)
+        unique_accounts = list(accounts_set)
+        return unique_accounts
+
+    def get_team_settings(self):
+        iam_client = GdsIamClient(app)
+        role = iam_client.get_team_role(self.id)
+        users = iam_client.get_team_role_users(role)
+        accounts = iam_client.get_team_role_accounts(role)
+
+        team_settings = {
+            "users": users,
+            "accounts": accounts
+        }
+
+        return team_settings
 
 
 class ProductTeamUser(database_handle.BaseModel):
