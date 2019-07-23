@@ -202,7 +202,7 @@ def database_add_new_criteria(event, context):
 
 
 def get_team_settings(team):
-
+    iam_client = GdsIamClient(app)
     role = iam_client.get_team_role(team.id)
     users = iam_client.get_team_role_users(role)
     accounts = iam_client.get_team_role_accounts(role)
