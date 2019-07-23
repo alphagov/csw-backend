@@ -164,14 +164,15 @@ class GdsIamClient(GdsAwsClient):
         return unique_accounts
 
     def get_team_role_accounts(self, team_role):
+        default_session = self.get_default_session()
         arn = team_role["Arn"]
         arn_components = self.parse_arn_components(arn)
         role_name = arn_components["resource_components"]["name"]
-        policies = self.list_attached_role_policies(None, role_name)
+        policies = self.list_attached_role_policies(default_session, role_name)
         accounts = []
         for policy_attachment in policies:
             policy_arn = policy_attachment["PolicyArn"]
-            policy_version = self.get_policy_default_version(None, policy_arn)
+            policy_version = self.get_policy_default_version(default_session, policy_arn)
             roles = self.get_assumable_roles(policy_version)
             accounts.extend(self.get_role_accounts(roles))
 
