@@ -12,6 +12,7 @@ from chalice import Response
 from app import app, load_route_services
 from chalicelib import models
 from chalicelib.template_handler import TemplateHandler
+from chalicelib.admin import get_team_settings
 
 
 AUDIT = {
@@ -265,4 +266,21 @@ def validate_iam_policy():
         )
     except Exception as err:
         response = {"body": str(err)}
+    return Response(**response)
+
+
+@app.route("/test/team_loader")
+def team_loader():
+    load_route_services()
+    try:
+        teams = models.ProductTeam.select()
+        team = teams[0]
+        app.log.debug(str(team))
+        team_settings = get_team_settings(team)
+        app.log.debug(str(team_settings))
+        response = app.template.render_template("debug.html", {"JSON": team_settings})
+    except Exception as err:
+        response = {
+            "body": app.utilities.get_typed_exception() #"failed: " + str(err)
+        }
     return Response(**response)
