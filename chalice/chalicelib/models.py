@@ -584,12 +584,15 @@ class ProductTeam(database_handle.BaseModel):
         roles = iam_client.list_roles(local_audit_session)
         team_roles = []
         for role in roles:
-            print(str(role))
+            app.log.debug(str(role))
             # the docs are wrong - list_roles does not return tags
             # if "Tags" in role:
             #     tags = iam_client.tag_list_to_dict(role["Tags"])
+            app.log.debug(role["RoleName"])
             tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
+            app.log.debug(str(tag_list))
             tags = iam_client.tag_list_to_dict(tag_list)
+            app.log.debug(str(tags))
             # filter by tags
             is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
             if is_team_role:
