@@ -324,3 +324,24 @@ class GdsAwsClient:
             self.app.log.error(self.app.utilities.get_typed_exception())
 
         return target_session
+
+    def parse_arn_components(self, arn):
+
+        # arn:aws:[service]:[region]:[account]:[resource]
+        component_values = arn.split(":")
+
+        components = {
+            "service": component_values[2],
+            "region": component_values[3],
+            "account": component_values[4],
+            "resource": component_values[5]
+        }
+
+        return components
+
+    def tag_list_to_dict(self, tags):
+        tag_dict = {}
+        for tag in tags:
+            tag_dict[tag["Key"]] = tag["Value"]
+        return tag_dict
+
