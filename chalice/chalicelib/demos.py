@@ -273,6 +273,7 @@ def team_loader():
     load_route_services()
     try:
         team_roles = models.ProductTeam.get_all_team_iam_roles()
+        app.log.debug(str(team_roles))
 
         # teams = models.ProductTeam.select()
         # team = teams[0]
