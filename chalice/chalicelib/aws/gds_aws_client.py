@@ -115,6 +115,14 @@ class GdsAwsClient:
         )
         return self.clients[client_name]
 
+    def get_default_session(self):
+        session = {
+            "aws_access_key_id": os.environ["AWS_ACCESS_KEY_ID"],
+            "aws_secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
+            "aws_session_token": os.environ["AWS_SESSION_TOKEN"]
+        }
+        return session
+
     # gets a boto3.client with the temporary session credentials
     # resulting from sts assume-role command
     def get_assumed_client(self, service_name, account="default", role="", region=None):
