@@ -71,7 +71,7 @@ class Utilities:
 
         """
         return json.dumps({
-            "message": traceback.format_exc().split("\m"),
+            "message": traceback.format_exc().split("\n"),
             "stack": [
                 {
                     "filename": frame.filename,
