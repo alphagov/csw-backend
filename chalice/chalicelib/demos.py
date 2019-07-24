@@ -273,11 +273,8 @@ def team_loader():
     load_route_services()
     try:
         team_roles = models.ProductTeam.get_all_team_iam_roles()
+        # teams = models.ProductTeam.select()
         app.log.debug(str(team_roles))
-        for role in team_roles:
-            users =
-
-            team = models.ProductTeam.get_by_id(role["TagLookup"]["team_id"])
 
         json = app.utilities.to_json(team_roles)
 
