@@ -12,8 +12,6 @@ from app import app  # used only for logging
 from chalicelib import database_handle
 from chalicelib.aws.gds_iam_client import GdsIamClient
 from chalicelib.peewee_models.user import User
-from chalicelib.peewee_models.user_session import UserSession
-from chalicelib.peewee_models.product_team import ProductTeam
 
 
 class ProductTeam(database_handle.BaseModel):
