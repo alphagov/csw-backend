@@ -2,7 +2,6 @@ import datetime
 import peewee
 from app import app  # used only for logging
 from chalicelib import database_handle
-from chalicelib.peewee_models.user import User
 
 
 class UserSession(database_handle.BaseModel):

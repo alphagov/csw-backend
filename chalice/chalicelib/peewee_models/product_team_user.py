@@ -2,7 +2,6 @@ import peewee
 from app import app  # used only for logging
 from chalicelib import database_handle
 from chalicelib.peewee_models.user import User
-from chalicelib.peewee_models.product_team import ProductTeam
 
 
 class ProductTeamUser(database_handle.BaseModel):

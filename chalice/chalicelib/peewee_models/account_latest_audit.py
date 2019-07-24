@@ -1,8 +1,6 @@
 import peewee
 from app import app  # used only for logging
 from chalicelib import database_handle
-from chalicelib.peewee_models.account_subscription import AccountSubscription
-from chalicelib.peewee_models.account_audit import AccountAudit
 
 
 class AccountLatestAudit(database_handle.BaseModel):
