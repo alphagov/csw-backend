@@ -77,7 +77,7 @@ class User(database_handle.BaseModel):
         """
         Take portion of email before @, replace . with space and uppercase words
         """
-        name = email.split("@", 1)[0].replace("\.", " ").title()
+        name = email.split("@", 1)[0].replace(".", " ").title()
         return name
 
     def get_my_teams(self):
