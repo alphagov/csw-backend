@@ -207,7 +207,7 @@ def update_teams(event, context):
     app.log.debug(str(team_roles))
     for team_role in team_roles:
         team = None
-        team_id = team_role["TagLookup"]["team_id"]
+        team_id = int(team_role["TagLookup"]["team_id"])
         team_name = team_role["TagLookup"]["team_name"]
         for teamx in teams:
             if teamx.id == team_id:
