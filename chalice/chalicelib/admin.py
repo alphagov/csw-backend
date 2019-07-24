@@ -9,6 +9,7 @@ import os
 import pkgutil
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from chalice import Rate
 
 from app import app, load_route_services
 from chalicelib.database_handle import DatabaseHandle
@@ -199,9 +200,7 @@ def database_add_new_criteria(event, context):
     #     app.log.error(str(err))
     return None
 
-
-@app.lambda_function()
-def update_teams(event, context):
+def update_teams():
     team_roles = models.ProductTeam.get_all_team_iam_roles()
     teams = models.ProductTeam.select()
     app.log.debug(str(team_roles))
@@ -221,3 +220,12 @@ def update_teams(event, context):
 
     return None
 
+
+@app.lambda_function()
+def manual_update_teams(event, context):
+    return update_teams()
+
+
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def scheduled_update_teams(event):
+    return update_teams()
