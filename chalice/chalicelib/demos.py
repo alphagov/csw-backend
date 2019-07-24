@@ -274,22 +274,15 @@ def team_loader():
     try:
         team_roles = models.ProductTeam.get_all_team_iam_roles()
         app.log.debug(str(team_roles))
+        for role in team_roles:
+            users =
 
-        # teams = models.ProductTeam.select()
-        # team = teams[0]
-        # app.log.debug(str(team))
-        # team_settings = team.get_access_settings()
-        # app.log.debug(str(team_settings))
-        data = {
-            "team_roles": team_roles
-        }
-        rendered = app.templates.render_template("debug.html", {"JSON": data})
-        response = {
-            "headers": {
-                "Content-Type": "text/html"
-            },
-            "body": rendered
-        }
+            team = models.ProductTeam.get_by_id(role["TagLookup"]["team_id"])
+
+        json = app.utilities.to_json(team_roles)
+
+        response = app.templates.render_authorized_template("debug.html", app.current_request, {"JSON": json})
+
     except Exception as err:
         response = {
             "body": app.utilities.get_typed_exception() #"failed: " + str(err)
