@@ -145,7 +145,7 @@ class GdsIamClient(GdsAwsClient):
         accounts = []
         for role_arn in roles:
             arn_components = self.parse_arn_components(role_arn)
-            if arn_components["resource_components"]["name"] == "GDSSecurityAudit":
+            if arn_components["resource_components"]["name"] == self.chain["target_role"]:
                 accounts.append(arn_components["account"])
 
         # force uniqueness in case the same user belongs to multiple roles

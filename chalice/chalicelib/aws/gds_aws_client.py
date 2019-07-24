@@ -2,6 +2,7 @@
 # Manage sts assume-role calls and temporary credentials
 import boto3
 import os
+import re
 from datetime import datetime
 
 
@@ -48,15 +49,18 @@ class GdsAwsClient:
 
         return self.chain
 
-    def to_camel_case(snake_str, capitalize_first=True):
-        components = snake_str.split("_")
+    def to_camel_case(self, source_string, capitalize_first=True):
+
+        components = re.sub(r"([a-z])([A-Z])", r"\1 \2", source_string).replace("_", " ").split(" ")
         # We capitalize the first letter of each component except the first one
         # with the 'title' method and join them together.
-        for i in components:
+        for i,comp in enumerate(components):
+            comp = comp.lower()
             if (i > 0) or (capitalize_first):
-                components[i] = components[i].lower().title()
+                comp = comp.title()
+            components[i] = comp
 
-        return "".join(x.title() for x in components)
+        return "".join(components)
 
     # store temporary credentials from sts-assume-roles
     # session names are based on the account and role
