@@ -72,6 +72,14 @@ class User(database_handle.BaseModel):
         overview_data = {"all": overview_stats, "teams": team_summaries}
         return overview_data
 
+    @classmethod
+    def default_username(cls, email):
+        """
+        Take portion of email before @, replace . with space and uppercase words
+        """
+        name = email.split("@", 1)[0].replace("\.", " ").title()
+        return name
+
     def get_my_teams(self):
         """
         Get list of teams for which there is a corresponding ProductTeamUser record
@@ -606,6 +614,90 @@ class ProductTeam(database_handle.BaseModel):
                     team_roles.append(role)
 
         return team_roles
+
+    def update_members(self, users):
+
+        try:
+            team_members = (ProductTeamUser
+                          .select()
+                          .where(ProductTeamUser.team_id == self.id)
+                          )
+
+            for email in users:
+                found = False
+                # Find existing team members in database matching IAM member list and record
+                for current_member in team_members:
+                    if current_member.user_id.email == email:
+                        found = True
+                        current_member._processed = True
+
+                # Create member records (and users where required)
+                # for IAM defined users not in database
+                if not found:
+                    try:
+                        user = User.select().where(User.email == email)
+                    except peewee.DoesNotExist as err:
+                        user_data = {
+                            "email": email,
+                            "name": User.default_username(email),
+                            "active": True
+                        }
+                        user = User.create(**user_data)
+
+                    ProductTeamUser.create(
+                        team_id = self,
+                        user_id = user
+                    )
+
+            # Delete users not defined in IAM Role
+            for current_member in team_members:
+                if not current_member._processed:
+                    current_member.delete_instance()
+
+            processed = True
+
+        except Exception as err:
+
+            app.log.error(app.utilities.get_typed_exception())
+            processed = False
+
+        return processed
+
+    def update_accounts(self, team_accounts):
+
+        try:
+            default_team = ProductTeam.get(ProductTeam.team_name == 'TBC')
+            accounts = (AccountSubscription
+                             .select()
+                             )
+
+            for account in accounts:
+                account_id = str(account.account_id).rjust(12, "0")
+                changed = False
+
+                if account_id in team_accounts:
+                    # is a member update team_id
+                    account.product_team_id = self.id
+                    changed = True
+
+                elif account.product_team_id == self.id:
+                    # is not a member reset to default team
+                    account.product_team_id = default_team
+                    changed = True
+
+                if changed:
+                    # save if edited
+                    account.save()
+
+            processed = True
+
+        except Exception as err:
+
+            app.log.error(app.utitilies.get_typed_exception())
+            processed = False
+
+        return processed
+
 
 
 class ProductTeamUser(database_handle.BaseModel):
