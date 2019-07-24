@@ -635,7 +635,11 @@ class ProductTeam(database_handle.BaseModel):
                 # for IAM defined users not in database
                 if not found:
                     try:
-                        user = User.select().where(User.email == email)
+                        user = (User
+                                .select()
+                                .where(User.email == email)
+                                .get()
+                                )
                     except peewee.DoesNotExist as err:
                         user_data = {
                             "email": email,
