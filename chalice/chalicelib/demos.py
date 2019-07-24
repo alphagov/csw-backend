@@ -266,22 +266,3 @@ def validate_iam_policy():
     except Exception as err:
         response = {"body": str(err)}
     return Response(**response)
-
-
-@app.route("/test/team_loader")
-def team_loader():
-    load_route_services()
-    try:
-        team_roles = models.ProductTeam.get_all_team_iam_roles()
-        # teams = models.ProductTeam.select()
-        app.log.debug(str(team_roles))
-
-        json = app.utilities.to_json(team_roles)
-
-        response = app.templates.render_authorized_template("debug.html", app.current_request, {"JSON": json})
-
-    except Exception as err:
-        response = {
-            "body": app.utilities.get_typed_exception() #"failed: " + str(err)
-        }
-    return Response(**response)

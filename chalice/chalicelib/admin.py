@@ -202,7 +202,22 @@ def database_add_new_criteria(event, context):
 
 @app.lambda_function()
 def update_teams(event, context):
+    team_roles = models.ProductTeam.get_all_team_iam_roles()
     teams = models.ProductTeam.select()
-    for team in teams:
-        team_settings = get_team_settings(team)
+    app.log.debug(str(team_roles))
+    for team_role in team_roles:
+        team = None
+        team_id = team_role["TagLookup"]["team_id"]
+        team_name = team_role["TagLookup"]["team_name"]
+        for teamx in teams:
+            if teamx.id == team_id:
+                team = teamx
+        if team is not None:
+            if team.team_name != team_name:
+                team.team_name = team_name
+                team.save()
+            team.update_members(team_role["AccessSettings"]["users"])
+            team.update_accounts(team_role["AccessSettings"]["accounts"])
+
     return None
+
