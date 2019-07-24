@@ -27,6 +27,94 @@ class TestGdsIamClient(TestClientDefault):
         self.assertEqual(parsed["resource_components"]["name"], "user@domain.com")
         self.assertEqual(parsed["resource_components"]["type"], "user")
 
+    def test_get_role_trusted_arns(self):
+        """
+        Test that both users and roles are returned from the trust policy
+        """
+        role_document = '''{
+            "Path": "/",
+            "RoleName": "TestRole",
+            "RoleId": "ABCDEFGHIJKLMNO",
+            "Arn": "arn:aws:iam::123456789012:role/TestRole",
+            "CreateDate": "2019-07-19T16:21:01Z",
+            "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam::234567890123:user/user1@domain.com",
+                                "arn:aws:iam::345678901234:role/AnotherRole"
+                            ]
+                        }
+                    },
+                    {
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam::234567890123:user/user2@domain.com"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "MaxSessionDuration": 3600
+        }'''
+        role = json.loads(role_document)
+        arns = self.client.get_role_trusted_arns(role)
+        self.assertIn("arn:aws:iam::234567890123:user/user1@domain.com", arns)
+        self.assertIn("arn:aws:iam::234567890123:user/user2@domain.com", arns)
+        self.assertIn("arn:aws:iam::345678901234:role/AnotherRole", arns)
+
+    def test_get_role_users(self):
+        """
+        Doesn't test retrieving a remote role and interrogating users because that requires an API call
+        """
+        role_document = '''{
+            "Path": "/",
+            "RoleName": "TestRole",
+            "RoleId": "ABCDEFGHIJKLMNO",
+            "Arn": "arn:aws:iam::123456789012:role/TestRole",
+            "CreateDate": "2019-07-19T16:21:01Z",
+            "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam::234567890123:user/user1@domain.com",
+                                "arn:aws:iam::234567890123:user/user2@domain.com"
+                            ]
+                        }
+                    },
+                    {
+                        "Sid": "",
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Principal": {
+                            "AWS": [
+                                "arn:aws:iam::345678901234:user/user3@domain.com"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "MaxSessionDuration": 3600
+        }'''
+        role = json.loads(role_document)
+        users = self.client.get_role_users(role)
+        self.assertIn("user1@domain.com", users)
+        self.assertIn("user2@domain.com", users)
+        self.assertIn("user3@domain.com", users)
+
     def test_get_assumable_roles(self):
         policy_document = '''{
             "Document": {
