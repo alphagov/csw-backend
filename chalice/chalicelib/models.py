@@ -693,7 +693,7 @@ class ProductTeam(database_handle.BaseModel):
 
         except Exception as err:
 
-            app.log.error(app.utitilies.get_typed_exception())
+            app.log.error(app.utilities.get_typed_exception())
             processed = False
 
         return processed
