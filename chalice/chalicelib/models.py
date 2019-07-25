@@ -668,20 +668,20 @@ class ProductTeam(database_handle.BaseModel):
 
         try:
             default_team = ProductTeam.get(ProductTeam.team_name == 'TBC')
-            accounts = (AccountSubscription
-                             .select()
-                             )
+            accounts = AccountSubscription.select()
 
             for account in accounts:
                 account_id = str(account.account_id).rjust(12, "0")
                 changed = False
 
                 if account_id in team_accounts:
+                    app.log.debug(f"account: {account_id} is a member of team: {self.id}")
                     # is a member update team_id
-                    account.product_team_id = self.id
+                    account.product_team_id = self
                     changed = True
 
                 elif account.product_team_id == self.id:
+                    app.log.debug(f"account: {account_id} is no longer a member of team: {self.id}")
                     # is not a member reset to default team
                     account.product_team_id = default_team
                     changed = True
