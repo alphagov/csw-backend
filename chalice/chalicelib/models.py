@@ -667,6 +667,7 @@ class ProductTeam(database_handle.BaseModel):
     def update_accounts(self, team_accounts):
 
         try:
+            app.log.debug(str(team_accounts))
             default_team = ProductTeam.get(ProductTeam.team_name == 'TBC')
             accounts = AccountSubscription.select()
 
