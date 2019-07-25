@@ -1,7 +1,7 @@
 <h2 class="govuk-heading-m">
     {{ check.title }}
 </h2>
-<p>{{ check.description }}</p>
+<p>{{ check.description | safe }}</p>
 <details class="govuk-details">
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
@@ -9,7 +9,7 @@
     </span>
   </summary>
   <div class="govuk-details__text">
-    {{ check.why_is_it_important }}
+    {{ check.why_is_it_important | safe }}
   </div>
 </details>
 
@@ -20,6 +20,6 @@
     </span>
   </summary>
   <div class="govuk-details__text">
-    {{ check.how_do_i_fix_it }}
+    {{ check.how_do_i_fix_it | safe }}
   </div>
 </details>
