@@ -576,6 +576,12 @@ class ProductTeam(database_handle.BaseModel):
         iam_client = GdsIamClient(app)
 
         users = iam_client.get_role_users(role)
+
+        # read non_aws_users tag if present
+        if "non_aws_users" in role["TagLookup"]:
+            non_aws_users = role["TagLookup"]["non_aws_users"].split(",")
+            users.extend(non_aws_users)
+
         accounts = cls.get_iam_role_accounts(role)
 
         team_settings = {
