@@ -656,6 +656,7 @@ class ProductTeam(database_handle.BaseModel):
                         team_id = self,
                         user_id = user
                     )
+                    processed.append(email)
 
             # Delete users not defined in IAM Role
             for current_member in team_members:
