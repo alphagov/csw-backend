@@ -623,13 +623,14 @@ class ProductTeam(database_handle.BaseModel):
                           .where(ProductTeamUser.team_id == self.id)
                           )
 
+            processed = []
             for email in users:
                 found = False
                 # Find existing team members in database matching IAM member list and record
                 for current_member in team_members:
                     if current_member.user_id.email == email:
                         found = True
-                        current_member._processed = True
+                        processed.append(email)
 
                 # Create member records (and users where required)
                 # for IAM defined users not in database
@@ -651,17 +652,17 @@ class ProductTeam(database_handle.BaseModel):
 
             # Delete users not defined in IAM Role
             for current_member in team_members:
-                if not current_member._processed:
+                if not current_member.email not in processed:
                     current_member.delete_instance()
 
-            processed = True
+            members_processed = True
 
         except Exception as err:
 
             app.log.error(app.utilities.get_typed_exception())
-            processed = False
+            members_processed = False
 
-        return processed
+        return members_processed
 
     def update_accounts(self, team_accounts):
 
@@ -689,14 +690,14 @@ class ProductTeam(database_handle.BaseModel):
                     # save if edited
                     account.save()
 
-            processed = True
+            accounts_processed = True
 
         except Exception as err:
 
             app.log.error(app.utilities.get_typed_exception())
-            processed = False
+            accounts_processed = False
 
-        return processed
+        return accounts_processed
 
 
 
