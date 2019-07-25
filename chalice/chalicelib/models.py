@@ -652,7 +652,7 @@ class ProductTeam(database_handle.BaseModel):
 
             # Delete users not defined in IAM Role
             for current_member in team_members:
-                if not current_member.email not in processed:
+                if not current_member.user_id.email not in processed:
                     current_member.delete_instance()
 
             members_processed = True
