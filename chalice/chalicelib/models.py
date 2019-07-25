@@ -589,6 +589,7 @@ class ProductTeam(database_handle.BaseModel):
     def get_all_team_iam_roles(cls):
         # list roles in host account
         iam_client = GdsIamClient(app)
+        iam_client.get_chain_role_params()
         caller = iam_client.get_caller_details()
         local_audit_session = iam_client.get_chained_session(caller["Account"])
         roles = iam_client.list_roles(local_audit_session)
