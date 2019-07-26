@@ -1,0 +1,39 @@
+<div class="chart-wrapper"
+     type="line"
+     series="cols"
+     x-axis="Year/Month"
+     y-axis="Change"
+     above="true"
+     ismultiple="false"
+     order="null"
+     reversed="true"
+     smoothed="true"
+>
+    <table class="govuk-table">
+        <caption class="govuk-table__caption">Average resource status per audited account</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">Year/Month</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Passed</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Failed</th>
+                <th class="govuk-table__header govuk-table__header--numeric">Excepted</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for month in monthly.resource_status %}
+            <tr class="govuk-table__row">
+                <th class="govuk-table__header">{{ month.audit_year }}-{{ month.audit_month }}</th>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (month.passed / month.audited_accounts) | round(1, 'floor') }}
+                </td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (month.failed / month.audited_accounts) | round(1, 'floor') }}
+                </td>
+                <td class="govuk-table__cell govuk-table__cell--numeric">
+                    {{ (month.ignored / month.audited_accounts) | round(1, 'floor') }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

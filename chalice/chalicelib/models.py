@@ -1161,6 +1161,17 @@ class DailyDeltaStats(database_handle.BaseModel):
         table_name = "_daily_delta_stats"
 
 
+class DailyResourceCount(database_handle.BaseModel):
+    audit_date = peewee.DateField(primary_key=True)
+    audited_accounts = peewee.IntegerField()
+    failed = peewee.IntegerField()
+    passed = peewee.IntegerField()
+    ignored = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_daily_resource_count"
+
+
 class MonthlySummaryStats(database_handle.BaseModel):
     audit_year = peewee.IntegerField()
     audit_month = peewee.IntegerField()
@@ -1189,6 +1200,19 @@ class MonthlyDeltaStats(database_handle.BaseModel):
 
     class Meta:
         table_name = "_monthly_delta_stats"
+        primary_key = peewee.CompositeKey("audit_year", "audit_month")
+
+
+class MonthlyResourceCount(database_handle.BaseModel):
+    audit_year = peewee.IntegerField()
+    audit_month = peewee.IntegerField()
+    audited_accounts = peewee.FloatField()
+    failed = peewee.FloatField()
+    passed = peewee.FloatField()
+    ignored = peewee.FloatField()
+
+    class Meta:
+        table_name = "_monthly_resource_count"
         primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
 
