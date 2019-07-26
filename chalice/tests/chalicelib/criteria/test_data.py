@@ -2775,6 +2775,32 @@ EBS_ENCRYPTION = [
         u"VolumeId": "vol-0687adb8ace063b46",
         u"VolumeType": "gp2",
     },
+    # pass-by-exception
+    {
+        u"Attachments": [
+            {
+                u"AttachTime": datetime.datetime(
+                    2018, 11, 12, 12, 49, 37, tzinfo=tzutc()
+                ),
+                u"DeleteOnTermination": True,
+                u"Device": "/dev/xvda",
+                u"InstanceId": "i-02de6e21def675add",
+                u"State": "attached",
+                u"VolumeId": "vol-0687adb8ace063b46",
+            }
+        ],
+        u"AvailabilityZone": "us-west-2b",
+        u"CreateTime": datetime.datetime(
+            2018, 11, 12, 12, 49, 37, 877000, tzinfo=tzutc()
+        ),
+        u"Encrypted": False,
+        u"Iops": 100,
+        u"Size": 8,
+        u"SnapshotId": "snap-016137d6e1416028c",
+        u"State": "available",
+        u"VolumeId": "vol-0687adb8ace063b46",
+        u"VolumeType": "gp2",
+    }
 ]
 
 ELB_LOGGING = [

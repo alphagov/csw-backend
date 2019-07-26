@@ -488,6 +488,18 @@ class CriteriaSubclassTestCaseMixin(object):
         with self.subTest():
             self.assertIsInstance(self.subclass.annotation, str, msg=msg)
 
+    def _evaluate_passed_by_exception_status_assertions(self, item, output):
+        """
+        yellow/red tests
+        """
+        # test the status variables
+        with self.subTest():
+            self.assertTrue(output["is_compliant"])
+        with self.subTest():
+            self.assertTrue(output["is_applicable"])
+        with self.subTest():
+            self.assertEqual(output["status_id"], 4)
+
 
 if __name__ == "__main__":
     unittest.main()

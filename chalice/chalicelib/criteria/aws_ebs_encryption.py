@@ -88,7 +88,8 @@ class EbsEncryption(CriteriaDefault):
         return evaluation
 
     def except_available_volumes(self, item, compliance):
-        if item['State'] == "available" and not item['Encrypted']:
+        # Record as an exception if failed but EBS volume is not attached
+        if item['State'] == "available" and compliance["status_id"] == 3:
             compliance["status_id"] = 4
             compliance["is_compliant"] = True
             compliance["compliance_type"] = "COMPLIANT"
