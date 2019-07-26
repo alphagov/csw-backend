@@ -632,7 +632,7 @@ class ProductTeam(database_handle.BaseModel):
 
             # Delete users not defined in IAM Role
             for current_member in team_members:
-                if not current_member.user_id.email not in users:
+                if current_member.user_id.email not in users:
                     current_member.delete_instance()
 
             for email in users:
