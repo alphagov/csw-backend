@@ -30,7 +30,7 @@ class TestEbsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
         # must return a dictionary with the three necessary keys
         self.assertEqual(
             len(item),
-            2,
+            3,
             msg="The len of the list must be the volumes with the same AvailabilityZone as the region",
         )
 
@@ -110,3 +110,7 @@ class TestEbsEncryption(CriteriaSubclassTestCaseMixin, TestCaseWithAttrAssert):
     def test_evaluate_pass(self):
         output = self._evaluate_invariant_assertions({}, self.test_data[0], [])
         self._evaluate_passed_status_assertions(self.test_data[0], output)
+
+    def test_evaluate_pass_by_exception(self):
+        output = self._evaluate_invariant_assertions({}, self.test_data[2], [])
+        self._evaluate_passed_by_exception_status_assertions(self.test_data[2], output)
