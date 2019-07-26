@@ -630,14 +630,14 @@ class ProductTeam(database_handle.BaseModel):
                           .where(ProductTeamUser.team_id == self.id)
                           )
 
-            processed = []
+            #processed = []
             for email in users:
                 found = False
                 # Find existing team members in database matching IAM member list and record
                 for current_member in team_members:
                     if current_member.user_id.email == email:
                         found = True
-                        processed.append(email)
+                        #processed.append(email)
 
                 # Create member records (and users where required)
                 # for IAM defined users not in database
@@ -656,11 +656,11 @@ class ProductTeam(database_handle.BaseModel):
                         team_id = self,
                         user_id = user
                     )
-                    processed.append(email)
+                    #processed.append(email)
 
             # Delete users not defined in IAM Role
             for current_member in team_members:
-                if not current_member.user_id.email not in processed:
+                if not current_member.user_id.email not in users:
                     current_member.delete_instance()
 
             members_processed = True
