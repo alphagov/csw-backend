@@ -74,10 +74,23 @@ class EbsEncryption(CriteriaDefault):
         else:
             compliance_type = "NON_COMPLIANT"
             self.annotation = "This EBS volume is not encrypted."
-        return self.build_evaluation(
+        evaluation =  self.build_evaluation(
             item["VolumeId"],
             compliance_type,
             event,
             self.resource_type,
             self.annotation,
         )
+
+        # Pass available instances by exception
+        evaluation = self.except_available_volumes(item, evaluation)
+
+        return evaluation
+
+    def except_available_volumes(self, item, compliance):
+        if item['State'] == "available" and not item['Encrypted']:
+            compliance["status_id"] = 4
+            compliance["is_compliant"] = True
+            compliance["compliance_type"] = "COMPLIANT"
+        return compliance
+
