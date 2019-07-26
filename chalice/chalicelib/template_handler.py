@@ -147,10 +147,15 @@ class TemplateHandler:
         route = self.get_request_path()
 
         return [
+            # {
+            #     "name": "Overview",
+            #     "link": f"{root_path}/overview",
+            #     "active": re.match("^\/overview", route),
+            # },
             {
-                "name": "Overview",
-                "link": f"{root_path}/overview",
-                "active": re.match("^\/overview", route),
+                "name": "Statistics",
+                "link": f"{root_path}/statistics",
+                "active": re.match("^\/statistics", route),
             },
             {
                 "name": "My teams",
