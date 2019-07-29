@@ -19,7 +19,7 @@
             {% for account in current.account %}
             <tr class="govuk-table__row">
                 <th class="govuk-table__header">
-                    {{ account.account_id.account_id }}: {{ account.account_id.account_name }}
+                    {{ account.account_id.account_id }}
                 </th>
                 <td class="govuk-table__cell govuk-table__cell--numeric">
                     {{ (account.ratio * 100) | round(1) }}

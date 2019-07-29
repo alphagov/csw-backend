@@ -45,6 +45,11 @@
             <h2 class="govuk-heading-m">Daily</h2>
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
+                    {% include "components/charts/stats_daily_resource_count.html" %}
+                </div>
+            </div>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
                     {% include "components/charts/stats_daily_failure_rate_change.html" %}
                 </div>
             </div>
@@ -59,6 +64,11 @@
           </section>
           <section class="govuk-tabs__panel" id="monthly">
             <h2 class="govuk-heading-m">Monthly</h2>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    {% include "components/charts/stats_monthly_resource_count.html" %}
+                </div>
+            </div>
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     {% include "components/charts/stats_monthly_failure_rate_change.html" %}

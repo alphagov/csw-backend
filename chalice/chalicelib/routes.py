@@ -1019,6 +1019,15 @@ def statistics_route():
             daily_deltas
         )
 
+        daily_resource_count = (
+            models.DailyResourceCount.select()
+                .where(models.DailyResourceCount.audit_date > days_ago)
+                .order_by(models.DailyResourceCount.audit_date.desc())
+        )
+        template_data["daily"]["resource_status"] = models.DailyResourceCount.serialize_list(
+            daily_resource_count
+        )
+
         template_data["monthly"] = {}
         monthly_summary = models.MonthlySummaryStats.select().order_by(
             models.MonthlySummaryStats.audit_year.desc(),
@@ -1033,6 +1042,15 @@ def statistics_route():
         )
         template_data["monthly"]["delta"] = models.MonthlyDeltaStats.serialize_list(
             monthly_deltas
+        )
+
+        monthly_resource_count = (
+            models.MonthlyResourceCount.select()
+                .order_by(models.MonthlyResourceCount.audit_year.desc(),
+                          models.MonthlyResourceCount.audit_month.desc())
+        )
+        template_data["monthly"]["resource_status"] = models.MonthlyResourceCount.serialize_list(
+            monthly_resource_count
         )
 
         response = app.templates.render_authorized_template(
