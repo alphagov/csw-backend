@@ -105,3 +105,14 @@ class TestUnrestrictedEgressSecurityGroups(
             # tests
             output = self._evaluate_invariant_assertions(event, item, whitelist)
             self._evaluate_failed_status_assertions(item, output)
+
+    def test_evaluate_pass_by_exception(self):
+        """
+        """
+        # input params
+        event = {}
+        whitelist = []
+        for item in EGRESS_RESTRICTION["pass-by-exception"]["SecurityGroups"]:
+            # tests
+            output = self._evaluate_invariant_assertions(event, item, whitelist)
+            self._evaluate_passed_by_exception_status_assertions(item, output)

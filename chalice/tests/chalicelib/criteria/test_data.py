@@ -2026,7 +2026,7 @@ EGRESS_RESTRICTION = {
             {
                 "Description": "default VPC security group",
                 "GroupId": "sg-eadaa087",
-                "GroupName": "default",
+                "GroupName": "not-default",
                 "IpPermissions": [
                     {
                         "IpProtocol": "-1",
@@ -2052,6 +2052,49 @@ EGRESS_RESTRICTION = {
             }
         ],
     },
+    "pass-by-exception": {
+        "ResponseMetadata": {
+            "HTTPHeaders": {
+                "content-type": "text/xml;charset=UTF-8",
+                "date": "Wed, 23 Jan 2019 11:40:31 GMT",
+                "server": "AmazonEC2",
+                "transfer-encoding": "chunked",
+                "vary": "Accept-Encoding",
+            },
+            "HTTPStatusCode": 200,
+            "RequestId": "d3501555-071c-4a76-a5d4-7342d233abf3",
+            "RetryAttempts": 0,
+        },
+        "SecurityGroups": [
+            {
+                "Description": "default VPC security group",
+                "GroupId": "sg-eadaa087",
+                "GroupName": "default",
+                "IpPermissions": [
+                    {
+                        "IpProtocol": "-1",
+                        "IpRanges": [],
+                        "Ipv6Ranges": [],
+                        "PrefixListIds": [],
+                        "UserIdGroupPairs": [
+                            {"GroupId": "sg-eadaa087", "UserId": "489877524855"}
+                        ],
+                    }
+                ],
+                "IpPermissionsEgress": [
+                    {
+                        "IpProtocol": "-1",
+                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "Ipv6Ranges": [],
+                        "PrefixListIds": [],
+                        "UserIdGroupPairs": [],
+                    }
+                ],
+                "OwnerId": "489877524855",
+                "VpcId": "vpc-0faa4c64",
+            }
+        ],
+    }
 }
 # Unfortunately, we have only pass data for this criterion's checks.
 RDS_SECURITY_GROUPS = {
