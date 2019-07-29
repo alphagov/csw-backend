@@ -54,6 +54,11 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
                         self.annotation = (
                             "This security group has unrestricted outbound traffic."
                         )
-        return self.build_evaluation(
+        evaluation = self.build_evaluation(
             item["GroupId"], compliance_type, event, self.resource_type, self.annotation
         )
+
+        # apply filter to mark default security groups as compliant by exception
+        evaluation = self.client.except_default_security_groups(item, evaluation)
+
+        return evaluation
