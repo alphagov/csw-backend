@@ -97,8 +97,13 @@ class GdsIamClient(GdsAwsClient):
                     (statement["Effect"] == "Allow") and
                     ("AWS" in statement["Principal"])
             ):
+                # AWS remove the list if the list only contains 1 item.
                 statement_arns = statement["Principal"]["AWS"]
-                arns.extend(statement_arns)
+                if type(statement_arns) == list:
+                    arns.extend(statement_arns)
+                else:
+                    arns.append(statement_arns)
+
 
         return arns
 
@@ -136,7 +141,12 @@ class GdsIamClient(GdsAwsClient):
                 (statement["Effect"] == "Allow")  and
                 (statement["Action"] == "sts:AssumeRole")
             ):
-                roles.extend(statement["Resource"])
+                statement_resources = statement["Resource"]
+                # AWS remove the list if there's only one item
+                if type(statement_resources) == list:
+                    roles.extend(statement_resources)
+                else:
+                    roles.append(statement_resources)
 
         return roles
 
