@@ -579,7 +579,7 @@ class ProductTeam(database_handle.BaseModel):
 
         # read non_aws_users tag if present
         if "non_aws_users" in role["TagLookup"]:
-            non_aws_users = role["TagLookup"]["non_aws_users"].split(",")
+            non_aws_users = role["TagLookup"]["non_aws_users"].split(" ")
             users.extend(non_aws_users)
 
         accounts = cls.get_iam_role_accounts(role)
