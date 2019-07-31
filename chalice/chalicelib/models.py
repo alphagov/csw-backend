@@ -552,6 +552,12 @@ class ProductTeam(database_handle.BaseModel):
         return team_role
 
     @classmethod
+    def make_unique(cls, item_list):
+        item_set = set(item_list)
+        unique_list = list(item_set)
+        return unique_list
+
+    @classmethod
     def get_iam_role_accounts(cls, team_role):
         iam_client = GdsIamClient(app)
         caller = iam_client.get_caller_details()
@@ -567,9 +573,7 @@ class ProductTeam(database_handle.BaseModel):
             roles = iam_client.get_assumable_roles(policy_version)
             accounts.extend(iam_client.get_role_accounts(roles))
 
-        accounts_set = set(accounts)
-        unique_accounts = list(accounts_set)
-        return unique_accounts
+        return cls.make_unique(accounts)
 
     @classmethod
     def get_access_settings(cls, role):
@@ -578,15 +582,20 @@ class ProductTeam(database_handle.BaseModel):
         users = iam_client.get_role_users(role)
 
         # read non_aws_users tag if present
-        if "non_aws_users" in role["TagLookup"]:
-            non_aws_users = role["TagLookup"]["non_aws_users"].split(" ")
-            users.extend(non_aws_users)
-
         accounts = cls.get_iam_role_accounts(role)
 
+        if "TagLookup" in role:
+            if "non_aws_users" in role["TagLookup"]:
+                non_aws_users = role["TagLookup"]["non_aws_users"].split(" ")
+                users.extend(non_aws_users)
+
+            if "unmonitored_accounts" in role["TagLookup"]:
+                unmonitored_accounts = role["TagLookup"]["unmonitored_accounts"].split(" ")
+                accounts.extend(unmonitored_accounts)
+
         team_settings = {
-            "users": users,
-            "accounts": accounts
+            "users": cls.make_unique(users),
+            "accounts": cls.make_unique(accounts)
         }
 
         return team_settings
