@@ -211,7 +211,7 @@ def update_teams():
         for teamx in teams:
             if teamx.id == team_id:
                 team = teamx
-        if team is not None:
+        if team:
             if team.team_name != team_name:
                 team.team_name = team_name
                 team.save()

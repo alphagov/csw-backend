@@ -614,14 +614,14 @@ class ProductTeam(database_handle.BaseModel):
             # the docs are wrong - list_roles does not return tags
             # if "Tags" in role:
             #     tags = iam_client.tag_list_to_dict(role["Tags"])
-            if re.match("csw", role["RoleName"], re.IGNORECASE) is not None:
+            if "csw" in role["RoleName"].lower():
                 app.log.debug(role["RoleName"])
                 tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
                 app.log.debug(str(tag_list))
                 tags = iam_client.tag_list_to_dict(tag_list)
                 app.log.debug(str(tags))
                 # filter by tags
-                is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
+                is_team_role = tags.get("purpose").lower() == "csw-team-role"
                 if is_team_role:
                     role["Tags"] = tag_list
                     role["TagLookup"] = tags
@@ -657,12 +657,11 @@ class ProductTeam(database_handle.BaseModel):
                     try:
                         user = User.get(User.email == email)
                     except peewee.DoesNotExist as err:
-                        user_data = {
-                            "email": email,
-                            "name": User.default_username(email),
-                            "active": True
-                        }
-                        user = User.create(**user_data)
+                        user = User.create(
+                            email = email,
+                            name = User.default_username(email),
+                            active = True
+                        )
 
                     ProductTeamUser.create(
                         team_id = self,
@@ -687,22 +686,18 @@ class ProductTeam(database_handle.BaseModel):
 
             for account in accounts:
                 account_id = str(account.account_id).rjust(12, "0")
-                changed = False
 
                 if account_id in team_accounts:
                     app.log.debug(f"account: {account_id} is a member of team: {self.id}")
                     # is a member update team_id
                     account.product_team_id = self
-                    changed = True
 
                 elif account.product_team_id == self.id:
                     app.log.debug(f"account: {account_id} is no longer a member of team: {self.id}")
                     # is not a member reset to default team
                     account.product_team_id = default_team
-                    changed = True
 
-                if changed:
-                    # save if edited
+                if account.is_dirty():
                     account.save()
 
             accounts_processed = True
