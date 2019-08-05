@@ -26,7 +26,7 @@
     {%- set required_status = 'failed' -%}
     {% include "components/audit_check_resources_list.html" %}
   </section>
-  <section class="govuk-tabs__panel" id="passed">
+  <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="passed">
     <h2 class="govuk-heading-m">Passed resources</h2>
     {%- set required_status = 'passed' -%}
     {% include "components/audit_check_resources_list.html" %}
