@@ -14,29 +14,6 @@ from app import app
 from chalicelib.database_handle import DatabaseHandle
 
 
-def criteria_finder(parent_module_name="chalicelib.criteria"):
-    """
-    A helper function returning a set with all classes in the chalicelib.criteria submodules
-    having a class attribute named active with value True.
-    """
-    parent_module = importlib.import_module(parent_module_name)
-    active_criteria = set()  # set to gurantee uniqueness of elements
-    for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
-        for name, cls in inspect.getmembers(
-            importlib.import_module(f"{parent_module.__name__}.{module_name}")
-        ):
-            if (  # is a class
-                inspect.isclass(cls)
-                # ) and (  # has the class attribute active set to True
-                #     getattr(cls, 'active', False)
-            ) and (  # is a subclass of the base criterion
-                "CriteriaDefault"
-                in [supercls.__name__ for supercls in inspect.getmro(cls)]
-            ):
-                active_criteria.add(f"{parent_module.__name__}.{module_name}.{name}")
-    return active_criteria
-
-
 @app.lambda_function()
 def database_create(event, context):
     app.log.debug(os.environ["CSW_HOST"])
@@ -183,6 +160,31 @@ def database_list_models(event, context):
         app.log.error(str(err))
         tables = []
     return list(tables)
+
+
+def criteria_finder(parent_module_name="chalicelib.criteria"):
+    """
+    A helper function returning a set with all classes in the chalicelib.criteria submodules
+    having a class attribute named "active" with value `True`.
+    """
+    parent_module = importlib.import_module(parent_module_name)
+    active_criteria = set()
+
+    for loader, module_name, ispkg in pkgutil.iter_modules(parent_module.__path__):
+
+        parent_module_import_path = f"{parent_module.__name__}.{module_name}"
+
+        members = inspect.getmembers(
+            importlib.import_module(parent_module_import_path), inspect.isclass
+        )
+        for name, cls in members:
+            is_criteria_default = "CriteriaDefault" in [
+                supercls.__name__ for supercls in inspect.getmro(cls)
+            ]
+            if is_criteria_default:
+                active_criteria.add(f"{parent_module_import_path}.{name}")
+
+    return active_criteria
 
 
 @app.lambda_function()
