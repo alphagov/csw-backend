@@ -7,6 +7,7 @@ class CloudTrailFileValidation(CriteriaDefault):
     """
 
     active = True
+    severity = 3
     ClientClass = GdsCloudtrailClient
     is_regional = False
     resource_type = "AWS::CLOUDTRAIL:LOG_VALIDATION"

@@ -11,6 +11,7 @@ from chalicelib.aws.gds_iam_client import GdsIamClient
 class AwsIamRolesWithTrustRelationship(CriteriaDefault):
 
     active = True
+    severity = 2
 
     aggregation_type = "any"
 

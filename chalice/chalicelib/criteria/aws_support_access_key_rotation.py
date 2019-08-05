@@ -38,6 +38,7 @@ class AwsIamAccessKeyRotationYellow(AwsIamAccessKeyRotationBase):
     """
 
     active = False
+    severity = 3
 
     def __init__(self, app):
         super(AwsIamAccessKeyRotationYellow, self).__init__(app)

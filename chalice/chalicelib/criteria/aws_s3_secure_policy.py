@@ -9,6 +9,7 @@ import json
 class AwsS3SecurePolicy(CriteriaDefault):
 
     active = True
+    severity = 3
 
     ClientClass = GdsS3Client
 

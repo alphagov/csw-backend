@@ -34,6 +34,7 @@ class CloudtrailLogHasErrors(CloudtrailLogging):
     """
 
     active = True
+    severity = 2
 
     def __init__(self, app):
         self.title = "CloudTrail: Logs delivered without errors"
@@ -79,6 +80,7 @@ class CloudtrailLogNotInRegion(CloudtrailLogging):
     """
 
     active = False
+    severity = 2
 
     def __init__(self, app):
         self.title = "CloudTrail: Logging is turned on in all regions"
@@ -118,6 +120,7 @@ class CloudtrailLogTurnedOff(CloudtrailLogging):
     """
 
     active = True
+    severity = 2
 
     def __init__(self, app):
         self.title = "CloudTrail: All configured trails are turned on"
@@ -158,6 +161,8 @@ class CloudtrailLogNotToCST(CloudtrailLogging):
     """
 
     active = False
+    severity = 2
+
     cst_bucket_name = "cyber-security-staging-csw-cloudtrail"
 
     def __init__(self, app):

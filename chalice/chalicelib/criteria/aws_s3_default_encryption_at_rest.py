@@ -3,7 +3,9 @@ from chalicelib.aws.gds_s3_client import GdsS3Client
 
 
 class AwsS3DefaultEncryptionAtRest(CriteriaDefault):
+
     active = True
+    severity = 3
 
     ClientClass = GdsS3Client
 

@@ -32,6 +32,7 @@ class S3BucketReadAll(S3BucketPermissions):
     """
 
     active = True
+    severity = 2
 
     def __init__(self, app):
         self.title = 'S3 Bucket ACLs: Does not allow List access for "Everyone" or "Any Authenticated AWS User"'

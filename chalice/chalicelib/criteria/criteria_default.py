@@ -8,6 +8,7 @@ from chalicelib.aws.gds_support_client import GdsSupportClient
 class CriteriaDefault:
 
     active = False
+    severity = 1
 
     """
     exception_type = "resource" | "allowlist" 
