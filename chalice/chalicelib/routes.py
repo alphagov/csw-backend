@@ -271,7 +271,10 @@ def account_status(id):
         latest = account.get_latest_audit()
         team = account.product_team_id
 
-        max_severity = app.current_request.query_params.get("max_severity",1)
+        if type(app.current_request.query_params) == dict:
+            max_severity = app.current_request.query_params.get("max_severity",1)
+        else:
+            max_severity = 1
 
         if latest:
 
