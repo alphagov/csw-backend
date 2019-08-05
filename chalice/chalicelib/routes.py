@@ -13,6 +13,18 @@ from chalicelib.controllers import (
     FormControllerAddAllowListException,
 )
 
+def get_query_param(req, name, default):
+    """
+    Get a parameter from the request query string or return
+    the default value if there is no query_param dict or if
+    the requested variable is not present.
+    """
+    value = default
+
+    if type(app.current_request.query_params) == dict:
+        value = app.current_request.query_params.get(name, default)
+
+    return value
 
 @app.route("/")
 def index():
@@ -184,9 +196,11 @@ def team_status(id):
     # TODO - add check user has access to team
     load_route_services()
     try:
+        max_severity = get_query_param(app.current_request, "max_severity", 1)
+
         team = models.ProductTeam.get_by_id(team_id)
         app.log.debug("Team: " + app.utilities.to_json(team))
-        team_stats = team.get_team_stats()
+        team_stats = team.get_team_stats(max_severity)
         template_data = {
             "breadcrumbs": [{"title": "My teams", "link": "/team"}],
             "status": {
@@ -271,10 +285,7 @@ def account_status(id):
         latest = account.get_latest_audit()
         team = account.product_team_id
 
-        if type(app.current_request.query_params) == dict:
-            max_severity = app.current_request.query_params.get("max_severity",1)
-        else:
-            max_severity = 1
+        max_severity = get_query_param(app.current_request, "max_severity", 1)
 
         if latest:
 

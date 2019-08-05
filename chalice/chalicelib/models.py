@@ -362,7 +362,7 @@ class ProductTeam(database_handle.BaseModel):
         app.log.debug(app.utilities.to_json(team_failed_resources))
         return team_failed_resources
 
-    def get_team_stats(self):
+    def get_team_stats(self, max_severity=1):
         team_id = self.id
         app.log.debug(f"Get team dashboard for team: {self.team_name}  ({ team_id })")
         team_accounts = (
@@ -396,12 +396,38 @@ class ProductTeam(database_handle.BaseModel):
                 latest = account.get_latest_audit()
                 if latest is not None:
                     latest_data = latest.serialize()
+                    audit_criteria = (
+                        AuditCriterion.select()
+                        .join(Criterion)
+                        .where(
+                            AuditCriterion.account_audit_id == latest.id,
+                            Criterion.severity <= max_severity
+                        )
+                    )
+                    filtered_stats = {
+                        "active_criteria": 0,
+                        "criteria_processed": 0,
+                        "criteria_passed": 0,
+                        "criteria_failed": 0,
+                        "issues_found": 0
+                    }
+                    account_passed = True
+                    for audit_criterion in audit_criteria:
+                        filtered_stats["active_criteria"] += 1
+                        if audit_criterion.processed:
+                            filtered_stats["criteria_processed"] += 1
+                            if audit_criterion.failed > 0:
+                                account_passed = False
+                                filtered_stats["criteria_failed"] += 1
+                                filtered_stats["issues_found"] += audit_criterion.failed
+                            else:
+                                filtered_stats["criteria_passed"] += 1
+
                     app.log.debug("Latest audit: " + app.utilities.to_json(latest_data))
                     account_data = account.serialize()
-                    account_passed = latest.criteria_failed == 0
                     account_status = {
                         "account": account_data,
-                        "stats": latest_data,
+                        "stats": filtered_stats,
                         "passed": account_passed,
                     }
                     account_audits.append(account_status)
@@ -411,7 +437,7 @@ class ProductTeam(database_handle.BaseModel):
                     else:
                         account_stats["accounts_failed"] += 1
                     for stat in team_stats:
-                        team_stats[stat] += latest_data[stat]
+                        team_stats[stat] += filtered_stats[stat]
                 else:
                     app.log.error(
                         "Latest audit not found for account: " + str(account.id)
