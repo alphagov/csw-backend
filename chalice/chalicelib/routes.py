@@ -270,8 +270,12 @@ def account_status(id):
         account = models.AccountSubscription.get_by_id(account_id)
         latest = account.get_latest_audit()
         team = account.product_team_id
-        if latest is not None:
-            audit_stats = latest.get_stats()
+
+        max_severity = app.current_request.query_params.get("max_severity",1)
+
+        if latest:
+
+            audit_stats = latest.get_stats(max_severity)
             template_data = {
                 "breadcrumbs": [
                     {"title": "My teams", "link": "/team"},

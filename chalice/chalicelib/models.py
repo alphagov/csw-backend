@@ -875,7 +875,7 @@ class AccountAudit(database_handle.BaseModel):
 
         return issues_list
 
-    def get_stats(self):
+    def get_stats(self, max_severity=1):
 
         audit_stats = {
             "resources": 0,
@@ -889,7 +889,11 @@ class AccountAudit(database_handle.BaseModel):
             audit_criteria = (
                 AuditCriterion.select()
                 .join(AccountAudit)
-                .where(AccountAudit.id == self.id)
+                .join(Criterion)
+                .where(
+                    AccountAudit.id == self.id,
+                    Criterion.severity == max_severity
+                )
             )
             for audit_criterion in audit_criteria:
                 criterion = Criterion.select().where(
