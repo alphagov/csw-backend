@@ -135,6 +135,7 @@ def overview_dashboard():
 def team_list():
     load_route_services()
     try:
+        max_severity = get_query_param(app.current_request, "max_severity", 1)
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
@@ -146,7 +147,7 @@ def team_list():
         # teams = models.ProductTeam.select().where(models.ProductTeam.active == True)
         team_list = []
         for team in teams:
-            team_stats = team.get_team_stats()
+            team_stats = team.get_team_stats(max_severity)
             team_data = {"team": team.serialize(), "summary": team_stats}
             team_list.append(team_data)
 

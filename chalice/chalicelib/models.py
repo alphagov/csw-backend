@@ -427,6 +427,7 @@ class ProductTeam(database_handle.BaseModel):
                     account_data = account.serialize()
                     account_status = {
                         "account": account_data,
+                        "audit": latest_data,
                         "stats": filtered_stats,
                         "passed": account_passed,
                     }
