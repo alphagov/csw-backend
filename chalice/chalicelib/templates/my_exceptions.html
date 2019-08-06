@@ -12,13 +12,13 @@
             Those can be excluding a specified resource from a particular check or adding
             allowlists to broaden the valid options
         </p>
-        <div class="govuk-tabs" data-module="tabs">
+        <div class="govuk-tabs" data-module="govuk-tabs">
           <h2 class="govuk-tabs__title">
             Exeption types
           </h2>
           <ul class="govuk-tabs__list">
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#my-resource-exceptions">
+            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+              <a class="govuk-tabs__tab" href="#my-resource-exceptions">
                 Resource exceptions
               </a>
             </li>
@@ -33,7 +33,7 @@
             <h2 class="govuk-heading-m">Resource exceptions</h2>
             {% include "components/my_resource_exceptions.html" %}
           </section>
-          <section class="govuk-tabs__panel" id="my-allow-lists">
+          <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="my-allow-lists">
             <h2 class="govuk-heading-m">Custom allow lists</h2>
             {% include "components/my_allow_lists.html" %}
           </section>
