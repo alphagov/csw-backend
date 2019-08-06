@@ -12,6 +12,9 @@ INNER JOIN public.audit_resource AS r
 ON rc.audit_resource_id = r.id
 INNER JOIN public.account_audit AS a
 ON r.account_audit_id = a.id
+INNER JOIN public.criterion AS c
+ON r.criterion_id = c.id
 WHERE a.date_completed IS NOT NULL
+AND c.severity = 1
 GROUP BY DATE(a.date_completed)
 ORDER BY DATE(a.date_completed);
