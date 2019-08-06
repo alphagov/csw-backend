@@ -921,6 +921,10 @@ class AccountAudit(database_handle.BaseModel):
                     AccountAudit.id == self.id,
                     Criterion.severity <= max_severity
                 )
+                .order_by(
+                    Criterion.severity.asc(),
+                    Criterion.criterion_name.asc()
+                )
             )
             for audit_criterion in audit_criteria:
                 criterion = Criterion.select().where(
@@ -940,7 +944,7 @@ class AccountAudit(database_handle.BaseModel):
         except Exception as err:
             app.log.debug("Catch generic exception from get_stats: " + str(err))
 
-        stats = {"all": audit_stats, "criteria": criteria_stats}
+        stats = {"all": audit_stats, "criteria": criteria_stats, "max_severity": max_severity}
         return stats
 
 
