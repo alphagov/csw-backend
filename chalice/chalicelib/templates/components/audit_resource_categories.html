@@ -37,7 +37,7 @@
   <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="passed">
     <h2 class="govuk-heading-m">Passed resources</h2>
     {%- set required_status = 'passed' -%}
-    {%- if all_failed > 0 -%}
+    {%- if all_passed > 0 -%}
     {% include "components/audit_check_resources_list.html" %}
     {%- else -%}
       <p class="govuk-body">
