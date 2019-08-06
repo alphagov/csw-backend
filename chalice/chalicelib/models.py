@@ -919,7 +919,7 @@ class AccountAudit(database_handle.BaseModel):
                 .join(Criterion, on=(AuditCriterion.criterion_id == Criterion.id))
                 .where(
                     AccountAudit.id == self.id,
-                    Criterion.severity == max_severity
+                    Criterion.severity <= max_severity
                 )
             )
             for audit_criterion in audit_criteria:
