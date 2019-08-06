@@ -2,9 +2,9 @@
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th class="govuk-table__header">Check</th>
-            <th class="govuk-table__header--tag-fixed-centred">Resources</th>
+            <th class="govuk-table__header govuk-table__header--tag-fixed-centred">Resources</th>
             {%- if audit_stats.max_severity > 1 -%}
-            <th class="govuk-table__header">
+            <th class="govuk-table__header govuk-table__header--tag-fixed-centred">
                 Category
             </th>
             {%- endif -%}
@@ -23,7 +23,7 @@
             <td class="govuk-table__cell">
                 {{ item.criterion_id.criterion_name }}
             </td>
-            <td class="govuk-table__cell--tag-fixed-centred">
+            <td class="govuk-table__cell govuk-table__cell--tag-fixed-centred">
                 {#
                     In the database resources are recorded as ignored if the check rules do not apply but these
                     treated as passed on screen.
@@ -35,7 +35,7 @@
                 {%- endif -%}
             </td>
             {%- if audit_stats.max_severity > 1 -%}
-            <td>
+            <td class="govuk-table__cell govuk-table__cell--tag-fixed-centred">
                 <strong class="govuk-tag__fixed-width--all">
                     {{ item.criterion_id.severity }}
                 </strong>
