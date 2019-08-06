@@ -2,6 +2,7 @@
 # Manage sts assume-role calls and temporary credentials
 import boto3
 import os
+import re
 from datetime import datetime
 
 
@@ -48,15 +49,18 @@ class GdsAwsClient:
 
         return self.chain
 
-    def to_camel_case(snake_str, capitalize_first=True):
-        components = snake_str.split("_")
+    def to_camel_case(self, source_string, capitalize_first=True):
+
+        components = re.sub(r"([a-z])([A-Z])", r"\1 \2", source_string).replace("_", " ").split(" ")
         # We capitalize the first letter of each component except the first one
         # with the 'title' method and join them together.
-        for i in components:
+        for i,comp in enumerate(components):
+            comp = comp.lower()
             if (i > 0) or (capitalize_first):
-                components[i] = components[i].lower().title()
+                comp = comp.title()
+            components[i] = comp
 
-        return "".join(x.title() for x in components)
+        return "".join(components)
 
     # store temporary credentials from sts-assume-roles
     # session names are based on the account and role
@@ -114,6 +118,14 @@ class GdsAwsClient:
             region_name=region,
         )
         return self.clients[client_name]
+
+    def get_default_session(self):
+        session = {
+            "AccessKeyId": os.environ["AWS_ACCESS_KEY_ID"],
+            "SecretAccessKey": os.environ["AWS_SECRET_ACCESS_KEY"],
+            "SessionToken": os.environ["AWS_SESSION_TOKEN"]
+        }
+        return session
 
     # gets a boto3.client with the temporary session credentials
     # resulting from sts assume-role command
@@ -324,3 +336,24 @@ class GdsAwsClient:
             self.app.log.error(self.app.utilities.get_typed_exception())
 
         return target_session
+
+    def parse_arn_components(self, arn):
+
+        # arn:aws:[service]:[region]:[account]:[resource]
+        component_values = arn.split(":")
+
+        components = {
+            "service": component_values[2],
+            "region": component_values[3],
+            "account": component_values[4],
+            "resource": component_values[5]
+        }
+
+        return components
+
+    def tag_list_to_dict(self, tags):
+        tag_dict = {}
+        for tag in tags:
+            tag_dict[tag["Key"]] = tag["Value"]
+        return tag_dict
+

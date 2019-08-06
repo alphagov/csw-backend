@@ -9,9 +9,11 @@ import os
 import pkgutil
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from chalice import Rate
 
-from app import app
+from app import app, load_route_services
 from chalicelib.database_handle import DatabaseHandle
+from chalicelib import models
 
 
 @app.lambda_function()
@@ -197,3 +199,33 @@ def database_add_new_criteria(event, context):
     # except Exception as err:
     #     app.log.error(str(err))
     return None
+
+def update_teams():
+    team_roles = models.ProductTeam.get_all_team_iam_roles()
+    teams = models.ProductTeam.select()
+    app.log.debug(str(team_roles))
+    for team_role in team_roles:
+        team = None
+        team_id = int(team_role["TagLookup"]["team_id"])
+        team_name = team_role["TagLookup"]["team_name"]
+        for teamx in teams:
+            if teamx.id == team_id:
+                team = teamx
+        if team:
+            if team.team_name != team_name:
+                team.team_name = team_name
+                team.save()
+            team.update_members(team_role["AccessSettings"]["users"])
+            team.update_accounts(team_role["AccessSettings"]["accounts"])
+
+    return None
+
+
+@app.lambda_function()
+def manual_update_teams(event, context):
+    return update_teams()
+
+
+# @app.schedule(Rate(24, unit=Rate.HOURS))
+# def scheduled_update_teams(event):
+#     return update_teams()

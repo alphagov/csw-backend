@@ -1,6 +1,7 @@
 import os
 import datetime
 import peewee
+import re
 
 # peewee has a validator library but it has a max version of 3.1
 # this would mean downgrading our peewee version.
@@ -11,6 +12,7 @@ import peewee
 
 from app import app  # used only for logging
 from chalicelib import database_handle
+from chalicelib.aws.gds_iam_client import GdsIamClient
 
 
 class User(database_handle.BaseModel):
@@ -69,6 +71,14 @@ class User(database_handle.BaseModel):
 
         overview_data = {"all": overview_stats, "teams": team_summaries}
         return overview_data
+
+    @classmethod
+    def default_username(cls, email):
+        """
+        Take portion of email before @, replace . with space and uppercase words
+        """
+        name = email.split("@", 1)[0].replace(".", " ").title()
+        return name
 
     def get_my_teams(self):
         """
@@ -522,6 +532,183 @@ class ProductTeam(database_handle.BaseModel):
                 }
             )
         return criteria_stats
+
+    def get_iam_role(self):
+        # list roles in host account
+        iam_client = GdsIamClient(app)
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
+        roles = iam_client.list_roles(local_audit_session)
+        team_role = None
+        for role in roles:
+            print(str(role))
+            if "Tags" in role:
+                tags = iam_client.tag_list_to_dict(role["Tags"])
+                # filter by tags
+                is_team_role = ("purpose" in tags) and (tags["purpose"] == "csw-team-role")
+                is_this_team = ("team_id" in tags) and (tags["team_id"] == str(self.id))
+                if is_team_role and is_this_team:
+                    team_role = role
+        return team_role
+
+    @classmethod
+    def make_unique(cls, item_list):
+        item_set = set(item_list)
+        unique_list = list(item_set)
+        return unique_list
+
+    @classmethod
+    def get_iam_role_accounts(cls, team_role):
+        iam_client = GdsIamClient(app)
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
+        arn = team_role["Arn"]
+        arn_components = iam_client.parse_arn_components(arn)
+        role_name = arn_components["resource_components"]["name"]
+        policies = iam_client.list_attached_role_policies(local_audit_session, role_name)
+        accounts = []
+        for policy_attachment in policies:
+            policy_arn = policy_attachment["PolicyArn"]
+            policy_version = iam_client.get_policy_default_version(local_audit_session, policy_arn)
+            roles = iam_client.get_assumable_roles(policy_version)
+            accounts.extend(iam_client.get_role_accounts(roles))
+
+        return cls.make_unique(accounts)
+
+    @classmethod
+    def get_access_settings(cls, role):
+        iam_client = GdsIamClient(app)
+
+        users = iam_client.get_role_users(role)
+
+        # read non_aws_users tag if present
+        accounts = cls.get_iam_role_accounts(role)
+
+        if "TagLookup" in role:
+            if "non_aws_users" in role["TagLookup"]:
+                non_aws_users = role["TagLookup"]["non_aws_users"].split(" ")
+                users.extend(non_aws_users)
+
+            if "unmonitored_accounts" in role["TagLookup"]:
+                unmonitored_accounts = role["TagLookup"]["unmonitored_accounts"].split(" ")
+                accounts.extend(unmonitored_accounts)
+
+        team_settings = {
+            "users": cls.make_unique(users),
+            "accounts": cls.make_unique(accounts)
+        }
+
+        return team_settings
+
+    @classmethod
+    def get_all_team_iam_roles(cls):
+        # list roles in host account
+        iam_client = GdsIamClient(app)
+        iam_client.get_chain_role_params()
+        caller = iam_client.get_caller_details()
+        local_audit_session = iam_client.get_chained_session(caller["Account"])
+        roles = iam_client.list_roles(local_audit_session)
+        team_roles = []
+        for role in roles:
+            app.log.debug(str(role))
+            # the docs are wrong - list_roles does not return tags
+            # if "Tags" in role:
+            #     tags = iam_client.tag_list_to_dict(role["Tags"])
+            if "csw" in role["RoleName"].lower():
+                app.log.debug(role["RoleName"])
+                tag_list = iam_client.list_role_tags(local_audit_session, role["RoleName"])
+                app.log.debug(str(tag_list))
+                tags = iam_client.tag_list_to_dict(tag_list)
+                app.log.debug(str(tags))
+                # filter by tags
+                is_team_role = tags.get("purpose").lower() == "csw-team-role"
+                if is_team_role:
+                    role["Tags"] = tag_list
+                    role["TagLookup"] = tags
+                    role["AccessSettings"] = cls.get_access_settings(role)
+
+                    team_roles.append(role)
+
+        return team_roles
+
+    def update_members(self, users):
+
+        try:
+            team_members = (ProductTeamUser
+                          .select()
+                          .where(ProductTeamUser.team_id == self.id)
+                          )
+
+            # Delete users not defined in IAM Role
+            for current_member in team_members:
+                if current_member.user_id.email not in users:
+                    current_member.delete_instance()
+
+            for email in users:
+                found = False
+                # Find existing team members in database matching IAM member list and record
+                for current_member in team_members:
+                    if current_member.user_id.email == email:
+                        found = True
+
+                # Create member records (and users where required)
+                # for IAM defined users not in database
+                if not found:
+                    try:
+                        user = User.get(User.email == email)
+                    except peewee.DoesNotExist as err:
+                        user = User.create(
+                            email = email,
+                            name = User.default_username(email),
+                            active = True
+                        )
+
+                    ProductTeamUser.create(
+                        team_id = self,
+                        user_id = user
+                    )
+
+            members_processed = True
+
+        except Exception as err:
+
+            app.log.error(app.utilities.get_typed_exception())
+            members_processed = False
+
+        return members_processed
+
+    def update_accounts(self, team_accounts):
+
+        try:
+            app.log.debug(str(team_accounts))
+            default_team = ProductTeam.get(ProductTeam.team_name == 'TBC')
+            accounts = AccountSubscription.select()
+
+            for account in accounts:
+                account_id = str(account.account_id).rjust(12, "0")
+
+                if account_id in team_accounts:
+                    app.log.debug(f"account: {account_id} is a member of team: {self.id}")
+                    # is a member update team_id
+                    account.product_team_id = self
+
+                elif account.product_team_id == self.id:
+                    app.log.debug(f"account: {account_id} is no longer a member of team: {self.id}")
+                    # is not a member reset to default team
+                    account.product_team_id = default_team
+
+                if account.is_dirty():
+                    account.save()
+
+            accounts_processed = True
+
+        except Exception as err:
+
+            app.log.error(app.utilities.get_typed_exception())
+            accounts_processed = False
+
+        return accounts_processed
+
 
 
 class ProductTeamUser(database_handle.BaseModel):
