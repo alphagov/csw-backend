@@ -944,7 +944,7 @@ class AccountAudit(database_handle.BaseModel):
         except Exception as err:
             app.log.debug("Catch generic exception from get_stats: " + str(err))
 
-        stats = {"all": audit_stats, "criteria": criteria_stats, "max_severity": max_severity}
+        stats = {"all": audit_stats, "criteria": criteria_stats, "max_severity": int(max_severity)}
         return stats
 
 
