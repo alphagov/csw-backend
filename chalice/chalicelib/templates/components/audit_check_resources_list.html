@@ -37,7 +37,7 @@
             {%- if audit_stats.max_severity > 1 -%}
             <td>
                 <strong class="govuk-tag__fixed-width--all">
-                    item.criterion_id.severity
+                    {{ item.criterion_id.severity }}
                 </strong>
             </td>
             {%- endif -%}
