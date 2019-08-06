@@ -20,3 +20,17 @@
   </div>
 </div>
 {% endif %}
+{% if audit_stats.max_severity > 1 %}
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+       What are the check categories?
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+    Checks have been classified into a number of categories.
+      The highest priority results are in category 1.
+      Check results in lower category classes are things which either
+      represent a lower risk or which could be issues but require investigation to confirm.
+  </div>
+</details>
