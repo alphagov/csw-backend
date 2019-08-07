@@ -184,6 +184,7 @@ class DatabaseHandle:
                 how_do_i_fix_it=obj.how_do_i_fix_it,
                 active=obj.active,
                 is_regional=getattr(obj, "is_regional", True),
+                severity=obj.severity
             )
         elif count == 1:  # if it already exists update, even if it deactivates it
             existing = recs.get()
@@ -199,6 +200,7 @@ class DatabaseHandle:
             existing.how_do_i_fix_it = obj.how_do_i_fix_it
             existing.active = obj.active
             existing.is_regional = getattr(obj, "is_regional", True)
+            existing.severity = getattr(obj, "severity", 1)
             existing.save()
         # else:
         #     raise  # multiple objects returned when zero or one should

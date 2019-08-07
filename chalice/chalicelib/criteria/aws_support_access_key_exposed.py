@@ -46,6 +46,7 @@ class AwsIamPotentiallyExposedAccessKey(AwsIamExposedAccessKey):
     """
 
     active = True
+    severity = 2
 
     def __init__(self, app):
         self.title = (
@@ -114,6 +115,7 @@ class AwsIamSuspectedExposedAccessKey(AwsIamExposedAccessKey):
     """
 
     active = True
+    severity = 2
 
     def __init__(self, app):
         self.title = "IAM Access Keys: There is no irregular EC2 activity to suggest an exposed key"

@@ -2,7 +2,7 @@ $govuk-global-styles: true;
 
 $govuk-assets-path: "/app/assets/govuk-frontend/assets/";
 
-@import "node_modules/govuk-frontend/all-ie8";
+@import "node_modules/govuk-frontend/govuk/all-ie8";
 
 @import "csw_components/team-list";
 @import "csw_components/login-bar";

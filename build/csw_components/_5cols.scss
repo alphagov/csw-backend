@@ -52,7 +52,7 @@
 
 .five-columns__column-content--tested {
     @extend .five-columns__column-content;
-    background-color: govuk-colour("grey-3");
+    background-color: govuk-colour("light-grey");
     border-color: govuk-colour("black");
 
     .five-columns__headline-stat,

@@ -11,6 +11,7 @@ class AwsVpcFlowLogsEnabled(CriteriaDefault):
     # This can be switched on when the client role has been iterated.
     # At present the permissions are not in the role
     active = False
+    severity = 2
 
     is_regional = True
 

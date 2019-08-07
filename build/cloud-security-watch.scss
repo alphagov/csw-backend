@@ -3,7 +3,7 @@ $govuk-global-styles: true;
 $govuk-assets-path: "/app/assets/govuk-frontend/assets/";
 
 @import "node_modules/c3/c3";
-@import "node_modules/govuk-frontend/all";
+@import "node_modules/govuk-frontend/govuk/all";
 
 @import "csw_components/team-list";
 @import "csw_components/login-bar";

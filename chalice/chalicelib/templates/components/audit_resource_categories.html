@@ -1,21 +1,23 @@
-<div class="govuk-tabs" data-module="tabs">
+<div class="govuk-tabs" data-module="govuk-tabs">
+  {%- set all_passed = audit_stats.all.passed + audit_stats.all.ignored -%}
+  {%- set all_failed = audit_stats.all.failed -%}
   <h2 class="govuk-tabs__title">
     Check results
   </h2>
   <ul class="govuk-tabs__list">
-    <li class="govuk-tabs__list-item">
-      <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#failed">
+    <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+      <a class="govuk-tabs__tab" href="#failed">
         Failed
-        <strong class="govuk-tag__fixed-width--{{'failed' if audit_stats.all.failed > 0 else 'passed' }}">
-          {{ audit_stats.all.failed }}
+        <strong class="govuk-tag__fixed-width--{{'failed' if all_failed > 0 else 'not-applicable' }}">
+          {{ all_failed }}
         </strong>
       </a>
     </li>
     <li class="govuk-tabs__list-item">
       <a class="govuk-tabs__tab" href="#passed">
         Passed
-        <strong class="govuk-tag__fixed-width--passed">
-          {{ audit_stats.all.passed + audit_stats.all.ignored }}
+        <strong class="govuk-tag__fixed-width--{{'passed' if all_passed > 0 else 'not-applicable' }}">
+          {{ all_passed }}
         </strong>
       </a>
     </li>
@@ -24,11 +26,23 @@
   <section class="govuk-tabs__panel" id="failed">
     <h2 class="govuk-heading-m">Failed resources</h2>
     {%- set required_status = 'failed' -%}
+    {%- if all_failed > 0 -%}
     {% include "components/audit_check_resources_list.html" %}
+    {%- else -%}
+      <p class="govuk-body">
+          No failing resources have been identified by this audit.
+      </p>
+    {%- endif -%}
   </section>
-  <section class="govuk-tabs__panel" id="passed">
+  <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="passed">
     <h2 class="govuk-heading-m">Passed resources</h2>
     {%- set required_status = 'passed' -%}
+    {%- if all_passed > 0 -%}
     {% include "components/audit_check_resources_list.html" %}
+    {%- else -%}
+      <p class="govuk-body">
+          No passing resources have been identified by this audit.
+      </p>
+    {%- endif -%}
   </section>
 </div>

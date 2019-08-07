@@ -10,6 +10,7 @@ from chalicelib.models import AccountSshCidrAllowlist
 class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
 
     active = True
+    severity = 3
 
     ClientClass = GdsEc2SecurityGroupClient
     AllowlistClass = AccountSshCidrAllowlist

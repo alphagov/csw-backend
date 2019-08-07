@@ -23,6 +23,7 @@ class ELBSecurityGroupsYellow(ELBSecurityGroups):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB Security Groups: Ingress ports match listener configuration"
@@ -63,6 +64,7 @@ class ELBSecurityGroupsRed(ELBSecurityGroups):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB Security Groups: The load balancer security group exists"

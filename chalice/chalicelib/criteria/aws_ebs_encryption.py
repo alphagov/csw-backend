@@ -9,6 +9,8 @@ class EbsEncryption(CriteriaDefault):
     """
 
     active = True
+    severity = 3
+
     ClientClass = GdsEc2Client
     is_regional = True
     resource_type = "AWS::EBS::ENCRYPTION"

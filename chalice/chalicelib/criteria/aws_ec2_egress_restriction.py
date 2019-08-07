@@ -9,6 +9,7 @@ class UnrestrictedEgressSecurityGroups(CriteriaDefault):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.ClientClass = GdsEc2SecurityGroupClient

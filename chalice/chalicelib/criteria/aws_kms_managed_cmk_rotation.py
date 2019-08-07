@@ -9,6 +9,7 @@ class ManagedCmkRotation(CriteriaDefault):
     """
 
     active = True
+    severity = 2
     ClientClass = GdsKmsClient
     is_regional = False
     resource_type = "AWS::KMS:CMK_ROTATION"

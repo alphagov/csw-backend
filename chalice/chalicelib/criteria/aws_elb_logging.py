@@ -9,6 +9,8 @@ class ElbLogging(CriteriaDefault):
     """
 
     active = True
+    severity = 3
+
     ClientClass = GdsElbClient
     is_regional = False
     resource_type = "AWS::ELB::LOGGING"

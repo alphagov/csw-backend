@@ -9,6 +9,8 @@ class RdsEncryption(CriteriaDefault):
     """
 
     active = True
+    severity = 3
+
     ClientClass = GdsRdsClient
     is_regional = True
     resource_type = "AWS::RDS::ENCRYPTION"

@@ -30,6 +30,7 @@ class ELBListenerSecurityNoListener(ELBListenerSecurity):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB: Listeners use secure protocols (https)"
@@ -76,6 +77,7 @@ class ELBListenerSecurityPredefinedOutdated(ELBListenerSecurity):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB: Listeners use up-to-date predefined cipher policies"
@@ -124,6 +126,7 @@ class ELBListenerSecurityProtocolDiscouraged(ELBListenerSecurity):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB: Listeners use recommended ciphers or protocols"
@@ -170,6 +173,7 @@ class ELBListenerSecurityInsecureProtocol(ELBListenerSecurity):
     """
 
     active = True
+    severity = 3
 
     def __init__(self, app):
         self.title = "ELB: Listeners use secure ciphers or protocols"

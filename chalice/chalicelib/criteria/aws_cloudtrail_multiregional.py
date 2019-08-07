@@ -9,6 +9,7 @@ class MultiregionalCloudtrail(CriteriaDefault):
     """
 
     active = True
+    severity = 2
     ClientClass = GdsCloudtrailClient
     is_regional = False
     resource_type = "AWS::CLOUDTRAIL:MULTIREGIONAL"

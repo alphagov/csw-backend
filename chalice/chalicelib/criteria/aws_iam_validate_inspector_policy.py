@@ -10,6 +10,7 @@ from chalicelib.aws.gds_iam_client import GdsIamClient
 class AwsIamValidateInspectorPolicy(CriteriaDefault):
 
     active = False
+    severity = 3
 
     is_regional = False
 

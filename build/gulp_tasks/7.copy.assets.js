@@ -8,13 +8,13 @@ const concat = require("gulp-concat");
 gulp.task("copy.assets_files", function() {
   // place code for your default task here
   return gulp
-    .src(["node_modules/govuk-frontend/assets/**"])
+    .src(["node_modules/govuk-frontend/govuk/assets/**"])
     .pipe(gulp.dest("../chalice/chalicelib/assets/govuk-frontend/assets"));
 });
 
 gulp.task("copy.assets_scripts", function() {
   return gulp
-    .src(["node_modules/govuk-frontend/*.js"])
+    .src(["node_modules/govuk-frontend/govuk/*.js"])
     .pipe(gulp.dest("../chalice/chalicelib/assets/govuk-frontend"));
 });
 
@@ -32,7 +32,7 @@ gulp.task("concat.js.body", function() {
       "./node_modules/c3/c3.min.js",
       "./node_modules/vue/dist/vue.js",
       "./node_modules/pe-charts/lib/js/table-chart.js",
-      "./node_modules/govuk-frontend/all.js",
+      "./node_modules/govuk-frontend/govuk/all.js",
       "./node_modules/pe-charts/lib/js/app.js"
     ])
     .pipe(concat("dist.body.js"))
