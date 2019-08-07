@@ -14,8 +14,12 @@ INNER JOIN public.account_subscription AS sub
 ON sub.id = aud.account_subscription_id
 LEFT JOIN public.audit_criterion AS achk
 ON aud.id = achk.account_audit_id
+LEFT JOIN public.criterion AS chk
+ON achk.criterion_id = chk.id
 GROUP BY DATE(aud.audit_date),sub.account_id,aud.id
-HAVING aud.audit_date IS NOT NULL AND SUM(achk.resources) > 0
+HAVING aud.audit_date IS NOT NULL
+AND SUM(achk.resources) > 0
+AND chk.severity = 1
 ORDER BY sub.account_id, DATE(aud.audit_date) DESC;
 
 CREATE INDEX daily_account_stats__account_id ON public._daily_account_stats (account_id);
