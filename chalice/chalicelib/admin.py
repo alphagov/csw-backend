@@ -226,6 +226,6 @@ def manual_update_teams(event, context):
     return update_teams()
 
 
-# @app.schedule(Rate(24, unit=Rate.HOURS))
-# def scheduled_update_teams(event):
-#     return update_teams()
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def scheduled_update_teams(event):
+    return update_teams()
