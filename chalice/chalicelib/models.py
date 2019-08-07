@@ -621,7 +621,7 @@ class ProductTeam(database_handle.BaseModel):
                 tags = iam_client.tag_list_to_dict(tag_list)
                 app.log.debug(str(tags))
                 # filter by tags
-                is_team_role = tags.get("purpose").lower() == "csw-team-role"
+                is_team_role = tags.get("purpose", "undefined").lower() == "csw-team-role"
                 if is_team_role:
                     role["Tags"] = tag_list
                     role["TagLookup"] = tags
