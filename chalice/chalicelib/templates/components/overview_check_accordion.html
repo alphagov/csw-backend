@@ -36,7 +36,7 @@
                     {% set account = account_fails.account_id %}
                     <p>
                         <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
-                        <a href="{{base_path}}/account/{{account.id}}/status">
+                        <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category}}">
                             {{ account.account_id | aws_account_id }}
                         </a>
                         ({{ account.account_name }})
