@@ -69,62 +69,35 @@ def overview_dashboard():
         if authed:
             user_data = app.auth.get_login_data()
             user = models.User.find_active_by_email(user_data["email"])
-            overview_data = user.get_overview_data()
+            # TODO figure out admin user access management (or let everyone see collated stats)
+            account_fails = models.CurrentFailsPerAccountCheckStats.select()
+            team_fails = models.CurrentFailsPerTeamCheckStats.select()
+            check_fails = models.CurrentFailsPerCheckStats.select()
+
+            checks = (models.Criterion
+                .select()
+                .order_by(
+                    models.Criterion.severity.asc(),
+                    models.Criterion.title.asc()
+                )
+            )
+            categories = [1,2,3]
 
             template_data = {
-                # "criteria_summary": criteria_stats,
-                "status": {
-                    "accounts_passed": {
-                        "display_stat": overview_data["all"]["accounts_passed"],
-                        "category": "Accounts Passed",
-                        "modifier_class": "passed"
-                        if overview_data["all"]["accounts_passed"] > 0
-                        else "failed",
-                    },
-                    "accounts_failed": {
-                        "display_stat": overview_data["all"]["accounts_failed"],
-                        "category": "Accounts Failed",
-                        "modifier_class": "passed"
-                        if overview_data["all"]["accounts_failed"] == 0
-                        else "failed",
-                    },
-                    "accounts_unadited": {
-                        "display_stat": overview_data["all"]["accounts_unaudited"],
-                        "category": "Accounts Unaudited",
-                        "modifier_class": "passed"
-                        if overview_data["all"]["accounts_unaudited"] == 0
-                        else "failed",
-                    },
-                    "accounts_inactive": {
-                        "display_stat": overview_data["all"]["accounts_inactive"],
-                        "category": "Accounts Inactive",
-                        "modifier_class": "passed"
-                        if overview_data["all"]["accounts_inactive"] == 0
-                        else "failed",
-                    },
-                    "issues_found": {
-                        "display_stat": overview_data["all"]["issues_found"],
-                        "category": "All Issues",
-                        "modifier_class": "passed"
-                        if overview_data["all"]["issues_found"] == 0
-                        else "failed",
-                    },
+                "checks": checks,
+                "failures": {
+                    "account": account_fails,
+                    "team": team_fails,
+                    "check": check_fails
                 },
-                "summaries": overview_data,
+                "categories": categories
             }
 
-        # data = app.utilities.to_json(template_data, True)
-        # app.log.debug("Criteria stats: " + data)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
-        response = app.templates.render_authorized_template(
-            "overview.html", app.current_request, template_data
-        )
+            response = app.templates.render_authorized_template(
+                "overview.html", app.current_request, template_data
+            )
+        else:
+            raise Exception(f"No authenticated user")
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
@@ -1117,13 +1090,15 @@ def asset_render():
     load_route_services()
     app.log.debug("asset_render function called by /assets/{proxy+} route")
     try:
-        req = app.current_request
-        app.log.debug(str(req.uri_params))
-        if "proxy" in req.uri_params:
-            proxy = req.uri_params["proxy"]
+        local_request = app.current_request
+        app.log.debug("Context: " + str(local_request.context))
+        app.log.debug("Params: " + str(local_request.uri_params))
+        if "proxy" in local_request.uri_params:
+            proxy = local_request.uri_params["proxy"]
         else:
-            proxy = req.uri_params["proxy+"]
+            proxy = local_request.uri_params["proxy+"]
         mime_type = app.utilities.get_mime_type(proxy)
+        app.log.debug(f"{proxy} : {mime_type}")
         data = read_asset(proxy)
         return Response(body=data, status_code=200, headers={"Content-Type": mime_type})
     except Exception as e:
