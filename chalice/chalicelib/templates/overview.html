@@ -1,21 +1,26 @@
 {% extends "govuk_template.html" %}
 {% block content %}
 <div class="govuk-width-container">
-  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <main class="govuk-main-wrapper " id="main-content" role="main">
     {% include "components/breadcrumbs.html" %}
 
     <h1 class="govuk-heading-l">Overview</h1>
     <p>
-      This view shows the overall status across all teams.
+        This view shows the overall status across all teams.
     </p>
     <p>
-      In general if everything is green - everything is good. You may want to click through to the status of individual
-      accounts to check that the total number of defined resources hasn't changed unexpectedly.
+        In general if everything is green - everything is good.
+        Only category 1 checks are currently shown to users or
+        cause the user view to show a fail for the account.
+        Category 2 are things that Cyber may wish to investigate.
+        Category 3 are advisory things which are probably not
+        worth actioning until all higher priority issues have
+        been addressed.
     </p>
 
     {# include "components/overview_account_check_matrix.html" #}
 
     {% include "components/overview_check_accordion.html" %}
-  </main>
+    </main>
 </div>
 {% endblock %}
