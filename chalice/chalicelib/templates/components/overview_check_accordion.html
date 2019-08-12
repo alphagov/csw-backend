@@ -36,7 +36,7 @@
                     {% set account = account_fails.account_id %}
                     <p>
                         <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
-                        {{ account.account_id }} ({{ account.account_name }})
+                        {{ account.account_id | aws_account_id }} ({{ account.account_name }})
                     </p>
                     {% endif %}
                     {% endfor %}
