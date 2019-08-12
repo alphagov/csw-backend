@@ -73,6 +73,13 @@ def overview_dashboard():
             account_fails = models.CurrentFailsPerAccountCheckStats.select()
             team_fails = models.CurrentFailsPerTeamCheckStats.select()
             check_fails = models.CurrentFailsPerCheckStats.select()
+            cat_fails = {
+                1:0,
+                2:0,
+                3:0
+            }
+            for fail in check_fails:
+                cat_fails[fail.severity] += fail.issues
 
             checks = (models.Criterion
                 .select()
@@ -88,7 +95,8 @@ def overview_dashboard():
                 "failures": {
                     "account": account_fails,
                     "team": team_fails,
-                    "check": check_fails
+                    "check": check_fails,
+                    "category": cat_fails
                 },
                 "categories": categories
             }
