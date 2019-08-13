@@ -14,8 +14,9 @@
   background-color: govuk-colour("red");
 }
 
-.govuk-inset-text--accordion {
-  @extend .govuk-inset-text;
+.govuk-accordion-inset-text {
+  padding: govuk-spacing(3);;
+  margin: govuk-spacing(6) 0;
   border-width: 1px 10px;
   border-color: $govuk-border-colour;
 }

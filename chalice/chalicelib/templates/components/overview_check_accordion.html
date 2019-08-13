@@ -30,7 +30,7 @@
                     {% if team_fails.criterion_id.id == check.id %}
                     {% set team = team_fails.team_id %}
                     <div>
-                    <div class="govuk-inset-text--accordion">
+                    <div class="govuk-accordion-inset-text">
                         <p>
                             <span class="govuk-tag__fixed-width--failed">{{ team_fails.issues }}</span>
                             {{ team.team_name }}
