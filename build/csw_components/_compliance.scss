@@ -13,3 +13,9 @@
   @extend .govuk-table__cell--status;
   background-color: govuk-colour("red");
 }
+
+.govuk-inset-text--accordion {
+  @extend .govuk-inset-text;
+  border-width: 1px 10px;
+  border-color: $govuk-border-colour;
+}

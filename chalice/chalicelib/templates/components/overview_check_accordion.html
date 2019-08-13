@@ -30,25 +30,25 @@
                     {% if team_fails.criterion_id.id == check.id %}
                     {% set team = team_fails.team_id %}
                     <div>
-                        <div class="govuk-inset-text">
-                            <p>
-                                <span class="govuk-tag__fixed-width--failed">{{ team_fails.issues }}</span>
-                                {{ team.team_name }}
-                            </p>
-                            <p>The failing resources are deployed in the following accounts:</p>
-                            {% for account_fails in  failures.account %}
-                            {% if account_fails.criterion_id.id == check.id and account_fails.team_id.id == team.id %}
-                            {% set account = account_fails.account_id %}
-                            <p>
-                                <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
-                                <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category.number}}">
-                                    {{ account.account_id | aws_account_id }}
-                                </a>
-                                ({{ account.account_name }})
-                            </p>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
+                    <div class="govuk-inset-text--accordion">
+                        <p>
+                            <span class="govuk-tag__fixed-width--failed">{{ team_fails.issues }}</span>
+                            {{ team.team_name }}
+                        </p>
+                        <p>The failing resources are deployed in the following accounts:</p>
+                        {% for account_fails in  failures.account %}
+                        {% if account_fails.criterion_id.id == check.id and account_fails.team_id.id == team.id %}
+                        {% set account = account_fails.account_id %}
+                        <p>
+                            <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
+                            <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category.number}}">
+                                {{ account.account_id | aws_account_id }}
+                            </a>
+                            ({{ account.account_name }})
+                        </p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
                     </div>
                     {% endif %}
                     {% endfor %}
