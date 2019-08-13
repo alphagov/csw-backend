@@ -1,5 +1,5 @@
 {% for category in categories %}
-{% set category_fails = failures.category[category] %}
+{% set category_fails = failures.category[category.number] %}
 <h2 class="govuk-heading-m">
     Category {{ category.number }} - {{ category.title }}
 </h2>
