@@ -1,8 +1,11 @@
 {% for category in categories %}
 {% set category_fails = failures.category[category] %}
 <h2 class="govuk-heading-m">
-    Category {{ category }}
+    Category {{ category.number }} - {{ category.title }}
 </h2>
+<p>
+    {{ category.description }}
+</p>
 <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-category-{{category}}">
     {% for check_fails in failures.check %}
     {% if check_fails.severity == category %}

@@ -78,6 +78,23 @@ def overview_dashboard():
                 2:0,
                 3:0
             }
+            category_descriptions = [
+                {
+                    "number": 1,
+                    "title": "Visible to users",
+                    "description": "Only category 1 checks are currently shown to users or cause the user view to show a fail for the account."
+                },
+                {
+                    "number": 2,
+                    "title": "May warrant investigation",
+                    "description": "Cyber may wish to investigate. An example is unexpected activity by an IAM key."
+                },
+                {
+                    "number": 3,
+                    "title": "Low priority",
+                    "description": "Probably not worth actioning until all higher priority issues have been addressed."
+                }
+            ]
             for fail in check_fails:
                 cat_fails[fail.severity] += fail.issues
 
@@ -88,7 +105,6 @@ def overview_dashboard():
                     models.Criterion.title.asc()
                 )
             )
-            categories = [1,2,3]
 
             template_data = {
                 "checks": checks,
@@ -98,7 +114,7 @@ def overview_dashboard():
                     "check": check_fails,
                     "category": cat_fails
                 },
-                "categories": categories
+                "categories": category_descriptions,
             }
 
             response = app.templates.render_authorized_template(
