@@ -389,9 +389,10 @@ class TemplateHandler:
         return root_path
 
     def default_server_error(
-        self, req, status_code=200, message="Something went wrong."
+        self, status_code=200, message="Something went wrong."
     ):
         try:
+            req = self.app.current_request
             self.base_url = self.auth.get_base_url(req)
 
             self.app.log.debug("Base URL: " + self.base_url)
