@@ -6,21 +6,21 @@
 <p>
     {{ category.description }}
 </p>
-<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-category-{{category}}">
+<div class="govuk-accordion" data-module="govuk-accordion" id="accordion-category-{{category.number}}">
     {% for check_fails in failures.check %}
-    {% if check_fails.severity == category %}
+    {% if check_fails.severity == category.number %}
     {% set check = check_fails.criterion_id %}
     {% set category_empty = False %}
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h3 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-category-{{category}}-heading-{{check.id}}">
+                <span class="govuk-accordion__section-button" id="accordion-category-{{category.number}}-heading-{{check.id}}">
                     <span class="govuk-tag__fixed-width--failed">{{ check_fails.issues }}</span>
                     {{ check.title }}
                 </span>
             </h3>
         </div>
-        <div id="accordion-category-{{category}}-content-{{check.id}}" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category}}-heading-{{check.id}}">
+        <div id="accordion-category-{{category.number}}-content-{{check.id}}" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category.number}}-heading-{{check.id}}">
             <p class='govuk-body'>
                 {{ check.description }}
             </p>
@@ -39,7 +39,7 @@
                     {% set account = account_fails.account_id %}
                     <p>
                         <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
-                        <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category}}">
+                        <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category.number}}">
                             {{ account.account_id | aws_account_id }}
                         </a>
                         ({{ account.account_name }})
@@ -58,13 +58,13 @@
     <div class="govuk-accordion__section ">
         <div class="govuk-accordion__section-header">
             <h3 class="govuk-accordion__section-heading">
-                <span class="govuk-accordion__section-button" id="accordion-category-{{category}}-heading-0">
+                <span class="govuk-accordion__section-button" id="accordion-category-{{category.number}}-heading-0">
                     <span class="govuk-tag__fixed-width--passed">0</span>
                     There are no current issues
                 </span>
             </h3>
         </div>
-        <div id="accordion-category-{{category}}-content-0" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category}}-heading-0">
+        <div id="accordion-category-{{category.number}}-content-0" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category.number}}-heading-0">
             <p class='govuk-body'>
                 All the checks in this category have passed for all monitored accounts
             </p>
