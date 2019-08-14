@@ -17,10 +17,7 @@
 .govuk-accordion-inset-text {
   padding: govuk-spacing(3);;
   margin: govuk-spacing(6) 0;
-  border-top-width: 1px;
-  border-left-width: 10px;
-  border-bottom-width: 1px;
-  border-right-width: 10px;
-  border-color: govuk-colour("mid-grey");
+  outline-width: 1px;
+  outline-color: govuk-colour("mid-grey");
   background-color: govuk-colour("light-grey");
 }
