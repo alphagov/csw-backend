@@ -60,8 +60,7 @@ class S3BucketReadAll(S3BucketPermissions):
             "that they are closed to everyone outside of GDS."
         )
         self.how_do_i_fix_it = (
-            "Review the permissions on the listed buckets, and change them to make sure "
-            "that they are no longer open."
+            "Change the bucket permissions ACL Everyone options to remove list permissions."
         )
         super(S3BucketReadAll, self).__init__(app)
 
@@ -103,13 +102,17 @@ class S3BucketOpenAccess(S3BucketPermissions):
             "Therefore it’s vital to secure all S3 buckets by making sure "
             "that they are closed to everyone outside of GDS."
         )
-        self.how_do_i_fix_it = "Review the permissions on the listed buckets, and change them to make sure that they are no longer open."
+        self.how_do_i_fix_it = (
+            "Change the bucket permissions ACL Everyone options to remove the <strong>List objects</strong> permission."
+        )
         super(S3BucketOpenAccess, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = "NON_COMPLIANT"
         if item["metadata"][6] == "Yes":
-            self.annotation = "Change the Public Access - Everyone settings on the bucket Permissions ACL"
+            self.annotation = (
+                "The bucket ACL Everyone <strong>List objects</strong> permission is enabled."
+            )
         else:
             compliance_type = "COMPLIANT"
         return self.build_evaluation(
@@ -142,15 +145,16 @@ class S3BucketWriteAll(S3BucketPermissions):
             "Therefore it’s vital to secure all S3 buckets by making sure "
             "that they are closed to everyone outside of GDS."
         )
-        self.how_do_i_fix_it = "Change the Public Access - Everyone settings on the bucket Permissions ACL"
+        self.how_do_i_fix_it = (
+            "Change the bucket permissions ACL Everyone options to remove the <strong>Write objects</strong> permission."
+        )
         super(S3BucketWriteAll, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = "NON_COMPLIANT"
         if item["metadata"][4] == "Yes":
             self.annotation = (
-                f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy allows "everyone" '
-                f'or "any authenticated AWS user" to update/delete its contents.'
+                "The bucket ACL Everyone <strong>Write objects</strong> permission is enabled."
             )
         else:
             compliance_type = "COMPLIANT"
