@@ -4,12 +4,15 @@ checkId: Pfx0RwqBli
 Checks on the S3 bucket permissions that can potentially compromise files.
 """
 from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
+from chalicelib.aws.gds_s3_client import GdsS3Client
 
 
 class S3BucketPermissions(TrustedAdvisorCriterion):
     """
     Subclass Criterion checking against S3 bucket permissions.
     """
+
+    ResourceClientClass = GdsS3Client
 
     active = False
 
@@ -22,8 +25,16 @@ class S3BucketPermissions(TrustedAdvisorCriterion):
         return {
             "region": data.get("region", ""),
             "resource_id": data.get("resourceId", ""),
-            "resource_name": data.get("metadata", ["", "", ""])[2],  # bucket name
+            # bucket name
+            "resource_name": data.get("metadata", [0, 1, None])[2],
         }
+
+    def get_resource_data(self, session, region, resource):
+        name = resource.get("metadata", [0, 1, None])[2]
+        bucket_acl = None
+        if name:
+            bucket_acl = self.resource_client.get_bucket_acl(session, name)
+        return bucket_acl
 
 
 class S3BucketReadAll(S3BucketPermissions):
@@ -98,7 +109,7 @@ class S3BucketOpenAccess(S3BucketPermissions):
     def evaluate(self, event, item, whitelist=[]):
         compliance_type = "NON_COMPLIANT"
         if item["metadata"][6] == "Yes":
-            self.annotation = f'Bucket "{item["metadata"][2]}" in region "{item["metadata"][0]}" policy has open access.'
+            self.annotation = "Change the Public Access - Everyone settings on the bucket Permissions ACL"
         else:
             compliance_type = "COMPLIANT"
         return self.build_evaluation(
@@ -131,7 +142,7 @@ class S3BucketWriteAll(S3BucketPermissions):
             "Therefore it’s vital to secure all S3 buckets by making sure "
             "that they are closed to everyone outside of GDS."
         )
-        self.how_do_i_fix_it = "Review the permissions on the listed buckets, and change them to make sure that they are no longer open."
+        self.how_do_i_fix_it = "Change the Public Access - Everyone settings on the bucket Permissions ACL"
         super(S3BucketWriteAll, self).__init__(app)
 
     def evaluate(self, event, item, whitelist=[]):

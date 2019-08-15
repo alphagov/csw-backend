@@ -261,6 +261,8 @@ class TrustedAdvisorCriterion(CriteriaDefault):
     A specialisation factoring out all the common attributes and methods
     of criteria that use one API call to describe TA in order to infer compliance.
     """
+    ResourceClientClass = GdsAwsClient
+    check_id = ""
 
     def __init__(self, app):
         # attributes to overwrite in subclasses
@@ -273,18 +275,23 @@ class TrustedAdvisorCriterion(CriteriaDefault):
         self.annotation = ""
         self.is_regional = False
         super(TrustedAdvisorCriterion, self).__init__(app)
+        self.resource_client = self.ResourceClientClass(app)
 
     def get_data(self, session, **kwargs):
+        updated = self.client.refresh_check_with_wait(session, self.check_id)
+
         output = self.client.describe_trusted_advisor_check_result(
             session, checkId=self.check_id, language=self.language
         )
         # if the TA results does not contain the key flaggedResources, add it with an empty list for its value
-        if "flaggedResources" not in output:
-            output["flaggedResources"] = []
+        flagged = output.get("flaggedResources",[])
+        for resource in flagged:
+            region = resource["metadata"][0]
+            original = self.get_resource_data(session, region, resource)
+            resource["originalResourceData"] = original
+
         self.app.log.debug(json.dumps(output))
-        return output[
-            "flaggedResources"
-        ]  # will have len() == 0 if compliant or non-applicable
+        return flagged  # will have len() == 0 if compliant or non-applicable
 
     def translate(self, data={}):
         """
@@ -298,8 +305,10 @@ class TrustedAdvisorCriterion(CriteriaDefault):
 
         item = {
             "resource_id": data.get("resourceId", ""),
-            "resource_name": data.get("metadata", ["", ""])[
-                1
-            ],  # trail name or empty string
+            # trail name or empty string
+            "resource_name": data.get("metadata", ["", ""])[1]
         }
         return item
+
+    def get_resource_data(self, session, region, flagged_resource):
+        return None
