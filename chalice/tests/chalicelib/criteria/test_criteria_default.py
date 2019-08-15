@@ -8,7 +8,7 @@ import unittest
 import os
 
 from chalice import Chalice
-from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY
+from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY, SESSION
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
 
@@ -387,15 +387,6 @@ class CriteriaSubclassTestCaseMixin(object):
                 msg="""
                     the get_data method must return
                     a dictionary with a key named resource_name
-                """,
-            )
-        with self.subTest():
-            self.assertTrue(
-                output["resource_name"] is None or type(output["resource_name"]) == str,
-                msg="""
-                    the get_data method must return a dictionary
-                    with a key named resource_name that has a string value
-                    or None if the resource is not found
                 """,
             )
 

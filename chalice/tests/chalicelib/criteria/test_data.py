@@ -1,3 +1,9 @@
+SESSION = {
+    "AccessKeyId": "test",
+    "SecretAccessKey": "test",
+    "SessionToken": "test"
+}
+
 EMPTY_SUMMARY = {
     "all": {"display_stat": 0, "category": "all", "modifier_class": "tested"},
     "applicable": {
@@ -2097,31 +2103,114 @@ EGRESS_RESTRICTION = {
     }
 }
 # Unfortunately, we have only pass data for this criterion's checks.
+# {"status": "warning", "region": "eu-west-1", "resourceId": "mHkeMmDrRmaYy9NDXoaLqe9EywInJDsQtl8bLJ12XRw", "isSuppressed": false, "metadata": ["eu-west-1", "preview", "preview", "Yellow", "Amazon EC2 security group global access"]}
 RDS_SECURITY_GROUPS = {
-    "ResponseMetadata": {
-        "HTTPHeaders": {
-            "content-length": "245",
-            "content-type": "application/x-amz-json-1.1",
-            "date": "Tue, 18 Dec 2018 16:19:03 GMT",
-            "x-amzn-requestid": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+    "pass": {
+        "ResponseMetadata": {
+            "HTTPHeaders": {
+                "content-length": "245",
+                "content-type": "application/x-amz-json-1.1",
+                "date": "Tue, 18 Dec 2018 16:19:03 GMT",
+                "x-amzn-requestid": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            },
+            "HTTPStatusCode": 200,
+            "RequestId": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            "RetryAttempts": 0,
         },
-        "HTTPStatusCode": 200,
-        "RequestId": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
-        "RetryAttempts": 0,
+        "result": {
+            "categorySpecificSummary": {},
+            "checkId": "nNauJisYIT",
+            "flaggedResources": [],
+            "resourcesSummary": {
+                "resourcesFlagged": 0,
+                "resourcesIgnored": 0,
+                "resourcesProcessed": 1,
+                "resourcesSuppressed": 0,
+            },
+            "status": "ok",
+            "timestamp": "2018-12-18T16:14:30Z",
+        }
     },
-    "result": {
-        "categorySpecificSummary": {},
-        "checkId": "nNauJisYIT",
-        "flaggedResources": [],
-        "resourcesSummary": {
-            "resourcesFlagged": 0,
-            "resourcesIgnored": 0,
-            "resourcesProcessed": 1,
-            "resourcesSuppressed": 0,
+    "warn": {
+        "ResponseMetadata": {
+            "HTTPHeaders": {
+                "content-length": "245",
+                "content-type": "application/x-amz-json-1.1",
+                "date": "Tue, 18 Dec 2018 16:19:03 GMT",
+                "x-amzn-requestid": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            },
+            "HTTPStatusCode": 200,
+            "RequestId": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            "RetryAttempts": 0,
         },
-        "status": "ok",
-        "timestamp": "2018-12-18T16:14:30Z",
+        "result": {
+            "categorySpecificSummary": {},
+            "checkId": "nNauJisYIT",
+            "flaggedResources": [
+                {
+                    "status": "warning",
+                    "region": "eu-west-1",
+                    "resourceId": "test",
+                    "isSuppressed": False,
+                    "metadata": [
+                        "eu-west-1",
+                        "test",
+                        "test",
+                        "Yellow",
+                        "Amazon EC2 security group global access"
+                    ]
+                }
+            ],
+            "resourcesSummary": {
+                "resourcesFlagged": 1,
+                "resourcesIgnored": 0,
+                "resourcesProcessed": 3,
+                "resourcesSuppressed": 0,
+            },
+            "status": "warning",
+            "timestamp": "2018-12-18T16:14:30Z",
+        }
     },
+    "fail": {
+        "ResponseMetadata": {
+            "HTTPHeaders": {
+                "content-length": "245",
+                "content-type": "application/x-amz-json-1.1",
+                "date": "Tue, 18 Dec 2018 16:19:03 GMT",
+                "x-amzn-requestid": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            },
+            "HTTPStatusCode": 200,
+            "RequestId": "a30b095a-02e0-11e9-8e3f-0bd149a3f8fd",
+            "RetryAttempts": 0,
+        },
+        "result": {
+            "categorySpecificSummary": {},
+            "checkId": "nNauJisYIT",
+            "flaggedResources": [
+                {
+                    "status": "error",
+                    "region": "eu-west-1",
+                    "resourceId": "test",
+                    "isSuppressed": False,
+                    "metadata": [
+                        "eu-west-1",
+                        "test",
+                        "test",
+                        "Red",
+                        "Amazon EC2 security group global access"
+                    ]
+                }
+            ],
+            "resourcesSummary": {
+                "resourcesFlagged": 1,
+                "resourcesIgnored": 0,
+                "resourcesProcessed": 3,
+                "resourcesSuppressed": 0,
+            },
+            "status": "error",
+            "timestamp": "2018-12-18T16:14:30Z",
+        }
+    }
 }
 
 S3_BUCKET_POLICY_BUCKETS = {

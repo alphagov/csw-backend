@@ -38,7 +38,7 @@ class TestUtilities_get_typed_exception(unittest.TestCase):
             "ValueError",
         ]
 
-    def test_get_typed_excpetion_contains_an_exception(self):
+    def test_get_typed_exception_contains_an_exception(self):
         """ Check get_typed_exception returns a formated exception.
 
         The Exception looks like
