@@ -25,17 +25,21 @@ class GdsEc2SecurityGroupClient(GdsEc2Client):
 
     def get_security_group_by_id(self, session, region, id):
         try:
-            ec2 = self.get_boto3_session_client("ec2", session, region)
+            if id:
+                ec2 = self.get_boto3_session_client("ec2", session, region)
 
-            # run describe security groups api call
-            response = ec2.describe_security_groups(
-                GroupIds = [id]
-            )
+                # run describe security groups api call
+                response = ec2.describe_security_groups(
+                    GroupIds = [id]
+                )
 
-            group = None
-            if len(response["SecurityGroups"] == 1):
-                group = response["SecurityGroups"][0]
-        except Exception as err:
+                group = None
+                if len(response["SecurityGroups"] == 1):
+                    group = response["SecurityGroups"][0]
+            else:
+                raise Exception("No security group ID provided")
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
             group = None
 
         return group
