@@ -390,12 +390,12 @@ class CriteriaSubclassTestCaseMixin(object):
                 """,
             )
         with self.subTest():
-            self.assertIsInstance(
-                output["resource_name"],
-                str,
+            self.assertTrue(
+                output["resource_name"] is None or type(output["resource_name"]) == str,
                 msg="""
                     the get_data method must return a dictionary
                     with a key named resource_name that has a string value
+                    or None if the resource is not found
                 """,
             )
 
