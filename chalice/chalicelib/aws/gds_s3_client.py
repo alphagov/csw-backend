@@ -21,11 +21,11 @@ class GdsS3Client(GdsAwsClient):
         try:
             s3 = self.get_boto3_session_client("s3", session)
             response = s3.get_bucket_policy(Bucket=bucket_name)
-            policy = response[
-                "Policy"
-            ]  # This is actually a JSON string instead of a dict. Don't ask me why
+            # This is actually a JSON string instead of a dict. Don't ask me why
+            policy = response["Policy"]
         except Exception as exception:
-            self.app.log.error(self.app.utilities.get_typed_exception())
+            # This is a debug log since buckets don't have to have policies
+            self.app.log.debug(self.app.utilities.get_typed_exception())
             policy = "{}"
 
         return policy
@@ -40,10 +40,10 @@ class GdsS3Client(GdsAwsClient):
         try:
             self.app.log.debug(f"Get bucket versioning for ({bucket_name})")
             # Don't try to get versioning without a name
-            if bucket_name is not None and bucket_name != "":
+            if bucket_name:
                 versioning = s3.get_bucket_versioning(Bucket=bucket_name)
         except Exception:
-            self.app.log.error(self.app.utilities.get_typed_exception())
+            self.app.log.debug(self.app.utilities.get_typed_exception())
 
         return versioning
 
@@ -58,3 +58,15 @@ class GdsS3Client(GdsAwsClient):
             self.app.log.error(self.app.utilities.get_typed_exception())
 
         return encryption
+
+    def get_bucket_acl(self, session, bucket_name):
+
+        s3 = self.get_boto3_session_client("s3", session)
+        acl = None
+        try:
+            self.app.log.debug(f"Getting ACL for {bucket_name}")
+            acl = s3.get_bucket_acl(Bucket=bucket_name)
+        except Exception:
+            self.app.log.error(self.app.utilities.get_typed_exception())
+
+        return acl

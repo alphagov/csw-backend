@@ -4,12 +4,14 @@ checkId: nNauJisYIT
 TA checks for unrestricted access to the amazon classic security groups
 """
 from chalicelib.criteria.criteria_default import TrustedAdvisorCriterion
+from chalicelib.aws.gds_ec2_security_group_client import GdsEc2SecurityGroupClient
 
 
 class AwsSupportRDSSecurityGroups(TrustedAdvisorCriterion):
     """
     Superclass for both checks.
     """
+    ResourceClientClass = GdsEc2SecurityGroupClient
 
     def __init__(self, app):
         self.resource_type = "AWS::RDS::SecurityGroups"
@@ -31,6 +33,11 @@ class AwsSupportRDSSecurityGroups(TrustedAdvisorCriterion):
             '<a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html#AddRemoveRules">VPC</a>.'
         )
         super(AwsSupportRDSSecurityGroups, self).__init__(app)
+
+    def get_resource_data(self, session, region, resource):
+        id = resource.get("resourceId",None)
+        group = self.resource_client.get_security_group_by_id(self, session, region, id)
+        return group
 
 
 class AwsSupportRDSSecurityGroupsYellow(AwsSupportRDSSecurityGroups):
@@ -90,9 +97,9 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
             "connections from any IP address."
         )
         self.why_is_it_important = (
-            "In general, there is no need for connections from outside AWS or GDS to connect directly to a database. <br />"
-            "Allowing this opens up the possibility of the database being accessed, and possibly its contents read or even modified. <br />"
-            "This is a very large risk that should not be taken."
+            "Limiting access to your database from known networks or through SSM sessions or bastion hosts limits "
+            "adds an additional level of protection on top of the built-in authentication. Leaving ports open to "
+            "the world makes vulnerabilities more exploitable."
         )
         super(AwsSupportRDSSecurityGroupsRed, self).__init__(app)
 
@@ -100,10 +107,16 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
         compliance_type = "COMPLIANT"
         if item["status"] == "error":
             compliance_type = "NON_COMPLIANT"
-            self.annotation = (
-                f'The RDS security group "{item["metadata"][1]}"  in region "{item["metadata"][0]}" '
-                "has unrestricted access to all IP ranges and ports."
-            )
+            annotation = "Change the security group rules to remove any /0 CIDRS allowing global access. "
+
+            resource = item.get("originalResourceData", None)
+            if resource:
+                rules = self.get_failed_rules(resource)
+                for rule in rules:
+                    annotation += f"<br/>CIDR {rule.cidr} is open to ports: {rule.ports}"
+
+            self.annotation = annotation
+
         return self.build_evaluation(
             item["resourceId"],
             compliance_type,
@@ -111,3 +124,21 @@ class AwsSupportRDSSecurityGroupsRed(AwsSupportRDSSecurityGroups):
             self.resource_type,
             self.annotation,
         )
+
+    def get_failed_rules(self, resource):
+
+        rules = []
+
+        for rule in resource["IpPermissions"]:
+            for ip_range in rule["IpRanges"]:
+
+                if "CidrIp" in ip_range:
+                    cidr = ip_range["CidrIp"]
+                    parsed_cidr = self.client.parse_v4_cidr(cidr)
+                    if parsed_cidr["mask"] == 0:
+                        rules.append({
+                            "ports": self.resource_client.get_port_range(rule),
+                            "cidr": cidr
+                        })
+
+        return rules
