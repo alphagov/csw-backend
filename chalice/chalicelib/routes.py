@@ -215,7 +215,7 @@ def team_status(id):
                     if team_stats["all"]["accounts_failed"] == 0
                     else "failed",
                 },
-                "accounts_unadited": {
+                "accounts_unaudited": {
                     "display_stat": team_stats["all"]["accounts_unaudited"],
                     "category": "Accounts Unaudited",
                     "modifier_class": "passed"
