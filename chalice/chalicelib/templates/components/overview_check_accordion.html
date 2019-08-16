@@ -1,0 +1,79 @@
+<div>
+    {% for category in categories %}
+    {% set category_fails = failures.category[category.number] %}
+    <div class="govuk-!-margin-top-8">
+        <h2 class="govuk-heading-m">
+            Category {{ category.number }} - {{ category.title }}
+        </h2>
+        <p>
+            {{ category.description }}
+        </p>
+        <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-category-{{category.number}}">
+            {% for check_fails in failures.check %}
+            {% if check_fails.severity == category.number %}
+            {% set check = check_fails.criterion_id %}
+            {% set category_empty = False %}
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h3 class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-category-{{category.number}}-heading-{{check.id}}">
+                            <span class="govuk-tag__fixed-width--failed">{{ check_fails.issues }}</span>
+                            {{ check.title }}
+                        </span>
+                    </h3>
+                </div>
+                <div id="accordion-category-{{category.number}}-content-{{check.id}}" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category.number}}-heading-{{check.id}}">
+                    <p class='govuk-body'>
+                        {{ check.description }}
+                    </p>
+                    {% for team_fails in failures.team %}
+                    {% if team_fails.criterion_id.id == check.id %}
+                    {% set team = team_fails.team_id %}
+                    <div>
+                    <div class="govuk-accordion-inset-text">
+                        <p>
+                            <span class="govuk-tag__fixed-width--failed">{{ team_fails.issues }}</span>
+                            {{ team.team_name }}
+                        </p>
+                        <p>The failing resources are deployed in the following accounts:</p>
+                        {% for account_fails in  failures.account %}
+                        {% if account_fails.criterion_id.id == check.id and account_fails.team_id.id == team.id %}
+                        {% set account = account_fails.account_id %}
+                        <p>
+                            <span class="govuk-tag__fixed-width--failed">{{ account_fails.issues }}</span>
+                            <a href="{{base_path}}/account/{{account.id}}/status?max_severity={{category.number}}">
+                                {{ account.account_id | aws_account_id }}
+                            </a>
+                            ({{ account.account_name }})
+                        </p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% if category_fails == 0 %}
+            <div class="govuk-accordion__section ">
+                <div class="govuk-accordion__section-header">
+                    <h3 class="govuk-accordion__section-heading">
+                        <span class="govuk-accordion__section-button" id="accordion-category-{{category.number}}-heading-0">
+                            <span class="govuk-tag__fixed-width--passed">0</span>
+                            There are no current issues
+                        </span>
+                    </h3>
+                </div>
+                <div id="accordion-category-{{category.number}}-content-0" class="govuk-accordion__section-content" aria-labelledby="accordion-category-{{category.number}}-heading-0">
+                    <p class='govuk-body'>
+                        All the checks in this category have passed for all monitored accounts
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>

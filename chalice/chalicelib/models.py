@@ -1439,6 +1439,44 @@ class MonthlyResourceCount(database_handle.BaseModel):
         primary_key = peewee.CompositeKey("audit_year", "audit_month")
 
 
+class CurrentFailsPerAccountCheckStats(database_handle.BaseModel):
+    severity = peewee.IntegerField()
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="criterion_fails")
+    team_id = peewee.ForeignKeyField(ProductTeam, backref="team_fails")
+    account_id = peewee.ForeignKeyField(AccountSubscription,
+        field="account_id",
+        backref="account_fails"
+    )
+    issues = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_current_fails_per_account_check_stats"
+        primary_key = peewee.CompositeKey("criterion_id", "team_id", "account_id")
+
+
+class CurrentFailsPerTeamCheckStats(database_handle.BaseModel):
+    severity = peewee.IntegerField()
+    criterion_id = peewee.ForeignKeyField(Criterion, backref="criterion_fails")
+    team_id = peewee.ForeignKeyField(ProductTeam, backref="team_fails")
+    issues = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_current_fails_per_team_check_stats"
+        primary_key = peewee.CompositeKey("criterion_id", "team_id")
+
+
+class CurrentFailsPerCheckStats(database_handle.BaseModel):
+    severity = peewee.IntegerField()
+    criterion_id = (peewee.ForeignKeyField(Criterion,
+        backref="criterion_fails",
+        primary_key=True
+    ))
+    issues = peewee.IntegerField()
+
+    class Meta:
+        table_name = "_current_fails_per_check_stats"
+
+
 class HealthMetrics(database_handle.BaseModel):
     name = peewee.CharField(unique=True)
     desc = peewee.TextField()

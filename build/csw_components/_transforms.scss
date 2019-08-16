@@ -1,0 +1,57 @@
+/* Degrees of rotation are measured clock-wise */
+.rotate_90 {
+  transform: rotate(90deg);
+  /* Legacy vendor prefixes that you probably don't need... */
+  /* Safari */
+  -webkit-transform: rotate(90deg);
+  /* Firefox */
+  -moz-transform: rotate(90deg);
+  /* IE */
+  -ms-transform: rotate(90deg);
+  /* Opera */
+  -o-transform: rotate(90deg);
+  /* Internet Explorer */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+/* Alias rotate_90 as rotate_down */
+.rotate_down {
+    @extend .rotate_90;
+}
+
+.rotate_180 {
+  transform: rotate(180deg);
+  /* Legacy vendor prefixes that you probably don't need... */
+  /* Safari */
+  -webkit-transform: rotate(180deg);
+  /* Firefox */
+  -moz-transform: rotate(180deg);
+  /* IE */
+  -ms-transform: rotate(180deg);
+  /* Opera */
+  -o-transform: rotate(180deg);
+  /* Internet Explorer */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+/* Alias rotate_180 as rotate_upsidedown */
+.rotate_upsidedown {
+    @extend .rotate_180;
+}
+
+.rotate_270 {
+  transform: rotate(-90deg);
+  /* Legacy vendor prefixes that you probably don't need... */
+  /* Safari */
+  -webkit-transform: rotate(-90deg);
+  /* Firefox */
+  -moz-transform: rotate(-90deg);
+  /* IE */
+  -ms-transform: rotate(-90deg);
+  /* Opera */
+  -o-transform: rotate(-90deg);
+  /* Internet Explorer */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+/* Alias rotate_270 as rotate_up */
+.rotate_up {
+    @extend .rotate_270;
+}

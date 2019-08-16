@@ -1,0 +1,22 @@
+.govuk-table__cell--status {
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.govuk-table__cell--status-good {
+  @extend .govuk-table__cell--status;
+  background-color: govuk-colour("green");
+}
+
+.govuk-table__cell--status-bad {
+  @extend .govuk-table__cell--status;
+  background-color: govuk-colour("red");
+}
+
+.govuk-accordion-inset-text {
+  padding: govuk-spacing(3);
+  margin: govuk-spacing(6) 0;
+  outline: 1px solid govuk-colour("mid-grey");
+  background-color: govuk-colour("light-grey");
+}
