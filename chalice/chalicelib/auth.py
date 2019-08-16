@@ -1,6 +1,7 @@
 import os
 import re
 import datetime
+import json
 from http import cookies
 import jwt
 import google_auth_oauthlib.flow
@@ -293,13 +294,13 @@ class AuthHandler:
 
             if user_jwt is not None:
                 user = self.read_jwt(user_jwt)
-
                 # Update UserSession accessed date
                 try:
                     db_user = models.User.find_active_by_email(user["email"])
                     models.UserSession.accessed(db_user)
                 except Exception as error:
                     self.app.log.error("Failed to update session: " + str(error))
+                    self.app.log.error(json.dumps(user))
 
         return user
 
