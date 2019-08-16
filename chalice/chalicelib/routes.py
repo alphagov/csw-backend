@@ -64,7 +64,6 @@ def overview_dashboard():
         # app.log.debug("Criteria stats: " + app.utilities.to_json(criteria_stats))
 
         # Create empty template_data in case user is not authenticated
-        template_data = {}
         authed = app.auth.try_login(app.current_request)
         if authed:
             user_data = app.auth.get_login_data()
