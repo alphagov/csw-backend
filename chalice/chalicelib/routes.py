@@ -120,7 +120,7 @@ def overview_dashboard():
                 "overview.html", app.current_request, template_data
             )
         else:
-            raise Exception(f"No authenticated user")
+            raise Exception("No authenticated user")
     except Exception as err:
         app.log.error("Route: overview error: " + str(err))
         response = app.templates.default_server_error()
