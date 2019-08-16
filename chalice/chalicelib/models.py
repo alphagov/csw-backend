@@ -672,28 +672,29 @@ class ProductTeam(database_handle.BaseModel):
                     current_member.delete_instance()
 
             for email in users:
-                found = False
-                # Find existing team members in database matching IAM member list and record
-                for current_member in team_members:
-                    if current_member.user_id.email == email:
-                        found = True
+                if email:
+                    found = False
+                    # Find existing team members in database matching IAM member list and record
+                    for current_member in team_members:
+                        if current_member.user_id.email == email:
+                            found = True
 
-                # Create member records (and users where required)
-                # for IAM defined users not in database
-                if not found:
-                    try:
-                        user = User.get(User.email == email)
-                    except peewee.DoesNotExist as err:
-                        user = User.create(
-                            email = email,
-                            name = User.default_username(email),
-                            active = True
+                    # Create member records (and users where required)
+                    # for IAM defined users not in database
+                    if not found:
+                        try:
+                            user = User.get(User.email == email)
+                        except peewee.DoesNotExist as err:
+                            user = User.create(
+                                email = email,
+                                name = User.default_username(email),
+                                active = True
+                            )
+
+                        ProductTeamUser.create(
+                            team_id = self,
+                            user_id = user
                         )
-
-                    ProductTeamUser.create(
-                        team_id = self,
-                        user_id = user
-                    )
 
             members_processed = True
 
