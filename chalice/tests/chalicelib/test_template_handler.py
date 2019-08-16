@@ -1,12 +1,6 @@
-import os
 import unittest
 import datetime
-from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
-
-# Declare the app so that the models file can import it
-os.environ["CSW_ENV"] = "test"
-os.environ["CSW_PREFIX"] = "csw-test"
-import app
+from jinja2 import Environment, Template
 
 from chalice import Chalice
 from chalicelib.auth import AuthHandler

@@ -4,11 +4,6 @@ import datetime
 import random
 import string
 
-# Declare the app so that the models file can import it
-os.environ["CSW_ENV"] = "test"
-os.environ["CSW_PREFIX"] = "csw-test"
-import app
-
 from chalice import Chalice
 from chalicelib.auth import AuthHandler
 import google_auth_oauthlib.flow

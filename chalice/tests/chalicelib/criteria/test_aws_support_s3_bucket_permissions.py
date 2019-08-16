@@ -40,6 +40,20 @@ class TestS3BucketPermissionsMixin(CriteriaSubclassTestCaseMixin):
                 self.subclass.client.describe_trusted_advisor_check_result = lambda session, checkId, language: S3_BUCKET_PERMISSIONS[
                     key
                 ]
+                self.subclass.get_resource_data = lambda session, region, flagged_resource: {
+                    "Owner": {
+                        "ID": "test"
+                    },
+                    "Grants": [
+                        {
+                            "Grantee": {
+                                "ID": "test",
+                                "Type": "Everyone"
+                            },
+                            "Permission": "FULL_CONTROL"
+                        }
+                    ]
+                }
                 # output value
                 item = self.subclass.get_data(
                     None,
