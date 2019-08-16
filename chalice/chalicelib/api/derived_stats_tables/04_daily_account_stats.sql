@@ -16,7 +16,7 @@ LEFT JOIN public.audit_criterion AS achk
 ON aud.id = achk.account_audit_id
 LEFT JOIN public.criterion AS chk
 ON achk.criterion_id = chk.id
-GROUP BY DATE(aud.audit_date),sub.account_id,aud.id
+GROUP BY DATE(aud.audit_date),sub.account_id,aud.id,chk.severity
 HAVING aud.audit_date IS NOT NULL
 AND SUM(achk.resources) > 0
 AND chk.severity = 1
