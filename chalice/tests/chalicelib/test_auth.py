@@ -4,7 +4,6 @@ import datetime
 import random
 import string
 
-#from chalice import Chalice
 from app import CloudSecurityWatch
 from chalicelib.auth import AuthHandler
 import google_auth_oauthlib.flow

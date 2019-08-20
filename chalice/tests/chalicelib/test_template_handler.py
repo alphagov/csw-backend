@@ -2,7 +2,6 @@ import unittest
 import datetime
 from jinja2 import Environment, Template
 
-#from chalice import Chalice
 from app import CloudSecurityWatch
 from chalicelib.auth import AuthHandler
 from chalicelib.template_handler import TemplateHandler

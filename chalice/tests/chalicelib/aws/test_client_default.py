@@ -1,5 +1,4 @@
 import unittest
-#from chalice import Chalice
 from app import CloudSecurityWatch
 
 

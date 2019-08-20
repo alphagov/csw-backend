@@ -7,7 +7,6 @@ import importlib
 import unittest
 import os
 
-#from chalice import Chalice
 from app import CloudSecurityWatch
 from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY, SESSION
 from chalicelib.criteria.criteria_default import CriteriaDefault
