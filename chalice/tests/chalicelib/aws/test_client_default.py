@@ -1,5 +1,6 @@
 import unittest
-from chalice import Chalice
+#from chalice import Chalice
+from app import CloudSecurityWatch
 
 
 class TestClientDefault(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestClientDefault(unittest.TestCase):
         """
         initialise the the Chalice app objects once to reuse it in every test
         """
-        cls.app = Chalice("test_app")
+        cls.app = CloudSecurityWatch("test_app")
 
 
 if __name__ == "__main__":

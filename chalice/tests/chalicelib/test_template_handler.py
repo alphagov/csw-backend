@@ -2,7 +2,8 @@ import unittest
 import datetime
 from jinja2 import Environment, Template
 
-from chalice import Chalice
+#from chalice import Chalice
+from app import CloudSecurityWatch
 from chalicelib.auth import AuthHandler
 from chalicelib.template_handler import TemplateHandler
 
@@ -20,7 +21,7 @@ class TestTemplateHandler(unittest.TestCase):
     def setUp(self):
         """
         """
-        self.app = Chalice("test")
+        self.app = CloudSecurityWatch("test")
         self.app.auth = AuthHandler(self.app)
         self.templates = TemplateHandler(self.app)
 

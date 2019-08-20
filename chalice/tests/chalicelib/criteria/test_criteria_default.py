@@ -7,7 +7,8 @@ import importlib
 import unittest
 import os
 
-from chalice import Chalice
+#from chalice import Chalice
+from app import CloudSecurityWatch
 from tests.chalicelib.criteria.test_data import EMPTY_SUMMARY, SESSION
 from chalicelib.criteria.criteria_default import CriteriaDefault
 
@@ -39,7 +40,7 @@ class TestCriteriaDefault(TestCaseWithAttrAssert):
         """
         initialise the the Chalice app objects once to reuse it in every test
         """
-        cls.app = Chalice("test_app")
+        cls.app = CloudSecurityWatch("test_app")
 
     def setUp(self):
         """
@@ -88,7 +89,7 @@ class TestCriteriaDefault(TestCaseWithAttrAssert):
             self.assertIsNone(self.criteria_default.how_do_i_fix_it)
         # vars initialized algorithmically at object instantiation
         with self.subTest():
-            self.assertIsInstance(self.criteria_default.app, Chalice)
+            self.assertIsInstance(self.criteria_default.app, CloudSecurityWatch)
         with self.subTest():
             self.assertIsInstance(self.criteria_default.client, gds_aws_client_class)
 
@@ -240,7 +241,7 @@ class CriteriaSubclassTestCaseMixin(object):
         """
         initialise the the Chalice app objects once to reuse it in every test.
         """
-        cls.app = Chalice("test_app")
+        cls.app = CloudSecurityWatch("test_app")
         cls.test_data = None  # you must load the appropriate test data
 
     def test_init_state(self):
