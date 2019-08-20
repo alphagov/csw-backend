@@ -14,7 +14,8 @@
       "manage_iam_role": false,
       "iam_role_arn": "<exec_role_arn>",
       "subnet_ids": ["<terraform output public_subnet_1_id>","<terraform output public_subnet_2_id>"],
-      "security_group_ids": ["<terraform output public_security_group_id>"]
+      "security_group_ids": ["<terraform output public_security_group_id>"],
+      "lambda_timeout": 300
     }
   }
 }
