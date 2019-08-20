@@ -98,6 +98,7 @@ class AwsEc2SecurityGroupIngressSsh(CriteriaDefault):
         Wrapper method: In chalice mode the allow list exceptions are stored in the database
         In CLI mode they are stored in a local JSON file
         """
+        valid_ranges = self.valid_ranges
         if self.app.mode == 'chalice' and self.account_subscription_id is not None:
             valid_ranges = self.get_chalice_valid_ranges()
         elif self.app.mode == 'cli':

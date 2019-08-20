@@ -4,7 +4,7 @@ import datetime
 import random
 import string
 
-from chalice import Chalice
+from app import CloudSecurityWatch
 from chalicelib.auth import AuthHandler
 import google_auth_oauthlib.flow
 
@@ -23,7 +23,7 @@ class TestAuthHandler(unittest.TestCase):
         """
         """
 
-        self.app = Chalice("test")
+        self.app = CloudSecurityWatch("test")
         self.auth = AuthHandler(self.app)
         self.setUpAuthParameters()
         self.default_login_data = {"authenticated": False, "is_registered": False}
