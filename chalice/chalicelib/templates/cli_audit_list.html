@@ -1,0 +1,20 @@
+{% extends "govuk_template.html" %}
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper " id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h2  class="govuk-heading-l">Account: {{ account }}</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for audit in audits %}
+          <li>
+            <a href="/accounts/{{account}}/audit/{{audit}}">{{ audit | datetime }}</a> |
+            <a href="/accounts/{{account}}/audit/{{audit}}/raw">json</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

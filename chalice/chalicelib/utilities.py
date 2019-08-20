@@ -25,6 +25,28 @@ class Utilities:
         elif isinstance(item, date):
             return item.__str__()
 
+    def from_json(self, json_data):
+        data = json.loads(json_data)
+        return data
+
+    def read_file(self, path, binary=False):
+        mode = 'rb' if binary else 'r'
+        with open(path, mode) as file:
+            data = file.read()
+            file.close()
+        return data
+
+    def write_file(self, path, data, binary=False):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        mode = 'wb' if binary else 'w'
+        with open(path, mode) as file:
+            file.write(data)
+            file.close()
+
+    def parse_datetime(self, date_string):
+        date_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+        return date_object
+
     def get_mime_type(self, file):
         # I've removed the python-magic library because the
         # it fails to be installed in the chalice deploy

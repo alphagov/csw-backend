@@ -32,11 +32,13 @@
             </a>
           </li>
           {% endfor %}
+          {%- if not hide_login -%} {# This is double negative so the login is shown by default #}
           {% block login %}
           <li class="govuk-header__navigation-item govuk-header__navigation-item--signin">
             {% include "components/signin_status.html" %}
           </li>
           {% endblock %}
+          {%- endif -%}
         </ul>
       </nav>
     </div>
