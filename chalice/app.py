@@ -21,6 +21,7 @@ class CloudSecurityWatch(Chalice):
     and use mixin classes, e.g. for auth, templating and logging.
     """
     mode = 'chalice'
+    default_page_title = "Cloud Security Watch"
 
     def __call__(self, event, context):
         """

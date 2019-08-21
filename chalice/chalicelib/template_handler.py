@@ -367,6 +367,9 @@ class TemplateHandler:
             data["asset_path"] = asset_path
             data["base_path"] = root_path
 
+            if "title" not in data:
+                data["title"] = self.app.default_page_title
+
             # Don't populate back link if it links to the current page.
             # For forms which post to themselves
             if "referer" in req.headers and req.headers["referer"] != (
@@ -380,7 +383,7 @@ class TemplateHandler:
             response_body = self.render_template(template_file, data)
 
         except Exception as err:
-            response_body = "Error text: {0}".format(err)
+            response = self.default_server_error()
 
         return {"headers": headers, "body": response_body, "status_code": status_code}
 
@@ -405,6 +408,7 @@ class TemplateHandler:
             }
             root_path = self.get_root_path()
             data = {
+                "title": self.app.default_page_title + ": Error",
                 "message": message,
                 "base_path": root_path,
                 "asset_path": f"{root_path}/assets",
