@@ -55,7 +55,7 @@ class GdsS3Client(GdsAwsClient):
             self.app.log.debug(f"Getting encryption data for {bucket_name}")
             encryption = s3.get_bucket_encryption(Bucket=bucket_name)
         except Exception:
-            self.app.log.error(self.app.utilities.get_typed_exception())
+            self.app.log.debug(self.app.utilities.get_typed_exception())
 
         return encryption
 

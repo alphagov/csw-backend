@@ -24,7 +24,7 @@
                         <a href="{{base_path}}/account/{{account_audit.account.id}}/status">
                             {{ account_audit.account.account_name }}: {{ account_audit.account.account_id }}
                         </a>
-                        <br/>Date of last audit: {{ account_audit.audit.date_completed | datetime }}
+                        <br/>Date of last audit: {{ account_audit.audit.date_started | datetime }}
                     </td>
                     <td class="govuk-table__cell--tag-fixed-centred">
                         {%- if item.issues_found > 0 -%}
