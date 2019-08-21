@@ -383,7 +383,7 @@ class TemplateHandler:
             response_body = self.render_template(template_file, data)
 
         except Exception as err:
-            response = self.default_server_error()
+            response_body = self.render_error_template()
 
         return {"headers": headers, "body": response_body, "status_code": status_code}
 
@@ -396,24 +396,31 @@ class TemplateHandler:
         self, status_code=200, message="Something went wrong."
     ):
         try:
-            req = self.app.current_request
-            self.base_url = self.auth.get_base_url(req)
-
-            self.app.log.debug("Base URL: " + self.base_url)
-
-            template_file = "server_error.html"
             headers = {
                 "Content-Type": "text/html",
                 "Cache-control": "no-cache"
             }
-            root_path = self.get_root_path()
-            data = {
-                "title": self.app.default_page_title + ": Error",
-                "message": message,
-                "base_path": root_path,
-                "asset_path": f"{root_path}/assets",
-            }
-            response_body = self.render_template(template_file, data)
+            response_body = self.render_error_template(message)
         except Exception as error:
             response_body = str(error)
         return {"headers": headers, "body": response_body, "status_code": status_code}
+
+    def render_error_template(
+        self, message="Something went wrong."
+    ):
+        req = self.app.current_request
+        self.base_url = self.auth.get_base_url(req)
+
+        self.app.log.debug("Base URL: " + self.base_url)
+
+        template_file = "server_error.html"
+        root_path = self.get_root_path()
+        data = {
+            "title": self.app.default_page_title + ": Error",
+            "message": message,
+            "base_path": root_path,
+            "asset_path": f"{root_path}/assets",
+        }
+        response_body = self.render_template(template_file, data)
+        return response_body
+
