@@ -399,7 +399,10 @@ class TemplateHandler:
             self.app.log.debug("Base URL: " + self.base_url)
 
             template_file = "server_error.html"
-            headers = {"Content-Type": "text/html"}
+            headers = {
+                "Content-Type": "text/html",
+                "Cache-control": "no-cache"
+            }
             root_path = self.get_root_path()
             data = {
                 "message": message,
