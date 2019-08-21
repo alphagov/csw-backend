@@ -3,7 +3,7 @@ import re
 import datetime
 
 # from urllib.parse import urlparse, parse_qs
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 class TemplateHandler:
@@ -35,8 +35,7 @@ class TemplateHandler:
 
         self.env = Environment(
             loader=FileSystemLoader([self.template_dir, self.govuk_dir]),
-            autoescape=select_autoescape(["html", "xml"]),
-            undefined=StrictUndefined
+            autoescape=select_autoescape(["html", "xml"])
         )
 
         self.register_filters()
