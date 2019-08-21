@@ -36,7 +36,7 @@ class AwsSupportRDSSecurityGroups(TrustedAdvisorCriterion):
 
     def get_resource_data(self, session, region, resource):
         id = resource.get("resourceId",None)
-        group = self.resource_client.get_security_group_by_id(self, session, region, id)
+        group = self.resource_client.get_security_group_by_id(session, region, id)
         return group
 
 
