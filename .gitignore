@@ -135,3 +135,10 @@ cli/results/*
 !cli/results/ReadMe.md
 cli/config/*
 !cli/config/ReadMe.md
+
+# snyk
+build/.snyk
+
+# floobits
+.floo
+.flooignore
