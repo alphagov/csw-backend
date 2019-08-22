@@ -34,8 +34,13 @@
       <li>Failed - The audit ran successfully and at least 1 check failed</li>
       <li>Unaudited - We have not successfully run an audit for this account</li>
       <li>Switched off - The account is defined but deactivated so that audits are not attempted.
-      This is typically during the on-boarding process where the role has been setup to audit
-      some team accounts but not others</li>
+          We automatically create subscriptions for all AWS accounts linked to the organization
+          account but only mark as active those where we are able to assume the audit role.
+      </li>
+      <li>Switched off: Unmonitored - These are enabled AWS accounts where the audit role
+      has not been deployed so we are unable to audit.</li>
+      <li>Switched off: Suspended - These are accounts which have been marked as suspended
+      so there is no potential for mis-use.</li>
     </ul>
   </div>
 </details>
