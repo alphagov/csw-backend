@@ -13,7 +13,9 @@ class ManagedCmkRotation(CriteriaDefault):
     ClientClass = GdsKmsClient
     is_regional = False
     resource_type = "AWS::KMS:CMK_ROTATION"
-    title = "Key Management Service: Custom Master Keys rotated annually by the service"
+    title = (
+        "Key Management Service: Customer Master Keys rotated annually by the service"
+    )
     description = (
         "Cryptographic best practices discourage extensive reuse of encryption keys. "
         "To create new cryptographic material for your Key Management Service (KMS) customer master keys (CMKs), "
