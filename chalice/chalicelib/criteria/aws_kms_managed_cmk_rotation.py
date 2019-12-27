@@ -23,13 +23,11 @@ class ManagedCmkRotation(CriteriaDefault):
         "material."
     )
     why_is_it_important = (
-        "<ul>"
-        "<li>The properties of the CMK, including its key ID, key ARN, region, policies, and permissions, "
-        "do not change when the key is rotated.</li>"
-        "<li>You do not need to change applications or aliases that refer to the CMK ID or ARN.</li>"
-        "<li>After you enable key rotation, AWS KMS rotates the CMK automatically every year. "
-        "You do not need to remember or schedule the update.</li>"
-        "</ul>"
+        "Cryptographic best practices discourage extensive reuse of encryption keys. This is "
+        "to reduce the impact of to the organisation when a key leaks - if data is encrypted "
+        "regularly with the same key for a period of years, if that key gets leaked, all that data "
+        "is now compromised. If the keys were regularly changed, the amount of compromised data is "
+        "limited."
     )
     how_do_i_fix_it = (
         "To activate automatic annual rotation for your CMKs follow the steps below:<br />"
