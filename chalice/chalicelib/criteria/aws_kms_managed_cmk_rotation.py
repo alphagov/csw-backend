@@ -13,27 +13,21 @@ class ManagedCmkRotation(CriteriaDefault):
     ClientClass = GdsKmsClient
     is_regional = False
     resource_type = "AWS::KMS:CMK_ROTATION"
-    title = "Key Management Service: Custom Master Keys rotated annually by the service"
+    title = (
+        "Key Management Service: Customer Master Keys rotated annually by the service"
+    )
     description = (
-        "Cryptographic best practices discourage extensive reuse of encryption keys. "
-        "To create new cryptographic material for your Key Management Service (KMS) customer master keys (CMKs), "
-        "you can create new CMKs, and then change your applications "
-        "or aliases to use the new CMKs or you can enable automatic key rotation for an existing CMK. "
-        "Automatic key rotation for a customer managed CMK generates new cryptographic material for it every year. "
-        "KMS also saves the CMK's older cryptographic material to be used to decrypt data that it encrypted.<br />"
-        "Key rotation changes only the CMK's backing key, "
-        "which is the cryptographic material that is used in encryption operations. "
-        "The CMK is the same logical resource, regardless of whether or how many times its backing key changes. "
-        "The properties of the CMK do not change, as shown in the following image."
+        "Checks whether a Customer Managed Key (CMK) has automatic key rotation enabled. If not, "
+        "this can either be because automatic rotation was not turned on, or the CMK is of a "
+        "type that does not support automatic key rotation, such as a CMK with imported key "
+        "material."
     )
     why_is_it_important = (
-        "<ul>"
-        "<li>The properties of the CMK, including its key ID, key ARN, region, policies, and permissions, "
-        "do not change when the key is rotated.</li>"
-        "<li>You do not need to change applications or aliases that refer to the CMK ID or ARN.</li>"
-        "<li>After you enable key rotation, AWS KMS rotates the CMK automatically every year. "
-        "You do not need to remember or schedule the update.</li>"
-        "</ul>"
+        "Cryptographic best practices discourage extensive reuse of encryption keys. This is "
+        "to reduce the impact of to the organisation when a key leaks - if data is encrypted "
+        "regularly with the same key for a period of years, if that key gets leaked, all that data "
+        "is now compromised. If the keys were regularly changed, the amount of compromised data is "
+        "limited."
     )
     how_do_i_fix_it = (
         "To activate automatic annual rotation for your CMKs follow the steps below:<br />"
