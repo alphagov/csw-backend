@@ -369,6 +369,11 @@ class ProductTeam(database_handle.BaseModel):
             AccountSubscription.select()
             .join(ProductTeam)
             .where(ProductTeam.id == team_id)
+            .order_by(
+                AccountSubscription.active,
+                AccountSubscription.suspended,
+                AccountSubscription.account_id
+            )
         )
         unaudited_accounts = []
         inactive_accounts = []
