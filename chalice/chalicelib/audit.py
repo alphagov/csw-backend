@@ -530,7 +530,7 @@ def manual_update_subscriptions(event, context):
 if os.environ["CSW_ENV"] == "prod":
 
     @app.schedule(Rate(24, unit=Rate.HOURS))
-    def schedule_update_subscriptions(event, context):
+    def schedule_update_subscriptions(event):
         """
         For the production account the subscriptions are updated daily
         to match the current list of accounts from the parent organization
