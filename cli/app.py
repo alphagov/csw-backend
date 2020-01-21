@@ -45,6 +45,11 @@ def fernet():
     print(dec)
 
 def audit():
+    """
+    Run a CSW audit using the current AWS account credentials
+    Should be wrapped in aws-vault or similar
+    :return:
+    """
     criteria = app.get_active_criteria()
     session = app.get_session()
     divider = Divider()
@@ -118,4 +123,4 @@ def audit():
 
 
 if __name__ == '__main__':
-    fire.Fire()
+    fire.Fire(audit)
