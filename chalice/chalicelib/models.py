@@ -770,6 +770,7 @@ class AccountSubscription(database_handle.BaseModel):
     active = peewee.BooleanField()
     auditable = peewee.BooleanField()
     suspended = peewee.BooleanField()
+    in_organisation = peewee.BooleanField()
 
     class Meta:
         table_name = "account_subscription"
