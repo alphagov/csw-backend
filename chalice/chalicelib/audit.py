@@ -493,6 +493,7 @@ def update_subscriptions():
                 account_name=account["Name"],
                 product_team_id=default_team,
                 active=is_active,
+                in_organisation=True
             )
 
         account_stats["total"] += 1
