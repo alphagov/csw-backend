@@ -29,7 +29,7 @@
     "gulp-modify-file": "^1.0.1",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "minimatch": "^3.0.2",
     "pe-charts": "git+https://github.com/alphagov/pe-charts#firebreak",
     "prompt-input": "^3.0.0",
