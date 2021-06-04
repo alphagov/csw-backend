@@ -7,6 +7,7 @@
     "node": "^8.9.1"
   },
   "dependencies": {
+    "c3": "^0.7.20",
     "express": "^4.16.4",
     "fernet": "^0.3.1",
     "govuk-frontend": "^3.7.0",
