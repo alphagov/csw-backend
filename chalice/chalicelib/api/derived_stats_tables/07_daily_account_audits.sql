@@ -6,7 +6,11 @@ SELECT
     aud.account_subscription_id,
     DATE(aud.date_completed) AS audit_date,
     MAX(aud.id) AS id
-FROM public.account_audit AS aud
+FROM (
+    SELECT *
+    FROM public.account_audit AS all_audits
+    WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_completed) < 95
+) AS aud
 GROUP BY DATE(aud.date_completed),aud.account_subscription_id
 HAVING DATE(aud.date_completed) IS NOT NULL
 ORDER BY aud.account_subscription_id,DATE(aud.date_completed) DESC;
