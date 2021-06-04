@@ -7,6 +7,7 @@ import importlib
 import inspect
 import os
 import pkgutil
+from time import time
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from chalice import Rate
@@ -229,3 +230,87 @@ def manual_update_teams(event, context):
 @app.schedule(Rate(24, unit=Rate.HOURS))
 def scheduled_update_teams(event):
     return update_teams()
+
+
+def delete_expired_audits():
+    """
+    The summary stats are produced daily as static tables.
+    These could be rendered as views or materialized views but since the data is not changing that frequently
+    that adds significant processing load for little benefit.
+    By regenerating the stats on a schedule we can make the interface much faster and keep the database
+    processing load lighter.
+    """
+    start_time = time()
+    elapsed_time = 0
+    status = 0
+    remove_count = 100
+    time_limit_days = 95
+    execution_limit = 120
+    commands = []
+    try:
+        dbh = DatabaseHandle(app)
+        app.log.debug(f"Listing oldest records")
+
+        select_expired_audit_ids = f"""
+            SELECT id
+            FROM public.account_audit AS all_audits
+            WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_completed) > {time_limit_days}
+            ORDER BY id
+            LIMIT {remove_count} OFFSET 0;
+            """
+        audit_cursor = db.execute_sql(select_expired_audit_ids)
+        delete_statements = []
+        deleted_audits = 0
+        for audit_row in audit_cursor.fetchall():
+            account_audit_id = audit_row["id"]
+            select_expired_resource_ids = f"""
+                SELECT id
+                FROM public.audit_resource
+                WHERE account_audit_id = {id};
+                """
+            resource_cursor = db.execute_sql(select_expired_resource_ids)
+            for resource_row in resource_cursor.fetchall():
+                resource_id = resource_row["id"]
+                delete_compliance = f"""
+                    DELETE
+                    FROM public.resource_compliance
+                    WHERE audit_resource_id = {resource_id};
+                    """
+                delete_statements.push(delete_compliance)
+
+            delete_resource = f"""
+                DELETE
+                FROM public.audit_resource
+                WHERE account_audit_id = {account_audit_id};
+                """
+            delete_statements.push(delete_resource)
+
+            delete_audit = f"""
+                DELETE
+                FROM public.account_audit
+                WHERE id = {id};
+                """
+            delete_statements.push(delete_audit)
+            dbh.execute_commands(delete_statements, "csw")
+            deleted_audits++
+            elapsed_time = time() - start_time;
+
+            if elapsed_time > execution_limit:
+                break;
+        status = 1
+    except Exception as err:
+        status = 0
+        app.log.error(
+            err.get("message")
+        )
+    return {"status": status, "deleted_audits": deleted_audits}
+
+
+@app.lambda_function()
+def manual_delete_expired_audits(event, context):
+    return delete_expired_audits()
+
+
+@app.schedule(Rate(24, unit=Rate.HOURS))
+def scheduled_delete_expired_audits(event):
+    return delete_expired_audits()
