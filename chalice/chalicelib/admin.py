@@ -292,7 +292,7 @@ def delete_expired_audits():
                 """
             delete_statements.push(delete_audit)
             dbh.execute_commands(delete_statements, "csw")
-            deleted_audits++
+            deleted_audits += 1
             elapsed_time = time() - start_time;
 
             if elapsed_time > execution_limit:
