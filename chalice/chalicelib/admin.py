@@ -243,8 +243,9 @@ def delete_expired_audits():
     start_time = time()
     elapsed_time = 0
     status = 0
+    deleted_audits = 0
     remove_count = 100
-    time_limit_days = 95
+    time_limit_days = 365
     execution_limit = 120
     commands = []
     try:
@@ -260,7 +261,6 @@ def delete_expired_audits():
             """
         audit_cursor = db.execute_sql(select_expired_audit_ids)
         delete_statements = []
-        deleted_audits = 0
         for audit_row in audit_cursor.fetchall():
             account_audit_id = audit_row["id"]
             select_expired_resource_ids = f"""
