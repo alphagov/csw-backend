@@ -267,7 +267,7 @@ def delete_expired_audits():
             select_expired_resource_ids = f"""
                 SELECT id
                 FROM public.audit_resource
-                WHERE account_audit_id = {id};
+                WHERE account_audit_id = {account_audit_id};
                 """
             resource_cursor = db.execute_sql(select_expired_resource_ids)
             for resource_row in resource_cursor.fetchall():
