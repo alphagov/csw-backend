@@ -245,8 +245,11 @@ def delete_expired_audits():
     status = 0
     deleted_audits = 0
     remove_count = 100
+    # keep 1 year
     time_limit_days = 365
-    execution_limit = 120
+    # run for 4 minutes
+    # (lambda timeout is set to 5)
+    execution_limit = 240
     commands = []
     try:
         dbh = DatabaseHandle(app)
@@ -270,6 +273,7 @@ def delete_expired_audits():
                 WHERE account_audit_id = {account_audit_id};
                 """
             resource_cursor = db.execute_sql(select_expired_resource_ids)
+            app.log.debug(f"Deleting audit: {account_audit_id}")
             for resource_row in resource_cursor.fetchall():
                 resource_id = resource_row[0]
                 delete_compliance = f"""
@@ -289,9 +293,10 @@ def delete_expired_audits():
             delete_audit = f"""
                 DELETE
                 FROM public.account_audit
-                WHERE id = {id};
+                WHERE id = {account_audit_id};
                 """
             delete_statements.append(delete_audit)
+            app.log.debug(f"Running " + len(delete_statements) + " deletes");
             dbh.execute_commands(delete_statements, "csw")
             deleted_audits += 1
             elapsed_time = time() - start_time;
