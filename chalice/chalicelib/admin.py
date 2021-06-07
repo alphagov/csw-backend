@@ -263,7 +263,7 @@ def delete_expired_audits():
         audit_cursor = db.execute_sql(select_expired_audit_ids)
         delete_statements = []
         for audit_row in audit_cursor.fetchall():
-            account_audit_id = audit_row["id"]
+            account_audit_id = audit_row[0]
             select_expired_resource_ids = f"""
                 SELECT id
                 FROM public.audit_resource
@@ -271,7 +271,7 @@ def delete_expired_audits():
                 """
             resource_cursor = db.execute_sql(select_expired_resource_ids)
             for resource_row in resource_cursor.fetchall():
-                resource_id = resource_row["id"]
+                resource_id = resource_row[0]
                 delete_compliance = f"""
                     DELETE
                     FROM public.resource_compliance
