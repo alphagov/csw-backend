@@ -296,9 +296,10 @@ def delete_expired_audits():
                 WHERE id = {account_audit_id};
                 """
             delete_statements.append(delete_audit)
-            app.log.debug(f"Running " + len(delete_statements) + " deletes");
+            app.log.debug(f"Running {len(delete_statements)} deletes");
             dbh.execute_commands(delete_statements, "csw")
             deleted_audits += 1
+            app.log.debug(f"Deleted {deleted_audits} audits so far");
             elapsed_time = time() - start_time;
 
             if elapsed_time > execution_limit:
