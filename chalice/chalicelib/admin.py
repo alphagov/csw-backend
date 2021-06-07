@@ -277,21 +277,21 @@ def delete_expired_audits():
                     FROM public.resource_compliance
                     WHERE audit_resource_id = {resource_id};
                     """
-                delete_statements.push(delete_compliance)
+                delete_statements.append(delete_compliance)
 
             delete_resource = f"""
                 DELETE
                 FROM public.audit_resource
                 WHERE account_audit_id = {account_audit_id};
                 """
-            delete_statements.push(delete_resource)
+            delete_statements.append(delete_resource)
 
             delete_audit = f"""
                 DELETE
                 FROM public.account_audit
                 WHERE id = {id};
                 """
-            delete_statements.push(delete_audit)
+            delete_statements.append(delete_audit)
             dbh.execute_commands(delete_statements, "csw")
             deleted_audits += 1
             elapsed_time = time() - start_time;
