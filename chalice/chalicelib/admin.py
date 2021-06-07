@@ -300,9 +300,7 @@ def delete_expired_audits():
         status = 1
     except Exception as err:
         status = 0
-        app.log.error(
-            err.get("message")
-        )
+        app.log.error(str(err))
     return {"status": status, "deleted_audits": deleted_audits}
 
 
