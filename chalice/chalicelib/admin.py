@@ -250,6 +250,7 @@ def delete_expired_audits():
     commands = []
     try:
         dbh = DatabaseHandle(app)
+        db = dbh.get_handle()
         app.log.debug(f"Listing oldest records")
 
         select_expired_audit_ids = f"""
@@ -259,7 +260,7 @@ def delete_expired_audits():
             ORDER BY id
             LIMIT {remove_count} OFFSET 0;
             """
-        audit_cursor = dbh.execute_sql(select_expired_audit_ids)
+        audit_cursor = db.execute_sql(select_expired_audit_ids)
         delete_statements = []
         for audit_row in audit_cursor.fetchall():
             account_audit_id = audit_row["id"]
@@ -268,7 +269,7 @@ def delete_expired_audits():
                 FROM public.audit_resource
                 WHERE account_audit_id = {id};
                 """
-            resource_cursor = dbh.execute_sql(select_expired_resource_ids)
+            resource_cursor = db.execute_sql(select_expired_resource_ids)
             for resource_row in resource_cursor.fetchall():
                 resource_id = resource_row["id"]
                 delete_compliance = f"""
