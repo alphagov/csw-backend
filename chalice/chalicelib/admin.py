@@ -323,6 +323,6 @@ def manual_delete_expired_audits(event, context):
     return delete_expired_audits()
 
 
-@app.schedule(Rate(24, unit=Rate.HOURS))
+@app.schedule(Rate(1, unit=Rate.HOURS))
 def scheduled_delete_expired_audits(event):
     return delete_expired_audits()
