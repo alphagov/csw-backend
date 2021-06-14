@@ -376,13 +376,13 @@ var helpers = {
     file,
     output_file
   ) {
-    var payload_string = JSON.stringify(payload);
+    var payload_arg = (payload)
+      ? " --payload '" + JSON.stringify(payload) + "'"
+      : " "
     var task =
       "aws lambda invoke --function-name " +
       function_name +
-      " --payload '" +
-      payload_string +
-      "' " +
+      payload_arg +
       output_file;
 
     return this.runTaskInPipelinePromise(task, directory, file);
