@@ -9,3 +9,4 @@ jinja2==2.10.1
 webassets==0.12.1
 PyJWT==1.7.1
 netaddr==0.7.19
+urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
