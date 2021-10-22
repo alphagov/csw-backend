@@ -246,7 +246,7 @@ def delete_expired_audits():
     deleted_audits = 0
     remove_count = 100
     # keep 1 year
-    time_limit_days = 365
+    time_limit_days = 95
     # run for 4 minutes
     # (lambda timeout is set to 5)
     execution_limit = 240
