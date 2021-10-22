@@ -297,6 +297,13 @@ def delete_expired_audits():
                 """
             delete_statements.append(delete_criterion)
 
+            delete_latest_audit = f"""
+                DELETE
+                FROM public.account_latest_audit
+                WHERE account_audit_id = {account_audit_id};
+                """
+            delete_statements.append(delete_latest_audit)
+
             delete_audit = f"""
                 DELETE
                 FROM public.account_audit
