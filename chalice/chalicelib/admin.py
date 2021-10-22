@@ -246,7 +246,7 @@ def delete_expired_audits():
     deleted_audits = 0
     remove_count = 100
     # keep 1 year
-    time_limit_days = 95
+    time_limit_days = 365
     # run for 4 minutes
     # (lambda timeout is set to 5)
     execution_limit = 240
@@ -259,7 +259,7 @@ def delete_expired_audits():
         select_expired_audit_ids = f"""
             SELECT id
             FROM public.account_audit AS all_audits
-            WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_completed) > {time_limit_days}
+            WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_updated) > {time_limit_days}
             ORDER BY id
             LIMIT {remove_count} OFFSET 0;
             """
@@ -330,6 +330,6 @@ def manual_delete_expired_audits(event, context):
     return delete_expired_audits()
 
 
-@app.schedule(Rate(15, unit=Rate.MINUTES))
+@app.schedule(Rate(5, unit=Rate.MINUTES))
 def scheduled_delete_expired_audits(event):
     return delete_expired_audits()
