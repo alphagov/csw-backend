@@ -245,8 +245,8 @@ def delete_expired_audits():
     status = 0
     deleted_audits = 0
     remove_count = 100
-    # keep 1 year
-    time_limit_days = 365
+    # keep 6 months
+    time_limit_days = 183 
     # run for 4 minutes
     # (lambda timeout is set to 5)
     execution_limit = 240
@@ -259,7 +259,7 @@ def delete_expired_audits():
         select_expired_audit_ids = f"""
             SELECT id
             FROM public.account_audit AS all_audits
-            WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_completed) > {time_limit_days}
+            WHERE DATE_PART('day', CURRENT_TIMESTAMP - all_audits.date_updated) > {time_limit_days}
             ORDER BY id
             LIMIT {remove_count} OFFSET 0;
             """
@@ -267,21 +267,17 @@ def delete_expired_audits():
         delete_statements = []
         for audit_row in audit_cursor.fetchall():
             account_audit_id = audit_row[0]
-            select_expired_resource_ids = f"""
-                SELECT id
-                FROM public.audit_resource
-                WHERE account_audit_id = {account_audit_id};
-                """
-            resource_cursor = db.execute_sql(select_expired_resource_ids)
             app.log.debug(f"Deleting audit: {account_audit_id}")
-            for resource_row in resource_cursor.fetchall():
-                resource_id = resource_row[0]
-                delete_compliance = f"""
-                    DELETE
-                    FROM public.resource_compliance
-                    WHERE audit_resource_id = {resource_id};
-                    """
-                delete_statements.append(delete_compliance)
+            delete_compliance = f"""
+                DELETE
+                FROM public.resource_compliance
+                WHERE audit_resource_id IN (
+                    SELECT id
+                    FROM public.audit_resource
+                    WHERE account_audit_id = {account_audit_id}
+                );
+                """
+            delete_statements.append(delete_compliance)
 
             delete_resource = f"""
                 DELETE
@@ -296,6 +292,13 @@ def delete_expired_audits():
                 WHERE account_audit_id = {account_audit_id};
                 """
             delete_statements.append(delete_criterion)
+
+            delete_latest_audit = f"""
+                DELETE
+                FROM public.account_latest_audit
+                WHERE account_audit_id = {account_audit_id};
+                """
+            delete_statements.append(delete_latest_audit)
 
             delete_audit = f"""
                 DELETE
@@ -323,6 +326,6 @@ def manual_delete_expired_audits(event, context):
     return delete_expired_audits()
 
 
-@app.schedule(Rate(15, unit=Rate.MINUTES))
+@app.schedule(Rate(5, unit=Rate.MINUTES))
 def scheduled_delete_expired_audits(event):
     return delete_expired_audits()

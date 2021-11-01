@@ -1002,11 +1002,24 @@ def logout():
 def statistics_route():
     load_route_services()
     try:
-        days = 14
-        now = datetime.datetime.now()
-        days_ago = now - datetime.timedelta(days=days)
-
         template_data = {}
+        template_data["tab"] = "about"
+
+        response = app.templates.render_authorized_template(
+            "stats.html", app.current_request, template_data
+        )
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route("/statistics/current")
+def statistics_current_route():
+    load_route_services()
+    try:
+        template_data = {}
+        template_data["tab"] = "current"
         template_data["current"] = {}
         current_summary = models.CurrentSummaryStats.select()
         template_data["current"]["summary"] = models.CurrentSummaryStats.serialize_list(
@@ -1016,23 +1029,25 @@ def statistics_route():
         template_data["current"]["account"] = models.CurrentAccountStats.serialize_list(
             current_accounts
         )
+        response = app.templates.render_authorized_template(
+            "stats.html", app.current_request, template_data
+        )
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
+
+
+@app.route("/statistics/daily")
+def statistics_daily_route():
+    load_route_services()
+    try:
+        template_data = {}
+        template_data["tab"] = "daily"
         template_data["daily"] = {}
-        daily_summary = (
-            models.DailySummaryStats.select()
-            .where(models.DailySummaryStats.audit_date > days_ago)
-            .order_by(models.DailySummaryStats.audit_date.desc())
-        )
-        template_data["daily"]["summary"] = models.DailySummaryStats.serialize_list(
-            daily_summary
-        )
-        daily_deltas = (
-            models.DailyDeltaStats.select()
-            .where(models.DailyDeltaStats.audit_date > days_ago)
-            .order_by(models.DailyDeltaStats.audit_date.desc())
-        )
-        template_data["daily"]["deltas"] = models.DailyDeltaStats.serialize_list(
-            daily_deltas
-        )
+        days = 14
+        now = datetime.datetime.now()
+        days_ago = now - datetime.timedelta(days=days)
 
         daily_resource_count = (
             models.DailyResourceCount.select()
@@ -1042,7 +1057,20 @@ def statistics_route():
         template_data["daily"]["resource_status"] = models.DailyResourceCount.serialize_list(
             daily_resource_count
         )
+        response = app.templates.render_authorized_template(
+            "stats.html", app.current_request, template_data
+        )
+    except Exception as err:
+        app.log.error("Route: check allowlist error: " + str(err))
+        response = app.templates.default_server_error()
+    return Response(**response)
 
+@app.route("/statistics/monthly")
+def statistics_monthly_route():
+    load_route_services()
+    try:
+        template_data = {}
+        template_data["tab"] = "monthly"
         template_data["monthly"] = {}
         monthly_summary = models.MonthlySummaryStats.select().order_by(
             models.MonthlySummaryStats.audit_year.desc(),
@@ -1071,14 +1099,6 @@ def statistics_route():
         response = app.templates.render_authorized_template(
             "stats.html", app.current_request, template_data
         )
-        # data = app.utilities.to_json(template_data, True)
-        # response = app.templates.render_authorized_template(
-        #     'debug.html',
-        #     app.current_request,
-        #     {
-        #         "json": data
-        #     }
-        # )
 
     except Exception as err:
         app.log.error("Route: check allowlist error: " + str(err))

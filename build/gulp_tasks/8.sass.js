@@ -4,7 +4,7 @@
     compiled CSS to deployed chalicelib folder
  */
 var gulp = require("gulp");
-var sass = require("gulp-sass");
+var sass = require('gulp-sass')(require('node-sass'));
 
 gulp.task("sass.gov", function() {
   return gulp
