@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "c3": "^0.7.20",
-    "express": "^4.16.1",
+    "express": "^4.17.3",
     "fernet": "^0.4.0",
     "govuk-frontend": "^3.14.0",
     "node-schedule": "^2.0.0",
