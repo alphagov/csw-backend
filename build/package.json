@@ -27,7 +27,7 @@
     "gulp-modify-file": "^1.0.1",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.0.0",
-    "node-sass": "^6.0.1",
+    "node-sass": "^9.0.0",
     "pe-charts": "git+https://github.com/alphagov/pe-charts#main",
     "prompt-input": "^3.0.0",
     "randomstring": "^1.2.1",
